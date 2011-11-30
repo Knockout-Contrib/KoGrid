@@ -25,12 +25,7 @@
 
                     for (prop in src) {
                         if (src.hasOwnProperty(prop)) {
-
-                            if (ko.isObservable(target[prop])) {
-                                target[prop](src[prop]); //set it through the setter function
-                            } else {
-                                target[prop] = src[prop];
-                            }
+                            target[prop] = src[prop];
                         }
                     }
                     //decrement counter
@@ -44,12 +39,7 @@
 
                 for (prop in target) {
                     if (target.hasOwnProperty(prop) && src.hasOwnProperty(prop)) {
-
-                        if (ko.isObservable(target[prop])) {
-                            target[prop](src[prop]); //set it through the setter function
-                        } else {
-                            target[prop] = src[prop];
-                        }
+                        target[prop] = src[prop];
                     }
                 }
 
@@ -93,21 +83,27 @@
         this.endRow = ko.observable(200);
 
         this.itemSource = ko.observableArray([]);
-        this.viewableItemSource = ko.dependentObservable(function () {
-            return _this.itemSource.slice(_this.startRow(), _this.endRow());
-        });
+
+
+        var registerDependantObservables = function () {
+
+            this.viewableItemSource = ko.dependentObservable(function () {
+                return _this.itemSource.slice(_this.startRow(), _this.endRow());
+            });
+
+        };
 
         this.init(options);
+        registerDependantObservables();
     };
     kg.KnockoutGrid.prototype = new baseObj();
 
     ko.bindingHandlers['koGrid'] = {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var options = ko.utils.unwrapObservable(valueAccessor()),
-                newBindingContext,
-                grid;
+            var options = ko.utils.unwrapObservable(valueAccessor());
 
-            grid = new kg.KnockoutGrid(options);
+
+            //grid = new kg.KnockoutGrid(options);
 
             var viewer = document.createElement('DIV');
             var container = document.createElement('DIV');
@@ -133,18 +129,9 @@
 
             element.appendChild(container);
 
-            var el = document.getElementById('rowHolder');
+            //newBindingContext = bindingContext.createChildContext(grid);
 
-            //container.onscroll = onScroll;
-            ko.utils.registerEventHandler(el, 'scroll', function (evt) {
-                var sender = evt.target;
-                var something = evt;
-                console.log(evt);
-            });
-
-            newBindingContext = bindingContext.createChildContext(grid);
-
-            return ko.bindingHandlers['with'].init(element, ko.bindingHandlers.koGrid.makeValueAccessor(grid), allBindingsAccessor, viewModel, newBindingContext);
+            return ko.bindingHandlers['with'].init(element, valueAccessor, allBindingsAccessor);
 
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -152,7 +139,17 @@
                 grid = new kg.KnockoutGrid(options);
             var newBindingContext = bindingContext.createChildContext(grid);
 
-            return ko.bindingHandlers['with'].update(element, ko.bindingHandlers.koGrid.makeValueAccessor(grid), allBindingsAccessor, viewModel, bindingContext);
+            var retVal = ko.bindingHandlers['with'].update(element, ko.bindingHandlers.koGrid.makeValueAccessor(grid), allBindingsAccessor, viewModel, bindingContext);
+
+            var el = document.getElementById('rowHolder');
+
+            ko.utils.registerEventHandler(el, 'scroll', function (evt) {
+                var sender = evt.target;
+                var something = evt;
+                console.log(evt);
+            });
+
+            return retVal;
         },
         'makeValueAccessor': function (grid) {
             return function () {

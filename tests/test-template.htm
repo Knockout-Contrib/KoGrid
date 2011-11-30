@@ -18,14 +18,7 @@
 	<ol id="qunit-tests"></ol>
 	<div id="qunit-fixture">test markup</div>
 	
-    <div id="testDiv" style="height:200px; width: 200px; overflow: auto;" >
-        <p style="height: 600px; width: 400px;">
-            Hi there
-        </p>
-    </div>
-    <br />
-    <div data-bind="koGrid: { itemSource: testData }" >
-       
+    <div id="testDiv" data-bind="koGrid: { itemSource: testData }">
     </div>
 
     <script type="text/javascript" language="javascript">
@@ -34,19 +27,11 @@
 
             ko.applyBindings({ testData: window.testData });
 
-            var ct = document.getElementById('rowHolder').childNodes.length;
+            var ct = document.getElementById('rowHolder');
+            ct = ct.childNodes.length;
 
             ok(ct > 0, 'rendered rows');
-        });
-
-        var el = document.getElementById('testDiv');
-        ko.utils.registerEventHandler(el, 'click', function (evt) {
-            alert('Damnit finally' + evt + ' ');
-        });
-        ko.utils.registerEventHandler(el, 'scroll', function (evt) {
-            alert('Damnit finally' + evt + ' ');
-        });
-           	
+        });	
 	</script>
 <!--     <div id='rowHolder' data-bind="foreach: viewableItemSource" style="height: 200px; width: 200px; overflow:auto;" >
             <div data-bind="text: Sku" style="float:left;"></div>
