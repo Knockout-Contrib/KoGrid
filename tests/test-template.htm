@@ -18,7 +18,46 @@
 	<ol id="qunit-tests"></ol>
 	<div id="qunit-fixture">test markup</div>
 	
-    <div id="testDiv" data-bind="koGrid: { itemSource: testData }">
+    <style type="text/css">
+        #headerContainer
+        {
+            background-color: Gray;
+            position: relative;
+            height: 25px;
+        }
+        
+        #viewport 
+        {
+            overflow: auto;
+            position: relative;
+            height: inherit;
+        }
+        
+        .koGridHeaderCell
+        {
+            border: thin solid black;
+        }
+        
+        .koGridCell
+        {
+            border-right: thin gray solid;
+            border-bottom: thin gray solid;
+        }
+    </style>
+
+    <div id="gridDiv" data-bind="koGrid: { itemSource: testData }" style="height: 500px; width: 700px;">        
+        <div id="headerContainer" data-bind="koGridHeader: headers">
+            <div id="headerCellWrapper" data-bind="koGridHeaderCellWrapper: $data">
+                <div id="headerCellTemplate" data-bind="text: displayName"></div>
+            </div>
+        </div>
+        <div id="viewport" data-bind="koGridViewPort: viewport">
+            <div id="rowholder" data-bind="koGridRows: rows">
+                <div id="rowTemplate" data-bind="koGridRow: $data">
+                    <div id="cellTemplate" data-bind="koGridCell: $data"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="text/javascript" language="javascript">
@@ -27,7 +66,7 @@
 
             ko.applyBindings({ testData: window.testData });
 
-            var ct = document.getElementById('rowHolder');
+            var ct = document.getElementById('headerContainer');
             ct = ct.childNodes.length;
 
             ok(ct > 0, 'rendered rows');
