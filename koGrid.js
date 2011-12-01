@@ -277,6 +277,31 @@
         this.endRow(newEnd - 1); //zero based array
     };
 
+    kg.renderingEngine = (function () {
+
+        return {
+            'renderRow': function (element, row, grid) {
+                element.style.position = "absolute";
+                element.style.top = row.offsetTop() + 'px';
+                element.style.height = row.height() + 'px';
+
+                utils.each(row.cells, function (i, item) {
+                    var cellEl = document.createElement('DIV');
+                    cellEl.setAttribute("data-bind", "koGridCell: $data.cells()[" + i + "]");
+                    element.appendChild(cellEl);
+                });
+            },
+            'renderCell': function (element, cell, grid) {
+                element.style.position = "absolute";
+                element.style.left = cell.column.offsetLeft() + 'px';
+                element.style.width = cell.column.width() + 'px';
+                element.style.height = cell.row.height() + 'px';
+                element.className = "koGridCell";
+            }
+        };
+    } ());
+
+
     ko.bindingHandlers['koGrid'] = {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
@@ -348,21 +373,16 @@
 
     ko.bindingHandlers['koGridRow'] = {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-            return ko.bindingHandlers['foreach'].init(element, valueAccessor, allBindingsAccessor);
+            var row = ko.utils.unwrapObservable(valueAccessor());
+            kg.renderingEngine.renderRow(element, row, bindingContext.$data);
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
-            var row = ko.utils.unwrapObservable(valueAccessor()),
-                newValueAccessor = function () {
-                    return row.cells;
-                };
-
-            element.style.position = "absolute";
-            element.style.top = row.offsetTop() + 'px';
-            element.style.height = row.height() + 'px';
-
-            return ko.bindingHandlers['foreach'].update(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
+//            var row = ko.utils.unwrapObservable(valueAccessor()),
+//                newValueAccessor = function () {
+//                    return row.cells;
+//                };
+//            return ko.bindingHandlers['foreach'].update(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
         }
     };
 
@@ -376,11 +396,7 @@
                     return cell.data() || '';
                 };
 
-            element.style.position = "absolute";
-            element.style.left = cell.column.offsetLeft() + 'px';
-            element.style.width = cell.column.width() + 'px';
-            element.style.height = cell.row.height() + 'px';
-            element.className = "koGridCell";
+            kg.renderingEngine.renderCell(element, cell, bindingContext.$data);
 
             return ko.bindingHandlers['text'].update(element, newValueAccessor);
         }
