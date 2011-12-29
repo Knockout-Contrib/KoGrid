@@ -1,0 +1,9 @@
+﻿/* Default style for the po.poGrid control */
+.es-grid { margin-bottom: 1em; width: 25em; border: 1px solid silver; background-color:White; }
+.es-grid th { text-align:left; background-color: Black; color:White; }
+.es-grid tfoot { text-align:left; background-color: Black; color:White; }
+.es-grid td, th { padding: 0.4em; }
+.es-grid tr.odd { background-color: #DDD; }
+.es-grid-pageLinks { margin-bottom: 1em; }
+.es-grid-pageLinks a { padding: 0.5em; }
+.es-grid-pageLinks a.selected { background-color: Black; color: White; }      

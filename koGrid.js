@@ -152,15 +152,15 @@
         this.prevScrollTop = 0;
         this.lastScrollOn = new Date().getTime();
 
-        this.scrollTop = ko.observable(0).extend({ throttle: 20 });
+        this.scrollTop = ko.observable(0);//.extend({ throttle: 20 });
         this.scrollTop.subscribe(function (newValue) {
             _this.adjustRows(newValue);
         });
 
         this.rowHeight = ko.observable(35);
 
-        this.startRow = ko.observable(0).extend({ throttle: 0 });
-        this.endRow = ko.observable(30).extend({ throttle: 0 });
+        this.startRow = ko.observable(0);//.extend({ throttle: 0 });
+        this.endRow = ko.observable(30);//.extend({ throttle: 0 });
         this.itemSource = ko.observableArray([]);
 
         this.columns = ko.observableArray([]);
@@ -191,14 +191,14 @@
             });
         };
 
-        this.rowsBindingContext = ko.observable({ topIndex: 0, bottomIndex: 30 }).extend({ throttle: 20 });
+        this.rowsBindingContext = ko.observable({ topIndex: 0, bottomIndex: 30 });//.extend({ throttle: 20 });
         this.rowsBindingContext.subscribe(function (newValue) {
-            if (_this.viewableRowsHaveChanged(newValue)) {
+            //if (_this.viewableRowsHaveChanged(newValue)) {
                 _this.prevTopIndex = currentTopIndex;
                 _this.prevBottomIndex = currentBottomIndex;
                 currentTopIndex = newValue.topIndex;
                 currentBottomIndex = newValue.bottomIndex;
-            }
+            //}
         });
         this.rowCache = {};
         this.renderedRowElementCache = {};
@@ -495,7 +495,7 @@
                 newRows = [];
 
             //if change is more than 5
-            if (grid.viewableRowsHaveChanged()) {
+            //if (grid.viewableRowsHaveChanged()) {
 
                 isScrollDown = (grid.prevTopIndex < rowsBindingContext.topIndex);
 
@@ -520,7 +520,7 @@
 
                 //remove old rows
                 grid.removeRows(removeIndexStart, removeIndexStop);
-            }
+            //}
         }
     };
 
