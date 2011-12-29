@@ -1,0 +1,2 @@
+﻿
+var kg = window['kg'] = {};
