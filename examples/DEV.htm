@@ -9,8 +9,17 @@
 </head>
 <body>
     <div id="sandbox1">
-        <div id="myGrid" data-bind="koGrid: { data: testData }"></div>
+        <div id="myGrid" data-bind="koGrid: { data: testData }" style="height: 300px; width: 400px;"></div>
     </div>
+    <script type="text/html" id="koGridRowTemplate">
+        <div data-bind="koGridRow: $data">
+            <div data-bind="koGridCell: { value: 'Sku' } "></div>
+            <div data-bind="koGridCell: { value: 'Vendor' } "></div>
+            <div data-bind="koGridCell: { value: 'SeasonCode' } "></div>
+            <div data-bind="koGridCell: { value: 'Mfg_Id' } "></div>
+            <div data-bind="koGridCell: { value: 'UPC' } "></div>
+        </div>
+    </script>
 </body>
 <script type="text/javascript">
     $(function () {

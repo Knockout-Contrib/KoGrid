@@ -6,7 +6,7 @@ kg.KoGrid = function (options) {
         rowHeight: 25,
         columnWidth: 80,
         headerRowHeight: 35,
-        rowTemplate: null,
+        rowTemplate: 'koGridRowTemplate',
         headerTemplate: null,
         footerTemplate: null,
         gridCssClass: 'koGrid',
@@ -36,7 +36,10 @@ kg.KoGrid = function (options) {
         //TODO: build out filtering
         return self.data();
     });
-
+    this.maxRows = ko.computed(function () {
+        rows = self.filteredData();
+        return rows.length || 0;
+    });
 
     this.columns = new kg.ColumnCollection();
 
@@ -57,7 +60,7 @@ kg.KoGrid = function (options) {
         $viewport = $('<div class="kgViewport" style="overflow: auto;"></div>').appendTo($root);
 
         //Canvas
-        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: $data"></div>').appendTo($viewport);
+        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: nonRenderedRows"></div>').appendTo($viewport);
 
         //Footers
         $footerContainer = $('<div class="kgFooterContainer"></div>').appendTo($root);
@@ -65,9 +68,9 @@ kg.KoGrid = function (options) {
 
     var measureDomConstraints = function () {
 
-        viewportH = $viewport.height();
-        viewportW = $viewport.width();
-
+        viewportH = $root.height() - 35;
+        viewportW = $root.width();
+        $viewport.height(viewportH);
     };
 
     var calculateConstraints = function () {
@@ -112,7 +115,7 @@ kg.KoGrid = function (options) {
     var buildHeaders = function () {
 
         $headers = $('<div class="kgHeaderRow"></div>').appendTo($headerContainer);
-
+        $headers.height(config.headerRowHeight);
         utils.forEach(self.columns(), function (col, i) {
 
             $('<div></div>').text(col.field)
@@ -132,11 +135,12 @@ kg.KoGrid = function (options) {
         buildColumns();
         buildHeaders();
 
-        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas);
+        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas, config);
         self.rowManager.minViewportRows = minRowsToRender;
-        self.rowManager.rowHeight = config.rowHeight;
 
         self.rows = self.rowManager.rows; // dependent observable
+        self.nonRenderedRows = self.rowManager.nonRenderedRows;
 
+        self.rowManager.viewableRange(new kg.Range(0, minRowsToRender));
     };
 };

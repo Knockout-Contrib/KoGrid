@@ -19,6 +19,7 @@
             cell.offsetLeft(col.offsetLeft);
 
             cells.push(cell);
+            row.cellMap[col.field] = cell;
 
         }
         row.cells(cells);

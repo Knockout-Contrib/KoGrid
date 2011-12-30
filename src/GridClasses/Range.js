@@ -1,4 +1,4 @@
-﻿kg.Range = function (top, bottom) {
+﻿kg.Range = function (bottom, top) {
     this.topRow = top;
     this.bottomRow = bottom;
 };

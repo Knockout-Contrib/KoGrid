@@ -12,3 +12,5 @@
 ..\Src\KoGrid.js
 ..\Src\BindingHandlers\koGridBindingHandler.js
 ..\Src\BindingHandlers\koGridRowsBindingHandler.js
+..\Src\BindingHandlers\koGridRowBindingHandler.js
+..\Src\BindingHandlers\koGridCellBindingHandler.js

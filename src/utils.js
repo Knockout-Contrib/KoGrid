@@ -21,4 +21,12 @@
     }
 };
 
+utils.newId = (function () {
+    var seedId = new Date().getTime();
+
+    return function () {
+        return seedId += 1;
+    };
+} ());
+
 kg.utils = utils;

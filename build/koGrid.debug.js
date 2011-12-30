@@ -46,6 +46,14 @@ var kg = window['kg'] = {};
     }
 };
 
+utils.newId = (function () {
+    var seedId = new Date().getTime();
+
+    return function () {
+        return seedId += 1;
+    };
+} ());
+
 kg.utils = utils; 
  
  
@@ -93,6 +101,7 @@ kg.ColumnCollection.fn = {
 ﻿kg.Row = function () {
     this.entity = ko.observable();
     this.cells = ko.observableArray([]);
+    this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
     this.height = ko.observable(0);
@@ -102,7 +111,7 @@ kg.ColumnCollection.fn = {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\Range.js 
 ***********************************************/ 
-﻿kg.Range = function (top, bottom) {
+﻿kg.Range = function (bottom, top) {
     this.topRow = top;
     this.bottomRow = bottom;
 }; 
@@ -132,6 +141,7 @@ kg.ColumnCollection.fn = {
             cell.offsetLeft(col.offsetLeft);
 
             cells.push(cell);
+            row.cellMap[col.field] = cell;
 
         }
         row.cells(cells);
@@ -143,18 +153,19 @@ kg.ColumnCollection.fn = {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\RowManager.js 
 ***********************************************/ 
-﻿kg.RowManager = function (cols, dataSource, canvas) {
+﻿kg.RowManager = function (cols, dataSource, canvas, config) {
     var self = this,
         rowCache = {},
-        rowElCache = [], //yes, an array
         maxRows = dataSource().length;
 
     this.colCache = cols;
+    this.rowElCache = [];
     this.$canvas = canvas;
+    this.rowTemplateId = config.rowTemplate;
     this.dataSource = dataSource; //observable
     this.minViewportRows = 0;
     this.excessRows = 5;
-    this.rowHeight = 25;
+    this.rowHeight = config.rowHeight;
     this.cellFactory = new kg.CellFactory(cols);
     this.viewableRange = ko.observable(new kg.Range(0, 1));
     this.renderedRange = ko.computed(function () {
@@ -191,50 +202,6 @@ kg.ColumnCollection.fn = {
         return row;
     };
 
-    var appendRow = function (row) {
-        var rowEl;
-
-        if (!rowElCache[row.rowIndex]) {
-
-            rowEl = document.createElement('DIV');
-
-            rowEl.style = "position: absolute;";
-            rowEl.height = row.height();
-            rowEl.top = row.offsetTop;
-
-            rowEl.innerHTML = '<span>Hi</span>';
-            rowElCache[row.rowIndex] = rowEl;
-            self.$canvas[0].appendChild(rowEl);
-        }
-    };
-
-    var cleanupCanvas = function () {
-        var rg = self.renderedRange(),
-            rowEl,
-            len = rowElCache.length,
-            i = 0;
-
-        while (i < rg.bottomRow) {
-
-            rowEl = rowElCache[i];
-            if (rowEl) {
-                ko.utils.domNodeDisposal.removeNode(rowEl);
-            }
-            i++;
-        }
-
-        i = rg.topRow++;
-
-        while (i < len) {
-
-            rowEl = rowElCache[i];
-            if (rowEl) {
-                ko.utils.domNodeDisposal.removeNode(rowEl);
-            }
-            i++;
-        }
-    };
-
     //Very special - when this fires, it also renders the DOM elements
     this.rows = ko.computed(function () {
         var rg = self.renderedRange(),
@@ -242,18 +209,20 @@ kg.ColumnCollection.fn = {
             row,
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
-        cleanupCanvas();
 
         utils.forEach(dataArr, function (item, i) {
             row = buildRowFromEntity(item, rg.bottomRow + i);
-            appendRow(row);
             rowArr.push(row);
         });
-
 
         return rowArr;
     });
 
+    this.nonRenderedRows = ko.computed(function () {
+        return ko.utils.arrayFilter(self.rows(), function (row) {
+            return !self.rowElCache[row.rowIndex];
+        });
+    });
 
 }; 
  
@@ -269,7 +238,7 @@ kg.KoGrid = function (options) {
         rowHeight: 25,
         columnWidth: 80,
         headerRowHeight: 35,
-        rowTemplate: null,
+        rowTemplate: 'koGridRowTemplate',
         headerTemplate: null,
         footerTemplate: null,
         gridCssClass: 'koGrid',
@@ -299,7 +268,10 @@ kg.KoGrid = function (options) {
         //TODO: build out filtering
         return self.data();
     });
-
+    this.maxRows = ko.computed(function () {
+        rows = self.filteredData();
+        return rows.length || 0;
+    });
 
     this.columns = new kg.ColumnCollection();
 
@@ -320,7 +292,7 @@ kg.KoGrid = function (options) {
         $viewport = $('<div class="kgViewport" style="overflow: auto;"></div>').appendTo($root);
 
         //Canvas
-        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: $data"></div>').appendTo($viewport);
+        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: nonRenderedRows"></div>').appendTo($viewport);
 
         //Footers
         $footerContainer = $('<div class="kgFooterContainer"></div>').appendTo($root);
@@ -328,9 +300,9 @@ kg.KoGrid = function (options) {
 
     var measureDomConstraints = function () {
 
-        viewportH = $viewport.height();
-        viewportW = $viewport.width();
-
+        viewportH = $root.height() - 35;
+        viewportW = $root.width();
+        $viewport.height(viewportH);
     };
 
     var calculateConstraints = function () {
@@ -375,7 +347,7 @@ kg.KoGrid = function (options) {
     var buildHeaders = function () {
 
         $headers = $('<div class="kgHeaderRow"></div>').appendTo($headerContainer);
-
+        $headers.height(config.headerRowHeight);
         utils.forEach(self.columns(), function (col, i) {
 
             $('<div></div>').text(col.field)
@@ -395,12 +367,13 @@ kg.KoGrid = function (options) {
         buildColumns();
         buildHeaders();
 
-        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas);
+        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas, config);
         self.rowManager.minViewportRows = minRowsToRender;
-        self.rowManager.rowHeight = config.rowHeight;
 
         self.rows = self.rowManager.rows; // dependent observable
+        self.nonRenderedRows = self.rowManager.nonRenderedRows;
 
+        self.rowManager.viewableRange(new kg.Range(0, minRowsToRender));
     };
 }; 
  
@@ -412,17 +385,49 @@ kg.KoGrid = function (options) {
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['koGrid'] = (function () {
+    var gridCache = {};
+
+    var makeNewValueAccessor = function (grid) {
+        return function () {
+            return grid;
+        };
+    };
+
+    var makeNewBindingContext = function (bindingContext, grid) {
+        return bindingContext.createChildContext(grid);
+    };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var grid = new kg.KoGrid(valueAccessor()),
+                returnVal,
+                gridId;
 
-            var grid = new kg.KoGrid(valueAccessor());
+            gridId = kg.utils.newId();
+            element['__koGrid__'] = gridId;
 
             grid.init(element);
 
+            gridCache[gridId] = grid;
+
+            returnVal = ko.bindingHandlers['with'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+
+            return returnVal;
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var grid,
+                returnVal,
+                gridId;
 
+            gridId = element['__koGrid__'];
+
+            if (gridId) {
+
+                grid = gridCache[gridId];
+
+                returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+            }
+            return returnVal;
         }
     };
 
@@ -438,14 +443,119 @@ ko.bindingHandlers['koGrid'] = (function () {
 
 ko.bindingHandlers['koGridRows'] = (function () {
 
+    var cleanupCanvas = function (rowManager) {
+        var rg = rowManager.renderedRange(),
+            rowEl,
+            len = rowManager.rowElCache.length,
+            i = 0;
+
+        while (i < rg.bottomRow) {
+
+            rowEl = rowManager.rowElCache[i];
+            if (rowEl) {
+                ko.utils.domNodeDisposal.removeNode(rowEl);
+                delete rowManager.rowElCache[i];
+            }
+            i++;
+        }
+
+        i = rg.topRow;
+        i += 1;
+
+        while (i < len) {
+
+            rowEl = rowManager.rowElCache[i];
+            if (rowEl) {
+                ko.utils.domNodeDisposal.removeNode(rowEl);
+                delete rowManager.rowElCache[i];
+            }
+            i++;
+        }
+    };
+
+    var makeNewValueAccessor = function (rows, rowTemplateName) {
+        return function () {
+            return {
+                name: rowTemplateName,
+                foreach: rows
+            };
+        };
+    };
+
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
+            return { 'controlsDescendantBindings': true };
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var rowManager = bindingContext.$data.rowManager,
+                rows = ko.utils.unwrapObservable(valueAccessor());
+
+            cleanupCanvas(rowManager);
+
+            element.style.height = (bindingContext.$data.maxRows() * rowManager.rowHeight) + 'px';
+
+            var newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
+
+            return ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+        }
+    };
+
+} ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\BindingHandlers\koGridRowBindingHandler.js 
+***********************************************/ 
+﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
+/// <reference path="../../lib/jquery-1.7.js" />
+
+ko.bindingHandlers['koGridRow'] = (function () {
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var val = valueAccessor(),
-                context = bindingContext;
+            var row = valueAccessor(),
+                rowManager = bindingContext.$parent.rowManager;
+
+            //style the element correctly:
+            element.style.position = "absolute";
+            element.style.height = row.height();
+            element.style.top = row.offsetTop + 'px';
+
+            rowManager.rowElCache[row.rowIndex] = element;
+        }
+    };
+
+} ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\BindingHandlers\koGridCellBindingHandler.js 
+***********************************************/ 
+﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
+/// <reference path="../../lib/jquery-1.7.js" />
+
+ko.bindingHandlers['koGridCell'] = (function () {
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var options = valueAccessor(),
+                cell,
+                row = bindingContext.$data;
+
+            //get the cell from the options
+            cell = row.cellMap[options.value];
+
+            //style the element correctly:
+            element.style.position = "absolute";
+            element.style.left = cell.offsetLeft() + 'px';
+            element.style.width = cell.width() + 'px';
+            element.className = "kgCell"
+            element.innerHTML = ko.utils.unwrapObservable(cell.data());
         }
     };
 
