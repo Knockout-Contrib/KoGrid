@@ -32,21 +32,11 @@ kg.KoGrid = function (options) {
         var allData;
         if(self.data){
             allData = self.data();
+            return allData.length
         }
-        return allData.length || 0;
+        return 0;
     }),
-    rowCache = {},
-
-    viewableRange = ko.observable(),
-    renderedRange = ko.computed(function () {
-        var rg = viewableRange();
-
-        rg.bottomRow = Math.max(0, rg.bottomRow - 10);
-        rg.topRow = Math.min(maxRows(), rg.topRow + 10);
-
-        return rg;
-    });
-
+    
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = config.data;
@@ -190,6 +180,6 @@ kg.KoGrid = function (options) {
         buildColumns();
         buildHeaders();
 
-        viewableRange(new Range(0, 20);
+        viewableRange(new Range(0, 20));
     };
 };

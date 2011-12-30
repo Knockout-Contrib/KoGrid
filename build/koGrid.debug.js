@@ -142,8 +142,9 @@ kg.KoGrid = function (options) {
         var allData;
         if(self.data){
             allData = self.data();
+            return allData.length
         }
-        return allData.length || 0;
+        return 0;
     }),
     rowCache = {},
 
@@ -300,7 +301,7 @@ kg.KoGrid = function (options) {
         buildColumns();
         buildHeaders();
 
-        viewableRange(new Range(0, 20);
+        viewableRange(new Range(0, 20));
     };
 }; 
  

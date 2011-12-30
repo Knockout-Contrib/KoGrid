@@ -6,6 +6,8 @@
 ..\Src\GridClasses\Column.js
 ..\Src\GridClasses\ColumnCollection.js
 ..\Src\GridClasses\Row.js
-..\Src\GridClasses\RowCollection.js
+..\Src\GridClasses\Range.js
+..\Src\GridClasses\CellFactory.js
+..\Src\GridClasses\RowManager.js
 ..\Src\KoGrid.js
 ..\Src\BindingHandlers\koGridBindingHandler.js
