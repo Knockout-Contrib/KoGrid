@@ -26,17 +26,8 @@ kg.KoGrid = function (options) {
     $footerContainer,
     $footers,
 
-    viewportH, viewportW,
-    minRowsToRender,
-    maxRows = ko.computed(function(){
-        var allData;
-        if(self.data){
-            allData = self.data();
-            return allData.length
-        }
-        return 0;
-    }),
-    
+    viewportH, viewportW;
+
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = config.data;
@@ -45,52 +36,13 @@ kg.KoGrid = function (options) {
         //TODO: build out filtering
         return self.data();
     });
-    
+
 
     this.columns = new kg.ColumnCollection();
-    this.rows = ko.computed(function () {
-        var rg = renderedRange(),
-            rowArr = [],
-            dataArr = self.filteredData().slice(rg.bottomRow, rg.topRow);
 
-        utils.forEach(dataArr, function (item, i) {
-            rowArr.push(buildRowFromEntity(item, rg.bottomRow + i));
-        });
-        return rowArr;
-    });
-
-    var buildRowFromEntity = function (entity, rowIndex) {
-        var row = rowCache[rowIndex];
-
-        if (!row) {
-
-            row = new kg.Row();
-            row.rowIndex = rowIndex;
-            row.height = config.rowHeight;
-            row.offsetTop = row.height * rowIndex;
-            row.entity(entity);
-
-            buildCellsFromRow(row);
-        }
-
-        return row;
-    };
-
-    var buildCellsFromRow = function (row) {
-        var cols = self.columns(),
-            cell;
-
-        utils.forEach(cols, function (col, i) {
-            cell = new kg.Cell();
-            cell.column = col;
-            cell.row = row;
-            cell.data(row.entity[col.field]);
-            cell.width(col.width());
-            cell.offsetLeft(col.offsetLeft());
-
-            row.cells.push(cell);
-        });
-    };
+    //initialized in the init method
+    this.rowManager;
+    this.rows;
 
     var buildDomStructure = function (rootDomNode) {
         $root = $(rootDomNode);
@@ -105,7 +57,7 @@ kg.KoGrid = function (options) {
         $viewport = $('<div class="kgViewport" style="overflow: auto;"></div>').appendTo($root);
 
         //Canvas
-        $canvas = $('<div class="kgCanvas" style="position: relative;"></div>').appendTo($viewport);
+        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: $data"></div>').appendTo($viewport);
 
         //Footers
         $footerContainer = $('<div class="kgFooterContainer"></div>').appendTo($root);
@@ -180,6 +132,11 @@ kg.KoGrid = function (options) {
         buildColumns();
         buildHeaders();
 
-        viewableRange(new Range(0, 20));
+        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas);
+        self.rowManager.minViewportRows = minRowsToRender;
+        self.rowManager.rowHeight = config.rowHeight;
+
+        self.rows = self.rowManager.rows; // dependent observable
+
     };
 };
