@@ -43,6 +43,8 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid = gridCache[gridId];
 
                 returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+
+                grid.registerEvents();
             }
             return returnVal;
         }

@@ -375,6 +375,16 @@ kg.KoGrid = function (options) {
 
         self.rowManager.viewableRange(new kg.Range(0, minRowsToRender));
     };
+
+    this.registerEvents = function () {
+        $viewport.scroll(handleScroll);
+    };
+
+    var handleScroll = function (e) {
+
+        var test = e;
+
+    };
 }; 
  
  
@@ -426,6 +436,8 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid = gridCache[gridId];
 
                 returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+
+                grid.registerEvents();
             }
             return returnVal;
         }

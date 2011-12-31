@@ -143,4 +143,14 @@ kg.KoGrid = function (options) {
 
         self.rowManager.viewableRange(new kg.Range(0, minRowsToRender));
     };
+
+    this.registerEvents = function () {
+        $viewport.scroll(handleScroll);
+    };
+
+    var handleScroll = function (e) {
+
+        var test = e;
+
+    };
 };
