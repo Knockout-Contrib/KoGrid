@@ -15,8 +15,7 @@ ko.bindingHandlers['koGrid'] = (function () {
     };
 
     var setupGridLayout = function (element) {
-        var html = document.getElementById('kgGridInnerTemplate').innerHTML;
-        $(element).empty().html(html);
+        $(element).empty().html(kg.defaultGridInnerTemplate());
     };
 
     return {

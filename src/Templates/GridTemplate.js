@@ -1,20 +1,14 @@
 ﻿kg.defaultGridInnerTemplate = function () {
-    var html = [];
-
-    html.push("<div class='kgHeaderContainer'>");
-    /**/html.push("<div class='kgHeaders'>");
-    /**/html.push("</div>");
-    html.push("</div>");
-
-    html.push("<div class='kgViewport'>");
-    /**/html.push("<div class='kgCanvas'>");
-    /**/html.push("</div>");
-    html.push("</div>");
-
-    html.push("<div class='kgFooterContainer'>");
-    /**/html.push("<div class='kgFooters'>");
-    /**/html.push("</div>");
-    html.push("</div>");
-
-    return html.join("");
+    return '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden">' +
+                '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data">' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgViewport" style="overflow: auto;">' +
+                '<div class="kgCanvas" data-bind="kgRows: $data.rows" style="position: relative">' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgFooterContainer" style="position: relative">' +
+                '<div class="kgFooters">' +
+                '</div>' +
+            '</div>';
 };

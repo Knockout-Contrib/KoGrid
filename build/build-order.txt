@@ -2,6 +2,9 @@
 ..\Src\constants.js
 ..\Src\core.js
 ..\Src\utils.js
+..\Src\Templates\GridTemplate.js
+..\Src\Templates\HeaderTemplate.js
+..\Src\Templates\RowTemplate.js
 ..\Src\GridClasses\Cell.js
 ..\Src\GridClasses\Column.js
 ..\Src\GridClasses\ColumnCollection.js
@@ -13,6 +16,7 @@
 ..\Src\GridClasses\RowManager.js
 ..\Src\KoGrid.js
 ..\Src\DomFormatters\kgDomFormatter.js
+..\Src\DomFormatters\CssBuilder.js
 ..\Src\BindingHandlers\koGridBindingHandler.js
 ..\Src\BindingHandlers\koGridRowsBindingHandler.js
 ..\Src\BindingHandlers\koGridRowBindingHandler.js

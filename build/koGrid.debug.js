@@ -58,6 +58,51 @@ kg.utils = utils;
  
  
 /*********************************************** 
+* FILE: ..\Src\Templates\GridTemplate.js 
+***********************************************/ 
+﻿kg.defaultGridInnerTemplate = function () {
+    return '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden">' +
+                '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data">' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgViewport" style="overflow: auto;">' +
+                '<div class="kgCanvas" data-bind="kgRows: $data.rows" style="position: relative">' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgFooterContainer" style="position: relative">' +
+                '<div class="kgFooters">' +
+                '</div>' +
+            '</div>';
+}; 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\Templates\HeaderTemplate.js 
+***********************************************/ 
+﻿kg.defaultHeaderTemplate = function () {
+    return '<div data-bind="kgHeader: { value: \'Sku\' } "></div>' +
+           '<div data-bind="kgHeader: { value: \'Vendor\' } "></div>' +
+           '<div data-bind="kgHeader: { value: \'SeasonCode\' } "></div>' +
+           '<div data-bind="kgHeader: { value: \'Mfg_Id\' } "></div>' +
+           '<div data-bind="kgHeader: { value: \'UPC\' } "></div>';
+}; 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\Templates\RowTemplate.js 
+***********************************************/ 
+﻿kg.defaultRowTemplate = function () {
+    return '<div data-bind="kgRow: $data">' +
+                '<div data-bind="kgCell: { value: \'Sku\' } "></div>' +
+                '<div data-bind="kgCell: { value: \'Vendor\' } "></div>' +
+                '<div data-bind="kgCell: { value: \'SeasonCode\' } "></div>' +
+                '<div data-bind="kgCell: { value: \'Mfg_Id\' } "></div>' +
+                '<div data-bind="kgCell: { value: \'UPC\' } "></div>' +
+            '</div>';
+}; 
+ 
+ 
+/*********************************************** 
 * FILE: ..\Src\GridClasses\Cell.js 
 ***********************************************/ 
 ﻿kg.Cell = function (col) {
@@ -82,6 +127,7 @@ kg.utils = utils;
 ﻿kg.Column = function (colDef) {
     this.width = ko.observable(0);
     this.offsetLeft = ko.observable(0);
+    this.offsetRight = null; //replaced w/ ko.computed
     this.field = colDef.field;
 }; 
  
@@ -279,8 +325,8 @@ kg.ColumnCollection.fn = {
 kg.KoGrid = function (options) {
     var defaults = {
         rowHeight: 25,
-        columnWidth: 120,
-        headerRowHeight: 35,
+        columnWidth: 100,
+        headerRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
         footerTemplate: null,
@@ -305,12 +351,13 @@ kg.KoGrid = function (options) {
     $footers,
 
     viewportH, viewportW,
+    scrollW, scrollH,
 
     //scrolling
     prevScrollTop, prevScrollLeft;
 
     this.config = $.extend(defaults, options)
-    this.gridId = kg.utils.newId();
+    this.gridId = "kg" + kg.utils.newId();
 
     // set this during the constructor execution so that the
     // computed observables register correctly;
@@ -342,6 +389,8 @@ kg.KoGrid = function (options) {
 
         calculateConstraints();
 
+        kg.cssBuilder.buildStyles(self);
+
         self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
     };
 
@@ -369,16 +418,26 @@ kg.KoGrid = function (options) {
 
     var measureDomConstraints = function () {
         //pop the canvas, so we can measure the attributes
+        $viewport.height(200).width(200);
+
         $canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
+        $canvas.width(100000);
 
-        viewportH = $root.height() - self.config.headerRowHeight;
+        $headerContainer.height(self.config.headerRowHeight);
 
-        viewportW = $root.width();
+        scrollH = ($viewport.height() - $viewport[0].clientHeight) + 1; //this needs to roundup
+        scrollW = ($viewport.width() - $viewport[0].clientWidth) + 1; //roundup
+
+        viewportH = $root.height() - $headerContainer.height();
+        viewportW = Math.min($root.width(), self.config.maxRowWidth() + scrollW);
 
         $viewport.height(viewportH);
-
         $viewport.width(viewportW);
-        $headerScroller.width(self.config.maxRowWidth);
+
+        $canvas.width("auto");
+
+        $headerContainer.width(viewportW - scrollW);
+        $headerScroller.width(self.config.maxRowWidth());
     };
 
     var calculateConstraints = function () {
@@ -407,6 +466,20 @@ kg.KoGrid = function (options) {
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
+        var createOffsetRightClosure = function (col, rowMaxWidthObs) {
+            return function () {
+                return ko.computed(function () {
+                    var maxWidth = rowMaxWidthObs(),
+                        width = col.width(),
+                        offsetRight;
+
+                    offsetRight = (maxWidth - col.offsetLeft());
+                    offsetRight = offsetRight - width;
+                    return offsetRight;
+                });
+            };
+        };
+
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -419,13 +492,7 @@ kg.KoGrid = function (options) {
                 rowWidth += column.width(); //sum this up
 
                 //setup the max col width observable
-                column.offsetRight = ko.computed(function () {
-                    var maxWidth = self.config.maxRowWidth(),
-                        offsetRight;
-
-                    offsetRight = maxWidth - column.offsetLeft();
-                    return offsetRight - column.width();
-                });
+                column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
                 self.columns.push(column);
             });
@@ -435,6 +502,7 @@ kg.KoGrid = function (options) {
     };
 
     this.init = function () {
+        ensureTemplates();
 
         buildColumns();
 
@@ -452,7 +520,7 @@ kg.KoGrid = function (options) {
             scrollLeft = e.target.scrollLeft,
             rowIndex;
 
-        $headerScroller.scrollLeft(scrollLeft);
+        $headerContainer.scrollLeft(scrollLeft);
 
         if (prevScrollTop === scrollTop) { return; }
 
@@ -463,6 +531,28 @@ kg.KoGrid = function (options) {
         self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
 
     };
+
+    var ensureTemplates = function () {
+        var appendToFooter = function (el) {
+            document.body.appendChild(el);
+        };
+
+        if (!document.getElementById(self.config.rowTemplate)) {
+            var tmpl = document.createElement("SCRIPT");
+            tmpl.type = "text/html";
+            tmpl.id = self.config.rowTemplate;
+            tmpl.innerText = kg.defaultRowTemplate();
+            appendToFooter(tmpl);
+        }
+
+        if (!document.getElementById(self.config.headerTemplate)) {
+            var tmpl = document.createElement("SCRIPT");
+            tmpl.type = "text/html";
+            tmpl.id = self.config.headerTemplate;
+            tmpl.innerText = kg.defaultHeaderTemplate();
+            appendToFooter(tmpl);
+        }
+    };
 }; 
  
  
@@ -471,7 +561,9 @@ kg.KoGrid = function (options) {
 ***********************************************/ 
 ﻿kg.domFormatter = {
     formatGrid: function (element, grid) {
-        element.className = 'kgGrid';
+
+        $(element).addClass("kgGrid").addClass(grid.gridId.toString());
+
         element.style.position = "relative";
     },
 
@@ -484,25 +576,54 @@ kg.KoGrid = function (options) {
         classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
         element['_kg_rowIndex_'] = row.rowIndex;
-        element.style.position = "absolute";
-        element.style.height = row.height() + 'px';
         element.style.top = row.offsetTop + 'px';
-        element.style.width = row.width() + 'px';
         element.className = classes;
     },
 
     formatCell: function (element, cell) {
-        //style the element correctly:
-        element.style.position = "absolute";
-        element.style.left = cell.offsetLeft() + 'px';
-        element.style.width = cell.width() + 'px';
-        element.style.right = cell.offsetRight() + 'px';
-        element.style.height = '25px';
-        element.className = "kgCell";
+
+        element.className = "kgCell " + "col" + cell.column.index;
 
     }
 };
  
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\DomFormatters\CssBuilder.js 
+***********************************************/ 
+﻿kg.cssBuilder = {
+
+    buildStyles: function (grid) {
+        var $style = $("<style type='text/css' rel='stylesheet' />");
+        var rowHeight = (grid.config.rowHeight),
+            gridId = grid.gridId,
+            rules,
+            i = 0,
+            len = grid.columns().length,
+            col;
+
+        rules = [
+            "." + gridId + " .kgHeaderRow { height:" + grid.config.headerRowHeight + "px; }",
+            "." + gridId + " .kgCell { position: absolute; height:" + rowHeight + "px; overflow: hidden;}",
+            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; }"
+        ];
+
+        for (; i < len; i++) {
+            col = grid.columns()[i];
+            rules.push("." + gridId + " .col" + i + " { left: " + col.offsetLeft() + "px; right: " + col.offsetRight() + "px; width: " + col.width() + "px; }");
+        }
+
+        if ($style[0].styleSheet) { // IE
+            $style[0].styleSheet.cssText = rules.join(" ");
+        }
+        else {
+            $style[0].appendChild(document.createTextNode(rules.join(" ")));
+        }
+
+        $('head')[0].appendChild($style[0]);
+    }
+}; 
  
  
 /*********************************************** 
@@ -525,8 +646,7 @@ ko.bindingHandlers['koGrid'] = (function () {
     };
 
     var setupGridLayout = function (element) {
-        var html = document.getElementById('kgGridInnerTemplate').innerHTML;
-        $(element).empty().html(html);
+        $(element).empty().html(kg.defaultGridInnerTemplate());
     };
 
     return {

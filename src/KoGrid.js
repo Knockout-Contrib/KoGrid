@@ -4,8 +4,8 @@
 kg.KoGrid = function (options) {
     var defaults = {
         rowHeight: 25,
-        columnWidth: 120,
-        headerRowHeight: 35,
+        columnWidth: 100,
+        headerRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
         footerTemplate: null,
@@ -30,12 +30,13 @@ kg.KoGrid = function (options) {
     $footers,
 
     viewportH, viewportW,
+    scrollW, scrollH,
 
     //scrolling
     prevScrollTop, prevScrollLeft;
 
     this.config = $.extend(defaults, options)
-    this.gridId = kg.utils.newId();
+    this.gridId = "kg" + kg.utils.newId();
 
     // set this during the constructor execution so that the
     // computed observables register correctly;
@@ -67,6 +68,8 @@ kg.KoGrid = function (options) {
 
         calculateConstraints();
 
+        kg.cssBuilder.buildStyles(self);
+
         self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
     };
 
@@ -94,16 +97,26 @@ kg.KoGrid = function (options) {
 
     var measureDomConstraints = function () {
         //pop the canvas, so we can measure the attributes
+        $viewport.height(200).width(200);
+
         $canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
+        $canvas.width(100000);
 
-        viewportH = $root.height() - self.config.headerRowHeight;
+        $headerContainer.height(self.config.headerRowHeight);
 
-        viewportW = $root.width();
+        scrollH = ($viewport.height() - $viewport[0].clientHeight) + 1; //this needs to roundup
+        scrollW = ($viewport.width() - $viewport[0].clientWidth) + 1; //roundup
+
+        viewportH = $root.height() - $headerContainer.height();
+        viewportW = Math.min($root.width(), self.config.maxRowWidth() + scrollW);
 
         $viewport.height(viewportH);
-
         $viewport.width(viewportW);
-        $headerScroller.width(self.config.maxRowWidth);
+
+        $canvas.width("auto");
+
+        $headerContainer.width(viewportW - scrollW);
+        $headerScroller.width(self.config.maxRowWidth());
     };
 
     var calculateConstraints = function () {
@@ -132,6 +145,20 @@ kg.KoGrid = function (options) {
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
+        var createOffsetRightClosure = function (col, rowMaxWidthObs) {
+            return function () {
+                return ko.computed(function () {
+                    var maxWidth = rowMaxWidthObs(),
+                        width = col.width(),
+                        offsetRight;
+
+                    offsetRight = (maxWidth - col.offsetLeft());
+                    offsetRight = offsetRight - width;
+                    return offsetRight;
+                });
+            };
+        };
+
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -144,13 +171,7 @@ kg.KoGrid = function (options) {
                 rowWidth += column.width(); //sum this up
 
                 //setup the max col width observable
-                column.offsetRight = ko.computed(function () {
-                    var maxWidth = self.config.maxRowWidth(),
-                        offsetRight;
-
-                    offsetRight = maxWidth - column.offsetLeft();
-                    return offsetRight - column.width();
-                });
+                column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
                 self.columns.push(column);
             });
@@ -160,6 +181,7 @@ kg.KoGrid = function (options) {
     };
 
     this.init = function () {
+        ensureTemplates();
 
         buildColumns();
 
@@ -177,7 +199,7 @@ kg.KoGrid = function (options) {
             scrollLeft = e.target.scrollLeft,
             rowIndex;
 
-        $headerScroller.scrollLeft(scrollLeft);
+        $headerContainer.scrollLeft(scrollLeft);
 
         if (prevScrollTop === scrollTop) { return; }
 
@@ -187,5 +209,27 @@ kg.KoGrid = function (options) {
 
         self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
 
+    };
+
+    var ensureTemplates = function () {
+        var appendToFooter = function (el) {
+            document.body.appendChild(el);
+        };
+
+        if (!document.getElementById(self.config.rowTemplate)) {
+            var tmpl = document.createElement("SCRIPT");
+            tmpl.type = "text/html";
+            tmpl.id = self.config.rowTemplate;
+            tmpl.innerText = kg.defaultRowTemplate();
+            appendToFooter(tmpl);
+        }
+
+        if (!document.getElementById(self.config.headerTemplate)) {
+            var tmpl = document.createElement("SCRIPT");
+            tmpl.type = "text/html";
+            tmpl.id = self.config.headerTemplate;
+            tmpl.innerText = kg.defaultHeaderTemplate();
+            appendToFooter(tmpl);
+        }
     };
 };
