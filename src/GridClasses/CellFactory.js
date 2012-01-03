@@ -11,18 +11,15 @@
         for (; i < len; i++) {
             col = colCache[i];
 
-            cell = new kg.Cell();
-            cell.column = col;
+            cell = new kg.Cell(col);
             cell.row = row;
             cell.data(row.entity()[col.field]);
-            cell.width(col.width());
-            cell.offsetLeft(col.offsetLeft);
 
             cells.push(cell);
             row.cellMap[col.field] = cell;
-
         }
         row.cells(cells);
+
         return row;
     };
 };

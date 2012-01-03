@@ -1,28 +1,34 @@
-﻿kg.RowManager = function (cols, dataSource, canvas, config) {
+﻿kg.RowManager = function (grid) {
     var self = this,
         rowCache = {},
-        maxRows = dataSource().length;
+        prevRenderedRange = new kg.Range(0, 1),
+        maxRows = grid.filteredData().length;
 
-    this.colCache = cols;
-    this.rowElCache = [];
-    this.$canvas = canvas;
-    this.rowTemplateId = config.rowTemplate;
-    this.dataSource = dataSource; //observable
-    this.minViewportRows = 0;
+    this.rowTemplateId = grid.config.rowTemplate;
+    this.dataSource = grid.filteredData; //observable
+    this.minViewportRows = ko.computed(function () { return grid.config.minRowsToRender(); });
     this.excessRows = 5;
-    this.rowHeight = config.rowHeight;
-    this.cellFactory = new kg.CellFactory(cols);
+    this.rowHeight = grid.config.rowHeight;
+    this.cellFactory = new kg.CellFactory(grid.columns());
     this.viewableRange = ko.observable(new kg.Range(0, 1));
+
     this.renderedRange = ko.computed(function () {
-        var rg = self.viewableRange();
+        var rg = self.viewableRange(),
+            isDif = false;
 
         if (rg) {
-            rg.topRow = rg.bottomRow + self.minViewportRows; //make sure we have the correct number of rows rendered
 
-            rg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
-            rg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
+            isDif = (rg.bottomRow !== prevRenderedRange.bottomRow || rg.topRow !== prevRenderedRange.topRow)
 
-            return rg;
+            if (isDif) {
+                rg.topRow = rg.bottomRow + self.minViewportRows(); //make sure we have the correct number of rows rendered
+
+                rg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
+                rg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
+
+                prevRenderedRange = rg;
+            }
+            return prevRenderedRange;
         } else {
             return new kg.Range(0, 0);
         }
@@ -35,8 +41,14 @@
 
             row = new kg.Row();
             row.rowIndex = rowIndex;
-            row.height(self.rowHeight);
+            row.height = ko.computed(function () {
+                return grid.config.rowHeight;
+            });
             row.offsetTop = self.rowHeight * rowIndex;
+
+            row.width = ko.computed(function () {
+                return grid.config.maxRowWidth();
+            });
             row.entity(entity);
 
             self.cellFactory.buildRowCells(row);
@@ -47,7 +59,6 @@
         return row;
     };
 
-    //Very special - when this fires, it also renders the DOM elements
     this.rows = ko.computed(function () {
         var rg = self.renderedRange(),
             rowArr = [],
@@ -61,12 +72,6 @@
         });
 
         return rowArr;
-    });
-
-    this.nonRenderedRows = ko.computed(function () {
-        return ko.utils.arrayFilter(self.rows(), function (row) {
-            return !self.rowElCache[row.rowIndex];
-        });
     });
 
 };

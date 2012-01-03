@@ -8,9 +8,14 @@
 ..\Src\GridClasses\Row.js
 ..\Src\GridClasses\Range.js
 ..\Src\GridClasses\CellFactory.js
+..\Src\GridClasses\HeaderCell.js
+..\Src\GridClasses\HeaderRow.js
 ..\Src\GridClasses\RowManager.js
 ..\Src\KoGrid.js
+..\Src\DomFormatters\kgDomFormatter.js
 ..\Src\BindingHandlers\koGridBindingHandler.js
 ..\Src\BindingHandlers\koGridRowsBindingHandler.js
 ..\Src\BindingHandlers\koGridRowBindingHandler.js
 ..\Src\BindingHandlers\koGridCellBindingHandler.js
+..\src\BindingHandlers\koGridHeaderRowBindingHandler.js
+..\src\BindingHandlers\koGridHeaderCellBindingHandler.js

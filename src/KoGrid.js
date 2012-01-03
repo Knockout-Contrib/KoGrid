@@ -4,33 +4,42 @@
 kg.KoGrid = function (options) {
     var defaults = {
         rowHeight: 25,
-        columnWidth: 80,
+        columnWidth: 120,
         headerRowHeight: 35,
-        rowTemplate: 'koGridRowTemplate',
-        headerTemplate: null,
+        rowTemplate: 'kgRowTemplate',
+        headerTemplate: 'kgHeaderRowTemplate',
         footerTemplate: null,
         gridCssClass: 'koGrid',
         autogenerateColumns: true,
+        autoFitColumns: true,
         data: null, //ko.observableArray
-        columnDefs: []
+        columnDefs: [],
+        minRowsToRender: ko.observable(1),
+        maxRowWidth: ko.observable(120)
     },
 
-    config = $.extend(defaults, options),
     self = this,
 
     $root, //this is the root element that is passed in with the binding handler
     $headerContainer,
+    $headerScroller,
     $headers,
     $viewport,
     $canvas,
     $footerContainer,
     $footers,
 
-    viewportH, viewportW;
+    viewportH, viewportW,
+
+    //scrolling
+    prevScrollTop, prevScrollLeft;
+
+    this.config = $.extend(defaults, options)
+    this.gridId = kg.utils.newId();
 
     // set this during the constructor execution so that the
     // computed observables register correctly;
-    this.data = config.data;
+    this.data = self.config.data;
     this.filteredData = ko.computed(function () {
 
         //TODO: build out filtering
@@ -47,36 +56,60 @@ kg.KoGrid = function (options) {
     this.rowManager;
     this.rows;
 
-    var buildDomStructure = function (rootDomNode) {
-        $root = $(rootDomNode);
-        $root.empty();
+    this.headerRow;
 
-        $root.css("position", "relative");
+
+    this.update = function (rootDomNode) {
+        //build back the DOM variables
+        updateDomStructure(rootDomNode);
+
+        measureDomConstraints();
+
+        calculateConstraints();
+
+        self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
+    };
+
+    var updateDomStructure = function (rootDomNode) {
+
+        $root = $(rootDomNode);
+
+        // the 'with' binding blows away everything except the inner html, so rebuild it
 
         //Headers
-        $headerContainer = $('<div class="kgHeaderContainer" style="position: relative;"></div>').appendTo($root);
+        $headerContainer = $(".kgHeaderContainer", $root[0]);
+        $headerScroller = $(".kgHeaderScroller", $headerContainer[0]);
+        $headers = $headerContainer.children();
 
         //Viewport
-        $viewport = $('<div class="kgViewport" style="overflow: auto;"></div>').appendTo($root);
+        $viewport = $(".kgViewport", $root[0]);
 
         //Canvas
-        $canvas = $('<div class="kgCanvas" style="position: relative;" data-bind="koGridRows: nonRenderedRows"></div>').appendTo($viewport);
+        $canvas = $(".kgCanvas", $viewport[0]);
 
         //Footers
-        $footerContainer = $('<div class="kgFooterContainer"></div>').appendTo($root);
+        $footerContainer = $(".kgFooterContainer", $root[0]);
+        $footers = $footerContainer.children();
     };
 
     var measureDomConstraints = function () {
+        //pop the canvas, so we can measure the attributes
+        $canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
 
-        viewportH = $root.height() - 35;
+        viewportH = $root.height() - self.config.headerRowHeight;
+
         viewportW = $root.width();
+
         $viewport.height(viewportH);
+
+        $viewport.width(viewportW);
+        $headerScroller.width(self.config.maxRowWidth);
     };
 
     var calculateConstraints = function () {
 
         //figure out how many rows to render in the viewport based upon the viewable height
-        minRowsToRender = Math.floor(viewportH / config.rowHeight);
+        self.config.minRowsToRender(Math.floor(viewportH / self.config.rowHeight));
 
     };
 
@@ -85,7 +118,7 @@ kg.KoGrid = function (options) {
 
         utils.forIn(item, function (prop, propName) {
 
-            config.columnDefs.push({
+            self.config.columnDefs.push({
                 field: propName
             });
         });
@@ -93,10 +126,11 @@ kg.KoGrid = function (options) {
     };
 
     var buildColumns = function () {
-        var columnDefs = config.columnDefs,
-            column;
+        var columnDefs = self.config.columnDefs,
+            column,
+            rowWidth = 0;
 
-        if (config.autogenerateColumns) { buildColumnDefsFromData(); }
+        if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
         if (columnDefs.length > 1) {
 
@@ -104,44 +138,34 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                column.offsetLeft = i * config.columnWidth;
-                column.width(config.columnWidth);
+                column.offsetLeft(i * self.config.columnWidth);
+                column.width(colDef.width || self.config.columnWidth);
+
+                rowWidth += column.width(); //sum this up
+
+                //setup the max col width observable
+                column.offsetRight = ko.computed(function () {
+                    var maxWidth = self.config.maxRowWidth(),
+                        offsetRight;
+
+                    offsetRight = maxWidth - column.offsetLeft();
+                    return offsetRight - column.width();
+                });
 
                 self.columns.push(column);
             });
+
+            self.config.maxRowWidth(rowWidth);
         }
     };
 
-    var buildHeaders = function () {
+    this.init = function () {
 
-        $headers = $('<div class="kgHeaderRow"></div>').appendTo($headerContainer);
-        $headers.height(config.headerRowHeight);
-        utils.forEach(self.columns(), function (col, i) {
-
-            $('<div></div>').text(col.field)
-                            .css("position", "absolute")
-                            .css("left", col.offsetLeft)
-                            .css("top", 0)
-                            .width(col.width())
-                            .appendTo($headers);
-        });
-    };
-
-    this.init = function (rootDomNode) {
-
-        buildDomStructure(rootDomNode);
-        measureDomConstraints();
-        calculateConstraints();
         buildColumns();
-        buildHeaders();
 
-        self.rowManager = new kg.RowManager(self.columns(), self.filteredData, $canvas, config);
-        self.rowManager.minViewportRows = minRowsToRender;
+        self.rowManager = new kg.RowManager(self);
 
         self.rows = self.rowManager.rows; // dependent observable
-        self.nonRenderedRows = self.rowManager.nonRenderedRows;
-
-        self.rowManager.viewableRange(new kg.Range(0, minRowsToRender));
     };
 
     this.registerEvents = function () {
@@ -149,8 +173,19 @@ kg.KoGrid = function (options) {
     };
 
     var handleScroll = function (e) {
+        var scrollTop = e.target.scrollTop,
+            scrollLeft = e.target.scrollLeft,
+            rowIndex;
 
-        var test = e;
+        $headerScroller.scrollLeft(scrollLeft);
+
+        if (prevScrollTop === scrollTop) { return; }
+
+        rowIndex = Math.floor(scrollTop / self.config.rowHeight);
+
+        prevScrollTop = scrollTop;
+
+        self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
 
     };
 };
