@@ -184,6 +184,14 @@
         window.dataBind = function () {
             ko.applyBindings();
         };
+
+        window.updateDummy = function () {
+            DummyCollection[3].zDate = new Date().getTime();
+            DummyKoCollection[3].zDate(new Date().getTime());
+            DummyESCollection[3].zDate(new Date().getTime());
+            DummyES2Collection[3].zDate(new Date().getTime());
+        };
+
     </script>
 
     <button onclick="runDummyTest();">Run Plain Test</button>
@@ -192,6 +200,7 @@
     <button onclick="runDummyES2Test();">Run ES2 Test</button>
     <button onclick="clearTests();">Clear Memory</button>
     <button onclick="dataBind();">Data Bind</button>
+    <button onclick="updateDummy();">Update Binding</button>
 
     <div data-bind="text: DummyCollection[3].zDate" ></div>
     <div data-bind="text: DummyKoCollection[3].zDate" ></div>
