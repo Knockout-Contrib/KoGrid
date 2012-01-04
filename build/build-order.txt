@@ -15,8 +15,9 @@
 ..\Src\GridClasses\HeaderRow.js
 ..\Src\GridClasses\RowManager.js
 ..\Src\KoGrid.js
-..\Src\DomFormatters\kgDomFormatter.js
-..\Src\DomFormatters\CssBuilder.js
+..\Src\DomManipulation\DomFormatter.js
+..\Src\DomManipulation\CssBuilder.js
+..\Src\DomManipulation\DomRuler.js
 ..\Src\BindingHandlers\koGridBindingHandler.js
 ..\Src\BindingHandlers\koGridRowsBindingHandler.js
 ..\Src\BindingHandlers\koGridRowBindingHandler.js

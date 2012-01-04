@@ -10,6 +10,11 @@
         element.style.height = headerRow.height + 'px';
     },
 
+    formatHeaderCell: function(element, headerCell){
+
+        element.className = "kgHeadCell col" + headerCell.colIndex;
+    },
+
     formatRow: function (element, row) {
         var classes = 'kgRow';
         classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';

@@ -19,21 +19,18 @@ kg.KoGrid = function (options) {
     },
 
     self = this,
-
-    $root, //this is the root element that is passed in with the binding handler
-    $headerContainer,
-    $headerScroller,
-    $headers,
-    $viewport,
-    $canvas,
-    $footerContainer,
-    $footers,
-
-    viewportH, viewportW,
-    scrollW, scrollH,
-
-    //scrolling
     prevScrollTop, prevScrollLeft;
+
+    this.$root; //this is the root element that is passed in with the binding handler
+    this.$topPanel;
+    this.$headerContainer;
+    this.$headerScroller;
+    this.$headers;
+    this.$viewport;
+    this.$canvas;
+    this.$footerPanel;
+    this.$footerContainer;
+    this.$footers;
 
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
@@ -47,7 +44,7 @@ kg.KoGrid = function (options) {
         return self.data();
     });
     this.maxRows = ko.computed(function () {
-        rows = self.filteredData();
+        var rows = self.filteredData();
         return rows.length || 0;
     });
 
@@ -56,73 +53,86 @@ kg.KoGrid = function (options) {
     //initialized in the init method
     this.rowManager;
     this.rows;
-
     this.headerRow;
 
+    this.DOMdims = {
+        viewportH: 0,
+        viewportW: 0,
+        scrollW: 0,
+        scrollH: 0,
+        cellHdiff: 0,
+        cellWdiff: 0,
+        rowWdiff: 0,
+        rowHdiff: 0,
+        headerWdiff: 0,
+        headerHdiff: 0
+    };
+    //#region Rendering
 
     this.update = function (rootDomNode) {
         //build back the DOM variables
         updateDomStructure(rootDomNode);
 
+        kg.cssBuilder.buildStyles(self);
+
         measureDomConstraints();
 
         calculateConstraints();
-
-        kg.cssBuilder.buildStyles(self);
 
         self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
     };
 
     var updateDomStructure = function (rootDomNode) {
 
-        $root = $(rootDomNode);
+        self.$root = $(rootDomNode);
 
         // the 'with' binding blows away everything except the inner html, so rebuild it
 
         //Headers
-        $headerContainer = $(".kgHeaderContainer", $root[0]);
-        $headerScroller = $(".kgHeaderScroller", $headerContainer[0]);
-        $headers = $headerContainer.children();
+        self.$headerContainer = $(".kgHeaderContainer", self.$root[0]);
+        self.$headerScroller = $(".kgHeaderScroller", self.$headerContainer[0]);
+        self.$headers = self.$headerContainer.children();
 
         //Viewport
-        $viewport = $(".kgViewport", $root[0]);
+        self.$viewport = $(".kgViewport", self.$root[0]);
 
         //Canvas
-        $canvas = $(".kgCanvas", $viewport[0]);
+        self.$canvas = $(".kgCanvas", self.$viewport[0]);
 
         //Footers
-        $footerContainer = $(".kgFooterContainer", $root[0]);
-        $footers = $footerContainer.children();
+        self.$footerContainer = $(".kgFooterContainer", self.$root[0]);
+        self.$footers = self.$footerContainer.children();
     };
 
     var measureDomConstraints = function () {
         //pop the canvas, so we can measure the attributes
-        $viewport.height(200).width(200);
+        self.$viewport.height(200).width(200);
 
-        $canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
-        $canvas.width(100000);
+        self.$canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
+        self.$canvas.width(100000);
 
-        $headerContainer.height(self.config.headerRowHeight);
+        self.$headerContainer.height(self.config.headerRowHeight);
 
-        scrollH = ($viewport.height() - $viewport[0].clientHeight) + 1; //this needs to roundup
-        scrollW = ($viewport.width() - $viewport[0].clientWidth) + 1; //roundup
+        //Measure Scroll Bars
+        self.DOMdims.scrollH = Math.ceil(self.$viewport.height() - parseFloat(self.$viewport[0].clientHeight)); //self needs to roundup
+        self.DOMdims.scrollW = Math.ceil(self.$viewport.width() - parseFloat(self.$viewport[0].clientWidth)); //roundup
 
-        viewportH = $root.height() - $headerContainer.height();
-        viewportW = Math.min($root.width(), self.config.maxRowWidth() + scrollW);
+        self.DOMdims.viewportH = self.$root.height() - self.$headerContainer.height();
+        self.DOMdims.viewportW = Math.min(self.$root.width(), self.config.maxRowWidth() + self.DOMdims.scrollW);
 
-        $viewport.height(viewportH);
-        $viewport.width(viewportW);
+        self.$viewport.height(self.DOMdims.viewportH);
+        self.$viewport.width(self.DOMdims.viewportW);
 
-        $canvas.width("auto");
+        self.$canvas.width("auto");
 
-        $headerContainer.width(viewportW - scrollW);
-        $headerScroller.width(self.config.maxRowWidth());
+        self.$headerContainer.width(self.DOMdims.viewportW - self.DOMdims.scrollW);
+        self.$headerScroller.width(self.config.maxRowWidth() + self.DOMdims.scrollW);
     };
 
     var calculateConstraints = function () {
 
         //figure out how many rows to render in the viewport based upon the viewable height
-        self.config.minRowsToRender(Math.floor(viewportH / self.config.rowHeight));
+        self.config.minRowsToRender(Math.floor(self.DOMdims.viewportH / self.config.rowHeight));
 
     };
 
@@ -191,7 +201,7 @@ kg.KoGrid = function (options) {
     };
 
     this.registerEvents = function () {
-        $viewport.scroll(handleScroll);
+        self.$viewport.scroll(handleScroll);
     };
 
     var handleScroll = function (e) {
@@ -199,7 +209,7 @@ kg.KoGrid = function (options) {
             scrollLeft = e.target.scrollLeft,
             rowIndex;
 
-        $headerContainer.scrollLeft(scrollLeft);
+        self.$headerContainer.scrollLeft(scrollLeft);
 
         if (prevScrollTop === scrollTop) { return; }
 

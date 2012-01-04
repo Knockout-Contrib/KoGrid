@@ -1,7 +1,12 @@
 ﻿kg.cssBuilder = {
 
     buildStyles: function (grid) {
-        var $style = $("<style type='text/css' rel='stylesheet' />");
+        var $style = grid.$style;
+
+        if (!$style) {
+            $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('head'));
+        }
+
         var rowHeight = (grid.config.rowHeight),
             gridId = grid.gridId,
             rules,
@@ -11,8 +16,11 @@
 
         rules = [
             "." + gridId + " .kgHeaderRow { height:" + grid.config.headerRowHeight + "px; }",
-            "." + gridId + " .kgCell { position: absolute; height:" + rowHeight + "px; overflow: hidden;}",
+
+            "." + gridId + " .kgCell { position: absolute; height:" + rowHeight + "px; overflow: hidden; padding: 0 5px;}",
+
             "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; }"
+
         ];
 
         for (; i < len; i++) {
@@ -27,6 +35,6 @@
             $style[0].appendChild(document.createTextNode(rules.join(" ")));
         }
 
-        $('head')[0].appendChild($style[0]);
+        grid.$styleSheet = $style;
     }
 };
