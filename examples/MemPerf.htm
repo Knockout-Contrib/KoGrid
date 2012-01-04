@@ -4,12 +4,26 @@
     <title>Ko Grid Sandbox</title>
     <script src="../lib/jquery-1.7.js" type="text/javascript"></script>
     <script src="../lib/json2.js" type="text/javascript"></script>
-    <script src="../lib/ko-min.js" type="text/javascript"></script>
+    <script src="../lib/knockout-2.0.0.debug.js" type="text/javascript"></script>
 </head>
 <body>
     <script type="text/javascript">
-//        var Dummy = function (index) {
-//            this.index = index;
+        var esObs = function (val) {
+            var Function = function () {
+                if (arguments.length === 0) {
+                    return val;
+                } else {
+                    val = arguments[0];
+                }
+            };
+            Function.__ko_proto__ = ko.observable;
+
+            return Function;
+        };
+
+
+//        var Dummy = function (Index) {
+//            this.Index = Index;
 //            this.zDate = new Date();
 //            this.zShortString = "Dog";
 //            this.zMediumString = "The quick rabbit jumps over the lazy dog while he is sleeping";
@@ -18,8 +32,8 @@
 //            this.zLargeInteger = Number.MAX_VALUE;
 //        };
 
-//        var DummyKO = function (index) {
-//            this.index = ko.observable(index);
+//        var DummyKO = function (Index) {
+//            this.Index = ko.observable(Index);
 //            this.zDate = ko.observable(new Date());
 //            this.zShortString = ko.observable("Dog");
 //            this.zMediumString = ko.observable("The quick rabbit jumps over the lazy dog while he is sleeping");
@@ -27,8 +41,8 @@
 //            this.zSmallInteger = ko.observable(10);
 //            this.zLargeInteger = ko.observable(Number.MAX_VALUE);
 //        };
-        var Dummy = function (index) {
-            this.index = index;
+        var Dummy = function (Index) {
+            this.Index = Index;
             this.zDate = new Date();
             this.zShortString = "a";
             this.zMediumString = "a";
@@ -37,8 +51,8 @@
             //this.zLargeInteger = Number.MAX_VALUE;
         };
 
-        var DummyKO = function (index) {
-            this.index = ko.observable(index);
+        var DummyKO = function (Index) {
+            this.Index = ko.observable(Index);
             this.zDate = ko.observable(new Date());
             this.zShortString = ko.observable("a");
             this.zMediumString = ko.observable("a");
@@ -46,13 +60,88 @@
             this.zSmallInteger = ko.observable(10);
             //this.zLargeInteger = ko.observable(Number.MAX_VALUE);
         };
+
+        var DummyES = function (Index) {
+            this.Index = esObs(Index);
+            this.zDate = esObs(new Date());
+            this.zShortString = esObs("a");
+            this.zMediumString = esObs("a");
+            this.zLongString = esObs("a");
+            this.zSmallInteger = esObs(10);
+            //this.zLargeInteger = ko.observable(Number.MAX_VALUE);
+        };
+
+        var DummyES2 = function (i) {
+            var _Index = i;
+            this.Index = function () {
+                if (arguments.length === 0) {
+                    return _Index;
+                } else {
+                    _Index = arguments[0];
+                }
+            };
+            this.Index.__ko_proto__ = ko.observable;
+
+            var _zDate = new Date();
+            this.zDate = function () {
+                if (arguments.length === 0) {
+                    return _zDate;
+                } else {
+                    _zDate = arguments[0];
+                }
+            };
+            this.zDate.__ko_proto__ = ko.observable;
+
+            var _zShortString = "a";
+            this.zShortString = function () {
+                if (arguments.length === 0) {
+                    return _zShortString;
+                } else {
+                    _zShortString = arguments[0];
+                }
+            };
+            this.zShortString.__ko_proto__ = ko.observable;
+
+            var _zMediumString = "a";
+            this.zMediumString = function () {
+                if (arguments.length === 0) {
+                    return _zMediumString;
+                } else {
+                    _zMediumString = arguments[0];
+                }
+            };
+            this.zMediumString.__ko_proto__ = ko.observable;
+
+            var _zLongString = "a";
+            this.zLongString = function () {
+                if (arguments.length === 0) {
+                    return _zLongString;
+                } else {
+                    _zLongString = arguments[0];
+                }
+            };
+            this.zLongString.__ko_proto__ = ko.observable;
+
+            var _zSmallInteger = 10;
+            this.zSmallInteger = function () {
+                if (arguments.length === 0) {
+                    return _zSmallInteger;
+                } else {
+                    _zSmallInteger = arguments[0];
+                }
+            };
+            this.zSmallInteger.__ko_proto__ = ko.observable;
+        };
+
         window.DummyCollection = [];
         window.DummyKoCollection = [];
+        window.DummyESCollection = [];
+        window.DummyES2Collection = [];
 
         window.runDummyTest = function () {
             DummyCollection = [];
             var i = 0;
-            while (i < 10) {
+            while (i < 100) {
                 DummyCollection.push(new Dummy(i));
                 i++;
             };
@@ -61,8 +150,26 @@
         window.runDummyKOTest = function () {
             DummyKoCollection = [];
             var i = 0;
-            while (i < 10) {
+            while (i < 100) {
                 DummyKoCollection.push(new DummyKO(i));
+                i++;
+            };
+        };
+
+        window.runDummyESTest = function () {
+            DummyESCollection = [];
+            var i = 0;
+            while (i < 100) {
+                DummyESCollection.push(new DummyES(i));
+                i++;
+            };
+        };
+
+        window.runDummyES2Test = function () {
+            DummyES2Collection = [];
+            var i = 0;
+            while (i < 100) {
+                DummyES2Collection.push(new DummyES2(i));
                 i++;
             };
         };
@@ -70,11 +177,31 @@
         window.clearTests = function () {
             DummyCollection = [];
             DummyKoCollection = [];
+            DummyESCollection = [];
+            DummyES2Collection = [];
+        };
+
+        window.dataBind = function () {
+            ko.applyBindings();
         };
     </script>
 
     <button onclick="runDummyTest();">Run Plain Test</button>
     <button onclick="runDummyKOTest();">Run KO Test</button>
+    <button onclick="runDummyESTest();">Run ES Test</button>
+    <button onclick="runDummyES2Test();">Run ES2 Test</button>
     <button onclick="clearTests();">Clear Memory</button>
+    <button onclick="dataBind();">Data Bind</button>
+
+    <div data-bind="text: DummyCollection[3].zDate" ></div>
+    <div data-bind="text: DummyKoCollection[3].zDate" ></div>
+    <div data-bind="text: DummyESCollection[3].zDate" ></div>
+    <div data-bind="text: DummyES2Collection[3].zDate" ></div>
+
+    <div data-bind="text: DummyCollection[3].zDate" ></div>
+    <div data-bind="text: DummyKoCollection[3].zDate()" ></div>
+    <div data-bind="text: DummyESCollection[3].zDate()" ></div>
+    <div data-bind="text: DummyES2Collection[3].zDate()" ></div>
+
 </body>
 </html>
