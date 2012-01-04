@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>KoGrid WorkBench</title>
+    <script src="../lib/jquery-1.7.js" type="text/javascript"></script>
+    <style type="text/css" rel="stylesheet">
+        /**************
+        * Generated Styles from KoGrid JavaScript 
+        * - just ask Eric and we can adjust how these are generated
+        */
+        .kg1325687280633 .kgCell
+        {
+            height: 25px;
+            overflow: hidden;
+            position: absolute;
+        }
+        .kg1325687280633 .kgRow
+        {
+            width: 500px;
+            height: 25px;
+            position: absolute;
+        }
+        .kg1325687280633 .col0
+        {
+            left: 0px;
+            width: 100px;
+            right: 400px;
+        }
+        .kg1325687280633 .col1
+        {
+            left: 100px;
+            width: 100px;
+            right: 300px;
+        }
+        .kg1325687280633 .col2
+        {
+            left: 200px;
+            width: 100px;
+            right: 200px;
+        }
+        .kg1325687280633 .col3
+        {
+            left: 300px;
+            width: 100px;
+            right: 100px;
+        }
+        .kg1325687280633 .col4
+        {
+            left: 400px;
+            width: 100px;
+            right: 0px;
+        }
+        /* End Generated Styles */
+        
+        /* Eric's Hacked Styles */
+        .kgGrid
+        {
+            background-color: white;
+        }
+        .even.kgRow
+        {
+            background-color: lime;
+        }
+        .kgCell
+        {
+            border-right-color: gray;
+            border-bottom-color: gray;
+            border-right-width: thin;
+            border-bottom-width: thin;
+            border-right-style: dotted;
+            border-bottom-style: dotted;
+        }
+    </style>
+</head>
+<body>
+    <div id="sandbox1">
+        <div class="kgGrid kg1325687280633" id="myGrid" style="width: 500px; height: 600px;
+            position: relative;" data-bind="koGrid: { data: testData }">
+            <div class="kgHeaderContainer" style="width: 482px; height: 30px; position: relative;
+                overflow-x: hidden;">
+                <div class="kgHeaderScroller" style="width: 500px; height: 30px;" data-bind="kgHeaderRow: $data">
+                    <div style="left: 0px; right: 400px; position: absolute;" data-bind="kgHeader: { value: 'Sku' } ">
+                        Sku
+                    </div>
+                    <div style="left: 100px; right: 300px; position: absolute;" data-bind="kgHeader: { value: 'Vendor' } ">
+                        Vendor
+                    </div>
+                    <div style="left: 200px; right: 200px; position: absolute;" data-bind="kgHeader: { value: 'SeasonCode' } ">
+                        SeasonCode
+                    </div>
+                    <div style="left: 300px; right: 100px; position: absolute;" data-bind="kgHeader: { value: 'Mfg_Id' } ">
+                        Mfg_Id
+                    </div>
+                    <div style="left: 400px; right: 0px; position: absolute;" data-bind="kgHeader: { value: 'UPC' } ">
+                        UPC
+                    </div>
+                </div>
+            </div>
+            <div class="kgViewport" style="width: 500px; height: 570px; overflow: auto;">
+                <div class="kgCanvas" style="width: auto; height: 3575px; position: relative;" data-bind="kgRows: $data.rows">
+                    <div class="kgRow even" style="top: 0px;" data-bind="kgRow: $data">
+                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
+                            343983-061
+                        </div>
+                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
+                            NIKE
+                        </div>
+                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
+                            0109
+                        </div>
+                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
+                            400112326393
+                        </div>
+                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
+                            091201280544
+                        </div>
+                    </div>
+                    <div class="kgRow odd" style="top: 25px;" data-bind="kgRow: $data">
+                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
+                            343983-061
+                        </div>
+                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
+                            NIKE
+                        </div>
+                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
+                            0109
+                        </div>
+                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
+                            400112326409
+                        </div>
+                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
+                            091201280551
+                        </div>
+                    </div>
+                    <div class="kgRow even" style="top: 50px;" data-bind="kgRow: $data">
+                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
+                            343983-061
+                        </div>
+                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
+                            NIKE
+                        </div>
+                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
+                            0109
+                        </div>
+                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
+                            400112326416
+                        </div>
+                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
+                            091201280568
+                        </div>
+                    </div>
+                    <div class="kgRow odd" style="top: 75px;" data-bind="kgRow: $data">
+                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
+                            343983-061
+                        </div>
+                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
+                            NIKE
+                        </div>
+                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
+                            0109
+                        </div>
+                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
+                            400112326423
+                        </div>
+                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
+                            091201280575
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="kgFooterContainer" style="position: relative;">
+                <div class="kgFooters">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
