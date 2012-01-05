@@ -39,8 +39,8 @@
 
         if (!row) {
 
-            row = new kg.Row();
-            row.rowIndex = rowIndex;
+            row = new kg.Row(entity);
+            row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.height = ko.computed(function () {
                 return grid.config.rowHeight;
             });
@@ -49,7 +49,10 @@
             row.width = ko.computed(function () {
                 return grid.config.maxRowWidth();
             });
-            row.entity(entity);
+
+            row.onSelectionChanged = function () {
+                grid.selectedItemChanged(this.entity());
+            };
 
             self.cellFactory.buildRowCells(row);
 

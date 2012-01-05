@@ -48,6 +48,16 @@
 
             $dummyCell.remove();
             return diffs;
+        },
+
+        measureFooter: function ($container) {
+            var diffs = {};
+
+            diffs.footerHdiff = $container.outerHeight() - $container.height();
+            diffs.footerWdiff = $container.outerWidth() - $container.width();
+
+            return diffs;
+
         }
     };
 } ());

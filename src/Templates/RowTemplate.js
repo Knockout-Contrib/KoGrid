@@ -7,3 +7,16 @@
                 '<div data-bind="kgCell: { value: \'UPC\' } "></div>' +
             '</div>';
 };
+
+kg.generateRowTemplate = function (cols) {
+    var b = new kg.utils.StringBuilder();
+
+    b.append('<div data-bind="kgRow: $data">');
+
+    utils.forEach(cols, function (col, i) {
+        b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
+    });
+    b.append('</div>');
+
+    return b.toString();
+};

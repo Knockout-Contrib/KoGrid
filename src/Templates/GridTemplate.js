@@ -9,10 +9,7 @@
                 '<div class="kgCanvas" data-bind="kgRows: $data.rows" style="position: relative">' +
                 '</div>' +
             '</div>' +
-            '<div class="kgFooterPanel">' +
-                '<div class="kgFooterContainer" style="position: relative">' +
-                    '<div class="kgFooters">' +
-                    '</div>' +
-                '</div>' +
+            '<div class="kgFooterPanel" data-bind="kgFooter: $data">' +
+                
             '</div>';
 };

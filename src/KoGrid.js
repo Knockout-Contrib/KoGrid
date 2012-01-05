@@ -3,17 +3,25 @@
 
 kg.KoGrid = function (options) {
     var defaults = {
-        rowHeight: 25,
+        rowHeight: 30,
         columnWidth: 100,
         headerRowHeight: 30,
+        footerRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
-        footerTemplate: null,
+        footerTemplate: 'kgFooterTemplate',
         gridCssClass: 'koGrid',
         autogenerateColumns: true,
-        autoFitColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
+        pageSizes: [250, 500, 1000], //page Sizes
+        defaultPageSize: 250, //Size of Paging data
+        totalServerItems: null, //ko.observable of how many items are on the server (for paging)
+        selectedItem: ko.observable(), //ko.observable
+        selectedItems: ko.observableArray([]), //ko.observableArray
+        isMultiSelect: true, //toggles between selectedItem & selectedItems
+        allowRowSelection: true, //toggles whether row selection check boxes appear
+        displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         minRowsToRender: ko.observable(1),
         maxRowWidth: ko.observable(120)
     },
@@ -29,8 +37,6 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
-    this.$footerContainer;
-    this.$footers;
 
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
@@ -48,12 +54,25 @@ kg.KoGrid = function (options) {
         return rows.length || 0;
     });
 
+    this.selectedItemCount = ko.computed(function () {
+        var single = self.config.selectedItem(),
+            arr = self.config.selectedItems();
+
+        if (!self.config.isMultiSelect) {
+            return (single !== null && single !== undefined) ? 1 : 0; //truthy statement
+        } else {
+            return arr.length;
+        }
+    });
+
+
     this.columns = new kg.ColumnCollection();
 
     //initialized in the init method
     this.rowManager;
     this.rows;
     this.headerRow;
+    this.footer;
 
     this.elementDims = {
         viewportH: 0,
@@ -69,9 +88,67 @@ kg.KoGrid = function (options) {
         headerCellWdiff: 0,
         headerCellHdiff: 0,
         footerWdiff: 0,
-        footerHdiff: 0
+        footerHdiff: 0,
+        rowIndexCellW: 25,
+        rowSelectedCellW: 25
     };
+
+    //#region Events
+    this.selectedItemChanged = ko.observable(); //gets notified everytime a row is selected
+    this.selectedItemChanged.subscribe(function (entity) {
+        var isSelected = entity['__kg_selected__'](),
+            selectedItem = self.config.selectedItem(),
+            selectedItems = self.config.selectedItems;
+
+        if (isSelected) {
+            if (self.config.isMultiSelect) {
+                selectedItems.push(entity);
+            } else {
+                if (selectedItem) { selectedItem['__kg_selected__'](false); }
+                self.config.selectedItem(entity);
+            }
+        } else {
+            if (self.config.isMultiSelect) {
+                selectedItems.remove(entity);
+            } else {
+                if (selectedItem === entity) {
+                    self.config.selectedItem(null);
+                }
+            }
+        }
+    });
+    //#endregion
+
     //#region Rendering
+
+    this.toggleSelectAll = ko.computed({
+        read: function () {
+            var cnt = self.selectedItemCount();
+            if (!self.config.isMultiSelect) { return cnt === 1; }
+            return cnt === self.maxRows();
+        },
+        write: function (val) {
+            var checkAll = val;
+
+            if (self.config.isMultiSelect) {
+                ko.utils.arrayForEach(self.filteredData(), function (entity) {
+                    if (!entity['__kg_selected__']) { entity['__kg_selected__'] = ko.observable(checkAll); }
+                    else {
+                        entity['__kg_selected__'](checkAll);
+                    }
+                    if (checkAll) {
+                        self.config.selectedItems.push(entity);
+                    } else {
+                        self.config.selectedItems.remove(entity);
+                    }
+                });
+            } else {
+                if (!checkAll) {
+                    self.config.selectedItem(null);
+                }
+            }
+        }
+    });
 
     this.update = function (rootDomNode) {
         //build back the DOM variables
@@ -94,7 +171,7 @@ kg.KoGrid = function (options) {
 
         //Headers
         self.$topPanel = $(".kgTopPanel", self.$root[0]);
-        self.$headerContainer = $(".kgHeaderContainer", self.$root[0]);
+        self.$headerContainer = $(".kgHeaderContainer", self.$topPanel[0]);
         self.$headerScroller = $(".kgHeaderScroller", self.$headerContainer[0]);
         self.$headers = self.$headerContainer.children();
 
@@ -106,8 +183,6 @@ kg.KoGrid = function (options) {
 
         //Footers
         self.$footerPanel = $(".kgFooterPanel", self.$root[0]);
-        self.$footerContainer = $(".kgFooterContainer", self.$root[0]);
-        self.$footers = self.$footerContainer.children();
     };
 
     var measureDomConstraints = function () {
@@ -119,7 +194,7 @@ kg.KoGrid = function (options) {
         self.$canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
         self.$canvas.width(100000);
 
-        
+
         //scrollBars
         $.extend(self.elementDims, ruler.measureScrollBar(self.$viewport));
 
@@ -132,22 +207,26 @@ kg.KoGrid = function (options) {
         //header
         $.extend(self.elementDims, ruler.measureHeader(self.$headerScroller));
 
-        self.elementDims.viewportH = self.$root.height() - self.config.headerRowHeight - self.elementDims.headerHdiff;
+        //footer
+        $.extend(self.elementDims, ruler.measureFooter(self.$footerPanel));
+
+        self.elementDims.viewportH = self.$root.height() - self.config.headerRowHeight - self.elementDims.headerHdiff - self.config.footerRowHeight;
         self.elementDims.viewportW = self.$root.width();
-
-        self.$headerContainer.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-        self.$headerContainer.css("line-height", (self.config.headerRowHeight - self.elementDims.headerHdiff) + 'px');
-
-        //self.$headerScroller.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-        //self.$headerScroller.css("line-height", self.config.headerRowHeight - self.elementDims.headerHdiff);
 
         self.$viewport.height(self.elementDims.viewportH);
         self.$viewport.width(self.elementDims.viewportW);
 
-        self.$canvas.width("auto");
+        self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);
 
-        self.$headerContainer.width(self.elementDims.viewportW - self.elementDims.scrollW);
-        self.$headerScroller.width(self.config.maxRowWidth() + self.elementDims.scrollW);
+        self.$headerContainer.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
+        self.$headerContainer.css("line-height", (self.config.headerRowHeight - self.elementDims.headerHdiff) + 'px');
+        self.$headerContainer.width(self.elementDims.viewportW);
+
+        self.$headerScroller.width(self.config.maxRowWidth() + self.elementDims.rowWdiff + self.elementDims.scrollW);
+        self.$headerScroller.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
+
+        self.$footerPanel.width(self.elementDims.viewportW);
+        self.$footerPanel.height(self.config.footerRowHeight - self.elementDims.footerHdiff);
     };
 
     var calculateConstraints = function () {
@@ -176,6 +255,13 @@ kg.KoGrid = function (options) {
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
+        if (self.config.allowRowSelection) {
+            columnDefs.splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
+        }
+        if (self.config.displayRowIndex) {
+            columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+        }
+
         var createOffsetRightClosure = function (col, rowMaxWidthObs) {
             return function () {
                 return ko.computed(function () {
@@ -196,7 +282,7 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                column.offsetLeft(i * self.config.columnWidth);
+                column.offsetLeft(rowWidth);
                 column.width(colDef.width || self.config.columnWidth);
 
                 rowWidth += column.width(); //sum this up
@@ -209,12 +295,16 @@ kg.KoGrid = function (options) {
 
             self.config.maxRowWidth(rowWidth);
         }
+
+        self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
+        
     };
 
     this.init = function () {
-        ensureTemplates();
 
         buildColumns();
+
+        ensureTemplates();
 
         self.rowManager = new kg.RowManager(self);
 
@@ -247,19 +337,30 @@ kg.KoGrid = function (options) {
             document.body.appendChild(el);
         };
 
+        //Row Template
         if (!document.getElementById(self.config.rowTemplate)) {
             var tmpl = document.createElement("SCRIPT");
             tmpl.type = "text/html";
             tmpl.id = self.config.rowTemplate;
-            tmpl.innerText = kg.defaultRowTemplate();
+            tmpl.innerText = kg.generateRowTemplate(self.columns());
             appendToFooter(tmpl);
         }
 
+        //Header Template
         if (!document.getElementById(self.config.headerTemplate)) {
             var tmpl = document.createElement("SCRIPT");
             tmpl.type = "text/html";
             tmpl.id = self.config.headerTemplate;
             tmpl.innerText = kg.defaultHeaderTemplate();
+            appendToFooter(tmpl);
+        }
+
+        //Footer Template
+        if (!document.getElementById(self.config.footerTemplate)) {
+            var tmpl = document.createElement("SCRIPT");
+            tmpl.type = "text/html";
+            tmpl.id = self.config.footerTemplate;
+            tmpl.innerText = kg.defaultFooterTemplate();
             appendToFooter(tmpl);
         }
     };

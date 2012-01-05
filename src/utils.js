@@ -29,4 +29,27 @@ utils.newId = (function () {
     };
 } ());
 
+utils.StringBuilder = function () {
+    var strArr = [];
+
+    this.append = function (str, data) {
+        var len = arguments.length,
+            strMatch = '{0}',
+            i = 1;
+
+        if (len > 1) { // they provided data
+            while (i <= len) {
+                str = str.replace(strMatch, arguments[i]);
+                i++;
+                strMatch = "{" + i - 1 + "}";
+            }
+        }
+        strArr.push(str);
+    };
+
+    this.toString = function () {
+        return strArr.join("");
+    };
+};
+
 kg.utils = utils;

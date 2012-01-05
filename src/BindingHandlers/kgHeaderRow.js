@@ -24,9 +24,9 @@
         }
     };
 
-    var makeNewBindingContext = function (bindingContext, headerRow) {
-        return bindingContext.createChildContext(headerRow);
-    };
+//    var makeNewBindingContext = function (bindingContext, headerRow) {
+//        return bindingContext.createChildContext(headerRow);
+//    };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -36,12 +36,12 @@
 
             kg.domFormatter.formatHeaderRow(element, grid.headerRow);
 
-            return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid.headerRow));
+            return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
-            return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid.headerRow));
+            return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         }
     }
 } ());

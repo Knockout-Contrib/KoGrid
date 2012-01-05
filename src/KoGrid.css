@@ -10,14 +10,24 @@
     font-weight: bold;
 }
 .kgHeaderScroller {
-
+    padding-right: 5px;
 }
 .kgHeaderCell {
     position: absolute; 
     padding: 0 5px;
+    border-right: 1px solid rgb(229, 229, 229); 
 }
+.kgViewport{
+    background-color: rgb(237, 237, 237);
+}
+
+.kgCanvas{
+    
+}
+
 .kgRow {
     border-bottom: 1px solid rgb(229, 229, 229);
+    padding-right: 5px;
 }
 .kgRow.even {
     background-color: rgb(248, 248, 248);
@@ -26,7 +36,20 @@
     background-color: rgb(255, 255, 255);
 }
 .kgCell {
-        overflow: hidden; 
-        position: absolute;
-        padding: 0 5px;
+    overflow: hidden; 
+    position: absolute;
+    padding: 0 5px;
+}
+.kgRowIndexCell{ 
+    background-color: rgb(237, 237, 237);
+}
+.kgSelectionCell {
+    
+}
+.kgSelectionCell input[type="checkbox"] {
+    vertical-align: middle;
+}
+.kgFooterPanel{
+    background-color: rgb(237, 237, 237);
+    border-top: 1px solid rgb(229, 229, 229);
 }

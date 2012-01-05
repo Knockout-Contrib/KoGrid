@@ -10,7 +10,7 @@
 
     },
 
-    formatHeaderCell: function(element, headerCell){
+    formatHeaderCell: function (element, headerCell) {
 
         element.className = "kgHeaderCell col" + headerCell.colIndex;
     },
@@ -26,7 +26,11 @@
 
     formatCell: function (element, cell) {
 
-        element.className = "kgCell " + "col" + cell.column.index;
+        element.className += " kgCell " + "col" + cell.column.index;
+
+    },
+
+    formatFooter: function (element, footer) {
 
     }
 };

@@ -1,4 +1,8 @@
-﻿kg.cssBuilder = {
+﻿/// <reference path="../../lib/jquery-1.7.js" />
+/// <reference path="../../lib/knockout-2.0.0.debug.js" />
+/// <reference path="../KoGrid.js" />
+
+kg.cssBuilder = {
 
     buildStyles: function (grid) {
         var $style = grid.$style;
@@ -14,12 +18,15 @@
             len = grid.columns().length,
             col,
             colWidth;
-
+        
         rules = [
             "." + gridId + " .kgCell { height:" + rowHeight + "px }",
 
-            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
+            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }",
 
+            "." + gridId + " .kgSelectionCell { width:" + grid.elementDims.rowSelectedCellW + "px;}",
+
+            "." + gridId + " .kgRowIndexCell { width:" + grid.elementDims.rowIndexCellW + "px; }"
         ];
 
         for (; i < len; i++) {
