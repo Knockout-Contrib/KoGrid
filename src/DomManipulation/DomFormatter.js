@@ -7,12 +7,12 @@
     },
 
     formatHeaderRow: function (element, headerRow) {
-        element.style.height = headerRow.height + 'px';
+
     },
 
     formatHeaderCell: function(element, headerCell){
 
-        element.className = "kgHeadCell col" + headerCell.colIndex;
+        element.className = "kgHeaderCell col" + headerCell.colIndex;
     },
 
     formatRow: function (element, row) {

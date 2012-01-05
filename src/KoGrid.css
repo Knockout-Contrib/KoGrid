@@ -1,0 +1,32 @@
+﻿.kgGrid {
+    background-color: rgb(253, 253, 253);
+    border-bottom: 1px solid rgb(229, 229, 229);
+}
+.kgTopPanel {
+    background-color: rgb(237, 237, 237);
+}
+.kgHeaderContainer {             
+    border-bottom: 1px solid rgb(229, 229, 229); 
+    font-weight: bold;
+}
+.kgHeaderScroller {
+
+}
+.kgHeaderCell {
+    position: absolute; 
+    padding: 0 5px;
+}
+.kgRow {
+    border-bottom: 1px solid rgb(229, 229, 229);
+}
+.kgRow.even {
+    background-color: rgb(248, 248, 248);
+}
+.kgRow.odd {
+    background-color: rgb(255, 255, 255);
+}
+.kgCell {
+        overflow: hidden; 
+        position: absolute;
+        padding: 0 5px;
+}

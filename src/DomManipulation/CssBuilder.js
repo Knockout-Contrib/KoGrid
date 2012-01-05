@@ -7,25 +7,25 @@
             $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('head'));
         }
 
-        var rowHeight = (grid.config.rowHeight),
+        var rowHeight = (grid.config.rowHeight - grid.elementDims.rowHdiff),
             gridId = grid.gridId,
             rules,
             i = 0,
             len = grid.columns().length,
-            col;
+            col,
+            colWidth;
 
         rules = [
-            "." + gridId + " .kgHeaderRow { height:" + grid.config.headerRowHeight + "px; }",
+            "." + gridId + " .kgCell { height:" + rowHeight + "px }",
 
-            "." + gridId + " .kgCell { position: absolute; height:" + rowHeight + "px; overflow: hidden; padding: 0 5px;}",
-
-            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; }"
+            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
 
         ];
 
         for (; i < len; i++) {
             col = grid.columns()[i];
-            rules.push("." + gridId + " .col" + i + " { left: " + col.offsetLeft() + "px; right: " + col.offsetRight() + "px; width: " + col.width() + "px; }");
+            colWidth = col.width() - grid.elementDims.cellWdiff;
+            rules.push("." + gridId + " .col" + i + " { left: " + col.offsetLeft() + "px; right: " + col.offsetRight() + "px; width: " + colWidth + "px; }");
         }
 
         if ($style[0].styleSheet) { // IE
