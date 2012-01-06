@@ -18,6 +18,21 @@
         return col.offsetRight();
     });
 
+    this.filter = ko.computed({
+        read: function () {
+            return self.column.filter();
+        },
+        write: function (val) {
+            self.column.filter(val);
+        }
+    });
+
+    this.showFilter = function () {
+
+    };
+
+    this.filterVisible = ko.observable(false);
+
     this.sort = function () {
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);

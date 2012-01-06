@@ -10,6 +10,7 @@
             cell.colIndex = i;
             cell.displayName = col.field;
 
+
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;
         });
@@ -31,6 +32,8 @@
             buildHeaders(grid);
 
             kg.domFormatter.formatHeaderRow(element, grid.headerRow);
+
+            grid.registerFilters();
 
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },

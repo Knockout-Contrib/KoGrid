@@ -7,6 +7,10 @@
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
 
+    //sorting
     this.allowSort = true;
     this.sortDirection = ko.observable("desc");
+
+    //filtering
+    this.filter = ko.observable();
 };

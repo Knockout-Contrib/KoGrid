@@ -7,6 +7,7 @@ kg.KoGrid = function (options) {
         columnWidth: 100,
         headerRowHeight: 30,
         footerRowHeight: 45,
+        filterRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
         headerCellTemplate: 'kgHeaderCellTemplate',
@@ -30,6 +31,7 @@ kg.KoGrid = function (options) {
     },
 
     self = this,
+    filterIsOpen = ko.observable(false),
     prevScrollTop, prevScrollLeft;
 
     this.$root; //this is the root element that is passed in with the binding handler
@@ -346,6 +348,37 @@ kg.KoGrid = function (options) {
 
     this.registerEvents = function () {
         self.$viewport.scroll(handleScroll);
+    };
+
+    this.registerFilters = function () {
+
+        var showFilterRowHandler = function () {
+            var isOpen = (filterIsOpen() ? false : true),
+                $viewport = self.$viewport,
+                $headerScroller = self.$headerScroller,
+                $headerContainer = self.$headerContainer;
+
+            utils.forEach(self.headerRow.headerCells, function (cell, i) {
+                cell.filterVisible(isOpen);
+            });
+
+            if (isOpen) {
+                $viewport.height($viewport.height() - self.config.filterRowHeight);
+                $headerScroller.height($headerScroller.height() + self.config.filterRowHeight);
+                $headerContainer.height($headerContainer.height() + self.config.filterRowHeight);
+            } else {
+                $viewport.height($viewport.height() + self.config.filterRowHeight);
+                $headerScroller.height($headerScroller.height() - self.config.filterRowHeight);
+                $headerContainer.height($headerContainer.height() - self.config.filterRowHeight);
+            }
+
+            filterIsOpen(isOpen);
+        };
+
+        //assign it
+        utils.forEach(self.headerRow.headerCells, function (cell, i) {
+            cell.showFilter = showFilterRowHandler;
+        });
     };
 
     var handleScroll = function (e) {
