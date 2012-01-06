@@ -24,10 +24,6 @@
         }
     };
 
-//    var makeNewBindingContext = function (bindingContext, headerRow) {
-//        return bindingContext.createChildContext(headerRow);
-//    };
-
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;

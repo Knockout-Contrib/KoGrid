@@ -13,7 +13,7 @@
 
             cell = new kg.Cell(col);
             cell.row = row;
-            cell.data(row.entity()[col.field]);
+            cell.data = row.entity()[col.field]; //could be observable or not...
 
             cells.push(cell);
             row.cellMap[col.field] = cell;

@@ -4,6 +4,7 @@
 ..\Src\utils.js
 ..\Src\Templates\GridTemplate.js
 ..\Src\Templates\HeaderTemplate.js
+..\Src\Templates\HeaderCellTemplate.js
 ..\Src\Templates\RowTemplate.js
 ..\Src\Templates\FooterTemplate.js
 ..\Src\GridClasses\Cell.js

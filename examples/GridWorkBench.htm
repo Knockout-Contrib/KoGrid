@@ -1,146 +1,210 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>KoGrid WorkBench</title>
+    <title>Ko Grid Sandbox</title>
     <script src="../lib/jquery-1.7.js" type="text/javascript"></script>
-    <style type="text/css">
-        /**************
-        * Generated Styles from KoGrid JavaScript 
-        * - just ask Eric and we can adjust how these are generated
-        */.kg1325687280633 .kgCell {
-            height: 30px;
-            overflow: hidden;
-            position: absolute;
-            padding: 0 5px;
-        }
-        .kg1325687280633 .col0 {
-            left: 0px;
-            right: 400px;            
-            width: 90px;
-        }
-        .kg1325687280633 .col1 {
-            left: 100px;
-            right: 300px;
-            width: 90px;
-        }
-        .kg1325687280633 .col2 {
-            left: 200px;
-            right: 200px;
-            width: 90px;
-        }
-        .kg1325687280633 .col3 {
-            left: 300px;
-            right: 100px;
-            width: 90px;
-        }
-        .kg1325687280633 .col4 {
-            left: 400px;
-            right: 0px;
-            width: 90px;
-        }
-        /* End Generated Styles *//* Eric's Hacked Styles */
-        
-    </style>
+    <script src="../lib/json2.js" type="text/javascript"></script>
+    <script src="../lib/knockout-2.0.0.debug.js" type="text/javascript"></script>
+    <script src="../build/koGrid.debug.js" type="text/javascript"></script>
+    <link href="../src/KoGrid.css" rel="stylesheet" type="text/css" />
 </head>
-<body style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
-    <div id="sandbox1">
-        <div class="kgGrid kg1325687280633" id="myGrid" style="width: 525px; height: 600px; position: relative;" data-bind="koGrid: { data: testData }">
-            <div class="kgHeaderContainer" style="width: 525px; height: 30px; position: relative; overflow-x: hidden;">
-                <div class="kgHeaderScroller" style="width: 488px; height: 30px;" data-bind="kgHeaderRow: $data">
-                    <div class="kgHeadCell col0" data-bind="kgHeader: { value: 'Sku' } ">
-                        SKU
-                    </div>
-                    <div class="kgHeadCell col1" data-bind="kgHeader: { value: 'Vendor' } ">
-                        Vendor
-                    </div>
-                    <div class="kgHeadCell col2" data-bind="kgHeader: { value: 'SeasonCode' } ">
-                        SeasonCode
-                    </div>
-                    <div class="kgHeadCell col3" data-bind="kgHeader: { value: 'Mfg_Id' } ">
-                        Mfg_Id
-                    </div>
-                    <div class="kgHeadCell col4" data-bind="kgHeader: { value: 'UPC' } ">
-                        UPC
-                    </div>
-                </div>
-            </div>
-            <div class="kgViewport" style="width: 525px; height: 570px; overflow: auto;">
-                <div class="kgCanvas" style="width: auto; height: 3575px; position: relative;" data-bind="kgRows: $data.rows">
-                    <div class="kgRow even" style="top: 0px;" data-bind="kgRow: $data">
-                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
-                            343983-061
-                        </div>
-                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
-                            NIKE
-                        </div>
-                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
-                            0109
-                        </div>
-                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
-                            400112326393
-                        </div>
-                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
-                            091201280544
-                        </div>
-                    </div>
-                    <div class="kgRow odd" style="top: 30px;" data-bind="kgRow: $data">
-                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
-                            343983-061
-                        </div>
-                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
-                            NIKE
-                        </div>
-                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
-                            0109
-                        </div>
-                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
-                            400112326409
-                        </div>
-                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
-                            091201280551
-                        </div>
-                    </div>
-                    <div class="kgRow even" style="top: 60px;" data-bind="kgRow: $data">
-                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
-                            343983-061
-                        </div>
-                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
-                            NIKE
-                        </div>
-                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
-                            0109
-                        </div>
-                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
-                            400112326416
-                        </div>
-                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
-                            091201280568
-                        </div>
-                    </div>
-                    <div class="kgRow odd" style="top: 90px;" data-bind="kgRow: $data">
-                        <div class="kgCell col0" data-bind="kgCell: { value: 'Sku' } ">
-                            343983-061
-                        </div>
-                        <div class="kgCell col1" data-bind="kgCell: { value: 'Vendor' } ">
-                            NIKE
-                        </div>
-                        <div class="kgCell col2" data-bind="kgCell: { value: 'SeasonCode' } ">
-                            0109
-                        </div>
-                        <div class="kgCell col3" data-bind="kgCell: { value: 'Mfg_Id' } ">
-                            400112326423
-                        </div>
-                        <div class="kgCell col4" data-bind="kgCell: { value: 'UPC' } ">
-                            091201280575
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="kgFooterContainer" style="position: relative;">
-                <div class="kgFooters">
-                </div>
-            </div>
+<body>
+    <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
+        <div id="myGrid" style="height: 500px; width: 500px;"
+            data-bind="koGrid:{ data: testData, 
+                                isMultiSelect: true,
+                                selectedItem: mySelectedItem,
+                                rowHeight: 30,
+                                columnWidth: 100,
+                                headerRowHeight: 30,
+                                footerRowHeight: 45,
+                                rowTemplate: 'kgRowTemplate',
+                                headerTemplate: 'kgHeaderRowTemplate',
+                                footerTemplate: 'kgFooterTemplate',
+                                gridCssClass: 'koGrid',
+                                autogenerateColumns: true,
+                                columnDefs: [],
+                                enablePaging: true,
+                                pageSizes: [250, 500, 1000], 
+                                defaultPageSize: 250,
+                                totalServerItems: null,
+                                allowRowSelection: true,
+                                displayRowIndex: true,
+                                showRowIndex: false,
+                                pageChanged: pageChanged }"></div>
+
+
+        <div data-bind="with: mySelectedItem">
+            <p>SKU: <span data-bind="text: Sku"></span></p>
+            <p>Vendor: <span data-bind="text: Vendor"></span></p>
+            <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
+            <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
+            <p>UPC: <span data-bind="text: UPC"></span></p>
         </div>
     </div>
+    
 </body>
+<script type="text/javascript">
+    $(function () {
+        
+        var vm = {        
+            testData: getTestData(),
+            mySelectedItem: ko.observable({ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' }),
+            pageChanged: function(newPage){
+                alert(newPage);
+            }
+        };
+
+        ko.applyBindings(vm, $('#sandbox1')[0]);
+    });
+
+    window.getTestData = function () {
+        var arr = ko.observableArray([
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326409', 'UPC': '091201280551' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326416', 'UPC': '091201280568' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326423', 'UPC': '091201280575' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326430', 'UPC': '091201280582' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326447', 'UPC': '091201288533' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326454', 'UPC': '091201288540' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326461', 'UPC': '091201289264' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326478', 'UPC': '091201289271' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326485', 'UPC': '091201291090' },
+                { 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326492', 'UPC': '091201291106' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326591', 'UPC': '091208583020' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326607', 'UPC': '091208583037' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326614', 'UPC': '091208583389' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326621', 'UPC': '091208583570' },
+                { 'Sku': ko.observable('318069-142'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326638', 'UPC': '091208583587'}]);
+        return arr;
+    };
+</script>
+
 </html>

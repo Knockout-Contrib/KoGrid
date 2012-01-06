@@ -5,11 +5,12 @@
 kg.cssBuilder = {
 
     buildStyles: function (grid) {
-        var $style = grid.$style;
+        var $style = grid.$styleSheet;
 
         if (!$style) {
             $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('head'));
         }
+        $style.empty();
 
         var rowHeight = (grid.config.rowHeight - grid.elementDims.rowHdiff),
             gridId = grid.gridId,
@@ -18,15 +19,11 @@ kg.cssBuilder = {
             len = grid.columns().length,
             col,
             colWidth;
-        
+
         rules = [
             "." + gridId + " .kgCell { height:" + rowHeight + "px }",
 
-            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }",
-
-            "." + gridId + " .kgSelectionCell { width:" + grid.elementDims.rowSelectedCellW + "px;}",
-
-            "." + gridId + " .kgRowIndexCell { width:" + grid.elementDims.rowIndexCellW + "px; }"
+            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
         ];
 
         for (; i < len; i++) {

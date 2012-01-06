@@ -2,6 +2,16 @@
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['kgCell'] = (function () {
+    var makeValueAccessor = function (cell) {
+        var func;
+
+        if (cell.column.field === 'rowIndex') {
+            return function () { return cell.row.rowIndex; }
+        } else {
+            return function () { return cell.data; }
+        }
+    };
+
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
@@ -15,7 +25,10 @@ ko.bindingHandlers['kgCell'] = (function () {
             cell = row.cellMap[options.value];
 
             kg.domFormatter.formatCell(element, cell);
-            ko.bindingHandlers.text.update(element, function () { return cell.data() });
+
+            if (cell.column.field !== '__kg_selected__') {
+                ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
+            }
         }
     };
 

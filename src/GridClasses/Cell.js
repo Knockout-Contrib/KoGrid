@@ -1,5 +1,5 @@
 ﻿kg.Cell = function (col) {
-    this.data = ko.observable();
+    this.data = '';
     this.width = ko.computed(function () {
         return col.width();
     });

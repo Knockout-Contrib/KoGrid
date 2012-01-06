@@ -6,15 +6,17 @@ kg.KoGrid = function (options) {
         rowHeight: 30,
         columnWidth: 100,
         headerRowHeight: 30,
-        footerRowHeight: 30,
+        footerRowHeight: 45,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
+        headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
         gridCssClass: 'koGrid',
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
         pageSizes: [250, 500, 1000], //page Sizes
+        enablePaging: false,
         defaultPageSize: 250, //Size of Paging data
         totalServerItems: null, //ko.observable of how many items are on the server (for paging)
         selectedItem: ko.observable(), //ko.observable
@@ -23,7 +25,8 @@ kg.KoGrid = function (options) {
         allowRowSelection: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         minRowsToRender: ko.observable(1),
-        maxRowWidth: ko.observable(120)
+        maxRowWidth: ko.observable(120),
+        pageChanged: function () { }
     },
 
     self = this,
@@ -104,7 +107,7 @@ kg.KoGrid = function (options) {
             if (self.config.isMultiSelect) {
                 selectedItems.push(entity);
             } else {
-                if (selectedItem) { selectedItem['__kg_selected__'](false); }
+                if (selectedItem && selectedItem['__kg_selected__']) { selectedItem['__kg_selected__'](false); }
                 self.config.selectedItem(entity);
             }
         } else {
@@ -117,6 +120,24 @@ kg.KoGrid = function (options) {
             }
         }
     });
+
+    this.pageChanged = ko.observable(1); //event for paging
+    this.pageChanged.subscribe(self.config.pageChanged);
+
+    this.sortData = function (col, dir) {
+        self.data.sort(function (a, b) {
+            var propA = ko.utils.unwrapObservable(a[col.field]),
+                propB = ko.utils.unwrapObservable(b[col.field]);
+
+            if (dir === "asc") {
+                return propA == propB ? 0 : (propA < propB ? -1 : 1);
+            } else {
+                return propA == propB ? 0 : (propA > propB ? -1 : 1);
+            }
+
+
+        });
+    };
     //#endregion
 
     //#region Rendering
@@ -276,6 +297,12 @@ kg.KoGrid = function (options) {
             };
         };
 
+        var createColumnSortClosure = function (col) {
+            return function (val) {
+                self.sortData(col, val);
+            }
+        }
+
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -290,6 +317,9 @@ kg.KoGrid = function (options) {
                 //setup the max col width observable
                 column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
+
+                column.sortDirection.subscribe(createColumnSortClosure(column));
+
                 self.columns.push(column);
             });
 
@@ -297,7 +327,10 @@ kg.KoGrid = function (options) {
         }
 
         self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
-        
+        self.config.headerTemplate = self.gridId + self.config.headerTemplate; //make it unique by id
+        self.config.headerCellTemplate = self.gridId + self.config.headerCellTemplate;
+        self.config.footerTemplate = self.gridId + self.config.footerTemplate; //make it unique by id
+
     };
 
     this.init = function () {
@@ -333,35 +366,38 @@ kg.KoGrid = function (options) {
     };
 
     var ensureTemplates = function () {
-        var appendToFooter = function (el) {
-            document.body.appendChild(el);
-        };
+        var text = '',
+            appendTemplateToFooter = function (templateText, id) {
+                var tmpl = document.createElement("SCRIPT");
+                tmpl.type = "text/html";
+                tmpl.id = id;
+                tmpl.innerText = templateText;
+                document.body.appendChild(tmpl);
+            };
 
         //Row Template
         if (!document.getElementById(self.config.rowTemplate)) {
-            var tmpl = document.createElement("SCRIPT");
-            tmpl.type = "text/html";
-            tmpl.id = self.config.rowTemplate;
-            tmpl.innerText = kg.generateRowTemplate(self.columns());
-            appendToFooter(tmpl);
+            text = kg.generateRowTemplate(self.columns());
+            appendTemplateToFooter(text, self.config.rowTemplate);
         }
 
         //Header Template
         if (!document.getElementById(self.config.headerTemplate)) {
-            var tmpl = document.createElement("SCRIPT");
-            tmpl.type = "text/html";
-            tmpl.id = self.config.headerTemplate;
-            tmpl.innerText = kg.defaultHeaderTemplate();
-            appendToFooter(tmpl);
+            text = kg.generateHeaderTemplate(self.columns());
+            appendTemplateToFooter(text, self.config.headerTemplate);
+        }
+
+        //HeaderCell Template
+        if (!document.getElementById(self.config.headerCellTemplate)) {
+            text = kg.defaultHeaderCellTemplate();
+            appendTemplateToFooter(text, self.config.headerCellTemplate);
         }
 
         //Footer Template
         if (!document.getElementById(self.config.footerTemplate)) {
-            var tmpl = document.createElement("SCRIPT");
-            tmpl.type = "text/html";
-            tmpl.id = self.config.footerTemplate;
-            tmpl.innerText = kg.defaultFooterTemplate();
-            appendToFooter(tmpl);
+            text = kg.defaultFooterTemplate();
+            appendTemplateToFooter(text, self.config.footerTemplate);
         }
+
     };
 };

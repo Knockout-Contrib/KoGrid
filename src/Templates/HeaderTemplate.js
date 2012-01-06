@@ -1,10 +1,16 @@
-﻿kg.defaultHeaderTemplate = function () {
-    return '<div data-bind="kgHeader: { value: \'__kg_selected__\' } ">' +
-                '<input type="checkbox" data-bind="checked: $parent.toggleSelectAll" />' + 
-           '</div>' +
-           '<div data-bind="kgHeader: { value: \'Sku\' } "></div>' +
-           '<div data-bind="kgHeader: { value: \'Vendor\' } "></div>' +
-           '<div data-bind="kgHeader: { value: \'SeasonCode\' } "></div>' +
-           '<div data-bind="kgHeader: { value: \'Mfg_Id\' } "></div>' +
-           '<div data-bind="kgHeader: { value: \'UPC\' } "></div>';
+﻿kg.generateHeaderTemplate = function (cols) {
+    var b = new kg.utils.StringBuilder();
+
+    utils.forEach(cols, function (col, i) {
+        if (col.field === '__kg_selected__') {
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' } "><input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/></div>', col.field);
+        } else if (col.field === 'rowIndex') {
+            //skip
+        } else {
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('</div>');
+        }
+    });
+
+    return b.toString();
 };

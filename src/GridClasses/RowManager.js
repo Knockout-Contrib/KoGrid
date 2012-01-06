@@ -6,6 +6,9 @@
 
     this.rowTemplateId = grid.config.rowTemplate;
     this.dataSource = grid.filteredData; //observable
+    this.dataSource.subscribe(function () {
+        rowCache = {}; //if data source changes, kill this!
+    });
     this.minViewportRows = ko.computed(function () { return grid.config.minRowsToRender(); });
     this.excessRows = 5;
     this.rowHeight = grid.config.rowHeight;
@@ -76,5 +79,4 @@
 
         return rowArr;
     });
-
 };

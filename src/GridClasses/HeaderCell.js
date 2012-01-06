@@ -1,4 +1,6 @@
 ﻿kg.HeaderCell = function (col) {
+    var self = this;
+
     this.colIndex = 0;
     this.displayName = '';
     this.field = '';
@@ -15,4 +17,9 @@
     this.offsetRight = ko.computed(function () {
         return col.offsetRight();
     });
+
+    this.sort = function () {
+        var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
+        self.column.sortDirection(dir);
+    };
 };

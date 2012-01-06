@@ -6,4 +6,7 @@
     this.displayName = colDef.displayName || '';
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
+
+    this.allowSort = true;
+    this.sortDirection = ko.observable("desc");
 };
