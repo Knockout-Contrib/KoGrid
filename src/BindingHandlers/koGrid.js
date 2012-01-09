@@ -51,6 +51,9 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid.update(element);
 
                 grid.registerEvents();
+
+                //finally re-measure the container
+                grid.refreshDomSizes();
             }
             return returnVal;
         }

@@ -11,7 +11,7 @@
 </head>
 <body>
     <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
-        <div id="myGrid" style="height: 500px; width: 500px;"
+        <div id="myGrid" style="height: 500px; float: left;"
             data-bind="koGrid:{ data: testData, 
                                 isMultiSelect: true,
                                 selectedItem: mySelectedItem,
@@ -20,7 +20,7 @@
                                 headerRowHeight: 30,
                                 footerRowHeight: 45,
                                 autogenerateColumns: false,
-                                columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, {field: 'Vendor', displayName: 'Supplier'}],
+                                columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, {field: 'Vendor', displayName: 'Supplier'}, {field: 'Mfg_Id', displayName: 'Manufacturer ID'}, {field: 'UPC', displayName: 'Bar Code'}],
                                 enablePaging: true,
                                 pageSizes: [250, 500, 1000], 
                                 defaultPageSize: 250,

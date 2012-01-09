@@ -7,6 +7,7 @@
 ..\Src\Templates\HeaderCellTemplate.js
 ..\Src\Templates\RowTemplate.js
 ..\Src\Templates\FooterTemplate.js
+..\Src\GridClasses\Dimension.js
 ..\Src\GridClasses\Cell.js
 ..\Src\GridClasses\Column.js
 ..\Src\GridClasses\ColumnCollection.js
@@ -28,3 +29,4 @@
 ..\src\BindingHandlers\kgHeaderRow.js
 ..\src\BindingHandlers\kgHeaderCell.js
 ..\src\BindingHandlers\kgFooter.js
+..\src\BindingHandlers\kgSize.js

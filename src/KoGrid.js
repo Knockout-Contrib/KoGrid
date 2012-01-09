@@ -107,6 +107,62 @@ kg.KoGrid = function (options) {
         rowSelectedCellW: 25
     };
 
+    //#region Container Dimensions
+
+    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 200, outerWidth: 200 }));
+    this.headerDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = self.config.headerRowHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.footerDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = self.config.footerRowHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.viewportDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            headerDim = self.headerDim(),
+            footerDim = self.footerDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = rootDim.outerHeight - headerDim.outerHeight - footerDim.outerHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+        newDim.innerHeight = newDim.outerHeight;
+        newDim.innerWidth = newDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.totalRowWidth = ko.computed(function () {
+        var width = 0,
+            cols = self.columns();
+
+        utils.forEach(cols, function (col, i) {
+            width += col.width();
+        });
+
+        return width;
+    });
+
+    this.minRowsToRender = ko.computed(function () {
+        var viewportH = self.viewportDim().outerHeight || 1;
+
+        return Math.floor(viewportH / self.config.rowHeight)
+    });
+
+    //#endregion
+
     //#region Events
     this.selectedItemChanged = ko.observable(); //gets notified everytime a row is selected
     this.selectedItemChanged.subscribe(function (entity) {
@@ -187,13 +243,13 @@ kg.KoGrid = function (options) {
         //build back the DOM variables
         updateDomStructure(rootDomNode);
 
-        measureDomConstraints();
+        //measureDomConstraints();
 
-        calculateConstraints();
+        //calculateConstraints();
 
         kg.cssBuilder.buildStyles(self);
 
-        self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
+        //self.rowManager.viewableRange(new kg.Range(0, self.minRowsToRender()));
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -216,6 +272,17 @@ kg.KoGrid = function (options) {
 
         //Footers
         self.$footerPanel = $(".kgFooterPanel", self.$root[0]);
+    };
+
+    this.refreshDomSizes = function () {
+
+        var dim = new kg.Dimension();
+
+        dim.outerHeight = self.$root.outerHeight();
+        dim.outerWidth = self.$root.outerWidth();
+
+        self.rootDim(dim);
+
     };
 
     var measureDomConstraints = function () {
@@ -251,7 +318,7 @@ kg.KoGrid = function (options) {
 
         //viewport
         self.$viewport.height(self.elementDims.viewportH);
-        self.$viewport.width(self.elementDims.viewportW);
+        self.$viewport.width("auto");
 
         //canvas
         self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);

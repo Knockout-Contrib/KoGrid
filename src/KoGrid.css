@@ -1,5 +1,7 @@
-﻿.kgGrid {
-    background-color: rgb(253, 253, 253);
+﻿body { font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px; color: #333; }
+
+.kgGrid {
+    background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(229, 229, 229);
 }
 .kgTopPanel {
@@ -18,7 +20,7 @@
     border-right: 1px solid rgb(229, 229, 229); 
 }
 .kgViewport{
-    background-color: rgb(237, 237, 237);
+    background-color: rgb(255, 255, 255);
 }
 
 .kgCanvas{
@@ -45,10 +47,10 @@
     background-color: rgb(237, 237, 237);
 }
 .kgSelectionCell {
-    
+    padding-top: 5px
 }
 .kgSelectionCell input[type="checkbox"] {
-    vertical-align: middle;
+
 }
 .kgFooterPanel{
     background-color: rgb(237, 237, 237);

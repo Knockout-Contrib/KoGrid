@@ -84,17 +84,17 @@ kg.utils = utils;
 * FILE: ..\Src\Templates\GridTemplate.js 
 ***********************************************/ 
 ﻿kg.defaultGridInnerTemplate = function () {
-    return  '<div class="kgTopPanel">' +
-                '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden">' +
+    return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
+                '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden" data-bind="kgSize: $data.headerDim">' +
                     '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data">' +
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgViewport" style="overflow: auto;">' +
+            '<div class="kgViewport" style="overflow: auto;" data-bind="kgSize: $data.viewportDim">' +
                 '<div class="kgCanvas" data-bind="kgRows: $data.rows" style="position: relative">' +
                 '</div>' +
             '</div>' +
-            '<div class="kgFooterPanel" data-bind="kgFooter: $data">' +
+            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
                 
             '</div>';
 }; 
@@ -128,8 +128,8 @@ kg.utils = utils;
     var b = new kg.utils.StringBuilder();
 
     b.append('<span data-bind="text: $data.displayName"></span>');
-    b.append('<button data-bind="click: $data.sort">S</button>');
-    b.append('<button data-bind="click: $data.showFilter">F</button>');
+    b.append('<img data-bind="click: $data.sort" src="../images/icon_sort_descending.png" />');
+    //b.append('<button data-bind="click: $data.showFilter">F</button>');
     b.append('<div data-bind="visible: $data.filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter" style="width: 80px" />');
     b.append('</div>');
@@ -175,6 +175,21 @@ kg.utils = utils;
                     '<button data-bind="click: pageForward"> >> </button>' +
                 '</div>' +
             '</div>';
+}; 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\GridClasses\Dimension.js 
+***********************************************/ 
+﻿kg.Dimension = function (options) {
+    this.innerHeight = null;
+    this.innerWidth = null;
+    this.outerHeight = null;
+    this.outerWidth = null;
+    this.widthDiff = null;
+    this.heightDiff = null;
+
+    $.extend(this, options);
 }; 
  
  
@@ -376,7 +391,7 @@ kg.ColumnCollection.fn = {
     this.dataSource.subscribe(function () {
         rowCache = {}; //if data source changes, kill this!
     });
-    this.minViewportRows = ko.computed(function () { return grid.config.minRowsToRender(); });
+    this.minViewportRows = grid.minRowsToRender;
     this.excessRows = 5;
     this.rowHeight = grid.config.rowHeight;
     this.cellFactory = new kg.CellFactory(grid.columns());
@@ -384,6 +399,7 @@ kg.ColumnCollection.fn = {
 
     this.renderedRange = ko.computed(function () {
         var rg = self.viewableRange(),
+            minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
             isDif = false;
 
@@ -395,7 +411,7 @@ kg.ColumnCollection.fn = {
             }
 
             if (isDif) {
-                rg.topRow = rg.bottomRow + self.minViewportRows(); //make sure we have the correct number of rows rendered
+                rg.topRow = rg.bottomRow + minRows; //make sure we have the correct number of rows rendered
 
                 rg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
                 rg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
@@ -604,6 +620,62 @@ kg.KoGrid = function (options) {
         rowSelectedCellW: 25
     };
 
+    //#region Container Dimensions
+
+    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 200, outerWidth: 200 }));
+    this.headerDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = self.config.headerRowHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.footerDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = self.config.footerRowHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.viewportDim = ko.computed(function () {
+        var rootDim = self.rootDim(),
+            headerDim = self.headerDim(),
+            footerDim = self.footerDim(),
+            newDim = new kg.Dimension();
+
+        newDim.outerHeight = rootDim.outerHeight - headerDim.outerHeight - footerDim.outerHeight;
+        newDim.outerWidth = rootDim.outerWidth;
+        newDim.innerHeight = newDim.outerHeight;
+        newDim.innerWidth = newDim.outerWidth;
+
+        return newDim;
+    });
+
+    this.totalRowWidth = ko.computed(function () {
+        var width = 0,
+            cols = self.columns();
+
+        utils.forEach(cols, function (col, i) {
+            width += col.width();
+        });
+
+        return width;
+    });
+
+    this.minRowsToRender = ko.computed(function () {
+        var viewportH = self.viewportDim().outerHeight || 1;
+
+        return Math.floor(viewportH / self.config.rowHeight)
+    });
+
+    //#endregion
+
     //#region Events
     this.selectedItemChanged = ko.observable(); //gets notified everytime a row is selected
     this.selectedItemChanged.subscribe(function (entity) {
@@ -684,13 +756,13 @@ kg.KoGrid = function (options) {
         //build back the DOM variables
         updateDomStructure(rootDomNode);
 
-        measureDomConstraints();
+        //measureDomConstraints();
 
-        calculateConstraints();
+        //calculateConstraints();
 
         kg.cssBuilder.buildStyles(self);
 
-        self.rowManager.viewableRange(new kg.Range(0, self.config.minRowsToRender()));
+        //self.rowManager.viewableRange(new kg.Range(0, self.minRowsToRender()));
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -713,6 +785,17 @@ kg.KoGrid = function (options) {
 
         //Footers
         self.$footerPanel = $(".kgFooterPanel", self.$root[0]);
+    };
+
+    this.refreshDomSizes = function () {
+
+        var dim = new kg.Dimension();
+
+        dim.outerHeight = self.$root.outerHeight();
+        dim.outerWidth = self.$root.outerWidth();
+
+        self.rootDim(dim);
+
     };
 
     var measureDomConstraints = function () {
@@ -748,7 +831,7 @@ kg.KoGrid = function (options) {
 
         //viewport
         self.$viewport.height(self.elementDims.viewportH);
-        self.$viewport.width(self.elementDims.viewportW);
+        self.$viewport.width("auto");
 
         //canvas
         self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);
@@ -1173,6 +1256,9 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid.update(element);
 
                 grid.registerEvents();
+
+                //finally re-measure the container
+                grid.refreshDomSizes();
             }
             return returnVal;
         }
@@ -1443,5 +1529,39 @@ ko.bindingHandlers['kgCell'] = (function () {
             return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid.footer));
         }
     }
+} ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\src\BindingHandlers\kgSize.js 
+***********************************************/ 
+﻿ko.bindingHandlers['kgSize'] = (function () {
+
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var $container = $(element),
+                dim = ko.utils.unwrapObservable(valueAccessor());
+
+            var oldHt = $container.outerHeight();
+            var oldWdth = $container.outerWidth();
+
+            if (dim.innerHeight && dim.innerWidth) {
+                $container.height(dim.innerHeight);
+                $container.width(dim.innerWidth);
+                return;
+            };
+
+            if (oldHt !== dim.outerHeight || oldWdth !== dim.outerWidth) {
+                dim.heightDiff = oldHt - $container.height();
+                dim.widthDiff = oldWdth = $container.width();
+
+                $container.height(dim.outerHeight - dim.heightDiff);
+                $container.width(dim.outerWidth - dim.widthDiff);
+            }
+        }
+    };
 } ()); 
 }(window)); 
