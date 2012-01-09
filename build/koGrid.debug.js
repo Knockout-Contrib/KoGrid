@@ -205,7 +205,7 @@ kg.utils = utils;
     this.offsetLeft = ko.observable(0);
     this.offsetRight = null; //replaced w/ ko.computed
     this.field = colDef.field;
-    this.displayName = colDef.displayName || '';
+    this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
 
@@ -314,8 +314,8 @@ kg.ColumnCollection.fn = {
     var self = this;
 
     this.colIndex = 0;
-    this.displayName = '';
-    this.field = '';
+    this.displayName = col.displayName;
+    this.field = col.field;
     this.column = col;
 
     this.width = ko.computed(function () {
@@ -1321,8 +1321,6 @@ ko.bindingHandlers['kgCell'] = (function () {
         utils.forEach(cols, function (col, i) {
             cell = new kg.HeaderCell(col);
             cell.colIndex = i;
-            cell.displayName = col.field;
-
 
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;

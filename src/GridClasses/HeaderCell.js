@@ -2,8 +2,8 @@
     var self = this;
 
     this.colIndex = 0;
-    this.displayName = '';
-    this.field = '';
+    this.displayName = col.displayName;
+    this.field = col.field;
     this.column = col;
 
     this.width = ko.computed(function () {

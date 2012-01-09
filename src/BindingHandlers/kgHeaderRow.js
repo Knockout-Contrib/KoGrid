@@ -8,8 +8,6 @@
         utils.forEach(cols, function (col, i) {
             cell = new kg.HeaderCell(col);
             cell.colIndex = i;
-            cell.displayName = col.field;
-
 
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;
