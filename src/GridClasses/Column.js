@@ -9,7 +9,7 @@
 
     //sorting
     this.allowSort = true;
-    this.sortDirection = ko.observable("desc");
+    this.sortDirection = ko.observable("");
 
     //filtering
     this.filter = ko.observable();

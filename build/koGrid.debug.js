@@ -131,7 +131,7 @@ kg.utils = utils;
     b.append('<button data-bind="click: $data.sort">S</button>');
     b.append('<button data-bind="click: $data.showFilter">F</button>');
     b.append('<div data-bind="visible: $data.filterVisible">');
-    b.append('  <input type="text" data-bind="value: $data.filter" style="width: 80px" />');
+    b.append('  <input type="text" data-bind="value: $data.column.filter" style="width: 80px" />');
     b.append('</div>');
 
     return b.toString();
@@ -211,7 +211,7 @@ kg.utils = utils;
 
     //sorting
     this.allowSort = true;
-    this.sortDirection = ko.observable("desc");
+    this.sortDirection = ko.observable("");
 
     //filtering
     this.filter = ko.observable();
@@ -539,13 +539,22 @@ kg.KoGrid = function (options) {
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
 
+    this.filterInfo = ko.observable();
+
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
     this.filteredData = ko.computed(function () {
+        var filterInfo = self.filterInfo(),
+            data = self.data();
 
-        //TODO: build out filtering
-        return self.data();
+        if (!filterInfo) {
+            return data;
+        }
+
+        return ko.utils.arrayFilter(data, function (item) {
+            return (ko.utils.unwrapObservable(item[filterInfo.field]) === filterInfo.filter);
+        });
     });
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
@@ -633,6 +642,7 @@ kg.KoGrid = function (options) {
 
         });
     };
+
     //#endregion
 
     //#region Rendering
@@ -726,21 +736,30 @@ kg.KoGrid = function (options) {
         //footer
         $.extend(self.elementDims, ruler.measureFooter(self.$footerPanel));
 
+        //viewport
         self.elementDims.viewportH = self.$root.height() - self.config.headerRowHeight - self.elementDims.headerHdiff - self.config.footerRowHeight;
         self.elementDims.viewportW = self.$root.width();
 
+        //Now set the dimensions
+
+        //viewport
         self.$viewport.height(self.elementDims.viewportH);
         self.$viewport.width(self.elementDims.viewportW);
 
+        //canvas
         self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);
+        //height is set in bindingHandler
 
+        //headerContainer
         self.$headerContainer.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
         self.$headerContainer.css("line-height", (self.config.headerRowHeight - self.elementDims.headerHdiff) + 'px');
         self.$headerContainer.width(self.elementDims.viewportW);
 
+        //headerScroller
         self.$headerScroller.width(self.config.maxRowWidth() + self.elementDims.rowWdiff + self.elementDims.scrollW);
         self.$headerScroller.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
 
+        //footer
         self.$footerPanel.width(self.elementDims.viewportW);
         self.$footerPanel.height(self.config.footerRowHeight - self.elementDims.footerHdiff);
     };
@@ -753,7 +772,13 @@ kg.KoGrid = function (options) {
     };
 
     var buildColumnDefsFromData = function () {
-        var item = self.data()[0];
+        var item;
+
+        if (!self.data() || !self.data()[0]) {
+            throw 'If auto-generating columns, You must not provide a null or undefined object to generate against!';
+        }
+
+        item = self.data()[0];
 
         utils.forIn(item, function (prop, propName) {
 
@@ -793,8 +818,8 @@ kg.KoGrid = function (options) {
         };
 
         var createColumnSortClosure = function (col) {
-            return function (val) {
-                self.sortData(col, val);
+            return function (dir) {
+                self.sortData(col, dir);
             }
         }
 
