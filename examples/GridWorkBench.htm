@@ -42,13 +42,17 @@
 </body>
 <script type="text/javascript">
     $(function () {
-        
-        var vm = {        
-            testData: getTestData(),
+
+        var vm = {
+            testData: ko.observableArray([{ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544'}]),
             mySelectedItem: ko.observable({ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' })
         };
 
         ko.applyBindings(vm, $('#sandbox1')[0]);
+
+        var newData = getTestData();
+        vm.testData(newData());
+
     });
 
 

@@ -1,8 +1,8 @@
 ﻿kg.RowManager = function (grid) {
     var self = this,
         rowCache = {},
-        prevRenderedRange = new kg.Range(0, 1),
-        maxRows = grid.filteredData().length;
+        prevMaxRows = 0,
+        prevRenderedRange = new kg.Range(0, 1);
 
     this.rowTemplateId = grid.config.rowTemplate;
     this.dataSource = grid.filteredData; //observable
@@ -17,11 +17,15 @@
 
     this.renderedRange = ko.computed(function () {
         var rg = self.viewableRange(),
+            maxRows = self.dataSource().length,
             isDif = false;
 
         if (rg) {
 
             isDif = (rg.bottomRow !== prevRenderedRange.bottomRow || rg.topRow !== prevRenderedRange.topRow)
+            if (!isDif && prevMaxRows !== maxRows) {
+                isDif = true;
+            }
 
             if (isDif) {
                 rg.topRow = rg.bottomRow + self.minViewportRows(); //make sure we have the correct number of rows rendered
