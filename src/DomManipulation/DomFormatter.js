@@ -12,7 +12,7 @@
 
     formatHeaderCell: function (element, headerCell) {
 
-        element.className = "kgHeaderCell col" + headerCell.colIndex;
+        element.className += " kgHeaderCell col" + headerCell.colIndex;
     },
 
     formatRow: function (element, row) {

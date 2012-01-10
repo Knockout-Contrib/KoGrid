@@ -11,12 +11,13 @@
 </head>
 <body>
     <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
-        <div id="myGrid" style="height: 500px; float: left;"
+        <div style="max-height: 600px; max-width: 900px;">
+        <div id="myGrid" style="float: left; max-height: 600px; max-width: 900px;"
             data-bind="koGrid:{ data: testData, 
                                 isMultiSelect: true,
                                 selectedItem: mySelectedItem,
                                 rowHeight: 30,
-                                columnWidth: 150,
+                                columnWidth: 130,
                                 headerRowHeight: 30,
                                 footerRowHeight: 45,
                                 autogenerateColumns: false,
@@ -28,7 +29,7 @@
                                 allowRowSelection: true,
                                 displayRowIndex: true,
                                 showRowIndex: false }"></div>
-
+        </div>
 
         <div data-bind="with: mySelectedItem">
             <p>SKU: <span data-bind="text: Sku"></span></p>

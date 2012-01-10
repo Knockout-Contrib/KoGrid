@@ -23,13 +23,35 @@ ko.bindingHandlers['kgRows'] = (function () {
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var rowManager = bindingContext.$data.rowManager,
-                rows = ko.utils.unwrapObservable(valueAccessor());
+                rows = ko.utils.unwrapObservable(valueAccessor()),
+                grid = bindingContext.$data,
+                $row,
+                $cell,
+                newAccessor,
+                retVal;
 
-            element.style.height = (bindingContext.$data.maxRows() * rowManager.rowHeight) + 'px';
+            element.style.height = (bindingContext.$data.maxCanvasHeight()) + 'px';
 
-            var newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
+            newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
 
-            return ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+            retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+
+            //Measure the cell and row differences after rendering
+
+            $row = $(element).children().first();
+            if ($row) {
+                $cell = $row.children().first();
+                if ($cell) {
+
+                    grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+                    grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+
+                    grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+                    grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+                }
+            }
+
+            return retVal;
         }
     };
 

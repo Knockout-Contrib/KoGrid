@@ -34,21 +34,33 @@ utils.StringBuilder = function () {
 
     this.append = function (str, data) {
         var len = arguments.length,
+            intMatch = 0,
             strMatch = '{0}',
             i = 1;
 
         if (len > 1) { // they provided data
-            while (i <= len) {
-                str = str.replace(strMatch, arguments[i]);
+            while (i < len) {
+
+                //apparently string.replace only works on one match at a time
+                //so, loop through the string and hit all matches
+                while (str.indexOf(strMatch) !== -1) {
+                    str = str.replace(strMatch, arguments[i]);
+                }
                 i++;
-                strMatch = "{" + i - 1 + "}";
+                intMatch = i - 1;
+                strMatch = "{" + intMatch.toString() + "}";
             }
         }
         strArr.push(str);
     };
 
     this.toString = function () {
-        return strArr.join("");
+        var separator = arguments[0];
+        if (separator !== null && separator !== undefined) {
+            return strArr.join(separator);
+        } else {
+            return strArr.join("");
+        }
     };
 };
 

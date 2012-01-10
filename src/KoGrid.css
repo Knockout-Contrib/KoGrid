@@ -12,7 +12,7 @@
     font-weight: bold;
 }
 .kgHeaderScroller {
-    padding-right: 5px;
+    
 }
 .kgHeaderCell {
     position: absolute; 
@@ -29,7 +29,6 @@
 
 .kgRow {
     border-bottom: 1px solid rgb(229, 229, 229);
-    padding-right: 5px;
 }
 .kgRow.even {
     background-color: rgb(248, 248, 248);
@@ -47,10 +46,16 @@
     background-color: rgb(237, 237, 237);
 }
 .kgSelectionCell {
-    padding-top: 5px
+	
 }
 .kgSelectionCell input[type="checkbox"] {
-
+    margin: auto;
+    height: 15px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 .kgFooterPanel{
     background-color: rgb(237, 237, 237);

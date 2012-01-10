@@ -10,14 +10,6 @@
         return col.width();
     });
 
-    this.offsetLeft = ko.computed(function () {
-        return col.offsetLeft();
-    });
-
-    this.offsetRight = ko.computed(function () {
-        return col.offsetRight();
-    });
-
     this.filter = ko.computed({
         read: function () {
             return self.column.filter();
@@ -32,6 +24,14 @@
     };
 
     this.filterVisible = ko.observable(false);
+
+    this.sortAscVisible = ko.computed(function () {
+        return self.column.sortDirection() === "asc";
+    });
+
+    this.sortDescVisible = ko.computed(function () {
+        return self.column.sortDirection() === "desc";
+    });
 
     this.sort = function () {
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";

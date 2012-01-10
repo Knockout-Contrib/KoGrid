@@ -63,10 +63,16 @@ kg.KoGrid = function (options) {
             return (ko.utils.unwrapObservable(item[filterInfo.field]) === filterInfo.filter);
         });
     });
+
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
         return rows.length || 0;
     });
+
+    this.maxCanvasHeight = function () {
+        var rows = self.filteredData();
+        return rows.length * self.config.rowHeight;
+    };
 
     this.selectedItemCount = ko.computed(function () {
         var single = self.config.selectedItem(),
@@ -89,27 +95,21 @@ kg.KoGrid = function (options) {
     this.footer;
 
     this.elementDims = {
-        viewportH: 0,
-        viewportW: 0,
         scrollW: 0,
         scrollH: 0,
         cellHdiff: 0,
         cellWdiff: 0,
         rowWdiff: 0,
         rowHdiff: 0,
-        headerWdiff: 0,
-        headerHdiff: 0,
-        headerCellWdiff: 0,
-        headerCellHdiff: 0,
-        footerWdiff: 0,
-        footerHdiff: 0,
-        rowIndexCellW: 25,
-        rowSelectedCellW: 25
+        rowIndexCellW: 35,
+        rowSelectedCellW: 25,
+        rootMaxW: 0,
+        rootMaxH: 0
     };
 
     //#region Container Dimensions
 
-    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 200, outerWidth: 200 }));
+    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 20000, outerWidth: 20000 }));
     this.headerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
             newDim = new kg.Dimension();
@@ -161,6 +161,26 @@ kg.KoGrid = function (options) {
         return Math.floor(viewportH / self.config.rowHeight)
     });
 
+    //checking prev value to prevent nasty event loops
+    var prevHeaderScrollerDim = {};
+    this.headerScrollerDim = ko.computed(function () {
+        var viewportH = self.viewportDim().outerHeight,
+            maxHeight = self.maxCanvasHeight(),
+            vScrollBarIsOpen = (maxHeight > viewportH),
+            newDim = new kg.Dimension();
+
+        newDim.autoFitHeight = true;
+        newDim.outerWidth = self.totalRowWidth();
+
+        if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
+
+        if (prevHeaderScrollerDim.outerWidth !== newDim.outerWidth) {
+            return prevHeaderScrollerDim = newDim;
+        } else {
+            return prevHeaderScrollerDim;
+        }
+    });
+
     //#endregion
 
     //#region Events
@@ -192,6 +212,14 @@ kg.KoGrid = function (options) {
     this.pageChanged.subscribe(self.config.pageChanged);
 
     this.sortData = function (col, dir) {
+        utils.forEach(self.columns(), function (column) {
+            if (column.field !== col.field) {
+                if (column.sortDirection() !== "") { column.sortDirection(""); }
+            }
+        });
+
+
+
         self.data.sort(function (a, b) {
             var propA = ko.utils.unwrapObservable(a[col.field]),
                 propB = ko.utils.unwrapObservable(b[col.field]);
@@ -201,8 +229,6 @@ kg.KoGrid = function (options) {
             } else {
                 return propA == propB ? 0 : (propA > propB ? -1 : 1);
             }
-
-
         });
     };
 
@@ -243,13 +269,9 @@ kg.KoGrid = function (options) {
         //build back the DOM variables
         updateDomStructure(rootDomNode);
 
-        //measureDomConstraints();
-
-        //calculateConstraints();
+        self.refreshDomSizes();
 
         kg.cssBuilder.buildStyles(self);
-
-        //self.rowManager.viewableRange(new kg.Range(0, self.minRowsToRender()));
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -275,74 +297,53 @@ kg.KoGrid = function (options) {
     };
 
     this.refreshDomSizes = function () {
+        var dim = new kg.Dimension(),
+            oldDim = self.rootDim(),
+            rootH = 0,
+            rootW = 0,
+            canvasH = 0;
 
-        var dim = new kg.Dimension();
+        //calculate the POSSIBLE biggest viewport height
+        rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
 
-        dim.outerHeight = self.$root.outerHeight();
-        dim.outerWidth = self.$root.outerWidth();
+        //see which viewport heigth will be allowed to be used
+        rootH = Math.min(self.elementDims.rootMaxH, rootH);
 
-        self.rootDim(dim);
+        //now calc the canvas height of what is going to be used in rendering
+        canvasH = rootH - self.config.headerRowHeight - self.config.footerRowHeight;
 
+        //get the max row Width for rendering
+        rootW = self.totalRowWidth() + self.elementDims.rowWdiff;
+
+        //now see if we are going to have a vertical scroll bar present
+        if (self.maxCanvasHeight() > canvasH) {
+
+            //if we are, then add that width to the max width 
+            rootW += self.elementDims.scrollW;
+        }
+
+        //now see if we are constrained by any width dimensions
+        dim.outerWidth = Math.min(self.elementDims.rootMaxW, rootW);
+        dim.outerHeight = rootH;
+
+        //finally don't fire the subscriptions if we aren't changing anything!
+        if (dim.outerHeight !== oldDim.outerHeight || dim.outerWidth !== oldDim.outerWidth) {
+            //if its not the same, then fire the subscriptions
+            self.rootDim(dim);
+        }
     };
 
     var measureDomConstraints = function () {
-        var ruler = kg.domRuler;
+        var $container = $('<div></div>').appendTo($('body'));
 
-        //pop the canvas, so we can measure the attributes
-        self.$viewport.height(200).width(200);
+        //measure Scroll Bars
+        $container.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
+        //$container.append($('<div style="height: 400px; width: 400px;"></div>'));
 
-        self.$canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
-        self.$canvas.width(100000);
+        self.elementDims.scrollH = $container.height() - $container[0].clientHeight;
+        self.elementDims.scrollW = $container.width() - $container[0].clientWidth;
 
-
-        //scrollBars
-        $.extend(self.elementDims, ruler.measureScrollBar(self.$viewport));
-
-        //rows
-        $.extend(self.elementDims, ruler.measureRow(self.$canvas));
-
-        //cells
-        $.extend(self.elementDims, ruler.measureCell(self.$canvas));
-
-        //header
-        $.extend(self.elementDims, ruler.measureHeader(self.$headerScroller));
-
-        //footer
-        $.extend(self.elementDims, ruler.measureFooter(self.$footerPanel));
-
-        //viewport
-        self.elementDims.viewportH = self.$root.height() - self.config.headerRowHeight - self.elementDims.headerHdiff - self.config.footerRowHeight;
-        self.elementDims.viewportW = self.$root.width();
-
-        //Now set the dimensions
-
-        //viewport
-        self.$viewport.height(self.elementDims.viewportH);
-        self.$viewport.width("auto");
-
-        //canvas
-        self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);
-        //height is set in bindingHandler
-
-        //headerContainer
-        self.$headerContainer.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-        self.$headerContainer.css("line-height", (self.config.headerRowHeight - self.elementDims.headerHdiff) + 'px');
-        self.$headerContainer.width(self.elementDims.viewportW);
-
-        //headerScroller
-        self.$headerScroller.width(self.config.maxRowWidth() + self.elementDims.rowWdiff + self.elementDims.scrollW);
-        self.$headerScroller.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-
-        //footer
-        self.$footerPanel.width(self.elementDims.viewportW);
-        self.$footerPanel.height(self.config.footerRowHeight - self.elementDims.footerHdiff);
-    };
-
-    var calculateConstraints = function () {
-
-        //figure out how many rows to render in the viewport based upon the viewable height
-        self.config.minRowsToRender(Math.floor(self.elementDims.viewportH / self.config.rowHeight));
-
+        $container.remove();
     };
 
     var buildColumnDefsFromData = function () {
@@ -377,23 +378,11 @@ kg.KoGrid = function (options) {
             columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
         }
 
-        var createOffsetRightClosure = function (col, rowMaxWidthObs) {
-            return function () {
-                return ko.computed(function () {
-                    var maxWidth = rowMaxWidthObs(),
-                        width = col.width(),
-                        offsetRight;
-
-                    offsetRight = (maxWidth - col.offsetLeft());
-                    offsetRight = offsetRight - width;
-                    return offsetRight;
-                });
-            };
-        };
-
         var createColumnSortClosure = function (col) {
             return function (dir) {
-                self.sortData(col, dir);
+                if (dir) {
+                    self.sortData(col, dir);
+                }
             }
         }
 
@@ -403,11 +392,7 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                column.offsetLeft(rowWidth);
                 column.width(colDef.width || self.config.columnWidth);
-
-                //setup the max col width observable
-                column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
@@ -415,7 +400,6 @@ kg.KoGrid = function (options) {
             });
 
             self.columns(cols);
-            //self.config.maxRowWidth(rowWidth);
         }
 
         self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
@@ -425,6 +409,8 @@ kg.KoGrid = function (options) {
     };
 
     this.init = function () {
+
+        measureDomConstraints();
 
         buildColumns();
 
@@ -437,6 +423,29 @@ kg.KoGrid = function (options) {
 
     this.registerEvents = function () {
         self.$viewport.scroll(handleScroll);
+    };
+
+    this.showFilter_Click = function () {
+        var isOpen = (filterIsOpen() ? false : true),
+                $viewport = self.$viewport,
+                $headerScroller = self.$headerScroller,
+                $headerContainer = self.$headerContainer;
+
+        utils.forEach(self.headerRow.headerCells, function (cell, i) {
+            cell.filterVisible(isOpen);
+        });
+
+        if (isOpen) {
+            $viewport.height($viewport.height() - self.config.filterRowHeight);
+            $headerScroller.height($headerScroller.height() + self.config.filterRowHeight);
+            $headerContainer.height($headerContainer.height() + self.config.filterRowHeight);
+        } else {
+            $viewport.height($viewport.height() + self.config.filterRowHeight);
+            $headerScroller.height($headerScroller.height() - self.config.filterRowHeight);
+            $headerContainer.height($headerContainer.height() - self.config.filterRowHeight);
+        }
+
+        filterIsOpen(isOpen);
     };
 
     this.registerFilters = function () {

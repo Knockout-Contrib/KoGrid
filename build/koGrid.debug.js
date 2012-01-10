@@ -59,21 +59,33 @@ utils.StringBuilder = function () {
 
     this.append = function (str, data) {
         var len = arguments.length,
+            intMatch = 0,
             strMatch = '{0}',
             i = 1;
 
         if (len > 1) { // they provided data
-            while (i <= len) {
-                str = str.replace(strMatch, arguments[i]);
+            while (i < len) {
+
+                //apparently string.replace only works on one match at a time
+                //so, loop through the string and hit all matches
+                while (str.indexOf(strMatch) !== -1) {
+                    str = str.replace(strMatch, arguments[i]);
+                }
                 i++;
-                strMatch = "{" + i - 1 + "}";
+                intMatch = i - 1;
+                strMatch = "{" + intMatch.toString() + "}";
             }
         }
         strArr.push(str);
     };
 
     this.toString = function () {
-        return strArr.join("");
+        var separator = arguments[0];
+        if (separator !== null && separator !== undefined) {
+            return strArr.join(separator);
+        } else {
+            return strArr.join("");
+        }
     };
 };
 
@@ -86,7 +98,7 @@ kg.utils = utils;
 ﻿kg.defaultGridInnerTemplate = function () {
     return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
                 '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden" data-bind="kgSize: $data.headerDim">' +
-                    '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data">' +
+                    '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -110,7 +122,7 @@ kg.utils = utils;
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' } "><input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/></div>', col.field);
         } else if (col.field === 'rowIndex') {
-            //skip
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' } "><img data-bind="click: $parent.showFilter_Click" src="../images/icon_filter.gif"/></div>', col.field);
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
             b.append('</div>');
@@ -127,9 +139,11 @@ kg.utils = utils;
 ﻿kg.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
-    b.append('<span data-bind="text: $data.displayName"></span>');
-    b.append('<img data-bind="click: $data.sort" src="../images/icon_sort_descending.png" />');
-    //b.append('<button data-bind="click: $data.showFilter">F</button>');
+    b.append('<div data-bind="click: $data.sort">');
+    b.append('  <span data-bind="text: $data.displayName"></span>');
+    b.append('  <img data-bind="visible: $data.sortAscVisible" src="../images/icon_sort_descending.png" />');
+    b.append('  <img data-bind="visible: $data.sortDescVisible" src="../images/icon_sort_ascending.png" />');
+    b.append('</div>');
     b.append('<div data-bind="visible: $data.filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter" style="width: 80px" />');
     b.append('</div>');
@@ -189,6 +203,9 @@ kg.utils = utils;
     this.widthDiff = null;
     this.heightDiff = null;
 
+    this.autoFitHeight = false; //tells it to just fit to the wrapping container
+    this.autoFitWidth = false;
+
     $.extend(this, options);
 }; 
  
@@ -201,12 +218,12 @@ kg.utils = utils;
     this.width = ko.computed(function () {
         return col.width();
     });
-    this.offsetLeft = ko.computed(function () {
-        return col.offsetLeft();
-    });
-    this.offsetRight = ko.computed(function(){
-        return col.offsetRight();
-    });
+//    this.offsetLeft = ko.computed(function () {
+//        return col.offsetLeft();
+//    });
+//    this.offsetRight = ko.computed(function(){
+//        return col.offsetRight();
+//    });
     this.column = col;
     this.row = null;
 }; 
@@ -217,8 +234,7 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.Column = function (colDef) {
     this.width = ko.observable(0);
-    this.offsetLeft = ko.observable(0);
-    this.offsetRight = null; //replaced w/ ko.computed
+    
     this.field = colDef.field;
     this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
@@ -337,14 +353,6 @@ kg.ColumnCollection.fn = {
         return col.width();
     });
 
-    this.offsetLeft = ko.computed(function () {
-        return col.offsetLeft();
-    });
-
-    this.offsetRight = ko.computed(function () {
-        return col.offsetRight();
-    });
-
     this.filter = ko.computed({
         read: function () {
             return self.column.filter();
@@ -359,6 +367,14 @@ kg.ColumnCollection.fn = {
     };
 
     this.filterVisible = ko.observable(false);
+
+    this.sortAscVisible = ko.computed(function () {
+        return self.column.sortDirection() === "asc";
+    });
+
+    this.sortDescVisible = ko.computed(function () {
+        return self.column.sortDirection() === "desc";
+    });
 
     this.sort = function () {
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
@@ -572,10 +588,16 @@ kg.KoGrid = function (options) {
             return (ko.utils.unwrapObservable(item[filterInfo.field]) === filterInfo.filter);
         });
     });
+
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
         return rows.length || 0;
     });
+
+    this.maxCanvasHeight = function () {
+        var rows = self.filteredData();
+        return rows.length * self.config.rowHeight;
+    };
 
     this.selectedItemCount = ko.computed(function () {
         var single = self.config.selectedItem(),
@@ -598,27 +620,21 @@ kg.KoGrid = function (options) {
     this.footer;
 
     this.elementDims = {
-        viewportH: 0,
-        viewportW: 0,
         scrollW: 0,
         scrollH: 0,
         cellHdiff: 0,
         cellWdiff: 0,
         rowWdiff: 0,
         rowHdiff: 0,
-        headerWdiff: 0,
-        headerHdiff: 0,
-        headerCellWdiff: 0,
-        headerCellHdiff: 0,
-        footerWdiff: 0,
-        footerHdiff: 0,
-        rowIndexCellW: 25,
-        rowSelectedCellW: 25
+        rowIndexCellW: 35,
+        rowSelectedCellW: 25,
+        rootMaxW: 0,
+        rootMaxH: 0
     };
 
     //#region Container Dimensions
 
-    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 200, outerWidth: 200 }));
+    this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 20000, outerWidth: 20000 }));
     this.headerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
             newDim = new kg.Dimension();
@@ -670,6 +686,26 @@ kg.KoGrid = function (options) {
         return Math.floor(viewportH / self.config.rowHeight)
     });
 
+    //checking prev value to prevent nasty event loops
+    var prevHeaderScrollerDim = {};
+    this.headerScrollerDim = ko.computed(function () {
+        var viewportH = self.viewportDim().outerHeight,
+            maxHeight = self.maxCanvasHeight(),
+            vScrollBarIsOpen = (maxHeight > viewportH),
+            newDim = new kg.Dimension();
+
+        newDim.autoFitHeight = true;
+        newDim.outerWidth = self.totalRowWidth();
+
+        if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
+
+        if (prevHeaderScrollerDim.outerWidth !== newDim.outerWidth) {
+            return prevHeaderScrollerDim = newDim;
+        } else {
+            return prevHeaderScrollerDim;
+        }
+    });
+
     //#endregion
 
     //#region Events
@@ -701,6 +737,14 @@ kg.KoGrid = function (options) {
     this.pageChanged.subscribe(self.config.pageChanged);
 
     this.sortData = function (col, dir) {
+        utils.forEach(self.columns(), function (column) {
+            if (column.field !== col.field) {
+                if (column.sortDirection() !== "") { column.sortDirection(""); }
+            }
+        });
+
+
+
         self.data.sort(function (a, b) {
             var propA = ko.utils.unwrapObservable(a[col.field]),
                 propB = ko.utils.unwrapObservable(b[col.field]);
@@ -710,8 +754,6 @@ kg.KoGrid = function (options) {
             } else {
                 return propA == propB ? 0 : (propA > propB ? -1 : 1);
             }
-
-
         });
     };
 
@@ -752,13 +794,9 @@ kg.KoGrid = function (options) {
         //build back the DOM variables
         updateDomStructure(rootDomNode);
 
-        //measureDomConstraints();
-
-        //calculateConstraints();
+        self.refreshDomSizes();
 
         kg.cssBuilder.buildStyles(self);
-
-        //self.rowManager.viewableRange(new kg.Range(0, self.minRowsToRender()));
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -784,74 +822,53 @@ kg.KoGrid = function (options) {
     };
 
     this.refreshDomSizes = function () {
+        var dim = new kg.Dimension(),
+            oldDim = self.rootDim(),
+            rootH = 0,
+            rootW = 0,
+            canvasH = 0;
 
-        var dim = new kg.Dimension();
+        //calculate the POSSIBLE biggest viewport height
+        rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
 
-        dim.outerHeight = self.$root.outerHeight();
-        dim.outerWidth = self.$root.outerWidth();
+        //see which viewport heigth will be allowed to be used
+        rootH = Math.min(self.elementDims.rootMaxH, rootH);
 
-        self.rootDim(dim);
+        //now calc the canvas height of what is going to be used in rendering
+        canvasH = rootH - self.config.headerRowHeight - self.config.footerRowHeight;
 
+        //get the max row Width for rendering
+        rootW = self.totalRowWidth() + self.elementDims.rowWdiff;
+
+        //now see if we are going to have a vertical scroll bar present
+        if (self.maxCanvasHeight() > canvasH) {
+
+            //if we are, then add that width to the max width 
+            rootW += self.elementDims.scrollW;
+        }
+
+        //now see if we are constrained by any width dimensions
+        dim.outerWidth = Math.min(self.elementDims.rootMaxW, rootW);
+        dim.outerHeight = rootH;
+
+        //finally don't fire the subscriptions if we aren't changing anything!
+        if (dim.outerHeight !== oldDim.outerHeight || dim.outerWidth !== oldDim.outerWidth) {
+            //if its not the same, then fire the subscriptions
+            self.rootDim(dim);
+        }
     };
 
     var measureDomConstraints = function () {
-        var ruler = kg.domRuler;
+        var $container = $('<div></div>').appendTo($('body'));
 
-        //pop the canvas, so we can measure the attributes
-        self.$viewport.height(200).width(200);
+        //measure Scroll Bars
+        $container.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
+        //$container.append($('<div style="height: 400px; width: 400px;"></div>'));
 
-        self.$canvas.height(100000); //pretty large, so the scroll bars, etc.. should open up
-        self.$canvas.width(100000);
+        self.elementDims.scrollH = $container.height() - $container[0].clientHeight;
+        self.elementDims.scrollW = $container.width() - $container[0].clientWidth;
 
-
-        //scrollBars
-        $.extend(self.elementDims, ruler.measureScrollBar(self.$viewport));
-
-        //rows
-        $.extend(self.elementDims, ruler.measureRow(self.$canvas));
-
-        //cells
-        $.extend(self.elementDims, ruler.measureCell(self.$canvas));
-
-        //header
-        $.extend(self.elementDims, ruler.measureHeader(self.$headerScroller));
-
-        //footer
-        $.extend(self.elementDims, ruler.measureFooter(self.$footerPanel));
-
-        //viewport
-        self.elementDims.viewportH = self.$root.height() - self.config.headerRowHeight - self.elementDims.headerHdiff - self.config.footerRowHeight;
-        self.elementDims.viewportW = self.$root.width();
-
-        //Now set the dimensions
-
-        //viewport
-        self.$viewport.height(self.elementDims.viewportH);
-        self.$viewport.width("auto");
-
-        //canvas
-        self.$canvas.width(self.config.maxRowWidth() + self.elementDims.rowWdiff);
-        //height is set in bindingHandler
-
-        //headerContainer
-        self.$headerContainer.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-        self.$headerContainer.css("line-height", (self.config.headerRowHeight - self.elementDims.headerHdiff) + 'px');
-        self.$headerContainer.width(self.elementDims.viewportW);
-
-        //headerScroller
-        self.$headerScroller.width(self.config.maxRowWidth() + self.elementDims.rowWdiff + self.elementDims.scrollW);
-        self.$headerScroller.height(self.config.headerRowHeight - self.elementDims.headerHdiff);
-
-        //footer
-        self.$footerPanel.width(self.elementDims.viewportW);
-        self.$footerPanel.height(self.config.footerRowHeight - self.elementDims.footerHdiff);
-    };
-
-    var calculateConstraints = function () {
-
-        //figure out how many rows to render in the viewport based upon the viewable height
-        self.config.minRowsToRender(Math.floor(self.elementDims.viewportH / self.config.rowHeight));
-
+        $container.remove();
     };
 
     var buildColumnDefsFromData = function () {
@@ -886,23 +903,11 @@ kg.KoGrid = function (options) {
             columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
         }
 
-        var createOffsetRightClosure = function (col, rowMaxWidthObs) {
-            return function () {
-                return ko.computed(function () {
-                    var maxWidth = rowMaxWidthObs(),
-                        width = col.width(),
-                        offsetRight;
-
-                    offsetRight = (maxWidth - col.offsetLeft());
-                    offsetRight = offsetRight - width;
-                    return offsetRight;
-                });
-            };
-        };
-
         var createColumnSortClosure = function (col) {
             return function (dir) {
-                self.sortData(col, dir);
+                if (dir) {
+                    self.sortData(col, dir);
+                }
             }
         }
 
@@ -912,11 +917,7 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                column.offsetLeft(rowWidth);
                 column.width(colDef.width || self.config.columnWidth);
-
-                //setup the max col width observable
-                column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
@@ -924,7 +925,6 @@ kg.KoGrid = function (options) {
             });
 
             self.columns(cols);
-            //self.config.maxRowWidth(rowWidth);
         }
 
         self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
@@ -934,6 +934,8 @@ kg.KoGrid = function (options) {
     };
 
     this.init = function () {
+
+        measureDomConstraints();
 
         buildColumns();
 
@@ -946,6 +948,29 @@ kg.KoGrid = function (options) {
 
     this.registerEvents = function () {
         self.$viewport.scroll(handleScroll);
+    };
+
+    this.showFilter_Click = function () {
+        var isOpen = (filterIsOpen() ? false : true),
+                $viewport = self.$viewport,
+                $headerScroller = self.$headerScroller,
+                $headerContainer = self.$headerContainer;
+
+        utils.forEach(self.headerRow.headerCells, function (cell, i) {
+            cell.filterVisible(isOpen);
+        });
+
+        if (isOpen) {
+            $viewport.height($viewport.height() - self.config.filterRowHeight);
+            $headerScroller.height($headerScroller.height() + self.config.filterRowHeight);
+            $headerContainer.height($headerContainer.height() + self.config.filterRowHeight);
+        } else {
+            $viewport.height($viewport.height() + self.config.filterRowHeight);
+            $headerScroller.height($headerScroller.height() - self.config.filterRowHeight);
+            $headerContainer.height($headerContainer.height() - self.config.filterRowHeight);
+        }
+
+        filterIsOpen(isOpen);
     };
 
     this.registerFilters = function () {
@@ -1051,7 +1076,7 @@ kg.KoGrid = function (options) {
 
     formatHeaderCell: function (element, headerCell) {
 
-        element.className = "kgHeaderCell col" + headerCell.colIndex;
+        element.className += " kgHeaderCell col" + headerCell.colIndex;
     },
 
     formatRow: function (element, row) {
@@ -1086,38 +1111,44 @@ kg.KoGrid = function (options) {
 kg.cssBuilder = {
 
     buildStyles: function (grid) {
-        var $style = grid.$styleSheet;
+        var rowHeight = (grid.config.rowHeight - grid.elementDims.rowHdiff),
+            $style = grid.$styleSheet,
+            gridId = grid.gridId,
+            rules,
+            i = 0,
+            len = grid.columns().length,
+            css = new kg.utils.StringBuilder(),
+            col,
+            sumWidth = 0,
+            colWidth;
 
         if (!$style) {
             $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('head'));
         }
         $style.empty();
 
-        var rowHeight = (grid.config.rowHeight - grid.elementDims.rowHdiff),
-            gridId = grid.gridId,
-            rules,
-            i = 0,
-            len = grid.columns().length,
-            col,
-            colWidth;
-
-        rules = [
-            "." + gridId + " .kgCell { height:" + rowHeight + "px }",
-
-            "." + gridId + " .kgRow { position: absolute; width:" + grid.totalRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
-        ];
+        css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
+        css.append(".{0} .kgRow { position: absolute; width: {1}px; height: {2}px; line-height: {2}px; display: inline; }",gridId, grid.totalRowWidth(), rowHeight);
+        css.append(".{0} .kgHeaderCell { height: {1}px; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; }", gridId, rowHeight);
+        
 
         for (; i < len; i++) {
             col = grid.columns()[i];
+            
             colWidth = col.width() - grid.elementDims.cellWdiff;
-            rules.push("." + gridId + " .col" + i + " { left: " + col.offsetLeft() + "px; right: " + col.offsetRight() + "px; width: " + colWidth + "px; }");
+
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+
+            sumWidth += col.width();
+
         }
 
         if ($style[0].styleSheet) { // IE
-            $style[0].styleSheet.cssText = rules.join(" ");
+            $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {
-            $style[0].appendChild(document.createTextNode(rules.join(" ")));
+            $style[0].appendChild(document.createTextNode(css.toString(" ")));
         }
 
         grid.$styleSheet = $style;
@@ -1212,20 +1243,31 @@ ko.bindingHandlers['koGrid'] = (function () {
         return bindingContext.createChildContext(grid);
     };
 
-    var setupGridLayout = function (element) {
-        $(element).empty().html(kg.defaultGridInnerTemplate());
+    var setupGridLayout = function ($element) {
+        $element.empty().html(kg.defaultGridInnerTemplate());
+    };
+
+
+    var measureElementMaxSizes = function ($container, grid) {
+        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+
+        grid.elementDims.rootMaxW = $container.width();
+        grid.elementDims.rootMaxH = $container.height();
     };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = new kg.KoGrid(valueAccessor()),
+                $element = $(element),
                 returnVal;
 
             element['__koGrid__'] = grid.gridId;
 
-            setupGridLayout(element);
-
             grid.init();
+
+            measureElementMaxSizes($element, grid);
+
+            setupGridLayout($element);
 
             kg.domFormatter.formatGrid(element, grid);
 
@@ -1249,9 +1291,6 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid.update(element);
 
                 grid.registerEvents();
-
-                //finally re-measure the container
-                grid.refreshDomSizes();
             }
             return returnVal;
         }
@@ -1289,13 +1328,35 @@ ko.bindingHandlers['kgRows'] = (function () {
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var rowManager = bindingContext.$data.rowManager,
-                rows = ko.utils.unwrapObservable(valueAccessor());
+                rows = ko.utils.unwrapObservable(valueAccessor()),
+                grid = bindingContext.$data,
+                $row,
+                $cell,
+                newAccessor,
+                retVal;
 
-            element.style.height = (bindingContext.$data.maxRows() * rowManager.rowHeight) + 'px';
+            element.style.height = (bindingContext.$data.maxCanvasHeight()) + 'px';
 
-            var newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
+            newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
 
-            return ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+            retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+
+            //Measure the cell and row differences after rendering
+
+            $row = $(element).children().first();
+            if ($row) {
+                $cell = $row.children().first();
+                if ($cell) {
+
+                    grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+                    grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+
+                    grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+                    grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+                }
+            }
+
+            return retVal;
         }
     };
 
@@ -1319,28 +1380,6 @@ ko.bindingHandlers['kgRow'] = (function () {
                 rowManager = bindingContext.$parent.rowManager;
 
             kg.domFormatter.formatRow(element, row);
-
-            //allowRowSelection: true, 
-            //displayRowIndex: true,
-            //            if (grid.config.allowRowSelection) {
-            //                selectionCell = document.createElement("DIV");
-            //                selectionCell.innerHTML = "<input type='checkbox' data-bind='checked: $data.selected'/>";
-            //                selectionCell.className = "kgSelectionCell";
-
-            //                kg.domFormatter.formatCell(selectionCell, { column: { index: displayIndex} });
-            //                element.insertBefore(selectionCell, element.children[0]);
-
-            //                displayIndex--;
-            //            }
-            //            if (grid.config.displayRowIndex) {
-            //                indexCell = document.createElement("DIV");
-            //                indexCell.className = "kgRowIndexCell";
-
-            //                kg.domFormatter.formatCell(indexCell, { column: { index: displayIndex} });
-
-            //                element.insertBefore(indexCell, element.children[0]);
-            //                ko.bindingHandlers.text.update(indexCell, function () { return row.rowIndex; });
-            //            }
         }
     };
 
@@ -1536,10 +1575,15 @@ ko.bindingHandlers['kgCell'] = (function () {
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var $container = $(element),
-                dim = ko.utils.unwrapObservable(valueAccessor());
+                $parent = $container.parent();
+            dim = ko.utils.unwrapObservable(valueAccessor()),
+                oldHt = $container.outerHeight(),
+                oldWdth = $container.outerWidth();
 
-            var oldHt = $container.outerHeight();
-            var oldWdth = $container.outerWidth();
+            if (dim.autoFitHeight) {
+                dim.outerHeight = $parent.height();
+            }
+
 
             if (dim.innerHeight && dim.innerWidth) {
                 $container.height(dim.innerHeight);
@@ -1548,8 +1592,15 @@ ko.bindingHandlers['kgCell'] = (function () {
             };
 
             if (oldHt !== dim.outerHeight || oldWdth !== dim.outerWidth) {
+                //now set it to the new dimension, remeasure, and set it to the newly calculated
+                $container.height(dim.outerHeight).width(dim.outerWidth);
+
+                //remeasure
+                oldHt = $container.outerHeight();
+                oldWdth = $container.outerWidth();
+
                 dim.heightDiff = oldHt - $container.height();
-                dim.widthDiff = oldWdth = $container.width();
+                dim.widthDiff = oldWdth - $container.width();
 
                 $container.height(dim.outerHeight - dim.heightDiff);
                 $container.width(dim.outerWidth - dim.widthDiff);

@@ -1,7 +1,7 @@
 ﻿kg.defaultGridInnerTemplate = function () {
     return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
                 '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden" data-bind="kgSize: $data.headerDim">' +
-                    '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data">' +
+                    '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">' +
                     '</div>' +
                 '</div>' +
             '</div>' +

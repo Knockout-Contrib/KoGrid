@@ -14,20 +14,31 @@ ko.bindingHandlers['koGrid'] = (function () {
         return bindingContext.createChildContext(grid);
     };
 
-    var setupGridLayout = function (element) {
-        $(element).empty().html(kg.defaultGridInnerTemplate());
+    var setupGridLayout = function ($element) {
+        $element.empty().html(kg.defaultGridInnerTemplate());
+    };
+
+
+    var measureElementMaxSizes = function ($container, grid) {
+        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+
+        grid.elementDims.rootMaxW = $container.width();
+        grid.elementDims.rootMaxH = $container.height();
     };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = new kg.KoGrid(valueAccessor()),
+                $element = $(element),
                 returnVal;
 
             element['__koGrid__'] = grid.gridId;
 
-            setupGridLayout(element);
-
             grid.init();
+
+            measureElementMaxSizes($element, grid);
+
+            setupGridLayout($element);
 
             kg.domFormatter.formatGrid(element, grid);
 
@@ -51,9 +62,6 @@ ko.bindingHandlers['koGrid'] = (function () {
                 grid.update(element);
 
                 grid.registerEvents();
-
-                //finally re-measure the container
-                grid.refreshDomSizes();
             }
             return returnVal;
         }

@@ -12,28 +12,6 @@ ko.bindingHandlers['kgRow'] = (function () {
                 rowManager = bindingContext.$parent.rowManager;
 
             kg.domFormatter.formatRow(element, row);
-
-            //allowRowSelection: true, 
-            //displayRowIndex: true,
-            //            if (grid.config.allowRowSelection) {
-            //                selectionCell = document.createElement("DIV");
-            //                selectionCell.innerHTML = "<input type='checkbox' data-bind='checked: $data.selected'/>";
-            //                selectionCell.className = "kgSelectionCell";
-
-            //                kg.domFormatter.formatCell(selectionCell, { column: { index: displayIndex} });
-            //                element.insertBefore(selectionCell, element.children[0]);
-
-            //                displayIndex--;
-            //            }
-            //            if (grid.config.displayRowIndex) {
-            //                indexCell = document.createElement("DIV");
-            //                indexCell.className = "kgRowIndexCell";
-
-            //                kg.domFormatter.formatCell(indexCell, { column: { index: displayIndex} });
-
-            //                element.insertBefore(indexCell, element.children[0]);
-            //                ko.bindingHandlers.text.update(indexCell, function () { return row.rowIndex; });
-            //            }
         }
     };
 
