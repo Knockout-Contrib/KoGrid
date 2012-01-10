@@ -54,10 +54,6 @@
             });
             row.offsetTop = self.rowHeight * rowIndex;
 
-            row.width = ko.computed(function () {
-                return grid.config.maxRowWidth();
-            });
-
             row.onSelectionChanged = function () {
                 grid.selectedItemChanged(this.entity());
             };

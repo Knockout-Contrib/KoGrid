@@ -23,7 +23,7 @@ kg.cssBuilder = {
         rules = [
             "." + gridId + " .kgCell { height:" + rowHeight + "px }",
 
-            "." + gridId + " .kgRow { position: absolute; width:" + grid.config.maxRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
+            "." + gridId + " .kgRow { position: absolute; width:" + grid.totalRowWidth() + "px; height:" + rowHeight + "px; line-height:" + rowHeight + "px; }"
         ];
 
         for (; i < len; i++) {

@@ -365,8 +365,8 @@ kg.KoGrid = function (options) {
 
     var buildColumns = function () {
         var columnDefs = self.config.columnDefs,
-            column,
-            rowWidth = 0;
+            cols = [],
+            column;
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
@@ -406,25 +406,22 @@ kg.KoGrid = function (options) {
                 column.offsetLeft(rowWidth);
                 column.width(colDef.width || self.config.columnWidth);
 
-                rowWidth += column.width(); //sum this up
-
                 //setup the max col width observable
                 column.offsetRight = createOffsetRightClosure(column, self.config.maxRowWidth)();
 
-
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
-                self.columns.push(column);
+                cols.push(column);
             });
 
-            self.config.maxRowWidth(rowWidth);
+            self.columns(cols);
+            //self.config.maxRowWidth(rowWidth);
         }
 
         self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
         self.config.headerTemplate = self.gridId + self.config.headerTemplate; //make it unique by id
         self.config.headerCellTemplate = self.gridId + self.config.headerCellTemplate;
         self.config.footerTemplate = self.gridId + self.config.footerTemplate; //make it unique by id
-
     };
 
     this.init = function () {
