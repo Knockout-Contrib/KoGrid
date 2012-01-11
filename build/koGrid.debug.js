@@ -578,6 +578,7 @@ kg.KoGrid = function (options) {
 
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
+    this.initPhase = 0;
 
     this.filterInfo = ko.observable();
 
@@ -657,6 +658,7 @@ kg.KoGrid = function (options) {
     //#region Container Dimensions
 
     this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 20000, outerWidth: 20000 }));
+
     this.headerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
             filterOpen = filterIsOpen(),
@@ -821,14 +823,12 @@ kg.KoGrid = function (options) {
     });
 
     this.update = function (rootDomNode) {
-        //build back the DOM variables
+
         updateDomStructure(rootDomNode);
 
-        self.refreshDomSizes();
-
-        kg.cssBuilder.buildStyles(self);
-
         self.registerEvents();
+
+        self.initPhase = 2;
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -889,6 +889,18 @@ kg.KoGrid = function (options) {
             self.rootDim(dim);
         }
     };
+
+    this.refreshDomSizesTrigger = ko.computed(function () {
+        //register dependencies
+        var data = self.data();
+
+        if (self.initPhase > 0) {
+
+            self.refreshDomSizes();
+            kg.cssBuilder.buildStyles(self);
+        }
+
+    });
 
     var measureDomConstraints = function () {
         var $container = $('<div></div>').appendTo($('body'));
@@ -984,6 +996,8 @@ kg.KoGrid = function (options) {
         self.rowManager = new kg.RowManager(self);
 
         self.rows = self.rowManager.rows; // dependent observable
+
+        self.initPhase = 1;
     };
 
     this.registerEvents = function () {
@@ -1284,15 +1298,15 @@ ko.bindingHandlers['koGrid'] = (function () {
 
                 if (grid) {
 
-                    if (grid.h_updateTimeOut) {
-                        window.clearTimeout(grid.h_updateTimeOut);
-                    }
+//                    if (grid.h_updateTimeOut) {
+//                        window.clearTimeout(grid.h_updateTimeOut);
+//                    }
 
                     returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
 
-                    grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
+                    //grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
 
-                    //grid.update(element);
+                    grid.update(element);
                 }
             }
             return returnVal;

@@ -59,15 +59,15 @@ ko.bindingHandlers['koGrid'] = (function () {
 
                 if (grid) {
 
-                    if (grid.h_updateTimeOut) {
-                        window.clearTimeout(grid.h_updateTimeOut);
-                    }
+//                    if (grid.h_updateTimeOut) {
+//                        window.clearTimeout(grid.h_updateTimeOut);
+//                    }
 
                     returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
 
-                    grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
+                    //grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
 
-                    //grid.update(element);
+                    grid.update(element);
                 }
             }
             return returnVal;
