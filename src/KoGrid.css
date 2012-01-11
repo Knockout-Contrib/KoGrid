@@ -46,7 +46,7 @@
     background-color: rgb(237, 237, 237);
 }
 .kgSelectionCell {
-	
+    
 }
 .kgSelectionCell input[type="checkbox"] {
     margin: auto;
@@ -56,6 +56,21 @@
     bottom: 0;
     left: 0;
     right: 0;
+}
+.kgSortImg{
+    height: 11px;
+    width: 10px;
+}
+
+.kgFilterImg{
+    height: 15px;
+    width: 15px;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
 }
 .kgFooterPanel{
     background-color: rgb(237, 237, 237);

@@ -2,6 +2,7 @@
     var self = this,
         rowCache = {},
         prevMaxRows = 0,
+        prevMinRows = 0,
         prevRenderedRange = new kg.Range(0, 1);
 
     this.rowTemplateId = grid.config.rowTemplate;
@@ -28,12 +29,18 @@
                 isDif = true;
             }
 
+            if (!isDif && prevMinRows !== minRows) {
+                isDif = true;
+            }
+
             if (isDif) {
                 rg.topRow = rg.bottomRow + minRows; //make sure we have the correct number of rows rendered
 
                 rg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
                 rg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
 
+                prevMaxRows = maxRows;
+                prevMinRows = minRows;
                 prevRenderedRange = rg;
             }
             return prevRenderedRange;

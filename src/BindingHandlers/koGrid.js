@@ -57,11 +57,18 @@ ko.bindingHandlers['koGrid'] = (function () {
 
                 grid = gridCache[gridId];
 
-                returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+                if (grid) {
 
-                grid.update(element);
+                    if (grid.h_updateTimeOut) {
+                        window.clearTimeout(grid.h_updateTimeOut);
+                    }
 
-                grid.registerEvents();
+                    returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+
+                    grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
+
+                    //grid.update(element);
+                }
             }
             return returnVal;
         }

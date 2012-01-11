@@ -31,8 +31,6 @@
 
             kg.domFormatter.formatHeaderRow(element, grid.headerRow);
 
-            grid.registerFilters();
-
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

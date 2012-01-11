@@ -25,6 +25,7 @@ kg.KoGrid = function (options) {
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         allowRowSelection: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
+        allowFiltering: true,
         minRowsToRender: ko.observable(1),
         maxRowWidth: ko.observable(120),
         pageChanged: function () { }
@@ -60,7 +61,21 @@ kg.KoGrid = function (options) {
         }
 
         return ko.utils.arrayFilter(data, function (item) {
-            return (ko.utils.unwrapObservable(item[filterInfo.field]) === filterInfo.filter);
+            var itemData = ko.utils.unwrapObservable(item[filterInfo.field]),
+                itemDataStr,
+                filterStr = filterInfo.filter.toUpperCase();
+
+            if (itemData && filterStr) {
+                if (typeof itemData === "string") {
+                    itemDataStr = itemData.toUpperCase();
+                    return itemDataStr.indexOf(filterStr) !== -1;
+                } else {
+                    itemDataStr = itemData.toString().toUpperCase();
+                    return (itemDataStr.indexOf(filterStr) !== -1);
+                }
+            } else {
+                return true;
+            }
         });
     });
 
@@ -112,10 +127,15 @@ kg.KoGrid = function (options) {
     this.rootDim = ko.observable(new kg.Dimension({ outerHeight: 20000, outerWidth: 20000 }));
     this.headerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
+            filterOpen = filterIsOpen(),
             newDim = new kg.Dimension();
 
         newDim.outerHeight = self.config.headerRowHeight;
         newDim.outerWidth = rootDim.outerWidth;
+
+        if (filterOpen) {
+            newDim.outerHeight += self.config.filterRowHeight;
+        }
 
         return newDim;
     });
@@ -155,16 +175,23 @@ kg.KoGrid = function (options) {
         return width;
     });
 
+    var prevMinRowsToRender;
     this.minRowsToRender = ko.computed(function () {
         var viewportH = self.viewportDim().outerHeight || 1;
 
-        return Math.floor(viewportH / self.config.rowHeight)
+        if (filterIsOpen()) {
+            return prevMinRowsToRender;
+        };
+
+        prevMinRowsToRender = Math.floor(viewportH / self.config.rowHeight);
+
+        return prevMinRowsToRender;
     });
 
-    //checking prev value to prevent nasty event loops
-    var prevHeaderScrollerDim = {};
+
     this.headerScrollerDim = ko.computed(function () {
         var viewportH = self.viewportDim().outerHeight,
+            filterOpen = filterIsOpen(), //register this observable
             maxHeight = self.maxCanvasHeight(),
             vScrollBarIsOpen = (maxHeight > viewportH),
             newDim = new kg.Dimension();
@@ -174,11 +201,7 @@ kg.KoGrid = function (options) {
 
         if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
 
-        if (prevHeaderScrollerDim.outerWidth !== newDim.outerWidth) {
-            return prevHeaderScrollerDim = newDim;
-        } else {
-            return prevHeaderScrollerDim;
-        }
+        return newDim;
     });
 
     //#endregion
@@ -272,6 +295,8 @@ kg.KoGrid = function (options) {
         self.refreshDomSizes();
 
         kg.cssBuilder.buildStyles(self);
+
+        self.registerEvents();
     };
 
     var updateDomStructure = function (rootDomNode) {
@@ -386,6 +411,12 @@ kg.KoGrid = function (options) {
             }
         }
 
+        var createFilterClosure = function (col) {
+            return function (filterVal) {
+                self.filterInfo({ field: col.field, filter: filterVal });
+            };
+        };
+
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -395,6 +426,8 @@ kg.KoGrid = function (options) {
                 column.width(colDef.width || self.config.columnWidth);
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
+
+                column.filter.subscribe(createFilterClosure(column));
 
                 cols.push(column);
             });
@@ -426,57 +459,13 @@ kg.KoGrid = function (options) {
     };
 
     this.showFilter_Click = function () {
-        var isOpen = (filterIsOpen() ? false : true),
-                $viewport = self.$viewport,
-                $headerScroller = self.$headerScroller,
-                $headerContainer = self.$headerContainer;
+        var isOpen = (filterIsOpen() ? false : true);
 
         utils.forEach(self.headerRow.headerCells, function (cell, i) {
             cell.filterVisible(isOpen);
         });
 
-        if (isOpen) {
-            $viewport.height($viewport.height() - self.config.filterRowHeight);
-            $headerScroller.height($headerScroller.height() + self.config.filterRowHeight);
-            $headerContainer.height($headerContainer.height() + self.config.filterRowHeight);
-        } else {
-            $viewport.height($viewport.height() + self.config.filterRowHeight);
-            $headerScroller.height($headerScroller.height() - self.config.filterRowHeight);
-            $headerContainer.height($headerContainer.height() - self.config.filterRowHeight);
-        }
-
         filterIsOpen(isOpen);
-    };
-
-    this.registerFilters = function () {
-
-        var showFilterRowHandler = function () {
-            var isOpen = (filterIsOpen() ? false : true),
-                $viewport = self.$viewport,
-                $headerScroller = self.$headerScroller,
-                $headerContainer = self.$headerContainer;
-
-            utils.forEach(self.headerRow.headerCells, function (cell, i) {
-                cell.filterVisible(isOpen);
-            });
-
-            if (isOpen) {
-                $viewport.height($viewport.height() - self.config.filterRowHeight);
-                $headerScroller.height($headerScroller.height() + self.config.filterRowHeight);
-                $headerContainer.height($headerContainer.height() + self.config.filterRowHeight);
-            } else {
-                $viewport.height($viewport.height() + self.config.filterRowHeight);
-                $headerScroller.height($headerScroller.height() - self.config.filterRowHeight);
-                $headerContainer.height($headerContainer.height() - self.config.filterRowHeight);
-            }
-
-            filterIsOpen(isOpen);
-        };
-
-        //assign it
-        utils.forEach(self.headerRow.headerCells, function (cell, i) {
-            cell.showFilter = showFilterRowHandler;
-        });
     };
 
     var handleScroll = function (e) {
@@ -514,7 +503,7 @@ kg.KoGrid = function (options) {
 
         //Header Template
         if (!document.getElementById(self.config.headerTemplate)) {
-            text = kg.generateHeaderTemplate(self.columns());
+            text = kg.generateHeaderTemplate({ columns: self.columns(), showFilter: self.config.allowFiltering });
             appendTemplateToFooter(text, self.config.headerTemplate);
         }
 

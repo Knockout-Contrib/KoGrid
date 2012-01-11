@@ -37,7 +37,6 @@ ko.bindingHandlers['kgRows'] = (function () {
             retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
 
             //Measure the cell and row differences after rendering
-
             $row = $(element).children().first();
             if ($row) {
                 $cell = $row.children().first();

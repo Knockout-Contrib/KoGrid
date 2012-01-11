@@ -19,10 +19,6 @@
         }
     });
 
-    this.showFilter = function () {
-
-    };
-
     this.filterVisible = ko.observable(false);
 
     this.sortAscVisible = ko.computed(function () {
@@ -37,4 +33,6 @@
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);
     };
+
+    this.filterHasFocus = ko.observable(false);
 };
