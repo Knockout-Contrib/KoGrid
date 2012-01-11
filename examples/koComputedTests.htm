@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Ko Grid Sandbox</title>
+    <script src="../lib/jquery-1.7.js" type="text/javascript"></script>
+    <script src="../lib/json2.js" type="text/javascript"></script>
+    <script src="../lib/knockout-2.0.0.debug.js" type="text/javascript"></script>
+</head>
+<body>
+    <script type="text/javascript">
+
+        ko.bindingHandlers['myTest'] = (function () {
+
+            var myVM;
+
+            var newValAcc = function (vm) {
+                return function () {
+                    return vm;
+                }
+            };
+            return {
+                'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                    myVM = new MyObj();
+
+                    return ko.bindingHandlers['with'].init(element, newValAcc(myVM), allBindingsAccessor, viewModel, bindingContext);
+
+                },
+                'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                    window.logUpdate();
+
+                    myVM.increaseA();
+
+                    myVM.update();
+
+                    return ko.bindingHandlers['with'].update(element, newValAcc(myVM), allBindingsAccessor, viewModel, bindingContext);
+                }
+            };
+
+        } ());
+
+
+        var MyObj = function () {
+            var self = this,
+                initPhase = true;
+
+            this.obsA = ko.observable(1);
+            this.compA = ko.computed(function () {
+                return self.obsA() + 1;
+            });
+
+            this.increaseA = function () {
+                if (!initPhase) {
+                    var a = self.obsA();
+                    a++;
+                    self.obsA(a);
+                }
+            };
+
+            this.update = function () {
+                initPhase = false;
+            };
+        };
+
+
+        window.vm = {
+            test: 'something'
+        };
+
+        window.logUpdate = function () {
+            var time = new Date().getTime();
+
+            $('#log').append(time + '<br/>');
+        };
+
+        $(function () {
+            ko.applyBindings(window.vm, $('#container')[0]);
+        });
+    </script>
+    
+    <div id="container">
+        <div data-bind="myTest: test">
+            <p>Observable A: </p><span data-bind="text: obsA"></span>
+            <p>Computed A: </p><span data-bind="text: compA"></span>
+            <button data-bind="click: increaseA">Click to Increase A</button>
+        </div>
+    </div>
+    
+    <div id="log">
+    
+    </div>    
+</body>
+</html>
