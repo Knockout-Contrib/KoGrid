@@ -1,10 +1,4 @@
 ﻿kg.domFormatter = {
-    formatGrid: function (element, grid) {
-
-        $(element).addClass("kgGrid").addClass(grid.gridId.toString());
-
-        element.style.position = "relative";
-    },
 
     formatHeaderRow: function (element, headerRow) {
 

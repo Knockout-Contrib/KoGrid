@@ -1,4 +1,4 @@
-﻿kg.defaultFooterTemplate = function () {
+﻿kg.templates.defaultFooterTemplate = function () {
     return  '<div>' +
                 '<strong>Total Items:</strong><span data-bind="text: maxRows"></span>&nbsp' +
                 '<strong>Selected Items:</strong><span data-bind="text: selectedItemCount"></span>&nbsp&nbsp' +

@@ -274,17 +274,17 @@ kg.ColumnCollection.fn = {
     var self = this;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     //selectify the entity
-    if (this.entity()['__kg_selected__'] === undefined) {
+    if (this.entity()[SELECTED_PROP] === undefined) {
         this.entity()['__kg_selected__'] = ko.observable(false);
     }
 
     this.selected = ko.dependentObservable({
         read: function () {
-            var val = self.entity()['__kg_selected__']();
+            var val = self.entity()[SELECTED_PROP]();
             return val;
         },
         write: function (val) {
-            self.entity()['__kg_selected__'](val);
+            self.entity()[SELECTED_PROP](val);
             self.onSelectionChanged();
         }
     });
@@ -743,7 +743,7 @@ kg.KoGrid = function (options) {
     //#region Events
     this.selectedItemChanged = ko.observable(); //gets notified everytime a row is selected
     this.selectedItemChanged.subscribe(function (entity) {
-        var isSelected = entity['__kg_selected__'](),
+        var isSelected = entity[SELECTED_PROP](),
             selectedItem = self.config.selectedItem(),
             selectedItems = self.config.selectedItems;
 
@@ -751,7 +751,7 @@ kg.KoGrid = function (options) {
             if (self.config.isMultiSelect) {
                 selectedItems.push(entity);
             } else {
-                if (selectedItem && selectedItem['__kg_selected__']) { selectedItem['__kg_selected__'](false); }
+                if (selectedItem && selectedItem[SELECTED_PROP]) { selectedItem['__kg_selected__'](false); }
                 self.config.selectedItem(entity);
             }
         } else {

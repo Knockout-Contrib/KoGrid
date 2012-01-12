@@ -2,26 +2,23 @@
  
  
 /*********************************************** 
-* FILE: ..\Src\namespace.js 
+* FILE: ..\Src\Namespace.js 
 ***********************************************/ 
 ﻿
-var kg = window['kg'] = {}; 
+var kg = window['kg'] = {};
+kg.templates = {}; 
  
  
 /*********************************************** 
-* FILE: ..\Src\constants.js 
+* FILE: ..\Src\Constants.js 
 ***********************************************/ 
-﻿/* File Created: December 29, 2011 */ 
+﻿
+var SELECTED_PROP = '__kg_selected__';
+var GRID_TEMPLATE = 'koGridTmpl'; 
  
  
 /*********************************************** 
-* FILE: ..\Src\core.js 
-***********************************************/ 
-﻿ 
- 
- 
-/*********************************************** 
-* FILE: ..\Src\utils.js 
+* FILE: ..\Src\Utils.js 
 ***********************************************/ 
 ﻿var utils = {
 
@@ -95,7 +92,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\GridTemplate.js 
 ***********************************************/ 
-﻿kg.defaultGridInnerTemplate = function () {
+﻿kg.templates.defaultGridInnerTemplate = function () {
     return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
                 '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden" data-bind="kgSize: $data.headerDim">' +
                     '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">' +
@@ -115,7 +112,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\HeaderTemplate.js 
 ***********************************************/ 
-﻿kg.generateHeaderTemplate = function (options) {
+﻿kg.templates.generateHeaderTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
         cols = options.columns,
         showFilter = options.showFilter;
@@ -138,7 +135,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\HeaderCellTemplate.js 
 ***********************************************/ 
-﻿kg.defaultHeaderCellTemplate = function () {
+﻿kg.templates.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort">');
@@ -157,14 +154,17 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\RowTemplate.js 
 ***********************************************/ 
-﻿kg.generateRowTemplate = function (cols) {
-    var b = new kg.utils.StringBuilder();
+﻿kg.templates.generateRowTemplate = function (options) {
+    var b = new kg.utils.StringBuilder(),
+        cols = options.columns;
 
     b.append('<div data-bind="kgRow: $data">');
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgCell: { value: \'{0}\' } "><input type="checkbox" data-bind="checked: $data.selected"/></div>', col.field);
+            b.append('<div class="kgSelectionCell" data-bind="kgCell: { value: \'{0}\' } ">', col.field);
+            b.append('  <input type="checkbox" data-bind="checked: $data.selected" />');
+            b.append('</div>');
         } else if (col.field === 'rowIndex') {
             b.append('<div class="kgRowIndexCell" data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
         } else {
@@ -180,7 +180,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
-﻿kg.defaultFooterTemplate = function () {
+﻿kg.templates.defaultFooterTemplate = function () {
     return  '<div>' +
                 '<strong>Total Items:</strong><span data-bind="text: maxRows"></span>&nbsp' +
                 '<strong>Selected Items:</strong><span data-bind="text: selectedItemCount"></span>&nbsp&nbsp' +
@@ -192,6 +192,73 @@ kg.utils = utils;
                 '</div>' +
             '</div>';
 }; 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\Templates\TemplateManager.js 
+***********************************************/ 
+﻿kg.templateManager = (new function () {
+    var self = this;
+
+    var templateExists = function (tmplId) {
+        var el = document.getElementById(tmplId);
+        return (el !== undefined && el !== null);
+    };
+
+    var addTemplate = function (templateText, tmplId) {
+        var tmpl = document.createElement("SCRIPT");
+        tmpl.type = "text/html";
+        tmpl.id = tmplId;
+        tmpl.innerText = templateText;
+        document.body.appendChild(tmpl);
+    };
+
+    this.addTemplateSafe = function (tmplId, templateTextAccessor) {
+        if (!templateExists(tmplId)) {
+            addTemplate(templateTextAccessor(), tmplId);
+        }
+    };
+
+    this.ensureGridTemplates = function (options) {
+        var defaults = {
+            rowTemplate: '',
+            headerTemplate: '',
+            headerCellTemplate: '',
+            footerTemplate: '',
+            columns: null,
+            showFilter: true
+        },
+        config = $.extend(defaults, options);
+
+        //first ensure the koGrid template!
+        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate);
+
+        //header row template
+        if (config.headerTemplate) {
+            self.addTemplateSafe(config.headerTemplate, function () {
+                return kg.templates.generateHeaderTemplate(config);
+            });
+        }
+
+        //header cell template
+        if (config.headerCellTemplate) {
+            self.addTemplateSafe(config.headerCellTemplate, kg.templates.defaultHeaderCellTemplate);
+        }
+
+        //row template
+        if (config.rowTemplate) {
+            self.addTemplateSafe(config.rowTemplate, function () {
+                return kg.templates.generateRowTemplate(config);
+            });
+        }
+
+        //footer template
+        if (config.footerTemplate) {
+            self.addTemplateSafe(config.footerTemplate, kg.templates.defaultFooterTemplate);
+        }
+    };
+
+} ()); 
  
  
 /*********************************************** 
@@ -460,7 +527,18 @@ kg.ColumnCollection.fn = {
             row.offsetTop = self.rowHeight * rowIndex;
 
             row.onSelectionChanged = function () {
-                grid.selectedItemChanged(this.entity());
+                var ent = this.entity(),
+                    isSelected = false;
+
+                if (ent['__kg_selected__']) {
+                    isSelected = ent['__kg_selected__']();
+                }
+
+                if (isSelected) {
+                    grid.config.selectedItem(this.entity());
+                } else {
+                    grid.config.selectedItem(null);
+                }
             };
 
             self.cellFactory.buildRowCells(row);
@@ -528,7 +606,53 @@ kg.ColumnCollection.fn = {
  
  
 /*********************************************** 
-* FILE: ..\Src\KoGrid.js 
+* FILE: ..\Src\GridManager.js 
+***********************************************/ 
+﻿kg.gridManager = (new function () {
+    var self = this,
+        elementGridKey = '__koGrid__';
+
+    //#region Public Properties
+    this.gridCache = {};
+
+    //#endregion
+
+    //#region Public Methods
+    this.storeGrid = function (element, grid) {
+        self.gridCache[grid.gridId] = grid;
+        element[elementGridKey] = grid.gridId;
+    };
+
+    this.getGrid = function (element) {
+        var grid;
+
+        if (element[elementGridKey]) {
+            grid = self.gridCache[element[elementGridKey]];
+        }
+
+        return grid;
+    };
+
+    this.clearGridCache = function () {
+        self.gridCache = {};
+    };
+
+    this.assignGridEventHandlers = function (grid) {
+
+        grid.$viewport.scroll(function (e) {
+            var scrollLeft = e.target.scrollLeft,
+                scrollTop = e.target.scrollTop;
+
+            grid.adjustScrollLeft(scrollLeft);
+            grid.adjustScrollTop(scrollTop);
+        });
+    };
+    //#endregion
+} ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\Grid.js 
 ***********************************************/ 
 ﻿/// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
@@ -544,7 +668,6 @@ kg.KoGrid = function (options) {
         headerTemplate: 'kgHeaderRowTemplate',
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
-        gridCssClass: 'koGrid',
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -565,6 +688,7 @@ kg.KoGrid = function (options) {
 
     self = this,
     filterIsOpen = ko.observable(false),
+    isSorting = false,
     prevScrollTop, prevScrollLeft;
 
     this.$root; //this is the root element that is passed in with the binding handler
@@ -741,27 +865,35 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-    this.selectedItemChanged = ko.observable(); //gets notified everytime a row is selected
-    this.selectedItemChanged.subscribe(function (entity) {
-        var isSelected = entity['__kg_selected__'](),
-            selectedItem = self.config.selectedItem(),
-            selectedItems = self.config.selectedItems;
+    this.config.selectedItem.subscribe(function (entity) {
+        var isRemoved = false;
 
-        if (isSelected) {
-            if (self.config.isMultiSelect) {
-                selectedItems.push(entity);
-            } else {
-                if (selectedItem && selectedItem['__kg_selected__']) { selectedItem['__kg_selected__'](false); }
-                self.config.selectedItem(entity);
-            }
-        } else {
-            if (self.config.isMultiSelect) {
-                selectedItems.remove(entity);
-            } else {
-                if (selectedItem === entity) {
-                    self.config.selectedItem(null);
-                }
-            }
+        if (!entity) {
+            return;
+        }
+
+        //figure out if we need to remove it from the selected Items array
+        if (entity['__kg_selected__'] && !entity['__kg_selected__']()) {
+            isRemoved = true;
+        }
+
+        //uncheck it if we are only allowed to single select!
+        if (!self.config.isMultiSelect) {
+            var entity = self.config.selectedItem();
+            entity['__kg_selected__'](false);
+        }
+
+        if (isRemoved) {
+            self.config.selectedItems.remove(entity);
+        }
+
+    }, self, "beforeChange");
+
+    this.config.selectedItem.subscribe(function (entity) {
+        if (self.config.isMultiSelect && entity) {
+            //add to the selected items array
+            self.config.selectedItems.remove(entity); //check that its not already in there
+            self.config.selectedItems.push(entity);
         }
     });
 
@@ -769,13 +901,13 @@ kg.KoGrid = function (options) {
     this.pageChanged.subscribe(self.config.pageChanged);
 
     this.sortData = function (col, dir) {
+        isSorting = true;
+
         utils.forEach(self.columns(), function (column) {
             if (column.field !== col.field) {
                 if (column.sortDirection() !== "") { column.sortDirection(""); }
             }
         });
-
-
 
         self.data.sort(function (a, b) {
             var propA = ko.utils.unwrapObservable(a[col.field]),
@@ -787,33 +919,48 @@ kg.KoGrid = function (options) {
                 return propA == propB ? 0 : (propA > propB ? -1 : 1);
             }
         });
+
+        isSorting = false;
     };
 
     //#endregion
 
     //#region Rendering
 
+
     this.toggleSelectAll = ko.computed({
         read: function () {
             var cnt = self.selectedItemCount();
-            if (!self.config.isMultiSelect) { return cnt === 1; }
+            if (!self.config.isMultiSelect) {
+                return cnt === 1;
+            }
             return cnt === self.maxRows();
         },
         write: function (val) {
-            var checkAll = val;
+            var checkAll = val,
+                selectedItemsToPush = [],
+                data,
+                firstItem;
 
             if (self.config.isMultiSelect) {
-                ko.utils.arrayForEach(self.filteredData(), function (entity) {
+                data = self.filteredData();
+                firstItem = data[0];
+
+                ko.utils.arrayForEach(data, function (entity) {
                     if (!entity['__kg_selected__']) { entity['__kg_selected__'] = ko.observable(checkAll); }
                     else {
+                        //ko will suppress this if it was already selected                    
                         entity['__kg_selected__'](checkAll);
                     }
+
                     if (checkAll) {
-                        self.config.selectedItems.push(entity);
-                    } else {
-                        self.config.selectedItems.remove(entity);
+                        selectedItemsToPush.push(entity);
                     }
                 });
+
+                self.config.selectedItems(selectedItemsToPush);
+                self.config.selectedItem(firstItem);
+
             } else {
                 if (!checkAll) {
                     self.config.selectedItem(null);
@@ -822,35 +969,10 @@ kg.KoGrid = function (options) {
         }
     });
 
-    this.update = function (rootDomNode) {
-
-        updateDomStructure(rootDomNode);
-
+    this.update = function () {
         self.registerEvents();
 
         self.initPhase = 2;
-    };
-
-    var updateDomStructure = function (rootDomNode) {
-
-        self.$root = $(rootDomNode);
-
-        // the 'with' binding blows away everything except the inner html, so rebuild it
-
-        //Headers
-        self.$topPanel = $(".kgTopPanel", self.$root[0]);
-        self.$headerContainer = $(".kgHeaderContainer", self.$topPanel[0]);
-        self.$headerScroller = $(".kgHeaderScroller", self.$headerContainer[0]);
-        self.$headers = self.$headerContainer.children();
-
-        //Viewport
-        self.$viewport = $(".kgViewport", self.$root[0]);
-
-        //Canvas
-        self.$canvas = $(".kgCanvas", self.$viewport[0]);
-
-        //Footers
-        self.$footerPanel = $(".kgFooterPanel", self.$root[0]);
     };
 
     this.refreshDomSizes = function () {
@@ -896,30 +1018,21 @@ kg.KoGrid = function (options) {
 
         if (self.initPhase > 0) {
 
-            self.refreshDomSizes();
-            kg.cssBuilder.buildStyles(self);
+            //don't shrink the grid if we sorting or filtering
+            if (!filterIsOpen() && !isSorting) {
+                self.refreshDomSizes();
+
+                kg.cssBuilder.buildStyles(self);
+            }
         }
 
     });
-
-    var measureDomConstraints = function () {
-        var $container = $('<div></div>').appendTo($('body'));
-
-        //measure Scroll Bars
-        $container.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
-        //$container.append($('<div style="height: 400px; width: 400px;"></div>'));
-
-        self.elementDims.scrollH = $container.height() - $container[0].clientHeight;
-        self.elementDims.scrollW = $container.width() - $container[0].clientWidth;
-
-        $container.remove();
-    };
 
     var buildColumnDefsFromData = function () {
         var item;
 
         if (!self.data() || !self.data()[0]) {
-            throw 'If auto-generating columns, You must not provide a null or undefined object to generate against!';
+            throw 'If auto-generating columns, "data" cannot be of null or undefined type!';
         }
 
         item = self.data()[0];
@@ -978,30 +1091,26 @@ kg.KoGrid = function (options) {
 
             self.columns(cols);
         }
-
-        self.config.rowTemplate = self.gridId + self.config.rowTemplate; //make it unique by id
-        self.config.headerTemplate = self.gridId + self.config.headerTemplate; //make it unique by id
-        self.config.headerCellTemplate = self.gridId + self.config.headerCellTemplate;
-        self.config.footerTemplate = self.gridId + self.config.footerTemplate; //make it unique by id
     };
 
     this.init = function () {
 
-        measureDomConstraints();
-
         buildColumns();
 
-        ensureTemplates();
+        //now if we are using the default templates, then make the generated ones unique
+        if (self.config.rowTemplate === 'kgRowTemplate') {
+            self.config.rowTemplate = self.gridId + self.config.rowTemplate;
+        }
+
+        if (self.config.headerTemplate === 'kgHeaderRowTemplate') {
+            self.config.headerTemplate = self.gridId + self.config.headerTemplate;
+        }
 
         self.rowManager = new kg.RowManager(self);
 
         self.rows = self.rowManager.rows; // dependent observable
 
         self.initPhase = 1;
-    };
-
-    this.registerEvents = function () {
-        self.$viewport.scroll(handleScroll);
     };
 
     this.showFilter_Click = function () {
@@ -1014,12 +1123,8 @@ kg.KoGrid = function (options) {
         filterIsOpen(isOpen);
     };
 
-    var handleScroll = function (e) {
-        var scrollTop = e.target.scrollTop,
-            scrollLeft = e.target.scrollLeft,
-            rowIndex;
-
-        self.$headerContainer.scrollLeft(scrollLeft);
+    this.adjustScrollTop = function (scrollTop) {
+        var rowIndex;
 
         if (prevScrollTop === scrollTop) { return; }
 
@@ -1028,44 +1133,17 @@ kg.KoGrid = function (options) {
         prevScrollTop = scrollTop;
 
         self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
-
     };
 
-    var ensureTemplates = function () {
-        var text = '',
-            appendTemplateToFooter = function (templateText, id) {
-                var tmpl = document.createElement("SCRIPT");
-                tmpl.type = "text/html";
-                tmpl.id = id;
-                tmpl.innerText = templateText;
-                document.body.appendChild(tmpl);
-            };
-
-        //Row Template
-        if (!document.getElementById(self.config.rowTemplate)) {
-            text = kg.generateRowTemplate(self.columns());
-            appendTemplateToFooter(text, self.config.rowTemplate);
+    this.adjustScrollLeft = function (scrollLeft) {
+        if (self.$headerContainer) {
+            self.$headerContainer.scrollLeft(scrollLeft);
         }
-
-        //Header Template
-        if (!document.getElementById(self.config.headerTemplate)) {
-            text = kg.generateHeaderTemplate({ columns: self.columns(), showFilter: self.config.allowFiltering });
-            appendTemplateToFooter(text, self.config.headerTemplate);
-        }
-
-        //HeaderCell Template
-        if (!document.getElementById(self.config.headerCellTemplate)) {
-            text = kg.defaultHeaderCellTemplate();
-            appendTemplateToFooter(text, self.config.headerCellTemplate);
-        }
-
-        //Footer Template
-        if (!document.getElementById(self.config.footerTemplate)) {
-            text = kg.defaultFooterTemplate();
-            appendTemplateToFooter(text, self.config.footerTemplate);
-        }
-
     };
+
+
+    //call init
+    self.init();
 }; 
  
  
@@ -1073,12 +1151,6 @@ kg.KoGrid = function (options) {
 * FILE: ..\Src\DomManipulation\DomFormatter.js 
 ***********************************************/ 
 ﻿kg.domFormatter = {
-    formatGrid: function (element, grid) {
-
-        $(element).addClass("kgGrid").addClass(grid.gridId.toString());
-
-        element.style.position = "relative";
-    },
 
     formatHeaderRow: function (element, headerRow) {
 
@@ -1167,69 +1239,59 @@ kg.cssBuilder = {
  
  
 /*********************************************** 
-* FILE: ..\Src\DomManipulation\DomRuler.js 
+* FILE: ..\Src\DomManipulation\DomUtility.js 
 ***********************************************/ 
-﻿kg.domRuler = (function () {
+﻿kg.domUtility = (function () {
+    var $testContainer = $('<div></div>'),
+        scrollH,
+        scrollW;
+
+    $testContainer.appendTo($('body'));
+    // 1. Run all the following measurements on startup!
+
+    //measure Scroll Bars
+    $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
+    $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
+    scrollH = $testContainer.height() - $testContainer[0].clientHeight;
+    scrollW = $testContainer.width() - $testContainer[0].clientWidth;
+    $testContainer.empty();
+
+
+    $testContainer.remove();
 
     return {
-        measureRow: function ($container) {
-            var diffs = {};
+        assignGridContainers: function (rootEl, grid) {
 
-            var $dummyRow = $('<div></div>').addClass("kgRow").appendTo($container);
+            grid.$root = $(rootEl);
 
-            diffs.rowHdiff = $dummyRow.outerHeight() - $dummyRow.height();
-            diffs.rowWdiff = $dummyRow.outerWidth() - $dummyRow.width();
+            //Headers
+            grid.$topPanel = $(".kgTopPanel", grid.$root[0]);
+            grid.$headerContainer = $(".kgHeaderContainer", grid.$topPanel[0]);
+            grid.$headerScroller = $(".kgHeaderScroller", grid.$headerContainer[0]);
+            grid.$headers = grid.$headerContainer.children();
 
-            $dummyRow.remove();
-            return diffs;
+            //Viewport
+            grid.$viewport = $(".kgViewport", grid.$root[0]);
+
+            //Canvas
+            grid.$canvas = $(".kgCanvas", grid.$viewport[0]);
+
+            //Footers
+            grid.$footerPanel = $(".kgFooterPanel", grid.$root[0]);
         },
+                
+        measureElementMaxDims: function ($container) {
+            var dims = {};
 
-        measureCell: function ($container) {
-            var diffs = {};
+            $container.append("<div style='height: 20000px; width: 20000px;'></div>");
 
-            var $dummyRow = $('<div></div>').addClass("kgRow").appendTo($container);
-            var $dummyCell = $('<div></div>').addClass("kgCell").appendTo($dummyRow);
+            dims.maxWidth = $container.width();
+            dims.maxHeight = $container.height();
 
-            diffs.cellHdiff = $dummyCell.outerHeight() - $dummyCell.height();
-            diffs.cellWdiff = $dummyCell.outerWidth() - $dummyCell.width();
-
-            $dummyRow.remove();
-            return diffs;
+            return dims;
         },
-
-        measureScrollBar: function ($container) {
-            var dim = {};
-
-            dim.scrollH = Math.ceil($container.height() - parseFloat($container[0].clientHeight));
-            dim.scrollW = Math.ceil($container.width() - parseFloat($container[0].clientWidth));
-
-            return dim;
-        },
-
-        measureHeader: function ($container) {
-            var diffs = {};
-
-            var $dummyCell = $('<div></div>').addClass("kgHeaderCell").appendTo($container);
-
-            diffs.headerCellHdiff = $dummyCell.outerHeight() - $dummyCell.height();
-            diffs.headerCellWdiff = $dummyCell.outerWidth() - $dummyCell.width();
-
-            diffs.headerHdiff = $container.outerHeight() - $container.height();
-            diffs.headerWdiff = $container.outerWidth() - $container.width();
-
-            $dummyCell.remove();
-            return diffs;
-        },
-
-        measureFooter: function ($container) {
-            var diffs = {};
-
-            diffs.footerHdiff = $container.outerHeight() - $container.height();
-            diffs.footerWdiff = $container.outerWidth() - $container.width();
-
-            return diffs;
-
-        }
+        scrollH: scrollH,
+        scrollW: scrollW
     };
 } ()); 
  
@@ -1241,74 +1303,75 @@ kg.cssBuilder = {
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['koGrid'] = (function () {
-    var gridCache = {};
-
     var makeNewValueAccessor = function (grid) {
         return function () {
-            return grid;
+            return {
+                name: GRID_TEMPLATE,
+                data: grid
+            };
         };
     };
 
-    var makeNewBindingContext = function (bindingContext, grid) {
-        return bindingContext.createChildContext(grid);
-    };
-
-    var setupGridLayout = function ($element) {
-        $element.empty().html(kg.defaultGridInnerTemplate());
-    };
-
-
     var measureElementMaxSizes = function ($container, grid) {
-        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+        var dims = kg.domUtility.measureElementMaxDims($container);
 
-        grid.elementDims.rootMaxW = $container.width();
-        grid.elementDims.rootMaxH = $container.height();
+        grid.elementDims.rootMaxW = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxWidth;
+
     };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var grid = new kg.KoGrid(valueAccessor()),
-                $element = $(element),
-                returnVal;
+            var grid,
+                options = valueAccessor(),
+                $element = $(element);
 
-            element['__koGrid__'] = grid.gridId;
+            //create the Grid
+            grid = new kg.KoGrid(options);
 
-            grid.init();
+            kg.gridManager.storeGrid(element, grid);
 
+            //get the max container sizes
             measureElementMaxSizes($element, grid);
 
-            setupGridLayout($element);
+            //set the right styling on the container
+            $(element).addClass("kgGrid")
+                      .addClass(grid.gridId.toString())
+                      .css("position", "relative");
 
-            kg.domFormatter.formatGrid(element, grid);
+            //make sure the templates are generated for the Grid
+            kg.templateManager.ensureGridTemplates({
+                rowTemplate: grid.config.rowTemplate,
+                headerTemplate: grid.config.headerTemplate,
+                headerCellTemplate: grid.config.headerCellTemplate,
+                footerTemplate: grid.config.footerTemplate,
+                columns: grid.columns(),
+                showFilter: grid.config.allowFiltering
+            });
 
-            returnVal = ko.bindingHandlers['with'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+            return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
-            gridCache[grid.gridId] = grid;
-
-            return returnVal;
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var grid, returnVal, gridId;
+            var grid,
+                returnVal;
 
-            gridId = element['__koGrid__'];
+            grid = kg.gridManager.getGrid(element);
 
-            if (gridId) {
-
-                grid = gridCache[gridId];
-
-                if (grid) {
-
-//                    if (grid.h_updateTimeOut) {
-//                        window.clearTimeout(grid.h_updateTimeOut);
-//                    }
-
-                    returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
-
-                    //grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
-
-                    grid.update(element);
-                }
+            //kind a big problem if this isn't here...
+            if (!grid) {
+                return { 'controlsDescendantBindings': true };
             }
+
+            //fire the with "update" bindingHandler
+            returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
+
+            //walk the element's graph and the correct properties on the grid
+            kg.domUtility.assignGridContainers(element, grid);
+
+            //now use the manager to assign the event handlers
+            kg.gridManager.assignGridEventHandlers(grid);
+
             return returnVal;
         }
     };

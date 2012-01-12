@@ -2,74 +2,75 @@
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['koGrid'] = (function () {
-    var gridCache = {};
-
     var makeNewValueAccessor = function (grid) {
         return function () {
-            return grid;
+            return {
+                name: GRID_TEMPLATE,
+                data: grid
+            };
         };
     };
 
-    var makeNewBindingContext = function (bindingContext, grid) {
-        return bindingContext.createChildContext(grid);
-    };
-
-    var setupGridLayout = function ($element) {
-        $element.empty().html(kg.defaultGridInnerTemplate());
-    };
-
-
     var measureElementMaxSizes = function ($container, grid) {
-        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+        var dims = kg.domUtility.measureElementMaxDims($container);
 
-        grid.elementDims.rootMaxW = $container.width();
-        grid.elementDims.rootMaxH = $container.height();
+        grid.elementDims.rootMaxW = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxWidth;
+
     };
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var grid = new kg.KoGrid(valueAccessor()),
-                $element = $(element),
-                returnVal;
+            var grid,
+                options = valueAccessor(),
+                $element = $(element);
 
-            element['__koGrid__'] = grid.gridId;
+            //create the Grid
+            grid = new kg.KoGrid(options);
 
-            grid.init();
+            kg.gridManager.storeGrid(element, grid);
 
+            //get the max container sizes
             measureElementMaxSizes($element, grid);
 
-            setupGridLayout($element);
+            //set the right styling on the container
+            $(element).addClass("kgGrid")
+                      .addClass(grid.gridId.toString())
+                      .css("position", "relative");
 
-            kg.domFormatter.formatGrid(element, grid);
+            //make sure the templates are generated for the Grid
+            kg.templateManager.ensureGridTemplates({
+                rowTemplate: grid.config.rowTemplate,
+                headerTemplate: grid.config.headerTemplate,
+                headerCellTemplate: grid.config.headerCellTemplate,
+                footerTemplate: grid.config.footerTemplate,
+                columns: grid.columns(),
+                showFilter: grid.config.allowFiltering
+            });
 
-            returnVal = ko.bindingHandlers['with'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
+            return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
-            gridCache[grid.gridId] = grid;
-
-            return returnVal;
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var grid, returnVal, gridId;
+            var grid,
+                returnVal;
 
-            gridId = element['__koGrid__'];
+            grid = kg.gridManager.getGrid(element);
 
-            if (gridId) {
-
-                grid = gridCache[gridId];
-
-                if (grid) {
-
-//                    if (grid.h_updateTimeOut) {
-//                        window.clearTimeout(grid.h_updateTimeOut);
-//                    }
-
-                    returnVal = ko.bindingHandlers['with'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid));
-
-                    //grid.h_updateTimeOut = window.setTimeout(function () { grid.update(element); }, 0);
-
-                    grid.update(element);
-                }
+            //kind a big problem if this isn't here...
+            if (!grid) {
+                return { 'controlsDescendantBindings': true };
             }
+
+            //fire the with "update" bindingHandler
+            returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
+
+            //walk the element's graph and the correct properties on the grid
+            kg.domUtility.assignGridContainers(element, grid);
+
+            //now use the manager to assign the event handlers
+            kg.gridManager.assignGridEventHandlers(grid);
+
             return returnVal;
         }
     };

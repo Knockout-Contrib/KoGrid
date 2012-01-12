@@ -1,1 +1,3 @@
-﻿/* File Created: December 29, 2011 */
+﻿
+var SELECTED_PROP = '__kg_selected__';
+var GRID_TEMPLATE = 'koGridTmpl';
