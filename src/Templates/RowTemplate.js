@@ -2,7 +2,7 @@
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 
-    b.append('<div data-bind="kgRow: $data">');
+    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected">');
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
@@ -15,6 +15,7 @@
             b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
         }
     });
+
     b.append('</div>');
 
     return b.toString();

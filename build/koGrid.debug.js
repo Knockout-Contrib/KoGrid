@@ -162,7 +162,7 @@ kg.utils = utils;
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 
-    b.append('<div data-bind="kgRow: $data">');
+    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected">');
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
@@ -175,6 +175,7 @@ kg.utils = utils;
             b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
         }
     });
+
     b.append('</div>');
 
     return b.toString();
@@ -359,6 +360,14 @@ kg.ColumnCollection.fn = {
             self.onSelectionChanged();
         }
     });
+
+    this.toggleSelected = function () {
+        if (self.selected()) {
+            self.selected(false);
+        } else {
+            self.selected(true);
+        }
+    };
 
     this.cells = ko.observableArray([]);
     this.cellMap = {};
@@ -860,6 +869,14 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
+
+    this.config.selectedItem.subscribe(function (entity) {
+        //ensure the current entity is checked
+        if (entity && entity['__kg_selected__']) {
+            entity['__kg_selected__'](true);
+        }
+    });
+
     this.changeSelectedItem = function (changedEntity) {
         var currentEntity = self.config.selectedItem(),
             currentItems = self.config.selectedItems,

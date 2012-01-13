@@ -209,6 +209,14 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
+
+    this.config.selectedItem.subscribe(function (entity) {
+        //ensure the current entity is checked
+        if (entity && entity['__kg_selected__']) {
+            entity['__kg_selected__'](true);
+        }
+    });
+
     this.changeSelectedItem = function (changedEntity) {
         var currentEntity = self.config.selectedItem(),
             currentItems = self.config.selectedItems,

@@ -17,6 +17,14 @@
         }
     });
 
+    this.toggleSelected = function () {
+        if (self.selected()) {
+            self.selected(false);
+        } else {
+            self.selected(true);
+        }
+    };
+
     this.cells = ko.observableArray([]);
     this.cellMap = {};
     this.rowIndex = 0;
