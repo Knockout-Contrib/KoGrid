@@ -162,7 +162,7 @@ kg.utils = utils;
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 
-    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected">');
+    b.append('<div data-bind="kgRow: $data">');
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
@@ -362,11 +362,12 @@ kg.ColumnCollection.fn = {
     });
 
     this.toggleSelected = function () {
-        if (self.selected()) {
-            self.selected(false);
-        } else {
-            self.selected(true);
-        }
+//        if (self.selected()) {
+//            self.selected(false);
+//        } else {
+//            self.selected(true);
+//        }
+//        return true;
     };
 
     this.cells = ko.observableArray([]);
@@ -782,6 +783,7 @@ kg.KoGrid = function (options) {
         rootMaxW: 0,
         rootMaxH: 0
     };
+    this.elementsNeedMeasuring = true;
 
     //#region Container Dimensions
 
@@ -993,12 +995,6 @@ kg.KoGrid = function (options) {
         }
     });
 
-    //    this.update = function () {
-    //        self.registerEvents();
-
-    //        self.initPhase = 2;
-    //    };
-
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),
@@ -1031,6 +1027,7 @@ kg.KoGrid = function (options) {
 
         //finally don't fire the subscriptions if we aren't changing anything!
         if (dim.outerHeight !== oldDim.outerHeight || dim.outerWidth !== oldDim.outerWidth) {
+
             //if its not the same, then fire the subscriptions
             self.rootDim(dim);
         }
@@ -1040,13 +1037,21 @@ kg.KoGrid = function (options) {
         //register dependencies
         var data = self.data();
 
+        //self.elementsNeedMeasuring = true;
+
         if (self.initPhase > 0) {
 
             //don't shrink the grid if we sorting or filtering
             if (!filterIsOpen() && !isSorting) {
+
                 self.refreshDomSizes();
 
                 kg.cssBuilder.buildStyles(self);
+
+                if (self.$root) {
+                    self.$root.show(); //unhide the grid after the rendering has finished
+                }
+
             }
         }
 
@@ -1265,58 +1270,59 @@ kg.cssBuilder = {
 /*********************************************** 
 * FILE: ..\Src\DomManipulation\DomUtility.js 
 ***********************************************/ 
-﻿kg.domUtility = (function () {
+﻿kg.domUtility = (new function () {
     var $testContainer = $('<div></div>'),
-        scrollH,
-        scrollW;
+        self = this;
 
-    $testContainer.appendTo($('body'));
-    // 1. Run all the following measurements on startup!
+    this.assignGridContainers = function (rootEl, grid) {
 
-    //measure Scroll Bars
-    $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
-    $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
-    scrollH = $testContainer.height() - $testContainer[0].clientHeight;
-    scrollW = $testContainer.width() - $testContainer[0].clientWidth;
-    $testContainer.empty();
+        grid.$root = $(rootEl);
 
+        //Headers
+        grid.$topPanel = $(".kgTopPanel", grid.$root[0]);
+        grid.$headerContainer = $(".kgHeaderContainer", grid.$topPanel[0]);
+        grid.$headerScroller = $(".kgHeaderScroller", grid.$headerContainer[0]);
+        grid.$headers = grid.$headerContainer.children();
 
-    $testContainer.remove();
+        //Viewport
+        grid.$viewport = $(".kgViewport", grid.$root[0]);
 
-    return {
-        assignGridContainers: function (rootEl, grid) {
+        //Canvas
+        grid.$canvas = $(".kgCanvas", grid.$viewport[0]);
 
-            grid.$root = $(rootEl);
-
-            //Headers
-            grid.$topPanel = $(".kgTopPanel", grid.$root[0]);
-            grid.$headerContainer = $(".kgHeaderContainer", grid.$topPanel[0]);
-            grid.$headerScroller = $(".kgHeaderScroller", grid.$headerContainer[0]);
-            grid.$headers = grid.$headerContainer.children();
-
-            //Viewport
-            grid.$viewport = $(".kgViewport", grid.$root[0]);
-
-            //Canvas
-            grid.$canvas = $(".kgCanvas", grid.$viewport[0]);
-
-            //Footers
-            grid.$footerPanel = $(".kgFooterPanel", grid.$root[0]);
-        },
-                
-        measureElementMaxDims: function ($container) {
-            var dims = {};
-
-            $container.append("<div style='height: 20000px; width: 20000px;'></div>");
-
-            dims.maxWidth = $container.width();
-            dims.maxHeight = $container.height();
-
-            return dims;
-        },
-        scrollH: scrollH,
-        scrollW: scrollW
+        //Footers
+        grid.$footerPanel = $(".kgFooterPanel", grid.$root[0]);
     };
+
+    this.measureElementMaxDims = function ($container) {
+        var dims = {};
+
+        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+
+        dims.maxWidth = $container.width();
+        dims.maxHeight = $container.height();
+
+        return dims;
+    };
+
+    this.scrollH;
+    this.scrollW;
+
+    $(function () {
+        $testContainer.appendTo('body');
+        // 1. Run all the following measurements on startup!
+
+        //measure Scroll Bars
+        $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
+        $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
+        self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
+        self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
+        $testContainer.empty();
+
+
+        $testContainer.remove();
+    });
+
 } ()); 
  
  
@@ -1342,6 +1348,8 @@ ko.bindingHandlers['koGrid'] = (function () {
         grid.elementDims.rootMaxW = dims.maxWidth;
         grid.elementDims.rootMaxH = dims.maxWidth;
 
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
     };
 
     return {
@@ -1349,6 +1357,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid,
                 options = valueAccessor(),
                 $element = $(element);
+
+            $element.hide(); //first hide the grid so that its not freaking the screen out!
 
             //create the Grid
             grid = new kg.KoGrid(options);
@@ -1445,20 +1455,24 @@ ko.bindingHandlers['kgRows'] = (function () {
 
             retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
 
-            //Measure the cell and row differences after rendering
-            $row = $(element).children().first();
-            if ($row) {
-                $cell = $row.children().first();
-                if ($cell) {
+            //only measure the row and cell differences once
+            if (grid.elementsNeedMeasuring && grid.initPhase > 0) {
+                //Measure the cell and row differences after rendering
+                $row = $(element).children().first();
+                if ($row) {
+                    $cell = $row.children().first();
+                    if ($cell) {
 
-                    grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
-                    grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+                        grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+                        grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
 
-                    grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
-                    grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+                        grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+                        grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+
+                        //grid.elementsNeedMeasuring = false;
+                    }
                 }
             }
-
             return retVal;
         }
     };

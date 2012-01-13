@@ -17,6 +17,8 @@ ko.bindingHandlers['koGrid'] = (function () {
         grid.elementDims.rootMaxW = dims.maxWidth;
         grid.elementDims.rootMaxH = dims.maxWidth;
 
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
     };
 
     return {
@@ -24,6 +26,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid,
                 options = valueAccessor(),
                 $element = $(element);
+
+            $element.hide(); //first hide the grid so that its not freaking the screen out!
 
             //create the Grid
             grid = new kg.KoGrid(options);

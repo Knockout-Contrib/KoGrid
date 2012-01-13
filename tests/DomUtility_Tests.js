@@ -19,6 +19,8 @@ test("Measure ScrollBars Occurred", function () {
     var scrollH = kg.domUtility.scrollH;
     var scrollW = kg.domUtility.scrollW;
 
-    ok(scrollH, 'Scroll Height is not zero');
-    ok(scrollW, 'Scroll Width is not zero');
+    ok(scrollH, 'Scroll Height is ' + scrollH);
+    ok(scrollW, 'Scroll Width is ' + scrollW);
+    ok(scrollH < 100, 'ScrollH is less than 100');
+    ok(scrollW < 100, 'ScrollW is less than 100');
 });

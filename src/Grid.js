@@ -122,6 +122,7 @@ kg.KoGrid = function (options) {
         rootMaxW: 0,
         rootMaxH: 0
     };
+    this.elementsNeedMeasuring = true;
 
     //#region Container Dimensions
 
@@ -333,12 +334,6 @@ kg.KoGrid = function (options) {
         }
     });
 
-    //    this.update = function () {
-    //        self.registerEvents();
-
-    //        self.initPhase = 2;
-    //    };
-
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),
@@ -371,6 +366,7 @@ kg.KoGrid = function (options) {
 
         //finally don't fire the subscriptions if we aren't changing anything!
         if (dim.outerHeight !== oldDim.outerHeight || dim.outerWidth !== oldDim.outerWidth) {
+
             //if its not the same, then fire the subscriptions
             self.rootDim(dim);
         }
@@ -380,13 +376,21 @@ kg.KoGrid = function (options) {
         //register dependencies
         var data = self.data();
 
+        //self.elementsNeedMeasuring = true;
+
         if (self.initPhase > 0) {
 
             //don't shrink the grid if we sorting or filtering
             if (!filterIsOpen() && !isSorting) {
+
                 self.refreshDomSizes();
 
                 kg.cssBuilder.buildStyles(self);
+
+                if (self.$root) {
+                    self.$root.show(); //unhide the grid after the rendering has finished
+                }
+
             }
         }
 

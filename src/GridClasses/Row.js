@@ -18,11 +18,12 @@
     });
 
     this.toggleSelected = function () {
-        if (self.selected()) {
-            self.selected(false);
-        } else {
-            self.selected(true);
-        }
+//        if (self.selected()) {
+//            self.selected(false);
+//        } else {
+//            self.selected(true);
+//        }
+//        return true;
     };
 
     this.cells = ko.observableArray([]);

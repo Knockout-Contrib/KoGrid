@@ -36,20 +36,24 @@ ko.bindingHandlers['kgRows'] = (function () {
 
             retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
 
-            //Measure the cell and row differences after rendering
-            $row = $(element).children().first();
-            if ($row) {
-                $cell = $row.children().first();
-                if ($cell) {
+            //only measure the row and cell differences once
+            if (grid.elementsNeedMeasuring && grid.initPhase > 0) {
+                //Measure the cell and row differences after rendering
+                $row = $(element).children().first();
+                if ($row) {
+                    $cell = $row.children().first();
+                    if ($cell) {
 
-                    grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
-                    grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+                        grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+                        grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
 
-                    grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
-                    grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+                        grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+                        grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+
+                        //grid.elementsNeedMeasuring = false;
+                    }
                 }
             }
-
             return retVal;
         }
     };
