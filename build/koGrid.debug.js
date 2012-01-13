@@ -119,9 +119,13 @@ kg.utils = utils;
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' } "><input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/></div>', col.field);
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll, visible: $parent.config.isMultiSelect"/>');
+            b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' } "><img class="kgFilterImg" data-bind="click: $parent.showFilter_Click" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/></div>', col.field);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('  <img class="kgFilterImg" data-bind="click: $parent.showFilter_Click" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/>');
+            b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
             b.append('</div>');
@@ -527,18 +531,9 @@ kg.ColumnCollection.fn = {
             row.offsetTop = self.rowHeight * rowIndex;
 
             row.onSelectionChanged = function () {
-                var ent = this.entity(),
-                    isSelected = false;
+                var ent = this.entity();
 
-                if (ent['__kg_selected__']) {
-                    isSelected = ent['__kg_selected__']();
-                }
-
-                if (isSelected) {
-                    grid.config.selectedItem(this.entity());
-                } else {
-                    grid.config.selectedItem(null);
-                }
+                grid.changeSelectedItem(ent);    
             };
 
             self.cellFactory.buildRowCells(row);
@@ -865,37 +860,50 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-    this.config.selectedItem.subscribe(function (entity) {
-        var isRemoved = false;
+    this.changeSelectedItem = function (changedEntity) {
+        var currentEntity = self.config.selectedItem(),
+            currentItems = self.config.selectedItems,
+            keep = false;
 
-        if (!entity) {
-            return;
-        }
-
-        //figure out if we need to remove it from the selected Items array
-        if (entity['__kg_selected__'] && !entity['__kg_selected__']()) {
-            isRemoved = true;
-        }
-
-        //uncheck it if we are only allowed to single select!
         if (!self.config.isMultiSelect) {
-            var entity = self.config.selectedItem();
-            entity['__kg_selected__'](false);
-        }
+            //Single Select Logic
 
-        if (isRemoved) {
-            self.config.selectedItems.remove(entity);
-        }
+            //uncheck the current entity
+            if (currentEntity && currentEntity['__kg_selected__']) {
+                currentEntity['__kg_selected__'](false);
+            }
 
-    }, self, "beforeChange");
+            //find out if the changed entity is selected or not
+            if (changedEntity && changedEntity['__kg_selected__']) {
+                keep = changedEntity['__kg_selected__']();
+            }
 
-    this.config.selectedItem.subscribe(function (entity) {
-        if (self.config.isMultiSelect && entity) {
-            //add to the selected items array
-            self.config.selectedItems.remove(entity); //check that its not already in there
-            self.config.selectedItems.push(entity);
+            if (keep) {
+                //set the new entity
+                self.config.selectedItem(changedEntity);
+            } else {
+                //else just set it to null if there are no selected items
+                self.config.selectedItem(null);
+            }
+
+        } else {
+            //Multi-Select Logic
+
+            //if the changed entity was de-selected, remove it from the array
+            if (changedEntity && changedEntity['__kg_selected__']) {
+                keep = changedEntity.__kg_selected__();
+            }
+
+            if (!keep) {
+                currentItems.remove(changedEntity);
+            } else {
+                //first see if it exists, if not add it
+                if (currentItems.indexOf(changedEntity) === -1) {
+                    currentItems.push(changedEntity);
+                }
+            }
         }
-    });
+    };
 
     this.pageChanged = ko.observable(1); //event for paging
     this.pageChanged.subscribe(self.config.pageChanged);
@@ -959,7 +967,6 @@ kg.KoGrid = function (options) {
                 });
 
                 self.config.selectedItems(selectedItemsToPush);
-                self.config.selectedItem(firstItem);
 
             } else {
                 if (!checkAll) {
@@ -969,11 +976,11 @@ kg.KoGrid = function (options) {
         }
     });
 
-    this.update = function () {
-        self.registerEvents();
+    //    this.update = function () {
+    //        self.registerEvents();
 
-        self.initPhase = 2;
-    };
+    //        self.initPhase = 2;
+    //    };
 
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),

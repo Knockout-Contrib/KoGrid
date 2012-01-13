@@ -62,18 +62,9 @@
             row.offsetTop = self.rowHeight * rowIndex;
 
             row.onSelectionChanged = function () {
-                var ent = this.entity(),
-                    isSelected = false;
+                var ent = this.entity();
 
-                if (ent['__kg_selected__']) {
-                    isSelected = ent['__kg_selected__']();
-                }
-
-                if (isSelected) {
-                    grid.config.selectedItem(this.entity());
-                } else {
-                    grid.config.selectedItem(null);
-                }
+                grid.changeSelectedItem(ent);    
             };
 
             self.cellFactory.buildRowCells(row);
