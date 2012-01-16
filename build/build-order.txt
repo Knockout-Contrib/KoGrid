@@ -18,6 +18,7 @@
 ..\Src\GridClasses\HeaderRow.js
 ..\Src\GridClasses\RowManager.js
 ..\Src\GridClasses\Footer.js
+..\Src\GridClasses\FilterManager.js
 ..\Src\GridManager.js
 ..\Src\Grid.js
 ..\Src\DomManipulation\DomFormatter.js

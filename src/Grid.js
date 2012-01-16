@@ -22,7 +22,7 @@ kg.KoGrid = function (options) {
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         isMultiSelect: true, //toggles between selectedItem & selectedItems
-        allowRowSelection: true, //toggles whether row selection check boxes appear
+        displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         allowFiltering: true,
         minRowsToRender: ko.observable(1),
@@ -32,6 +32,7 @@ kg.KoGrid = function (options) {
 
     self = this,
     filterIsOpen = ko.observable(false),
+    filterManager,
     isSorting = false,
     prevScrollTop, prevScrollLeft;
 
@@ -48,37 +49,15 @@ kg.KoGrid = function (options) {
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
 
-    this.filterInfo = ko.observable();
 
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
-    this.filteredData = ko.computed(function () {
-        var filterInfo = self.filterInfo(),
-            data = self.data();
 
-        if (!filterInfo) {
-            return data;
-        }
+    filterManager = new kg.FilterManager(self.config);
 
-        return ko.utils.arrayFilter(data, function (item) {
-            var itemData = ko.utils.unwrapObservable(item[filterInfo.field]),
-                itemDataStr,
-                filterStr = filterInfo.filter.toUpperCase();
-
-            if (itemData && filterStr) {
-                if (typeof itemData === "string") {
-                    itemDataStr = itemData.toUpperCase();
-                    return itemDataStr.indexOf(filterStr) !== -1;
-                } else {
-                    itemDataStr = itemData.toString().toUpperCase();
-                    return (itemDataStr.indexOf(filterStr) !== -1);
-                }
-            } else {
-                return true;
-            }
-        });
-    });
+    this.filterInfo = filterManager.filterInfo; //observable
+    this.filteredData = filterManager.filteredData;
 
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
@@ -214,7 +193,7 @@ kg.KoGrid = function (options) {
     this.config.selectedItem.subscribe(function (currentEntity) {
         //ensure outgoing entity is de-selected
         if (!self.config.isMultiSelect) {
-            
+
             //uncheck the current entity
             if (currentEntity && currentEntity['__kg_selected__']) {
                 currentEntity['__kg_selected__'](false);
@@ -428,7 +407,7 @@ kg.KoGrid = function (options) {
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
-        if (self.config.allowRowSelection) {
+        if (self.config.displaySelectionCheckbox) {
             columnDefs.splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
         }
         if (self.config.displayRowIndex) {
@@ -443,12 +422,6 @@ kg.KoGrid = function (options) {
             }
         }
 
-        var createFilterClosure = function (col) {
-            return function (filterVal) {
-                self.filterInfo({ field: col.field, filter: filterVal });
-            };
-        };
-
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -459,7 +432,7 @@ kg.KoGrid = function (options) {
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
-                column.filter.subscribe(createFilterClosure(column));
+                column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);
             });
@@ -496,6 +469,12 @@ kg.KoGrid = function (options) {
         });
 
         filterIsOpen(isOpen);
+    };
+
+    this.clearFilter_Click = function () {
+        utils.forEach(self.columns(), function (col, i) {
+            col.filter(null);
+        });
     };
 
     this.adjustScrollTop = function (scrollTop) {

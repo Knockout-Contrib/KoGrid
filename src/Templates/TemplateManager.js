@@ -10,7 +10,10 @@
         var tmpl = document.createElement("SCRIPT");
         tmpl.type = "text/html";
         tmpl.id = tmplId;
-        tmpl.innerText = templateText;
+
+        'innerText' in tmpl ? tmpl.innerText = templateText
+                            : tmpl.textContent = templateText;
+
         document.body.appendChild(tmpl);
     };
 

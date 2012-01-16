@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 13:24:36.82 Mon 01/16/2012 
+* Compiled At: 16:16:16.82 Mon 01/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -130,7 +130,13 @@ kg.utils = utils;
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
-            b.append('  <img class="kgFilterImg" data-bind="click: $parent.showFilter_Click" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/>');
+            b.append('  <div class="kgFilterImg" data-bind="click: $parent.showFilter_Click">');
+            b.append('      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/>');
+            b.append('  </div>');
+            b.append('  <br/>');
+            b.append('  <div>');
+            b.append('      <button data-bind="click: $parent.clearFilter_Click">X</button>');
+            b.append('  </div>');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
@@ -220,7 +226,10 @@ kg.utils = utils;
         var tmpl = document.createElement("SCRIPT");
         tmpl.type = "text/html";
         tmpl.id = tmplId;
-        tmpl.innerText = templateText;
+
+        'innerText' in tmpl ? tmpl.innerText = templateText
+                            : tmpl.textContent = templateText;
+
         document.body.appendChild(tmpl);
     };
 
@@ -624,6 +633,101 @@ kg.ColumnCollection.fn = {
  
  
 /*********************************************** 
+* FILE: ..\Src\GridClasses\FilterManager.js 
+***********************************************/ 
+﻿kg.FilterManager = function (options) {
+    var self = this;
+
+    //map of column.field values to filterStrings
+    this.filterInfo = ko.observable();
+    this.data = options.data; //observableArray
+
+    this.filteredData = ko.computed(function () {
+        var filterInfo = self.filterInfo(),
+            data = self.data(),
+            keepRow = false,
+            match = true,
+            field,
+            itemData,
+            itemDataStr,
+            filterStr;
+
+        if (!filterInfo || $.isEmptyObject(filterInfo)) {
+            return data;
+        }
+
+        return ko.utils.arrayFilter(data, function (item) {
+
+            //loop through each property and filter it
+            for (field in filterInfo) {
+
+                if (filterInfo.hasOwnProperty(field)) {
+                    itemData = ko.utils.unwrapObservable(item[field]);
+                    filterStr = filterInfo[field];
+
+                    if (itemData && filterStr) {
+                        if (typeof itemData === "string") {
+                            itemDataStr = itemData.toUpperCase();
+                            match = (itemDataStr.indexOf(filterStr) > -1);
+                        } else {
+                            itemDataStr = itemData.toString().toUpperCase();
+                            match = (itemDataStr.indexOf(filterStr) > -1);
+                        }
+                    }
+                }
+
+                //supports "AND" filtering logic
+                if (keepRow && !match) {
+                    keepRow = false;
+                } else if (!keepRow && match) {
+                    keepRow = true; //should only catch on the first pass
+                }
+
+                //now if we catch anything thats not a match, break out of the loop
+                if (!match) { break; }
+            }
+
+            //reset variables
+            filterStr = null;
+            itemData = null;
+            itemDataStr = null;
+            match = true;
+
+            return keepRow;
+        });
+
+    });
+
+    this.createFilterChangeCallback = function (col) {
+        return function (newFilterVal) {
+            var info = self.filterInfo();
+
+            if (!info && !newFilterVal) {
+                return;
+            }
+
+            //if we're still here, we may need to new up the info
+            if (!info) { info = {}; }
+
+            if ((newFilterVal === null ||
+                newFilterVal === undefined ||
+                newFilterVal === "") &&
+                info[col.field]) { //null or undefined
+                //smoke it so we don't loop through it for filtering anymore!
+                delete info[col.field];
+
+            } else if (newFilterVal !== null && newFilterVal !== undefined) {
+
+                info[col.field] = newFilterVal;
+
+            }
+            self.filterInfo(info);
+        };
+    };
+}; 
+ 
+ 
+/*********************************************** 
 * FILE: ..\Src\GridManager.js 
 ***********************************************/ 
 ﻿kg.gridManager = (new function () {
@@ -696,7 +800,7 @@ kg.KoGrid = function (options) {
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         isMultiSelect: true, //toggles between selectedItem & selectedItems
-        allowRowSelection: true, //toggles whether row selection check boxes appear
+        displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         allowFiltering: true,
         minRowsToRender: ko.observable(1),
@@ -706,6 +810,7 @@ kg.KoGrid = function (options) {
 
     self = this,
     filterIsOpen = ko.observable(false),
+    filterManager,
     isSorting = false,
     prevScrollTop, prevScrollLeft;
 
@@ -722,37 +827,15 @@ kg.KoGrid = function (options) {
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
 
-    this.filterInfo = ko.observable();
 
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
-    this.filteredData = ko.computed(function () {
-        var filterInfo = self.filterInfo(),
-            data = self.data();
 
-        if (!filterInfo) {
-            return data;
-        }
+    filterManager = new kg.FilterManager(self.config);
 
-        return ko.utils.arrayFilter(data, function (item) {
-            var itemData = ko.utils.unwrapObservable(item[filterInfo.field]),
-                itemDataStr,
-                filterStr = filterInfo.filter.toUpperCase();
-
-            if (itemData && filterStr) {
-                if (typeof itemData === "string") {
-                    itemDataStr = itemData.toUpperCase();
-                    return itemDataStr.indexOf(filterStr) !== -1;
-                } else {
-                    itemDataStr = itemData.toString().toUpperCase();
-                    return (itemDataStr.indexOf(filterStr) !== -1);
-                }
-            } else {
-                return true;
-            }
-        });
-    });
+    this.filterInfo = filterManager.filterInfo; //observable
+    this.filteredData = filterManager.filteredData;
 
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
@@ -888,7 +971,7 @@ kg.KoGrid = function (options) {
     this.config.selectedItem.subscribe(function (currentEntity) {
         //ensure outgoing entity is de-selected
         if (!self.config.isMultiSelect) {
-            
+
             //uncheck the current entity
             if (currentEntity && currentEntity['__kg_selected__']) {
                 currentEntity['__kg_selected__'](false);
@@ -1102,7 +1185,7 @@ kg.KoGrid = function (options) {
 
         if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
 
-        if (self.config.allowRowSelection) {
+        if (self.config.displaySelectionCheckbox) {
             columnDefs.splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
         }
         if (self.config.displayRowIndex) {
@@ -1117,12 +1200,6 @@ kg.KoGrid = function (options) {
             }
         }
 
-        var createFilterClosure = function (col) {
-            return function (filterVal) {
-                self.filterInfo({ field: col.field, filter: filterVal });
-            };
-        };
-
         if (columnDefs.length > 1) {
 
             utils.forEach(columnDefs, function (colDef, i) {
@@ -1133,7 +1210,7 @@ kg.KoGrid = function (options) {
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
-                column.filter.subscribe(createFilterClosure(column));
+                column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);
             });
@@ -1170,6 +1247,12 @@ kg.KoGrid = function (options) {
         });
 
         filterIsOpen(isOpen);
+    };
+
+    this.clearFilter_Click = function () {
+        utils.forEach(self.columns(), function (col, i) {
+            col.filter(null);
+        });
     };
 
     this.adjustScrollTop = function (scrollTop) {

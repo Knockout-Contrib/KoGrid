@@ -11,7 +11,7 @@ test("Basic Grid Test", function () {
 
     var grid = new kg.KoGrid({
         data: data,
-        autogenerateColumns: true,
+        autogenerateColumns: true
     });
 
     ok(grid, 'Grid Instantiated!');
