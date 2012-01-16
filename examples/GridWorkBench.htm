@@ -14,7 +14,7 @@
         <div style="max-height: 600px; max-width: 900px;">
         <div id="myGrid" style="float: left; max-height: 600px; max-width: 800px;"
             data-bind="koGrid:{ data: testData, 
-                                isMultiSelect: false,
+                                isMultiSelect: true,
                                 selectedItem: mySelectedItem,
                                 rowHeight: 30,
                                 columnWidth: 130,
@@ -26,7 +26,7 @@
                                 pageSizes: [250, 500, 1000], 
                                 defaultPageSize: 250,
                                 totalServerItems: null,
-                                allowRowSelection: true,
+                                allowRowSelection: false,
                                 displayRowIndex: true,
                                 showRowIndex: false }"></div>
         </div>

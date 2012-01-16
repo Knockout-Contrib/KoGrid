@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:37:10.02 Mon 01/16/2012 
+* Compiled At: 13:24:36.82 Mon 01/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -168,7 +168,7 @@ kg.utils = utils;
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 
-    b.append('<div data-bind="kgRow: $data">');
+    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { kgSelected: $data.selected }">');
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
@@ -367,13 +367,20 @@ kg.ColumnCollection.fn = {
         }
     });
 
-    this.toggleSelected = function () {
-//        if (self.selected()) {
-//            self.selected(false);
-//        } else {
-//            self.selected(true);
-//        }
-//        return true;
+    this.toggleSelected = function (data, event) {
+        var element = event.target;
+
+        //check and make sure its not the bubbling up of our checked 'click' event 
+        if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
+            return true;
+        }else {
+            if (self.selected()) {
+                self.selected(false);
+            } else {
+                self.selected(true);
+            }
+        }
+        return true;
     };
 
     this.cells = ko.observableArray([]);

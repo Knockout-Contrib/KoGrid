@@ -17,13 +17,20 @@
         }
     });
 
-    this.toggleSelected = function () {
-//        if (self.selected()) {
-//            self.selected(false);
-//        } else {
-//            self.selected(true);
-//        }
-//        return true;
+    this.toggleSelected = function (data, event) {
+        var element = event.target;
+
+        //check and make sure its not the bubbling up of our checked 'click' event 
+        if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
+            return true;
+        }else {
+            if (self.selected()) {
+                self.selected(false);
+            } else {
+                self.selected(true);
+            }
+        }
+        return true;
     };
 
     this.cells = ko.observableArray([]);

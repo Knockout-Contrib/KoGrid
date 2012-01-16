@@ -36,6 +36,9 @@
 .kgRow.odd {
     background-color: rgb(255, 255, 255);
 }
+.kgRow.kgSelected {
+    background-color: Yellow;
+}
 .kgCell {
     overflow: hidden; 
     position: absolute;

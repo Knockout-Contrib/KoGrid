@@ -2,6 +2,7 @@
 
 SET CurrentDir=%CD%
 SET OutPutFile=%CurrentDir%\koGrid.debug.js
+SET FinalFile=..\koGrid.debug.js
 SET BuildOrder=%CurrentDir%\build-order.txt
 
 ECHO JSBuild Starting...
@@ -31,6 +32,7 @@ DEL %OutPutFile%
 @TYPE %OutPutFile%.temp >> %OutPutFile%
 @ECHO }(window)); >> %OutPutFile%
 DEL %OutPutFile%.temp
+COPY %OutputFile% %FinalFile%
 ECHO JSBuild Succeeded
 ENDLOCAL
 GOTO :eof
