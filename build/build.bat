@@ -21,6 +21,12 @@ ECHO Building... %%A
 DEL %OutPutFile%
 
 @REM Wrap the final output in an IIFE
+@ECHO /*********************************************** >> %OutPutFile%
+@ECHO * KoGrid JavaScript Library >> %OutPutFile%
+@ECHO * (c) Eric M. Barnard >> %OutPutFile%
+@ECHO * License: MIT (http://www.opensource.org/licenses/mit-license.php) >> %OutputFile%
+@ECHO * Compiled At: %Time% %Date% >> %OutPutFile%
+@ECHO ***********************************************/ >> %OutPutFile%
 @ECHO (function(window, undefined){ >> %OutPutFile%
 @TYPE %OutPutFile%.temp >> %OutPutFile%
 @ECHO }(window)); >> %OutPutFile%

@@ -1,3 +1,9 @@
+/*********************************************** 
+* KoGrid JavaScript Library 
+* (c) Eric M. Barnard 
+* License: MIT (http://www.opensource.org/licenses/mit-license.php) 
+* Compiled At: 12:37:10.02 Mon 01/16/2012 
+***********************************************/ 
 (function(window, undefined){ 
  
  
@@ -872,6 +878,18 @@ kg.KoGrid = function (options) {
 
     //#region Events
 
+    this.config.selectedItem.subscribe(function (currentEntity) {
+        //ensure outgoing entity is de-selected
+        if (!self.config.isMultiSelect) {
+            
+            //uncheck the current entity
+            if (currentEntity && currentEntity['__kg_selected__']) {
+                currentEntity['__kg_selected__'](false);
+            }
+        }
+
+    }, self, "beforeChange");
+
     this.config.selectedItem.subscribe(function (entity) {
         //ensure the current entity is checked
         if (entity && entity['__kg_selected__']) {
@@ -886,11 +904,6 @@ kg.KoGrid = function (options) {
 
         if (!self.config.isMultiSelect) {
             //Single Select Logic
-
-            //uncheck the current entity
-            if (currentEntity && currentEntity['__kg_selected__']) {
-                currentEntity['__kg_selected__'](false);
-            }
 
             //find out if the changed entity is selected or not
             if (changedEntity && changedEntity['__kg_selected__']) {
