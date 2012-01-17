@@ -266,6 +266,22 @@ kg.KoGrid = function (options) {
             var propA = ko.utils.unwrapObservable(a[col.field]),
                 propB = ko.utils.unwrapObservable(b[col.field]);
 
+            if (!propA && !propB) {
+                return 0;
+            }
+
+            if (typeof propA === "string") {
+                propA = propA.toUpperCase();
+            } else {
+                propA = propA.toString().toUpperCase();
+            }
+
+            if (typeof propB === "string") {
+                propB = propB.toUpperCase();
+            } else {
+                propB = propB.toString().toUpperCase();
+            }
+
             if (dir === "asc") {
                 return propA == propB ? 0 : (propA < propB ? -1 : 1);
             } else {

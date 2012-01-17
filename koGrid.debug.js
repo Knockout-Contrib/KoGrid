@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:16:27.65 Tue 01/17/2012 
+* Compiled At: 15:20:23.38 Tue 01/17/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1040,6 +1040,22 @@ kg.KoGrid = function (options) {
         self.data.sort(function (a, b) {
             var propA = ko.utils.unwrapObservable(a[col.field]),
                 propB = ko.utils.unwrapObservable(b[col.field]);
+
+            if (!propA && !propB) {
+                return 0;
+            }
+
+            if (typeof propA === "string") {
+                propA = propA.toUpperCase();
+            } else {
+                propA = propA.toString().toUpperCase();
+            }
+
+            if (typeof propB === "string") {
+                propB = propB.toUpperCase();
+            } else {
+                propB = propB.toString().toUpperCase();
+            }
 
             if (dir === "asc") {
                 return propA == propB ? 0 : (propA < propB ? -1 : 1);
