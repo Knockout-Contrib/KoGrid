@@ -2,4 +2,5 @@
     this.headerCells = [];
     this.height;
     this.headerCellMap = {};
+    this.filterVisible = ko.observable(false);
 };

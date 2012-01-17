@@ -21,7 +21,7 @@
                                 headerRowHeight: 30,
                                 footerRowHeight: 45,
                                 autogenerateColumns: false,
-                                columnDefs: [{ field: 'Sku', displayName: 'My Sku', width: 90}, {field: 'Vendor', displayName: 'Supplier', width: 120}, {field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180}, {field: 'UPC', displayName: 'Bar Code', width: 140}],
+                                columnDefs: [{ field: 'Sku', displayName: 'My Sku', width: 110}, {field: 'Vendor', displayName: 'Supplier', width: 120}, {field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180}, {field: 'UPC', displayName: 'Bar Code', width: 140}],
                                 enablePaging: true,
                                 pageSizes: [250, 500, 1000], 
                                 defaultPageSize: 250,
@@ -37,6 +37,12 @@
             <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
             <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
             <p>UPC: <span data-bind="text: UPC"></span></p>
+        </div>
+    </div>
+    <div style="position: absolute; height: 100px; width: 100px; top: 200px; right: 20px; border: thin solid black;">
+        <div style="border: thin solid black;">
+            <div style="height: 20px; width: 20px;">ONE</div>
+            <div style="height: 20px; width: 20px;">TWO</div>
         </div>
     </div>
     

@@ -42,7 +42,7 @@
 
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
-                        return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor(), viewModel, bindingContext);
+                        return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
                     }
                 }
             }

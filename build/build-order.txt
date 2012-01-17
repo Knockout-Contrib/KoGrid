@@ -32,3 +32,4 @@
 ..\src\BindingHandlers\kgHeaderCell.js
 ..\src\BindingHandlers\kgFooter.js
 ..\src\BindingHandlers\kgSize.js
+..\src\BindingHandlers\hasfocusEOL.js

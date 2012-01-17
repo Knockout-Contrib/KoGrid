@@ -59,14 +59,15 @@ kg.KoGrid = function (options) {
     this.filterInfo = filterManager.filterInfo; //observable
     this.filteredData = filterManager.filteredData;
 
+    var maxCanvasHt;
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
+        maxCanvasHt = rows.length * self.config.rowHeight;
         return rows.length || 0;
     });
 
     this.maxCanvasHeight = function () {
-        var rows = self.filteredData();
-        return rows.length * self.config.rowHeight;
+        return maxCanvasHt;
     };
 
     this.selectedItemCount = ko.computed(function () {
@@ -464,9 +465,7 @@ kg.KoGrid = function (options) {
     this.showFilter_Click = function () {
         var isOpen = (filterIsOpen() ? false : true);
 
-        utils.forEach(self.headerRow.headerCells, function (cell, i) {
-            cell.filterVisible(isOpen);
-        });
+        self.headerRow.filterVisible(isOpen);
 
         filterIsOpen(isOpen);
     };
