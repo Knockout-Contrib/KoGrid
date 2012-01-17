@@ -29,6 +29,7 @@
                     filterStr = filterInfo[field];
 
                     if (itemData && filterStr) {
+                        filterStr = filterStr.toUpperCase();
                         if (typeof itemData === "string") {
                             itemDataStr = itemData.toUpperCase();
                             match = (itemDataStr.indexOf(filterStr) > -1);

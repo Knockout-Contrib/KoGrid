@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:31:20.80 Tue 01/17/2012 
+* Compiled At: 15:16:27.65 Tue 01/17/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -662,6 +662,7 @@ kg.ColumnCollection.fn = {
                     filterStr = filterInfo[field];
 
                     if (itemData && filterStr) {
+                        filterStr = filterStr.toUpperCase();
                         if (typeof itemData === "string") {
                             itemDataStr = itemData.toUpperCase();
                             match = (itemDataStr.indexOf(filterStr) > -1);
