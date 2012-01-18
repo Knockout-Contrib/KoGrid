@@ -1,0 +1,19 @@
+﻿---
+layout: default
+title: Simple Example
+---
+
+<script type="text/javascript">
+    $(function () {
+        var viewModel = {
+            myObsArray: getExampleData()
+        }
+
+        ko.applyBindings( viewModel, document.getElementById("sandBox");
+    });
+</script>
+
+
+<div id="sandBox" style="max-height: 600px; max-width: 600px;" data-bind="koGrid: { data: myObsArray }>
+
+</div>
