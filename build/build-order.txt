@@ -19,6 +19,7 @@
 ..\Src\GridClasses\RowManager.js
 ..\Src\GridClasses\Footer.js
 ..\Src\GridClasses\FilterManager.js
+..\Src\GridClasses\SortManager.js
 ..\Src\GridManager.js
 ..\Src\Grid.js
 ..\Src\DomManipulation\DomFormatter.js
@@ -32,4 +33,3 @@
 ..\src\BindingHandlers\kgHeaderCell.js
 ..\src\BindingHandlers\kgFooter.js
 ..\src\BindingHandlers\kgSize.js
-..\src\BindingHandlers\hasfocusEOL.js

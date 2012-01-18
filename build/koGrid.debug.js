@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:20:23.38 Tue 01/17/2012 
+* Compiled At: 17:45:14.52 Wed 01/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -178,6 +178,8 @@ kg.utils = utils;
             b.append('</div>');
         } else if (col.field === 'rowIndex') {
             b.append('<div class="kgRowIndexCell" data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
+        } else if (col.hasCellTemplate) {
+            b.append(kg.templateManager.getTemplateText(col.cellTemplate));
         } else {
             b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
         }
@@ -194,9 +196,9 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
     return  '<div>' +
-                '<strong>Total Items:</strong><span data-bind="text: maxRows"></span>&nbsp' +
-                '<strong>Selected Items:</strong><span data-bind="text: selectedItemCount"></span>&nbsp&nbsp' +
-                '<div data-bind="visible: pagerVisible">' +
+                '<div style="float: left; margin: 5px"><strong>Total Items: </strong><span data-bind="text: maxRows"></span></div>' +
+                '<div style="float: left; margin: 5px"><strong>Selected Items: </strong><span data-bind="text: selectedItemCount"></span></div>' +
+                '<div style="float: left;" data-bind="visible: pagerVisible">' +
                     'Page Size: <select data-bind="options: pageSizes, value: selectedPageSize"></select>' +
                     '<button data-bind="click: pageBackward"> << </button>' +
                     'Page: <span data-bind="text: currentPage"></span> of <span data-bind="text: maxPages"></span>' +
@@ -222,8 +224,10 @@ kg.utils = utils;
         tmpl.type = "text/html";
         tmpl.id = tmplId;
 
-        'innerText' in tmpl ? tmpl.innerText = templateText
-                            : tmpl.textContent = templateText;
+        //        'innerText' in tmpl ? tmpl.innerText = templateText
+        //                            : tmpl.textContent = templateText;
+
+        tmpl.text = templateText;
 
         document.body.appendChild(tmpl);
     };
@@ -273,6 +277,15 @@ kg.utils = utils;
         }
     };
 
+    this.getTemplateText = function (tmplId) {
+        if (!templateExists(tmplId)) {
+            return "";
+        } else {
+            var el = document.getElementById(tmplId);
+            return el.text;
+        }
+    };
+
 } ()); 
  
  
@@ -318,7 +331,7 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.Column = function (colDef) {
     this.width = ko.observable(0);
-    
+
     this.field = colDef.field;
     this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
@@ -330,6 +343,10 @@ kg.utils = utils;
 
     //filtering
     this.filter = ko.observable();
+
+    //cell Template
+    this.hasCellTemplate = false;
+    this.cellTemplate = null; // string of the cellTemplate script element id
 }; 
  
  
@@ -599,11 +616,11 @@ kg.ColumnCollection.fn = {
     this.selectedItemCount = grid.selectedItemCount; //observable
 
     this.pagerVisible = ko.observable(grid.config.enablePaging);
-    this.selectedPageSize = ko.observable(grid.config.defaultPageSize);
+    this.selectedPageSize = grid.config.pageSize; //observable
     this.pageSizes = ko.observableArray(grid.config.pageSizes);
-    this.currentPage = ko.observable(1);
+    this.currentPage = grid.config.currentPage; //observable
     this.maxPages = ko.computed(function () {
-        var maxCnt = self.maxRows(),
+        var maxCnt = grid.config.totalServerItems() || 1,
             pageSize = self.selectedPageSize();
         return Math.ceil(maxCnt / pageSize);
     });
@@ -611,19 +628,11 @@ kg.ColumnCollection.fn = {
     this.pageForward = function () {
         var page = self.currentPage();
         self.currentPage(Math.min(page + 1, self.maxPages()));
-
-        if(page !== self.currentPage()){
-            grid.pageChanged(page);
-        }
     }
 
     this.pageBackward = function () {
         var page = self.currentPage();
         self.currentPage(Math.max(page - 1, 1));
-
-        if(page !== self.currentPage()){
-            grid.pageChanged(page);
-        }
     };
 }; 
  
@@ -725,6 +734,209 @@ kg.ColumnCollection.fn = {
  
  
 /*********************************************** 
+* FILE: ..\Src\GridClasses\SortManager.js 
+***********************************************/ 
+﻿kg.SortManager = function (options) {
+    var self = this,
+        colSortFnCache = {},
+        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/,
+        ASC = "asc",
+        DESC = "desc",
+        dataSource = options.data; //observableArray
+
+    this.guessSortFn = function (item) {
+        var sortFn,
+            itemStr,
+            itemType,
+            dateParts,
+            month,
+            day;
+
+        if (item === undefined || item === null || item === '') {
+            return null;
+        }
+
+        itemType = typeof (item);
+
+        //check for numbers and booleans
+        switch (itemType) {
+            case "number":
+                sortFn = self.sortNumber;
+                break;
+            case "boolean":
+                sortFn = self.sortBool;
+                break;
+        }
+
+        //if we found one, return it
+        if (sortFn) {
+            return sortFn;
+        }
+
+        //check if the item is a valid Date
+        if (Object.prototype.toString.call(item) === '[object Date]') {
+            return self.sortDate;
+        }
+
+        // if we aren't left with a string, we can't sort full objects...
+        if (itemType !== "string") {
+            return null;
+        }
+
+        // now lets string check..
+
+        //check if the item data is a valid number
+        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+            return self.sortNumberStr;
+        }
+
+        // check for a date: dd/mm/yyyy or dd/mm/yy 
+        // can have / or . or - as separator
+        // can be mm/dd as well
+        dateParts = item.match(dateRE)
+        if (dateParts) {
+            // looks like a date
+            month = parseInt(dateParts[1]);
+            day = parseInt(dateParts[2]);
+            if (month > 12) {
+                // definitely dd/mm
+                return self.sortDDMMStr;
+            } else if (day > 12) {
+
+                return self.sortMMDDStr;
+            } else {
+                // looks like a date, but we can't tell which, so assume that it's MM/DD
+                return self.sortMMDDStr;
+            }
+        }
+
+        //finally just sort the normal string...
+        return self.sortAlpha;
+
+    };
+
+    this.sortNumber = function (a, b) {
+        return a - b;
+    };
+
+    this.sortNumberStr = function (a, b) {
+        var numA, numB;
+
+        numA = parseFloat(a.replace(/[^0-9.-]/g, ''));
+        if (isNaN(numA)) {
+            numA = 0;
+        }
+        numB = parseFloat(b.replace(/[^0-9.-]/g, ''));
+        if (isNaN(numB)) {
+            numB = 0;
+        }
+        return numA - numB;
+    };
+
+    this.sortAlpha = function (a, b) {
+        var strA = a.toUpperCase(),
+            strB = b.toUpperCase();
+
+        return strA == strB ? 0 : (strA < strB ? -1 : 1);
+    };
+
+    this.sortDate = function (a, b) {
+        var timeA = a.getTime(),
+            timeB = b.getTime();
+
+        return timeA == timeB ? 0 : ( timeA < timeB ? -1 : 1);
+    };
+
+    this.sortBool = function (a, b) {
+        if (a && b) { return 0; }
+        if (!a && !b) { return 0; }
+        else { return a ? 1 : -1 }
+    };
+
+    this.sortDDMMStr = function (a, b) {
+        var dateA, dateB, mtch,
+            m, d, y;
+
+        mtch = a.match(dateRE);
+        y = mtch[3]; m = mtch[2]; d = mtch[1];
+        if (m.length == 1) m = '0' + m;
+        if (d.length == 1) d = '0' + d;
+        dateA = y + m + d;
+        mtch = b.match(dateRE);
+        y = mtch[3]; m = mtch[2]; d = mtch[1];
+        if (m.length == 1) m = '0' + m;
+        if (d.length == 1) d = '0' + d;
+        dateB = y + m + d;
+        if (dateA == dateB) return 0;
+        if (dateA < dateB) return -1;
+        return 1;
+    };
+
+    this.sortMMDDStr = function (a, b) {
+        var dateA, dateB, mtch,
+            m, d, y;
+
+        mtch = a.match(dateRE);
+        y = mtch[3]; d = mtch[2]; m = mtch[1];
+        if (m.length == 1) m = '0' + m;
+        if (d.length == 1) d = '0' + d;
+        dateA = y + m + d;
+        mtch = b.match(dateRE);
+        y = mtch[3]; d = mtch[2]; m = mtch[1];
+        if (m.length == 1) m = '0' + m;
+        if (d.length == 1) d = '0' + d;
+        dateB = y + m + d;
+        if (dateA == dateB) return 0;
+        if (dateA < dateB) return -1;
+        return 1;
+    };
+
+    this.sort = function (col, direction) {
+        var sortFn,
+            item,
+            prop;
+
+        //see if we already figured out what to use to sort the column
+        if (colSortFnCache[col.field]) {
+            sortFn = colSortFnCache[col.field];
+        } else { // try and guess what sort function to use
+            item = dataSource()[0];
+
+            if (item) {
+                prop = ko.utils.unwrapObservable(item[col.field]);
+            }
+
+            sortFn = self.guessSortFn(prop);
+
+            //cache it
+            if (sortFn) {
+                colSortFnCache[col.field] = sortFn;
+            } else {
+                return;
+            }
+        }
+
+        //now actually sort the data
+        dataSource.sort(function (itemA, itemB) {
+            var propA = ko.utils.unwrapObservable(itemA[col.field]),
+                propB = ko.utils.unwrapObservable(itemB[col.field]);
+
+            if (!propA && !propB) {
+                return 0;
+            }
+
+            if (direction === ASC) {
+                return sortFn(propA, propB);
+            } else {
+                return 0 - sortFn(propA, propB);
+            }
+        });
+    };
+
+}; 
+ 
+ 
+/*********************************************** 
 * FILE: ..\Src\GridManager.js 
 ***********************************************/ 
 ﻿kg.gridManager = (new function () {
@@ -792,24 +1004,26 @@ kg.KoGrid = function (options) {
         columnDefs: [],
         pageSizes: [250, 500, 1000], //page Sizes
         enablePaging: false,
-        defaultPageSize: 250, //Size of Paging data
-        totalServerItems: null, //ko.observable of how many items are on the server (for paging)
+        pageSize: ko.observable(250), //Size of Paging data
+        totalServerItems: ko.observable(), //ko.observable of how many items are on the server (for paging)
+        currentPage: ko.observable(1), //ko.observable of what page they are currently on
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
-        allowFiltering: true,
-        minRowsToRender: ko.observable(1),
-        maxRowWidth: ko.observable(120),
-        pageChanged: function () { }
+        allowFiltering: true
     },
 
     self = this,
     filterIsOpen = ko.observable(false),
-    filterManager,
+    filterManager, //kg.FilterManager
+    sortManager, //kg.SortManager
     isSorting = false,
-    prevScrollTop, prevScrollLeft;
+    prevScrollTop,
+    prevScrollLeft,
+    prevMinRowsToRender,
+    maxCanvasHt;
 
     this.$root; //this is the root element that is passed in with the binding handler
     this.$topPanel;
@@ -830,11 +1044,11 @@ kg.KoGrid = function (options) {
     this.data = self.config.data;
 
     filterManager = new kg.FilterManager(self.config);
+    sortManager = new kg.SortManager(self.config);
 
     this.filterInfo = filterManager.filterInfo; //observable
     this.filteredData = filterManager.filteredData;
 
-    var maxCanvasHt;
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
         maxCanvasHt = rows.length * self.config.rowHeight;
@@ -933,7 +1147,6 @@ kg.KoGrid = function (options) {
         return width;
     });
 
-    var prevMinRowsToRender;
     this.minRowsToRender = ko.computed(function () {
         var viewportH = self.viewportDim().outerHeight || 1;
 
@@ -1025,9 +1238,6 @@ kg.KoGrid = function (options) {
         }
     };
 
-    this.pageChanged = ko.observable(1); //event for paging
-    this.pageChanged.subscribe(self.config.pageChanged);
-
     this.sortData = function (col, dir) {
         isSorting = true;
 
@@ -1037,32 +1247,7 @@ kg.KoGrid = function (options) {
             }
         });
 
-        self.data.sort(function (a, b) {
-            var propA = ko.utils.unwrapObservable(a[col.field]),
-                propB = ko.utils.unwrapObservable(b[col.field]);
-
-            if (!propA && !propB) {
-                return 0;
-            }
-
-            if (typeof propA === "string") {
-                propA = propA.toUpperCase();
-            } else {
-                propA = propA.toString().toUpperCase();
-            }
-
-            if (typeof propB === "string") {
-                propB = propB.toUpperCase();
-            } else {
-                propB = propB.toString().toUpperCase();
-            }
-
-            if (dir === "asc") {
-                return propA == propB ? 0 : (propA < propB ? -1 : 1);
-            } else {
-                return propA == propB ? 0 : (propA > propB ? -1 : 1);
-            }
-        });
+        sortManager.sort(col, dir);
 
         isSorting = false;
     };
@@ -1135,7 +1320,7 @@ kg.KoGrid = function (options) {
         if (self.maxCanvasHeight() > canvasH) {
 
             //if we are, then add that width to the max width 
-            rootW += self.elementDims.scrollW;
+            rootW += self.elementDims.scrollW || 0;
         }
 
         //now see if we are constrained by any width dimensions
@@ -1226,6 +1411,11 @@ kg.KoGrid = function (options) {
 
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
+                if (colDef.cellTemplate) {
+                    column.hasCellTemplate = true;
+                    column.cellTemplate = colDef.cellTemplate;
+                }
+
                 cols.push(column);
             });
 
@@ -1276,7 +1466,7 @@ kg.KoGrid = function (options) {
 
         prevScrollTop = scrollTop;
 
-        self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
+        self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.minRowsToRender()));
     };
 
     this.adjustScrollLeft = function (scrollLeft) {
@@ -1316,7 +1506,7 @@ kg.KoGrid = function (options) {
 
     formatCell: function (element, cell) {
 
-        element.className += " kgCell " + "col" + cell.column.index;
+        
 
     },
 
@@ -1420,8 +1610,8 @@ kg.cssBuilder = {
         return dims;
     };
 
-    this.scrollH;
-    this.scrollW;
+    this.scrollH = 17; // default in IE, Chrome, & most browsers
+    this.scrollW = 17; // default in IE, Chrome, & most browsers
 
     $(function () {
         $testContainer.appendTo('body');
@@ -1647,9 +1837,10 @@ ko.bindingHandlers['kgCell'] = (function () {
             //get the cell from the options
             cell = row.cellMap[options.value];
 
-            kg.domFormatter.formatCell(element, cell);
+            //ensure the cell has the right class so it lines up correctly
+            element.className += " kgCell " + "col" + cell.column.index;
 
-            if (cell.column.field !== '__kg_selected__') {
+            if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
                 ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
             }
         }
@@ -1838,25 +2029,4 @@ ko.bindingHandlers['kgCell'] = (function () {
         }
     };
 } ()); 
- 
- 
-/*********************************************** 
-* FILE: ..\src\BindingHandlers\hasfocusEOL.js 
-***********************************************/ 
-﻿ko.bindingHandlers['hasfocusEOL'] = {
-
-    init: function (element, valueAccessor, allBindingsAccessor) {
-        ko.bindingHandlers['hasfocus'].init(element, valueAccessor, allBindingsAccessor);
-    },
-    update: function (element, valueAccessor, allBindingsAccessor) {
-        var val = element.value,
-            isFocus = ko.utils.unwrapObservable(valueAccessor());
-
-        if (isFocus) {
-            element.value = '';
-            ko.bindingHandlers['hasfocus'].update(element, valueAccessor, allBindingsAccessor);
-            element.value = val;
-        }
-    }
-}; 
 }(window)); 

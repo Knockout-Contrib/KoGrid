@@ -17,24 +17,26 @@ kg.KoGrid = function (options) {
         columnDefs: [],
         pageSizes: [250, 500, 1000], //page Sizes
         enablePaging: false,
-        defaultPageSize: 250, //Size of Paging data
-        totalServerItems: null, //ko.observable of how many items are on the server (for paging)
+        pageSize: ko.observable(250), //Size of Paging data
+        totalServerItems: ko.observable(), //ko.observable of how many items are on the server (for paging)
+        currentPage: ko.observable(1), //ko.observable of what page they are currently on
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
-        allowFiltering: true,
-        minRowsToRender: ko.observable(1),
-        maxRowWidth: ko.observable(120),
-        pageChanged: function () { }
+        allowFiltering: true
     },
 
     self = this,
     filterIsOpen = ko.observable(false),
-    filterManager,
+    filterManager, //kg.FilterManager
+    sortManager, //kg.SortManager
     isSorting = false,
-    prevScrollTop, prevScrollLeft;
+    prevScrollTop,
+    prevScrollLeft,
+    prevMinRowsToRender,
+    maxCanvasHt;
 
     this.$root; //this is the root element that is passed in with the binding handler
     this.$topPanel;
@@ -55,11 +57,11 @@ kg.KoGrid = function (options) {
     this.data = self.config.data;
 
     filterManager = new kg.FilterManager(self.config);
+    sortManager = new kg.SortManager(self.config);
 
     this.filterInfo = filterManager.filterInfo; //observable
     this.filteredData = filterManager.filteredData;
 
-    var maxCanvasHt;
     this.maxRows = ko.computed(function () {
         var rows = self.filteredData();
         maxCanvasHt = rows.length * self.config.rowHeight;
@@ -158,7 +160,6 @@ kg.KoGrid = function (options) {
         return width;
     });
 
-    var prevMinRowsToRender;
     this.minRowsToRender = ko.computed(function () {
         var viewportH = self.viewportDim().outerHeight || 1;
 
@@ -250,9 +251,6 @@ kg.KoGrid = function (options) {
         }
     };
 
-    this.pageChanged = ko.observable(1); //event for paging
-    this.pageChanged.subscribe(self.config.pageChanged);
-
     this.sortData = function (col, dir) {
         isSorting = true;
 
@@ -262,32 +260,7 @@ kg.KoGrid = function (options) {
             }
         });
 
-        self.data.sort(function (a, b) {
-            var propA = ko.utils.unwrapObservable(a[col.field]),
-                propB = ko.utils.unwrapObservable(b[col.field]);
-
-            if (!propA && !propB) {
-                return 0;
-            }
-
-            if (typeof propA === "string") {
-                propA = propA.toUpperCase();
-            } else {
-                propA = propA.toString().toUpperCase();
-            }
-
-            if (typeof propB === "string") {
-                propB = propB.toUpperCase();
-            } else {
-                propB = propB.toString().toUpperCase();
-            }
-
-            if (dir === "asc") {
-                return propA == propB ? 0 : (propA < propB ? -1 : 1);
-            } else {
-                return propA == propB ? 0 : (propA > propB ? -1 : 1);
-            }
-        });
+        sortManager.sort(col, dir);
 
         isSorting = false;
     };
@@ -360,7 +333,7 @@ kg.KoGrid = function (options) {
         if (self.maxCanvasHeight() > canvasH) {
 
             //if we are, then add that width to the max width 
-            rootW += self.elementDims.scrollW;
+            rootW += self.elementDims.scrollW || 0;
         }
 
         //now see if we are constrained by any width dimensions
@@ -451,6 +424,11 @@ kg.KoGrid = function (options) {
 
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
+                if (colDef.cellTemplate) {
+                    column.hasCellTemplate = true;
+                    column.cellTemplate = colDef.cellTemplate;
+                }
+
                 cols.push(column);
             });
 
@@ -501,7 +479,7 @@ kg.KoGrid = function (options) {
 
         prevScrollTop = scrollTop;
 
-        self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.config.minRowsToRender()));
+        self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.minRowsToRender()));
     };
 
     this.adjustScrollLeft = function (scrollLeft) {

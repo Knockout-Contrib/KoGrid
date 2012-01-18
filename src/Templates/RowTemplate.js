@@ -11,6 +11,8 @@
             b.append('</div>');
         } else if (col.field === 'rowIndex') {
             b.append('<div class="kgRowIndexCell" data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
+        } else if (col.hasCellTemplate) {
+            b.append(kg.templateManager.getTemplateText(col.cellTemplate));
         } else {
             b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
         }

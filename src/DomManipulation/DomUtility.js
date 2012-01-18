@@ -33,8 +33,8 @@
         return dims;
     };
 
-    this.scrollH;
-    this.scrollW;
+    this.scrollH = 17; // default in IE, Chrome, & most browsers
+    this.scrollW = 17; // default in IE, Chrome, & most browsers
 
     $(function () {
         $testContainer.appendTo('body');

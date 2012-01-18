@@ -11,8 +11,10 @@
         tmpl.type = "text/html";
         tmpl.id = tmplId;
 
-        'innerText' in tmpl ? tmpl.innerText = templateText
-                            : tmpl.textContent = templateText;
+        //        'innerText' in tmpl ? tmpl.innerText = templateText
+        //                            : tmpl.textContent = templateText;
+
+        tmpl.text = templateText;
 
         document.body.appendChild(tmpl);
     };
@@ -59,6 +61,15 @@
         //footer template
         if (config.footerTemplate) {
             self.addTemplateSafe(config.footerTemplate, kg.templates.defaultFooterTemplate);
+        }
+    };
+
+    this.getTemplateText = function (tmplId) {
+        if (!templateExists(tmplId)) {
+            return "";
+        } else {
+            var el = document.getElementById(tmplId);
+            return el.text;
         }
     };
 

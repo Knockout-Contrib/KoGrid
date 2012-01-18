@@ -24,9 +24,10 @@ ko.bindingHandlers['kgCell'] = (function () {
             //get the cell from the options
             cell = row.cellMap[options.value];
 
-            kg.domFormatter.formatCell(element, cell);
+            //ensure the cell has the right class so it lines up correctly
+            element.className += " kgCell " + "col" + cell.column.index;
 
-            if (cell.column.field !== '__kg_selected__') {
+            if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
                 ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
             }
         }

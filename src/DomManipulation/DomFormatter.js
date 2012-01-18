@@ -20,7 +20,7 @@
 
     formatCell: function (element, cell) {
 
-        element.className += " kgCell " + "col" + cell.column.index;
+        
 
     },
 

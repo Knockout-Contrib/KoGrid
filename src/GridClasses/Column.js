@@ -1,6 +1,6 @@
 ﻿kg.Column = function (colDef) {
     this.width = ko.observable(0);
-    
+
     this.field = colDef.field;
     this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
@@ -12,4 +12,8 @@
 
     //filtering
     this.filter = ko.observable();
+
+    //cell Template
+    this.hasCellTemplate = false;
+    this.cellTemplate = null; // string of the cellTemplate script element id
 };
