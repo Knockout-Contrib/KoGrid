@@ -218,6 +218,41 @@ kg.KoGrid = function (options) {
         if (entity && entity['__kg_selected__']) {
             entity['__kg_selected__'](true);
         }
+
+        //make sure its scrolled into view
+        scrollIntoView(entity);
+    });
+
+    this.config.selectedItems.subscribe(function(newItems){
+        var newItemIndex, firstItem;
+
+        if(!newItems){
+            newItems = [];
+        }
+
+        utils.forEach(self.finalData(), function(item, i){
+            
+            if(!item['__kg_selected__']){
+                item['__kg_selected__'] = ko.observable(false);
+            }
+
+            if(ko.utils.arrayIndexOf(newItems, item) > -1){
+                //newItems contains the item
+                item['__kg_selected__'](true);
+
+                if(!firstItem){
+                    firstItem = item;
+                }
+
+            }else{
+                item['__kg_selected__'](false);
+            }
+
+        });
+
+        if(firstItem){
+            scrollIntoView(firstItem);
+        }
     });
 
     this.changeSelectedItem = function (changedEntity) {
@@ -287,27 +322,16 @@ kg.KoGrid = function (options) {
         write: function (val) {
             var checkAll = val,
                 selectedItemsToPush = [],
-                data,
-                firstItem;
+                data;
 
             if (self.config.isMultiSelect) {
                 data = self.finalData();
-                firstItem = data[0];
-
-                ko.utils.arrayForEach(data, function (entity) {
-                    if (!entity['__kg_selected__']) { entity['__kg_selected__'] = ko.observable(checkAll); }
-                    else {
-                        //ko will suppress this if it was already selected                    
-                        entity['__kg_selected__'](checkAll);
-                    }
-
-                    if (checkAll) {
-                        selectedItemsToPush.push(entity);
-                    }
-                });
-
-                self.config.selectedItems(selectedItemsToPush);
-
+                
+                if(checkAll){
+                    self.config.selectedItems(data);
+                }else{
+                    self.config.selectedItems([]);
+                }
             } else {
                 if (!checkAll) {
                     self.config.selectedItem(null);
@@ -318,8 +342,7 @@ kg.KoGrid = function (options) {
 
     //keep selected item scrolled into view
     this.finalData.subscribe(function(){
-        var item,
-            itemIndex;
+        var item;
 
         if(self.config.isMultiSelect && self.config.selectedItems()){
             item = self.config.selectedItems()[0];
@@ -328,20 +351,31 @@ kg.KoGrid = function (options) {
         }
 
         if(item){
-            itemIndex = ko.utils.arrayIndexOf(self.finalData(), item);
+            scrollIntoView(item);
+        }
+    });
+
+    var scrollIntoView = function(entity){
+        var itemIndex,
+            viewableRange = self.rowManager.viewableRange();
+
+        if(entity){
+            itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
         }
 
         if(itemIndex > -1){
-            //scroll it into view
-            self.rowManager.viewableRange(new kg.Range(itemIndex - self.minRowsToRender(), itemIndex));
+            //check and see if its already in view!
+            if(itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5){
 
-            if(self.$viewport){
-                self.$viewport.scrollTop(itemIndex * self.config.rowHeight);
+                //scroll it into view
+                self.rowManager.viewableRange(new kg.Range(itemIndex, itemIndex  + self.minRowsToRender()));
+
+                if(self.$viewport){
+                    self.$viewport.scrollTop(itemIndex * self.config.rowHeight);
+                }
             }
         };
-
-    });
-
+    };
 
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
