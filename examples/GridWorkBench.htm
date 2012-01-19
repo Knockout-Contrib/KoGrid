@@ -55,7 +55,7 @@
     $(function () {
 
         var vm = {
-            testData: getTestData(),
+            testData: ko.observableArray(),
             mySelectedItem: ko.observable({ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' }),
             maxServerItems: ko.observable(2000),
             currentPage: ko.observable(1),
@@ -64,6 +64,7 @@
 
         ko.applyBindings(vm, $('#sandbox1')[0]);
 
+        vm.testData(getTestData()());
     });
 
 
