@@ -187,13 +187,16 @@ kg.KoGrid = function (options) {
             filterOpen = filterIsOpen(), //register this observable
             maxHeight = self.maxCanvasHeight(),
             vScrollBarIsOpen = (maxHeight > viewportH),
+            hScrollBarIsOpen = (self.viewportDim().outerWidth < self.totalRowWidth())
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth();
 
         if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
-
+        else if((maxHeight - viewportH) <= self.elementDims.scrollH){ //if the horizontal scroll is open it forces the viewport to be smaller
+            newDim.outerWidth += self.elementDims.scrollW;
+        }
         return newDim;
     });
 

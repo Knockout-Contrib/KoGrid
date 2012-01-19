@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:55:55.19 Thu 01/19/2012 
+* Compiled At: 16:07:25.49 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1216,13 +1216,16 @@ kg.KoGrid = function (options) {
             filterOpen = filterIsOpen(), //register this observable
             maxHeight = self.maxCanvasHeight(),
             vScrollBarIsOpen = (maxHeight > viewportH),
+            hScrollBarIsOpen = (self.viewportDim().outerWidth < self.totalRowWidth())
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth();
 
         if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
-
+        else if((maxHeight - viewportH) <= self.elementDims.scrollH){ //if the horizontal scroll is open it forces the viewport to be smaller
+            newDim.outerWidth += self.elementDims.scrollW;
+        }
         return newDim;
     });
 
