@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:38:24.61 Thu 01/19/2012 
+* Compiled At: 12:55:13.24 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -739,6 +739,11 @@ kg.ColumnCollection.fn = {
         prevSortInfo = {},
         dataSource = options.data; //observableArray
 
+    var isNull = function (val) {
+        return (val === null || val === undefined);
+    };
+
+
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.guessSortFn = function (item) {
@@ -942,12 +947,19 @@ kg.ColumnCollection.fn = {
         //now actually sort the data
         data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]);
+                propB = ko.utils.unwrapObservable(itemB[col.field]),
+                propANull = isNull(propA),
+                propBNull = isNull(propB);
 
-            if (propA === null || propA === undefined && !propB) {
+            if (propANull && propBNull) {
                 return 0;
+            } else if (propANull) {
+                return 1;
+            } else if (propBNull) {
+                return -1;
             }
 
+            //made it this far, we don't have to worry about null & undefined
             if (direction === ASC) {
                 return sortFn(propA, propB);
             } else {

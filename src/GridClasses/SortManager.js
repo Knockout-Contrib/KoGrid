@@ -7,6 +7,11 @@
         prevSortInfo = {},
         dataSource = options.data; //observableArray
 
+    var isNull = function (val) {
+        return (val === null || val === undefined);
+    };
+
+
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.guessSortFn = function (item) {
@@ -210,12 +215,19 @@
         //now actually sort the data
         data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]);
+                propB = ko.utils.unwrapObservable(itemB[col.field]),
+                propANull = isNull(propA),
+                propBNull = isNull(propB);
 
-            if (propA === null || propA === undefined && !propB) {
+            if (propANull && propBNull) {
                 return 0;
+            } else if (propANull) {
+                return 1;
+            } else if (propBNull) {
+                return -1;
             }
 
+            //made it this far, we don't have to worry about null & undefined
             if (direction === ASC) {
                 return sortFn(propA, propB);
             } else {
