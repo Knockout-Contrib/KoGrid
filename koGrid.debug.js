@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:25:55.54 Thu 01/19/2012 
+* Compiled At: 15:55:55.19 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1519,6 +1519,11 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
+                if(!colDef.width){
+                    colDef.width = column.displayName.length * kg.domUtility.letterW;
+                    colDef.width += 25; //for sorting icons and padding
+                }
+
                 column.width(colDef.width || self.config.columnWidth);
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
@@ -1746,6 +1751,7 @@ kg.cssBuilder = {
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
     this.scrollW = 17; // default in IE, Chrome, & most browsers
+    this.letterW = 2;
 
     $(function () {
         $testContainer.appendTo('body');
@@ -1757,7 +1763,10 @@ kg.cssBuilder = {
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
         $testContainer.empty();
+        $testContainer.attr('style', '');
 
+        $testContainer.append('<span>M</span>');
+        self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();
     });

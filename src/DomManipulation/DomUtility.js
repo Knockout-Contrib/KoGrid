@@ -35,6 +35,7 @@
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
     this.scrollW = 17; // default in IE, Chrome, & most browsers
+    this.letterW = 2;
 
     $(function () {
         $testContainer.appendTo('body');
@@ -46,7 +47,10 @@
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
         $testContainer.empty();
+        $testContainer.attr('style', '');
 
+        $testContainer.append('<span>M</span>');
+        self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();
     });

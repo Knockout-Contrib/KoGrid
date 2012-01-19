@@ -490,6 +490,11 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
+                if(!colDef.width){
+                    colDef.width = column.displayName.length * kg.domUtility.letterW;
+                    colDef.width += 25; //for sorting icons and padding
+                }
+
                 column.width(colDef.width || self.config.columnWidth);
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
