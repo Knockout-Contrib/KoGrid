@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:45:14.52 Wed 01/18/2012 
+* Compiled At: 17:08:35.34 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -315,12 +315,6 @@ kg.utils = utils;
     this.width = ko.computed(function () {
         return col.width();
     });
-//    this.offsetLeft = ko.computed(function () {
-//        return col.offsetLeft();
-//    });
-//    this.offsetRight = ko.computed(function(){
-//        return col.offsetRight();
-//    });
     this.column = col;
     this.row = null;
 }; 
@@ -520,7 +514,7 @@ kg.ColumnCollection.fn = {
         prevRenderedRange = new kg.Range(0, 1);
 
     this.rowTemplateId = grid.config.rowTemplate;
-    this.dataSource = grid.filteredData; //observable
+    this.dataSource = grid.finalData; //observableArray
     this.dataSource.subscribe(function () {
         rowCache = {}; //if data source changes, kill this!
     });
@@ -612,7 +606,13 @@ kg.ColumnCollection.fn = {
 ﻿kg.Footer = function (grid) {
     var self = this;
 
-    this.maxRows = grid.maxRows; //observable
+    this.maxRows;
+
+    if (grid.config.totalServerItems() !== null && grid.config.totalServerItems() !== undefined) {
+        this.maxRows = grid.config.totalServerItems; //observable
+    } else {
+        this.maxRows = grid.maxRows; //observable
+    }
     this.selectedItemCount = grid.selectedItemCount; //observable
 
     this.pagerVisible = ko.observable(grid.config.enablePaging);
@@ -620,7 +620,7 @@ kg.ColumnCollection.fn = {
     this.pageSizes = ko.observableArray(grid.config.pageSizes);
     this.currentPage = grid.config.currentPage; //observable
     this.maxPages = ko.computed(function () {
-        var maxCnt = grid.config.totalServerItems() || 1,
+        var maxCnt = self.maxRows() || 1,
             pageSize = self.selectedPageSize();
         return Math.ceil(maxCnt / pageSize);
     });
@@ -644,7 +644,7 @@ kg.ColumnCollection.fn = {
     var self = this;
 
     //map of column.field values to filterStrings
-    this.filterInfo = ko.observable();
+    this.filterInfo = options.filterInfo || ko.observable();
     this.data = options.data; //observableArray
 
     this.filteredData = ko.computed(function () {
@@ -657,7 +657,7 @@ kg.ColumnCollection.fn = {
             itemDataStr,
             filterStr;
 
-        if (!filterInfo || $.isEmptyObject(filterInfo)) {
+        if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
             return data;
         }
 
@@ -742,7 +742,15 @@ kg.ColumnCollection.fn = {
         dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/,
         ASC = "asc",
         DESC = "desc",
+        prevSortInfo = {},
         dataSource = options.data; //observableArray
+
+    var isNull = function (val) {
+        return (val === null || val === undefined);
+    };
+
+
+    this.sortInfo = options.sortInfo || ko.observable();
 
     this.guessSortFn = function (item) {
         var sortFn,
@@ -816,6 +824,7 @@ kg.ColumnCollection.fn = {
     };
 
     this.sortNumber = function (a, b) {
+
         return a - b;
     };
 
@@ -844,7 +853,7 @@ kg.ColumnCollection.fn = {
         var timeA = a.getTime(),
             timeB = b.getTime();
 
-        return timeA == timeB ? 0 : ( timeA < timeB ? -1 : 1);
+        return timeA == timeB ? 0 : (timeA < timeB ? -1 : 1);
     };
 
     this.sortBool = function (a, b) {
@@ -891,10 +900,35 @@ kg.ColumnCollection.fn = {
         return 1;
     };
 
+
     this.sort = function (col, direction) {
-        var sortFn,
+        //do an equality check first
+        if (col === prevSortInfo.column && direction === prevSortInfo.direction) {
+            return;
+        }
+
+        //if its not equal, set the observable and kickoff the event chain
+        self.sortInfo({
+            column: col,
+            direction: direction
+        });
+    };
+
+    this.sortedData = ko.computed(function () {
+        var data = dataSource(), //register dependency
+            sortInfo = self.sortInfo(), //register dependency
+            col,
+            direction,
+            sortFn,
             item,
             prop;
+
+        if (!data || !sortInfo || options.useExternalSorting) {
+            return data;
+        }
+
+        col = sortInfo.column;
+        direction = sortInfo.direction;
 
         //see if we already figured out what to use to sort the column
         if (colSortFnCache[col.field]) {
@@ -917,22 +951,30 @@ kg.ColumnCollection.fn = {
         }
 
         //now actually sort the data
-        dataSource.sort(function (itemA, itemB) {
+        data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]);
+                propB = ko.utils.unwrapObservable(itemB[col.field]),
+                propANull = isNull(propA),
+                propBNull = isNull(propB);
 
-            if (!propA && !propB) {
+            if (propANull && propBNull) {
                 return 0;
+            } else if (propANull) {
+                return 1;
+            } else if (propBNull) {
+                return -1;
             }
 
+            //made it this far, we don't have to worry about null & undefined
             if (direction === ASC) {
                 return sortFn(propA, propB);
             } else {
                 return 0 - sortFn(propA, propB);
             }
         });
-    };
 
+        return data;
+    });
 }; 
  
  
@@ -1012,18 +1054,22 @@ kg.KoGrid = function (options) {
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
-        allowFiltering: true
+        useExternalFiltering: false,
+        useExternalSorting: false,
+        filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
+        sortInfo: ko.observable(), //observable similar to filterInfo
     },
 
     self = this,
-    filterIsOpen = ko.observable(false),
+    filterIsOpen = ko.observable(false), //observable so that the header can subscribe and change height when opened
     filterManager, //kg.FilterManager
     sortManager, //kg.SortManager
     isSorting = false,
     prevScrollTop,
     prevScrollLeft,
     prevMinRowsToRender,
-    maxCanvasHt;
+    maxCanvasHt,
+    h_updateTimeout;
 
     this.$root; //this is the root element that is passed in with the binding handler
     this.$topPanel;
@@ -1044,13 +1090,18 @@ kg.KoGrid = function (options) {
     this.data = self.config.data;
 
     filterManager = new kg.FilterManager(self.config);
-    sortManager = new kg.SortManager(self.config);
+    sortManager = new kg.SortManager({
+        data: filterManager.filteredData,
+        sortInfo: self.config.sortInfo,
+        useExternalSorting: self.config.useExternalFiltering
+    });
 
+    this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
-    this.filteredData = filterManager.filteredData;
+    this.finalData = sortManager.sortedData; //observable Array
 
     this.maxRows = ko.computed(function () {
-        var rows = self.filteredData();
+        var rows = self.finalData();
         maxCanvasHt = rows.length * self.config.rowHeight;
         return rows.length || 0;
     });
@@ -1165,13 +1216,16 @@ kg.KoGrid = function (options) {
             filterOpen = filterIsOpen(), //register this observable
             maxHeight = self.maxCanvasHeight(),
             vScrollBarIsOpen = (maxHeight > viewportH),
+            hScrollBarIsOpen = (self.viewportDim().outerWidth < self.totalRowWidth())
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth();
 
         if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
-
+        else if((maxHeight - viewportH) <= self.elementDims.scrollH){ //if the horizontal scroll is open it forces the viewport to be smaller
+            newDim.outerWidth += self.elementDims.scrollW;
+        }
         return newDim;
     });
 
@@ -1195,6 +1249,41 @@ kg.KoGrid = function (options) {
         //ensure the current entity is checked
         if (entity && entity['__kg_selected__']) {
             entity['__kg_selected__'](true);
+        }
+
+        //make sure its scrolled into view
+        scrollIntoView(entity);
+    });
+
+    this.config.selectedItems.subscribe(function(newItems){
+        var newItemIndex, firstItem;
+
+        if(!newItems){
+            newItems = [];
+        }
+
+        utils.forEach(self.finalData(), function(item, i){
+            
+            if(!item['__kg_selected__']){
+                item['__kg_selected__'] = ko.observable(false);
+            }
+
+            if(ko.utils.arrayIndexOf(newItems, item) > -1){
+                //newItems contains the item
+                item['__kg_selected__'](true);
+
+                if(!firstItem){
+                    firstItem = item;
+                }
+
+            }else{
+                item['__kg_selected__'](false);
+            }
+
+        });
+
+        if(firstItem){
+            scrollIntoView(firstItem);
         }
     });
 
@@ -1254,9 +1343,6 @@ kg.KoGrid = function (options) {
 
     //#endregion
 
-    //#region Rendering
-
-
     this.toggleSelectAll = ko.computed({
         read: function () {
             var cnt = self.selectedItemCount();
@@ -1268,27 +1354,16 @@ kg.KoGrid = function (options) {
         write: function (val) {
             var checkAll = val,
                 selectedItemsToPush = [],
-                data,
-                firstItem;
+                data;
 
             if (self.config.isMultiSelect) {
-                data = self.filteredData();
-                firstItem = data[0];
-
-                ko.utils.arrayForEach(data, function (entity) {
-                    if (!entity['__kg_selected__']) { entity['__kg_selected__'] = ko.observable(checkAll); }
-                    else {
-                        //ko will suppress this if it was already selected                    
-                        entity['__kg_selected__'](checkAll);
-                    }
-
-                    if (checkAll) {
-                        selectedItemsToPush.push(entity);
-                    }
-                });
-
-                self.config.selectedItems(selectedItemsToPush);
-
+                data = self.finalData();
+                
+                if(checkAll){
+                    self.config.selectedItems(data);
+                }else{
+                    self.config.selectedItems([]);
+                }
             } else {
                 if (!checkAll) {
                     self.config.selectedItem(null);
@@ -1296,6 +1371,43 @@ kg.KoGrid = function (options) {
             }
         }
     });
+
+    //keep selected item scrolled into view
+    this.finalData.subscribe(function(){
+        var item;
+
+        if(self.config.isMultiSelect && self.config.selectedItems()){
+            item = self.config.selectedItems()[0];
+        }else if(self.config.selectedItem()){
+            item = self.config.selectedItem();
+        }
+
+        if(item){
+            scrollIntoView(item);
+        }
+    });
+
+    var scrollIntoView = function(entity){
+        var itemIndex,
+            viewableRange = self.rowManager.viewableRange();
+
+        if(entity){
+            itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
+        }
+
+        if(itemIndex > -1){
+            //check and see if its already in view!
+            if(itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5){
+
+                //scroll it into view
+                self.rowManager.viewableRange(new kg.Range(itemIndex, itemIndex  + self.minRowsToRender()));
+
+                if(self.$viewport){
+                    self.$viewport.scrollTop(itemIndex * self.config.rowHeight);
+                }
+            }
+        };
+    };
 
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
@@ -1339,7 +1451,13 @@ kg.KoGrid = function (options) {
         //register dependencies
         var data = self.data();
 
-        //self.elementsNeedMeasuring = true;
+        if (h_updateTimeout) {
+            if (window.setImmediate) {
+                window.clearImmediate(h_updateTimeout);
+            } else {
+                window.clearTimeout(h_updateTimeout);
+            }
+        }
 
         if (self.initPhase > 0) {
 
@@ -1350,10 +1468,9 @@ kg.KoGrid = function (options) {
 
                 kg.cssBuilder.buildStyles(self);
 
-                if (self.$root) {
-                    self.$root.show(); //unhide the grid after the rendering has finished
+                if (self.initPhase > 0 && self.$root) {
+                    self.$root.show();
                 }
-
             }
         }
 
@@ -1405,6 +1522,11 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
+                if(!colDef.width){
+                    colDef.width = column.displayName.length * kg.domUtility.letterW;
+                    colDef.width += 25; //for sorting icons and padding
+                }
+
                 column.width(colDef.width || self.config.columnWidth);
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
@@ -1443,6 +1565,27 @@ kg.KoGrid = function (options) {
         self.initPhase = 1;
     };
 
+    this.update = function () {
+        //we have to update async, or else all the observables are registered as dependencies
+
+        var updater = function () {
+
+            self.refreshDomSizes();
+
+            kg.cssBuilder.buildStyles(self);
+
+            if (self.initPhase > 0 && self.$root) {
+                self.$root.show();
+            }
+        };
+
+        if (window.setImmediate) {
+            h_updateTimeout = setImmediate(updater);
+        } else {
+            h_updateTimeout = setTimeout(updater, 0);
+        }
+    };
+
     this.showFilter_Click = function () {
         var isOpen = (filterIsOpen() ? false : true);
 
@@ -1474,7 +1617,6 @@ kg.KoGrid = function (options) {
             self.$headerContainer.scrollLeft(scrollLeft);
         }
     };
-
 
     //call init
     self.init();
@@ -1612,6 +1754,7 @@ kg.cssBuilder = {
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
     this.scrollW = 17; // default in IE, Chrome, & most browsers
+    this.letterW = 2;
 
     $(function () {
         $testContainer.appendTo('body');
@@ -1623,7 +1766,10 @@ kg.cssBuilder = {
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
         $testContainer.empty();
+        $testContainer.attr('style', '');
 
+        $testContainer.append('<span>M</span>');
+        self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();
     });
@@ -1651,7 +1797,7 @@ ko.bindingHandlers['koGrid'] = (function () {
         var dims = kg.domUtility.measureElementMaxDims($container);
 
         grid.elementDims.rootMaxW = dims.maxWidth;
-        grid.elementDims.rootMaxH = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxHeight;
 
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
@@ -1710,6 +1856,9 @@ ko.bindingHandlers['koGrid'] = (function () {
 
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
+
+            //call update on the grid
+            grid.update();
 
             return returnVal;
         }
