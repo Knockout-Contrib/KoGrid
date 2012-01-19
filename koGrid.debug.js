@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:09:16.70 Thu 01/19/2012 
+* Compiled At: 15:25:55.54 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -606,7 +606,13 @@ kg.ColumnCollection.fn = {
 ﻿kg.Footer = function (grid) {
     var self = this;
 
-    this.maxRows = grid.maxRows; //observable
+    this.maxRows;
+
+    if (grid.config.totalServerItems() !== null && grid.config.totalServerItems() !== undefined) {
+        this.maxRows = grid.config.totalServerItems; //observable
+    } else {
+        this.maxRows = grid.maxRows; //observable
+    }
     this.selectedItemCount = grid.selectedItemCount; //observable
 
     this.pagerVisible = ko.observable(grid.config.enablePaging);
@@ -614,7 +620,7 @@ kg.ColumnCollection.fn = {
     this.pageSizes = ko.observableArray(grid.config.pageSizes);
     this.currentPage = grid.config.currentPage; //observable
     this.maxPages = ko.computed(function () {
-        var maxCnt = grid.config.totalServerItems() || 1,
+        var maxCnt = self.maxRows() || 1,
             pageSize = self.selectedPageSize();
         return Math.ceil(maxCnt / pageSize);
     });
