@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 13:51:00.96 Thu 01/19/2012 
+* Compiled At: 14:09:16.70 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1459,8 +1459,8 @@ kg.KoGrid = function (options) {
 
                 kg.cssBuilder.buildStyles(self);
 
-                if (grid.initPhase > 0 && grid.$root) {
-                    grid.$root.show();
+                if (self.initPhase > 0 && self.$root) {
+                    self.$root.show();
                 }
             }
         }

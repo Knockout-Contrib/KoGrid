@@ -436,8 +436,8 @@ kg.KoGrid = function (options) {
 
                 kg.cssBuilder.buildStyles(self);
 
-                if (grid.initPhase > 0 && grid.$root) {
-                    grid.$root.show();
+                if (self.initPhase > 0 && self.$root) {
+                    self.$root.show();
                 }
             }
         }
