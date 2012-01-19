@@ -97,3 +97,46 @@ test("Date String Sorting Test", function () {
     equals(testData()[0].sortIndex, 3, "First Item is correct");
     equals(testData()[3].sortIndex, 1, "Last Item is correct");
 });
+
+test("Ensure sortInfo gets called", function () {
+
+    var testData = getSortingTestData();
+    var mySortInfo = ko.observable();
+    var gotCalled = false;
+
+    mySortInfo.subscribe(function () {
+        gotCalled = true;
+    });
+
+    var mgr = new kg.SortManager({
+        data: testData,
+        sortInfo: mySortInfo
+    });
+
+    mgr.sort({ field: 'ModOn' }, "desc");
+
+    ok(gotCalled, "Sort Info Subscription was called");
+});
+
+
+test("Use External Sorting Ignores Internal Sorting", function () {
+
+    var testData = getSortingTestData();
+    var mySortInfo = ko.observable();
+    var gotCalled = false;
+
+    mySortInfo.subscribe(function () {
+        gotCalled = true;
+    });
+
+    var mgr = new kg.SortManager({
+        data: testData,
+        sortInfo: mySortInfo,
+        useExternalSorting: true
+    });
+
+    mgr.sort({ field: 'ModOn' }, "desc");
+
+    ok(gotCalled, "Sort Info Subscription was called");
+    equals(testData()[0].sortIndex, 1, "First Item is correct");    
+});

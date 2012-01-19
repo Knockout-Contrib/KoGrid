@@ -2,7 +2,7 @@
     var self = this;
 
     //map of column.field values to filterStrings
-    this.filterInfo = ko.observable();
+    this.filterInfo = options.filterInfo || ko.observable();
     this.data = options.data; //observableArray
 
     this.filteredData = ko.computed(function () {
@@ -15,7 +15,7 @@
             itemDataStr,
             filterStr;
 
-        if (!filterInfo || $.isEmptyObject(filterInfo)) {
+        if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
             return data;
         }
 

@@ -119,3 +119,50 @@ test("setting filter info to empty object clears out filter", function () {
 
     equals(manager.filteredData().length, 4, 'Filtered Data should be reset back to 4 items');
 });
+
+test("Ensure FilterInfo gets called back", function () {
+
+    var data = getFilteringTestData();
+    var myFilterInfo = ko.observable();
+    var gotCalled = false;
+
+    myFilterInfo.subscribe(function () {
+        gotCalled = true;
+    });
+
+    var manager = new kg.FilterManager({
+        data: data,
+        filterInfo: myFilterInfo
+    });
+
+    var skuCallback = manager.createFilterChangeCallback({ field: 'Sku' });
+
+    skuCallback('5');
+
+    ok(gotCalled, "Filter Info was called back");
+});
+
+test("External Filtering ignores internal filtering", function () {
+
+    var data = getFilteringTestData();
+    var myFilterInfo = ko.observable();
+    var gotCalled = false;
+
+    myFilterInfo.subscribe(function () {
+        gotCalled = true;
+    });
+
+    var manager = new kg.FilterManager({
+        data: data,
+        filterInfo: myFilterInfo,
+        useExternalFiltering: true
+    });
+
+    var skuCallback = manager.createFilterChangeCallback({ field: 'Sku' });
+
+    skuCallback('5');
+
+    ok(gotCalled, "Filter Info was called back");
+    equals(manager.filteredData()[0].Sku(), 'C-2820164', 'Returns Correct first item'); //4 columns bc of RowIndex and Selected
+    
+});

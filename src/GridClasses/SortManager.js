@@ -4,7 +4,10 @@
         dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/,
         ASC = "asc",
         DESC = "desc",
+        prevSortInfo = {},
         dataSource = options.data; //observableArray
+
+    this.sortInfo = options.sortInfo || ko.observable();
 
     this.guessSortFn = function (item) {
         var sortFn,
@@ -78,6 +81,7 @@
     };
 
     this.sortNumber = function (a, b) {
+
         return a - b;
     };
 
@@ -106,7 +110,7 @@
         var timeA = a.getTime(),
             timeB = b.getTime();
 
-        return timeA == timeB ? 0 : ( timeA < timeB ? -1 : 1);
+        return timeA == timeB ? 0 : (timeA < timeB ? -1 : 1);
     };
 
     this.sortBool = function (a, b) {
@@ -153,10 +157,35 @@
         return 1;
     };
 
+
     this.sort = function (col, direction) {
-        var sortFn,
+        //do an equality check first
+        if (col === prevSortInfo.column && direction === prevSortInfo.direction) {
+            return;
+        }
+
+        //if its not equal, set the observable and kickoff the event chain
+        self.sortInfo({
+            column: col,
+            direction: direction
+        });
+    };
+
+    this.sortedData = ko.computed(function () {
+        var data = dataSource(), //register dependency
+            sortInfo = self.sortInfo(), //register dependency
+            col,
+            direction,
+            sortFn,
             item,
             prop;
+
+        if (!data || !sortInfo || options.useExternalSorting) {
+            return data;
+        }
+
+        col = sortInfo.column;
+        direction = sortInfo.direction;
 
         //see if we already figured out what to use to sort the column
         if (colSortFnCache[col.field]) {
@@ -179,11 +208,11 @@
         }
 
         //now actually sort the data
-        dataSource.sort(function (itemA, itemB) {
+        data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
                 propB = ko.utils.unwrapObservable(itemB[col.field]);
 
-            if (!propA && !propB) {
+            if (propA === null || propA === undefined && !propB) {
                 return 0;
             }
 
@@ -193,6 +222,7 @@
                 return 0 - sortFn(propA, propB);
             }
         });
-    };
 
+        return data;
+    });
 };

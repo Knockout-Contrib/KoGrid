@@ -6,7 +6,7 @@
         prevRenderedRange = new kg.Range(0, 1);
 
     this.rowTemplateId = grid.config.rowTemplate;
-    this.dataSource = grid.filteredData; //observable
+    this.dataSource = grid.finalData; //observableArray
     this.dataSource.subscribe(function () {
         rowCache = {}; //if data source changes, kill this!
     });

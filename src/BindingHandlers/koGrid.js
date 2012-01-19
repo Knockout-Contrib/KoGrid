@@ -75,6 +75,9 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
+            //call update on the grid
+            grid.update();
+
             return returnVal;
         }
     };
