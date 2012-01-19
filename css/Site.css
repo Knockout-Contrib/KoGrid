@@ -1,0 +1,51 @@
+﻿/* Generic pane rules */
+body { margin: 0 }
+.row, .col { overflow: hidden; position: absolute; }
+.row { left: 0; right: 0; }
+.col { top: 0; bottom: 0; }
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+
+p {
+    color: White; 
+}
+
+#header {
+    height: 50px;
+    top: 0;
+    background-color: #3366FF;
+}
+#header p {
+	width: 200px;
+	margin: 5px;
+	font-size: 2em;
+}
+#body {
+    top: 50px;
+    bottom: 50px;
+    background-color: #CCCCCC;
+}
+#footer {
+    height: 50px;
+    bottom: 0;
+    background-color: #3366FF;
+}
+#footer p {
+	font-size: large;
+	width: 300px;
+	text-align: center;
+	height: 40px;
+	line-height: 50px;
+}
+.centered {
+	margin: auto;
+}
+
+.example {
+	border: 1px solid #666666;
+	margin: 10px auto;
+}
+
+.outline {
+    
+}

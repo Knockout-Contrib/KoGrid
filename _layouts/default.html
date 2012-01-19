@@ -7,10 +7,16 @@
         {% include global-resources.html %}
     </head>
     <body>
-        <div id="wrapper">
-            {{ content }}
+        <div id="header" class="row">
+            <p>{{ page.title }}</p>
         </div>
-        
-        <div id="page-footer">(c) EricBarnard.com </div> 
+        <div id="body" class="row scroll-y">
+            
+                {{ content }}
+                        
+        </div>        
+        <div id="footer" class="row">
+            <p class="centered">(c) EricBarnard.com </p>
+        </div> 
     </body>
 </html>
