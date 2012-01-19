@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:07:25.49 Thu 01/19/2012 
+* Compiled At: 17:08:35.34 Thu 01/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1797,7 +1797,7 @@ ko.bindingHandlers['koGrid'] = (function () {
         var dims = kg.domUtility.measureElementMaxDims($container);
 
         grid.elementDims.rootMaxW = dims.maxWidth;
-        grid.elementDims.rootMaxH = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxHeight;
 
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;

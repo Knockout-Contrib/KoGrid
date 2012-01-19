@@ -15,7 +15,7 @@ ko.bindingHandlers['koGrid'] = (function () {
         var dims = kg.domUtility.measureElementMaxDims($container);
 
         grid.elementDims.rootMaxW = dims.maxWidth;
-        grid.elementDims.rootMaxH = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxHeight;
 
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
