@@ -16,8 +16,7 @@ p {
     background-color: #3366FF;
 }
 #header p {
-	width: 200px;
-	margin: 5px;
+	margin: 10px;
 	font-size: 2em;
 }
 #body {
@@ -30,12 +29,13 @@ p {
     bottom: 0;
     background-color: #3366FF;
 }
-#footer p {
-	font-size: large;
-	width: 300px;
-	text-align: center;
-	height: 40px;
-	line-height: 50px;
+#footer p
+{
+    font-size: .75em;
+    width: 300px;
+    text-align: center;
+    height: 40px;
+    line-height: 50px;
 }
 .centered {
 	margin: auto;
