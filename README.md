@@ -4,6 +4,7 @@ By: Eric M. Barnard
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
+Dependencies: jQuery & Knockout
 ***
 ##About##
 __KoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
