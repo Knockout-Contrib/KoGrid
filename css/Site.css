@@ -6,6 +6,9 @@ body { margin: 0 }
 .scroll-x { overflow-x: auto; }
 .scroll-y { overflow-y: auto; }
 
+body {
+            font-family: Verdana, Helvetica, Sans-Serif;
+}
 p {
     color: White; 
 }
@@ -13,11 +16,17 @@ p {
 #header {
     height: 50px;
     top: 0;
-    background-color: #3366FF;
+    background-image: url('/KoGrid/images/header-background.png');
+    background-repeat: repeat-x;
 }
 #header p {
 	margin: 10px;
-	font-size: 2em;
+	font-size: 24px;
+}
+        
+#header a {
+    color: White;
+    text-decoration: none;            
 }
 #body {
     top: 50px;
@@ -27,11 +36,12 @@ p {
 #footer {
     height: 50px;
     bottom: 0;
-    background-color: #3366FF;
+    background-image: url('/KoGrid/images/footer-background.png');
+    background-repeat: repeat-x;
 }
 #footer p
 {
-    font-size: .75em;
+    font-size: 12px;
     width: 300px;
     text-align: center;
     height: 40px;
