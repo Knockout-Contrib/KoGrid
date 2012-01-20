@@ -1,0 +1,71 @@
+---
+layout: default
+title: Complex Server Side Paging, Sorting, Filtering
+---
+
+<script type="text/javascript">
+    $(function () {
+        var myVM = function () {
+            var self = this;
+
+            this.myObsArray = ko.observableArray([]);
+            this.currentPage = ko.observable(1);
+            this.pageSize = ko.observable(50);
+            this.totalServerItems = ko.observable(258);
+            this.selectedItem = ko.observable();
+            this.sortInfo = ko.observable();
+            this.filterInfo = ko.observable();
+
+            this.getPagedData = function (pageSize, page, filterInfo, sortInfo) {
+                setTimeout(function () {
+
+                    var data = window.getExampleData();
+
+                    var pagedData = data().slice((page - 1) * pageSize, page * pageSize);
+
+                    //filter and sort accordingly
+
+                    self.myObsArray(pagedData);
+                }, 0);
+            };
+
+
+            this.dataChangedTrigger = ko.computed(function () {
+                var page = self.currentPage(),
+                    pageSize = self.pageSize(),
+                    filterInfo = self.filterInfo(),
+                    sortInfo = self.sortInfo();
+
+                if (page && pageSize) {
+                    self.getPagedData(pageSize, page, filterInfo, sortInfo);
+                }
+                return null;
+            });
+        };
+
+        window.viewModel = new myVM();
+
+        ko.applyBindings(viewModel);
+
+        viewModel.getPagedData(50, 1, null, null);
+    });
+</script>
+
+
+<div id="sandBox" class="example" style="height: 600px; max-width: 700px;" 
+        data-bind="koGrid: { data: myObsArray,
+                             columnDefs: [ { field: 'Sku', width: 120 },
+                                        { field: 'Vendor', width: 80 },
+                                        { field: 'SeasonCode', displayName: 'Season Code', width: 130 },
+                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 160 },
+                                        { field: 'UPC', width: 150 }],
+                             autogenerateColumns: false,
+                             isMultiSelect: false,
+                             enablePaging: true,
+                             pageSize: pageSize,
+                             pageSizes: [25, 50, 75],
+                             currentPage: currentPage,
+                             totalServerItems: totalServerItems,
+                             selectedItem: selectedItem }">
+
+</div>
