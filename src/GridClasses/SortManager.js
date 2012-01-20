@@ -5,14 +5,25 @@
         ASC = "asc",
         DESC = "desc",
         prevSortInfo = {},
-        dataSource = options.data; //observableArray
+        dataSource = options.data, //observableArray
+        initPhase = 0,
+        internalSortedData = ko.observableArray([]);
 
     var isNull = function (val) {
         return (val === null || val === undefined);
     };
 
-
     this.sortInfo = options.sortInfo || ko.observable();
+
+    this.sortedData = ko.computed(function () {
+        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
+        // dependency during the binding handler's dependency detection :(
+        if (initPhase > 0) {
+            return internalSortedData();
+        } else {
+            return dataSource();
+        }
+    });
 
     this.guessSortFn = function (item) {
         var sortFn,
@@ -176,9 +187,9 @@
         });
     };
 
-    this.sortedData = ko.computed(function () {
-        var data = dataSource(), //register dependency
-            sortInfo = self.sortInfo(), //register dependency
+    var sortData = function () {
+        var data = dataSource(),
+            sortInfo = self.sortInfo(),
             col,
             direction,
             sortFn,
@@ -186,7 +197,8 @@
             prop;
 
         if (!data || !sortInfo || options.useExternalSorting) {
-            return data;
+            internalSortedData(data);
+            return;
         }
 
         col = sortInfo.column;
@@ -235,6 +247,13 @@
             }
         });
 
-        return data;
-    });
+        internalSortedData(data);
+    };
+
+    //subscribe to the changes in these objects
+    dataSource.subscribe(sortData);
+    this.sortInfo.subscribe(sortData);
+
+    //change the initPhase so computed bindings now work!
+    initPhase = 1;
 };

@@ -22,7 +22,7 @@ test("No Filtered Data Test", function () {
     var manager = new kg.FilterManager({ data: data });
 
     ok(manager, 'Manager Instantiated!');
-    equals(manager.filteredData().length, 4, 'Defaults to no Filtering!'); //4 columns bc of RowIndex and Selected
+    equals(manager.filteredData().length, 4, 'Defaults to no Filtering!'); 
 });
 
 test("1 Column Filtering", function () {

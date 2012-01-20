@@ -14,6 +14,17 @@ window.getSortingTestData = function () {
 
 module("Sorting Tests");
 
+test("No Sorting Test", function () {
+    var testData = getSortingTestData();
+
+    var mgr = new kg.SortManager({
+        data: testData
+    });
+    
+    ok(mgr, "Sort Manager Instantiated");
+    equals(mgr.sortedData().length, 4, "No Sorting returns correct data");
+});
+
 test("Basic Sorting Test", function () {
 
     var testData = getSortingTestData();

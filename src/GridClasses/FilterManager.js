@@ -1,25 +1,40 @@
 ﻿kg.FilterManager = function (options) {
-    var self = this;
+    var self = this,
+        initPhase = 0,
+        internalFilteredData = ko.observableArray([]);
 
     //map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
     this.data = options.data; //observableArray
 
     this.filteredData = ko.computed(function () {
+        var data = internalFilteredData();
+
+        //this is a bit funky, but it prevents our filtered data from being registered as a subscription to our grid.update bindingHandler
+        if (initPhase > 0) {
+            return data;
+        } else {
+            return self.data();
+        }
+    });
+
+    var filterData = function () {
         var filterInfo = self.filterInfo(),
             data = self.data(),
             keepRow = false,
             match = true,
+            newArr = [],
             field,
             itemData,
             itemDataStr,
             filterStr;
 
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
-            return data;
+            internalFilteredData(data);
+            return;
         }
 
-        return ko.utils.arrayFilter(data, function (item) {
+        newArr = ko.utils.arrayFilter(data, function (item) {
 
             //loop through each property and filter it
             for (field in filterInfo) {
@@ -60,7 +75,13 @@
             return keepRow;
         });
 
-    });
+        internalFilteredData(newArr);
+
+    };
+
+    //create subscriptions
+    this.data.subscribe(filterData);
+    this.filterInfo.subscribe(filterData);
 
     this.createFilterChangeCallback = function (col) {
         return function (newFilterVal) {
@@ -88,4 +109,7 @@
             self.filterInfo(info);
         };
     };
+
+    //increase this after initialization so that the computeds fire correctly
+    initPhase = 1;
 };
