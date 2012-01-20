@@ -50,7 +50,7 @@ ko.bindingHandlers['kgRows'] = (function () {
                         grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
                         grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
 
-                        //grid.elementsNeedMeasuring = false;
+                        grid.elementsNeedMeasuring = false;
                     }
                 }
             }

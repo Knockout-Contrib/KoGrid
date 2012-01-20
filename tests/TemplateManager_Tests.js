@@ -22,3 +22,10 @@ test("Row Template - is generated", function () {
 
     ok(el, 'Row Template was generated!');
 });
+
+test("Get Template Text Test", function () {
+
+    var txt = kg.templateManager.getTemplateText('testRowTemplate');
+
+    ok(txt, "Template Text retrieved correctly: " + txt);
+});

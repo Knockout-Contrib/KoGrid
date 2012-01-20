@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:08:35.34 Thu 01/19/2012 
+* Compiled At: 13:42:37.78 Fri 01/20/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1415,6 +1415,8 @@ kg.KoGrid = function (options) {
             rootH = 0,
             rootW = 0,
             canvasH = 0;
+        
+        self.elementsNeedMeasuring = true;
 
         //calculate the POSSIBLE biggest viewport height
         rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
@@ -1857,7 +1859,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
-            //call update on the grid
+            //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 
             return returnVal;
@@ -1923,7 +1925,7 @@ ko.bindingHandlers['kgRows'] = (function () {
                         grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
                         grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
 
-                        //grid.elementsNeedMeasuring = false;
+                        grid.elementsNeedMeasuring = false;
                     }
                 }
             }

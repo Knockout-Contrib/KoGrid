@@ -386,6 +386,8 @@ kg.KoGrid = function (options) {
             rootH = 0,
             rootW = 0,
             canvasH = 0;
+        
+        self.elementsNeedMeasuring = true;
 
         //calculate the POSSIBLE biggest viewport height
         rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;

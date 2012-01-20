@@ -75,7 +75,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
-            //call update on the grid
+            //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 
             return returnVal;
