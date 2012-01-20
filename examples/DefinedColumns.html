@@ -1,0 +1,26 @@
+---
+layout: default
+title: Defined Columns Example
+---
+
+<script type="text/javascript">
+    $(function () {
+        window.viewModel = {
+            myObsArray: getExampleData()
+        };
+
+        ko.applyBindings(viewModel);
+    });
+</script>
+
+
+<div id="sandBox" class="example" style="height: 600px; max-width: 700px;" 
+        data-bind="koGrid: { data: myObsArray,
+                             columnDefs: [ { field: 'Sku', width: 120 },
+                                        { field: 'Vendor', width: 80 },
+                                        { field: 'SeasonCode', displayName: 'Season Code', width: 130 },
+                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 160 },
+                                        { field: 'UPC', width: 150 }],
+                             autogenerateColumns: false }">
+
+</div>
