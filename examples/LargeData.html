@@ -1,0 +1,61 @@
+---
+layout: default
+title: Large Data Example
+---
+
+<script type="text/javascript">
+    var generateRandomNum = function (len) {
+        var i = 1,
+            multiplier = 10;
+
+        while (i < len) {
+            multiplier = multiplier * 10;
+            i++;
+        }
+
+        return Math.round(Math.random() * multiplier);
+    };
+
+    var Product = function (i) {
+        this.ID = i;
+        this.Sku = "sk" + (Math.random() * (100000)).toString();
+        this.Qty = ko.observable(generateRandomNum(3));
+        this.UPC = generateRandomNum(1).toString() + generateRandomNum(11).toString();
+        this.Active = ko.observable(true);
+    };
+
+    var generateLargeData = function () {
+        var arr = [],
+            i = 0;
+
+        while (i < 10001) {
+            arr.push(new Product(i));
+
+            i++;
+        };
+
+        return arr;
+    };
+
+    $(function () {
+        window.viewModel = {
+            myObsArray: ko.observableArray([])
+        };
+
+        window.viewModel.myObsArray(generateLargeData());
+
+        ko.applyBindings(viewModel);
+    });
+</script>
+
+
+<div id="sandBox" class="example" style="height: 600px; max-width: 600px;" 
+        data-bind="koGrid: { data: myObsArray,
+                             columnDefs: [ { field: 'ID', width: 120 },
+                                        { field: 'Sku', width: 120 },
+                                        { field: 'Qty', width: 80 },
+                                        { field: 'Active', displayName: 'For Sale', width: 90 },
+                                        { field: 'UPC', width: 150 }],
+                             autogenerateColumns: false }">
+
+</div>

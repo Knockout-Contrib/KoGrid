@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:08:35.34 Thu 01/19/2012 
+* Compiled At: 16:40:18.03 Fri 01/20/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -641,27 +641,42 @@ kg.ColumnCollection.fn = {
 * FILE: ..\Src\GridClasses\FilterManager.js 
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
-    var self = this;
+    var self = this,
+        initPhase = 0,
+        internalFilteredData = ko.observableArray([]);
 
     //map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
     this.data = options.data; //observableArray
 
     this.filteredData = ko.computed(function () {
+        var data = internalFilteredData();
+
+        //this is a bit funky, but it prevents our filtered data from being registered as a subscription to our grid.update bindingHandler
+        if (initPhase > 0) {
+            return data;
+        } else {
+            return self.data();
+        }
+    });
+
+    var filterData = function () {
         var filterInfo = self.filterInfo(),
             data = self.data(),
             keepRow = false,
             match = true,
+            newArr = [],
             field,
             itemData,
             itemDataStr,
             filterStr;
 
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
-            return data;
+            internalFilteredData(data);
+            return;
         }
 
-        return ko.utils.arrayFilter(data, function (item) {
+        newArr = ko.utils.arrayFilter(data, function (item) {
 
             //loop through each property and filter it
             for (field in filterInfo) {
@@ -702,7 +717,13 @@ kg.ColumnCollection.fn = {
             return keepRow;
         });
 
-    });
+        internalFilteredData(newArr);
+
+    };
+
+    //create subscriptions
+    this.data.subscribe(filterData);
+    this.filterInfo.subscribe(filterData);
 
     this.createFilterChangeCallback = function (col) {
         return function (newFilterVal) {
@@ -730,6 +751,9 @@ kg.ColumnCollection.fn = {
             self.filterInfo(info);
         };
     };
+
+    //increase this after initialization so that the computeds fire correctly
+    initPhase = 1;
 }; 
  
  
@@ -743,14 +767,26 @@ kg.ColumnCollection.fn = {
         ASC = "asc",
         DESC = "desc",
         prevSortInfo = {},
-        dataSource = options.data; //observableArray
+        dataSource = options.data, //observableArray
+        initPhase = 0,
+        internalSortedData = ko.observableArray([]);
 
     var isNull = function (val) {
         return (val === null || val === undefined);
     };
 
-
     this.sortInfo = options.sortInfo || ko.observable();
+
+    this.sortedData = ko.computed(function () {
+        var sortData = internalSortedData();
+        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
+        // dependency during the binding handler's dependency detection :(
+        if (initPhase > 0) {
+            return sortData;
+        } else {
+            return dataSource();
+        }
+    });
 
     this.guessSortFn = function (item) {
         var sortFn,
@@ -914,9 +950,9 @@ kg.ColumnCollection.fn = {
         });
     };
 
-    this.sortedData = ko.computed(function () {
-        var data = dataSource(), //register dependency
-            sortInfo = self.sortInfo(), //register dependency
+    var sortData = function () {
+        var data = dataSource(),
+            sortInfo = self.sortInfo(),
             col,
             direction,
             sortFn,
@@ -924,7 +960,8 @@ kg.ColumnCollection.fn = {
             prop;
 
         if (!data || !sortInfo || options.useExternalSorting) {
-            return data;
+            internalSortedData(data);
+            return;
         }
 
         col = sortInfo.column;
@@ -973,8 +1010,15 @@ kg.ColumnCollection.fn = {
             }
         });
 
-        return data;
-    });
+        internalSortedData(data);
+    };
+
+    //subscribe to the changes in these objects
+    dataSource.subscribe(sortData);
+    this.sortInfo.subscribe(sortData);
+
+    //change the initPhase so computed bindings now work!
+    initPhase = 1;
 }; 
  
  
@@ -1415,6 +1459,8 @@ kg.KoGrid = function (options) {
             rootH = 0,
             rootW = 0,
             canvasH = 0;
+        
+        self.elementsNeedMeasuring = true;
 
         //calculate the POSSIBLE biggest viewport height
         rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
@@ -1857,7 +1903,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
-            //call update on the grid
+            //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 
             return returnVal;
@@ -1909,7 +1955,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
             retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
 
-            //only measure the row and cell differences once
+            //only measure the row and cell differences when data changes
             if (grid.elementsNeedMeasuring && grid.initPhase > 0) {
                 //Measure the cell and row differences after rendering
                 $row = $(element).children().first();
@@ -1923,7 +1969,7 @@ ko.bindingHandlers['kgRows'] = (function () {
                         grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
                         grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
 
-                        //grid.elementsNeedMeasuring = false;
+                        grid.elementsNeedMeasuring = false;
                     }
                 }
             }
