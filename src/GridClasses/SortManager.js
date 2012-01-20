@@ -16,10 +16,11 @@
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.sortedData = ko.computed(function () {
+        var sortData = internalSortedData();
         //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
         // dependency during the binding handler's dependency detection :(
         if (initPhase > 0) {
-            return internalSortedData();
+            return sortData;
         } else {
             return dataSource();
         }

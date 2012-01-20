@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:13:52.83 Fri 01/20/2012 
+* Compiled At: 16:40:18.03 Fri 01/20/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -778,10 +778,11 @@ kg.ColumnCollection.fn = {
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.sortedData = ko.computed(function () {
+        var sortData = internalSortedData();
         //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
         // dependency during the binding handler's dependency detection :(
         if (initPhase > 0) {
-            return internalSortedData();
+            return sortData;
         } else {
             return dataSource();
         }
