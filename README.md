@@ -14,9 +14,10 @@ KoGrid is ALPHA currently... _BUT_ I might know a few organizations going live i
 ***
 _The sizzle_:
 
-```
+```html
 <div data-bind="koGrid: { data: myObservableArray }"></div>
-
+```
+```javascript
 var vm = {
   myObservableArray: ko.observableArray(/* array of any complex obects */)
 };
