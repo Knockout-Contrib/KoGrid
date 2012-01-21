@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:40:18.03 Fri 01/20/2012 
+* Compiled At: 14:29:26.89 Sat 01/21/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1290,9 +1290,11 @@ kg.KoGrid = function (options) {
     }, self, "beforeChange");
 
     this.config.selectedItem.subscribe(function (entity) {
-        //ensure the current entity is checked
-        if (entity && entity['__kg_selected__']) {
-            entity['__kg_selected__'](true);
+        //ensure incoming entity has our selected flag
+        if(entity && !entity['__kg_selected__']){
+            entity['__kg_selected__'] = ko.observable(true);
+        } else if(entity){
+            entity['__kg_selected__'](true);        
         }
 
         //make sure its scrolled into view

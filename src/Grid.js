@@ -217,9 +217,11 @@ kg.KoGrid = function (options) {
     }, self, "beforeChange");
 
     this.config.selectedItem.subscribe(function (entity) {
-        //ensure the current entity is checked
-        if (entity && entity['__kg_selected__']) {
-            entity['__kg_selected__'](true);
+        //ensure incoming entity has our selected flag
+        if(entity && !entity['__kg_selected__']){
+            entity['__kg_selected__'] = ko.observable(true);
+        } else if(entity){
+            entity['__kg_selected__'](true);        
         }
 
         //make sure its scrolled into view
