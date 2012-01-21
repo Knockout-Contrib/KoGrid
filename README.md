@@ -33,4 +33,4 @@ Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Gett
 * [Defined Columns Example](http://ericmbarnard.github.com/KoGrid/examples/DefinedColumns.html) : Shows a grid with columns defined
 * [Complex Example with Server Side Paging, Filtering, Sorting](http://ericmbarnard.github.com/KoGrid/examples/Complex-Server-Side-Paging.html) : Shows an example that easily allows server-side paging, sorting, and filtering
 * [Large Data Set](http://ericmbarnard.github.com/KoGrid/examples/LargeData.html) : 10000+ rows! Shows virtualized scrolling, sorting and filtering
-* [Master-Details](http://ericmbarnard.github.com/KoGrid/Examples/MasterDetails.html) : Shows an example of Master-Detail display (click on row to display details)
+* [Master-Details](http://ericmbarnard.github.com/KoGrid/examples/MasterDetails.html) : Shows an example of Master-Detail display (click on row to display details)
