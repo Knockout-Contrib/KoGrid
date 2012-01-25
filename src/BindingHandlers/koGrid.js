@@ -11,31 +11,21 @@ ko.bindingHandlers['koGrid'] = (function () {
         };
     };
 
-    var measureElementMaxSizes = function ($container, grid) {
-        var dims = kg.domUtility.measureElementMaxDims($container);
-
-        grid.elementDims.rootMaxW = dims.maxWidth;
-        grid.elementDims.rootMaxH = dims.maxHeight;
-
-        grid.elementDims.scrollW = kg.domUtility.scrollW;
-        grid.elementDims.scrollH = kg.domUtility.scrollH;
-    };
-
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid,
                 options = valueAccessor(),
                 $element = $(element);
 
-            $element.hide(); //first hide the grid so that its not freaking the screen out!
-
             //create the Grid
             grid = new kg.KoGrid(options);
 
             kg.gridManager.storeGrid(element, grid);
 
-            //get the max container sizes
-            measureElementMaxSizes($element, grid);
+            //get the container sizes
+            kg.domUtility.measureGrid($element, grid);
+
+            $element.hide(); //first hide the grid so that its not freaking the screen out
 
             //set the right styling on the container
             $(element).addClass("kgGrid")

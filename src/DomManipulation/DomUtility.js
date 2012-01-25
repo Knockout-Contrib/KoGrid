@@ -25,12 +25,54 @@
     this.measureElementMaxDims = function ($container) {
         var dims = {};
 
-        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+        var $test = $("<div style='height: 20000px; width: 20000px;'></div>");
+
+        $container.append($test);
 
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+        $test.remove();
+
         return dims;
+    };
+
+    this.measureElementMinDims = function ($container) {
+        var dims = {};
+
+        $container.children().hide();
+
+        var $test = $("<div style='height: 0x; width: 0px;'></div>");
+        $container.append($test);
+
+        $container.wrap("<div style='width: 1px;'></div>");
+
+        dims.minWidth = $container.width();
+        dims.minHeight = $container.height();
+
+        $container.unwrap();
+        $container.children().show();
+
+        return dims;
+    };
+
+    this.measureGrid = function ($container, grid) {
+
+        //find max sizes
+        var dims = self.measureElementMaxDims($container);
+
+        grid.elementDims.rootMaxW = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxHeight;
+
+        //find min sizes
+        dims = self.measureElementMinDims($container);
+
+        grid.elementDims.rootMinW = dims.minWidth;
+        grid.elementDims.rootMinH = dims.minHeight;
+
+        //set scroll measurements
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
@@ -47,9 +89,12 @@
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
         $testContainer.empty();
+
+        //clear styles
         $testContainer.attr('style', '');
 
-        $testContainer.append('<span>M</span>');
+        //measure letter sizes
+        $testContainer.append('<span><strong>M</strong></span>');
         self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();

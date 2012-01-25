@@ -111,7 +111,9 @@ kg.KoGrid = function (options) {
         rowIndexCellW: 35,
         rowSelectedCellW: 25,
         rootMaxW: 0,
-        rootMaxH: 0
+        rootMaxH: 0,
+        rootMinW: 0,
+        rootMinH: 0
     };
     this.elementsNeedMeasuring = true;
 
@@ -254,10 +256,6 @@ kg.KoGrid = function (options) {
             }
 
         });
-
-        if(firstItem){
-            scrollIntoView(firstItem);
-        }
     });
 
     this.changeSelectedItem = function (changedEntity) {
@@ -394,8 +392,9 @@ kg.KoGrid = function (options) {
         //calculate the POSSIBLE biggest viewport height
         rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
 
-        //see which viewport heigth will be allowed to be used
+        //see which viewport height will be allowed to be used
         rootH = Math.min(self.elementDims.rootMaxH, rootH);
+        rootH = Math.max(self.elementDims.rootMinH, rootH);
 
         //now calc the canvas height of what is going to be used in rendering
         canvasH = rootH - self.config.headerRowHeight - self.config.footerRowHeight;
@@ -412,6 +411,8 @@ kg.KoGrid = function (options) {
 
         //now see if we are constrained by any width dimensions
         dim.outerWidth = Math.min(self.elementDims.rootMaxW, rootW);
+        dim.outerWidth = Math.max(self.elementDims.rootMinW, dim.outerWidth);
+
         dim.outerHeight = rootH;
 
         //finally don't fire the subscriptions if we aren't changing anything!

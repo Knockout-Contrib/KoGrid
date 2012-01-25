@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:29:26.89 Sat 01/21/2012 
+* Compiled At: 17:18:36.87 Wed 01/25/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -130,8 +130,16 @@ kg.utils = utils;
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
-            b.append('  <img class="kgFilterImg"  data-bind="click: $parent.showFilter_Click" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/>');
-            b.append('  <img class="kgClearFilter" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click" style="display: none;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAABVklEQVQ4T2NgGBQgbeaZ/2kz//8v63jy/xcL+/89ThFgPkzcOO3Mf7OUE/9PSZmAMYvRtP8gMbjjQYqBZvw/A8S729r+A2X+b56xD8yfCZQAyR2Kqvj/h5X9f03TWrDhDMYzEQaATAIJgjSA8H17//9fhcT/L+h7C9bcWHsRbOislDaoZiTbkcMQZsjibSCvsP6/Yp/1P2/Cgf9vBWX/b1H1wm4zeiTADNndtgJs6x0lq/8feYX+FwBdg+FsXDEICZMz/x9qe4INmZi7nXjNMENBMQIKNJABU7VCUAOMUNoBqmYBRddncdn/c5KawYYAsS8hfXB5oOIUkKZ1C0+BA26RkDnIgB9ALETQEKAiNZDmNpsKcJSCEoxj3F6YAYvwGgByOhA/AuK9GdN+g9MAJNEAGUAvQL0SjtMQoIIJUKeqgWwGJ1dgioMlW6DcIqi8NEGv0E0BAJoSBFFFVzBnAAAAAElFTkSuQmCC" />');
+            b.append('  <div class="kgFilterContainer">');
+            b.append('      <div class="kgFilterBtn openBtn" data-bind="click: $parent.showFilter_Click">');
+            b.append('      </div>');
+            b.append('  </div>');
+            b.append('  <div class="kgFilterContainer" data-bind="visible: $data.filterVisible"  style="display: none;">');
+            b.append('      <div class="kgFilterBtn clearBtn" data-bind="click: $parent.clearFilter_Click">');
+            b.append('      </div>');
+            b.append('  </div>');
+            //b.append('  <img class="kgFilterImg"  data-bind="click: $parent.showFilter_Click" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAALdJREFUOE+lU9ERxSAIcyd3cid2ciceGPOUVnvt+UGV6yWBgElV00kcgV24ERSpWkSnYI4zlxoiZWn5RKBqHFotxD44e24Xv0s/KeYkfwJUAQDBAIFoVIeKUoZ6IJhJADLl1tZoA2AoLwnuJFSncgTfKiCrK7kXrQIza6W8rSCSwIfUHV/ty3YPfEz0giP7RIA24MHVuEcT+dNVfaRcot26b1uIFYy5X4kePXD1eW0/efD2hR6/xh98LfKQ4yD0/gAAAABJRU5ErkJggg=="/>');
+            //b.append('  <img class="kgClearFilter" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click" style="display: none;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAABVklEQVQ4T2NgGBQgbeaZ/2kz//8v63jy/xcL+/89ThFgPkzcOO3Mf7OUE/9PSZmAMYvRtP8gMbjjQYqBZvw/A8S729r+A2X+b56xD8yfCZQAyR2Kqvj/h5X9f03TWrDhDMYzEQaATAIJgjSA8H17//9fhcT/L+h7C9bcWHsRbOislDaoZiTbkcMQZsjibSCvsP6/Yp/1P2/Cgf9vBWX/b1H1wm4zeiTADNndtgJs6x0lq/8feYX+FwBdg+FsXDEICZMz/x9qe4INmZi7nXjNMENBMQIKNJABU7VCUAOMUNoBqmYBRddncdn/c5KawYYAsS8hfXB5oOIUkKZ1C0+BA26RkDnIgB9ALETQEKAiNZDmNpsKcJSCEoxj3F6YAYvwGgByOhA/AuK9GdN+g9MAJNEAGUAvQL0SjtMQoIIJUKeqgWwGJ1dgioMlW6DcIqi8NEGv0E0BAJoSBFFFVzBnAAAAAElFTkSuQmCC" />');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
@@ -1063,6 +1071,37 @@ kg.ColumnCollection.fn = {
             grid.adjustScrollLeft(scrollLeft);
             grid.adjustScrollTop(scrollTop);
         });
+
+        //resize the grid on window re-size events
+
+        $(window).resize(function () {
+            var prevSizes = {
+                rootMaxH: grid.elementDims.rootMaxH,
+                rootMaxW: grid.elementDims.rootMaxW,
+                rootMinH: grid.elementDims.rootMinH,
+                rootMinW: grid.elementDims.rootMinW
+            },
+            isDifferent = false;
+
+            kg.domUtility.measureGrid(grid.$root, grid);
+
+            //check to see if anything has changed
+            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH) {
+                isDifferent = true;
+            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW) {
+                isDifferent = true;
+            } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
+                isDifferent = true;
+            } else if (prevSizes.rootMinW !== grid.elementDims.rootMinW) {
+                isDifferent = true;
+            } else {
+                return;
+            }
+
+            if (isDifferent) {
+                grid.refreshDomSizes();
+            }
+        });
     };
     //#endregion
 } ()); 
@@ -1184,7 +1223,9 @@ kg.KoGrid = function (options) {
         rowIndexCellW: 35,
         rowSelectedCellW: 25,
         rootMaxW: 0,
-        rootMaxH: 0
+        rootMaxH: 0,
+        rootMinW: 0,
+        rootMinH: 0
     };
     this.elementsNeedMeasuring = true;
 
@@ -1327,10 +1368,6 @@ kg.KoGrid = function (options) {
             }
 
         });
-
-        if(firstItem){
-            scrollIntoView(firstItem);
-        }
     });
 
     this.changeSelectedItem = function (changedEntity) {
@@ -1467,8 +1504,9 @@ kg.KoGrid = function (options) {
         //calculate the POSSIBLE biggest viewport height
         rootH = self.maxCanvasHeight() + self.config.headerRowHeight + self.config.footerRowHeight;
 
-        //see which viewport heigth will be allowed to be used
+        //see which viewport height will be allowed to be used
         rootH = Math.min(self.elementDims.rootMaxH, rootH);
+        rootH = Math.max(self.elementDims.rootMinH, rootH);
 
         //now calc the canvas height of what is going to be used in rendering
         canvasH = rootH - self.config.headerRowHeight - self.config.footerRowHeight;
@@ -1485,6 +1523,8 @@ kg.KoGrid = function (options) {
 
         //now see if we are constrained by any width dimensions
         dim.outerWidth = Math.min(self.elementDims.rootMaxW, rootW);
+        dim.outerWidth = Math.max(self.elementDims.rootMinW, dim.outerWidth);
+
         dim.outerHeight = rootH;
 
         //finally don't fire the subscriptions if we aren't changing anything!
@@ -1792,12 +1832,54 @@ kg.cssBuilder = {
     this.measureElementMaxDims = function ($container) {
         var dims = {};
 
-        $container.append("<div style='height: 20000px; width: 20000px;'></div>");
+        var $test = $("<div style='height: 20000px; width: 20000px;'></div>");
+
+        $container.append($test);
 
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+        $test.remove();
+
         return dims;
+    };
+
+    this.measureElementMinDims = function ($container) {
+        var dims = {};
+
+        $container.children().hide();
+
+        var $test = $("<div style='height: 0x; width: 0px;'></div>");
+        $container.append($test);
+
+        $container.wrap("<div style='width: 1px;'></div>");
+
+        dims.minWidth = $container.width();
+        dims.minHeight = $container.height();
+
+        $container.unwrap();
+        $container.children().show();
+
+        return dims;
+    };
+
+    this.measureGrid = function ($container, grid) {
+
+        //find max sizes
+        var dims = self.measureElementMaxDims($container);
+
+        grid.elementDims.rootMaxW = dims.maxWidth;
+        grid.elementDims.rootMaxH = dims.maxHeight;
+
+        //find min sizes
+        dims = self.measureElementMinDims($container);
+
+        grid.elementDims.rootMinW = dims.minWidth;
+        grid.elementDims.rootMinH = dims.minHeight;
+
+        //set scroll measurements
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
@@ -1814,9 +1896,12 @@ kg.cssBuilder = {
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
         $testContainer.empty();
+
+        //clear styles
         $testContainer.attr('style', '');
 
-        $testContainer.append('<span>M</span>');
+        //measure letter sizes
+        $testContainer.append('<span><strong>M</strong></span>');
         self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();
@@ -1841,31 +1926,21 @@ ko.bindingHandlers['koGrid'] = (function () {
         };
     };
 
-    var measureElementMaxSizes = function ($container, grid) {
-        var dims = kg.domUtility.measureElementMaxDims($container);
-
-        grid.elementDims.rootMaxW = dims.maxWidth;
-        grid.elementDims.rootMaxH = dims.maxHeight;
-
-        grid.elementDims.scrollW = kg.domUtility.scrollW;
-        grid.elementDims.scrollH = kg.domUtility.scrollH;
-    };
-
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid,
                 options = valueAccessor(),
                 $element = $(element);
 
-            $element.hide(); //first hide the grid so that its not freaking the screen out!
-
             //create the Grid
             grid = new kg.KoGrid(options);
 
             kg.gridManager.storeGrid(element, grid);
 
-            //get the max container sizes
-            measureElementMaxSizes($element, grid);
+            //get the container sizes
+            kg.domUtility.measureGrid($element, grid);
+
+            $element.hide(); //first hide the grid so that its not freaking the screen out
 
             //set the right styling on the container
             $(element).addClass("kgGrid")

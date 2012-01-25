@@ -36,6 +36,37 @@
             grid.adjustScrollLeft(scrollLeft);
             grid.adjustScrollTop(scrollTop);
         });
+
+        //resize the grid on window re-size events
+
+        $(window).resize(function () {
+            var prevSizes = {
+                rootMaxH: grid.elementDims.rootMaxH,
+                rootMaxW: grid.elementDims.rootMaxW,
+                rootMinH: grid.elementDims.rootMinH,
+                rootMinW: grid.elementDims.rootMinW
+            },
+            isDifferent = false;
+
+            kg.domUtility.measureGrid(grid.$root, grid);
+
+            //check to see if anything has changed
+            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH) {
+                isDifferent = true;
+            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW) {
+                isDifferent = true;
+            } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
+                isDifferent = true;
+            } else if (prevSizes.rootMinW !== grid.elementDims.rootMinW) {
+                isDifferent = true;
+            } else {
+                return;
+            }
+
+            if (isDifferent) {
+                grid.refreshDomSizes();
+            }
+        });
     };
     //#endregion
 } ());

@@ -11,36 +11,36 @@
 </head>
 <body>
     <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
-        <div style="max-height: 600px; max-width: 900px;">
-        <script type="text/html" id="myCellTemplate">
-            <div data-bind="kgCell: { value: 'SeasonCode'}" >
-                <input type="text" data-bind="value: $data.entity().SeasonCode" style="width: 80px"/>
+        <div style="position: absolute; top: 0; bottom: 0; left: 0; width: 80%" >
+            <script type="text/html" id="myCellTemplate">
+                <div data-bind="kgCell: { value: 'SeasonCode'}" >
+                    <input type="text" data-bind="value: $data.entity().SeasonCode" style="width: 80px"/>
+                </div>
+            </script>
+            <div id="myGrid" style="height: 70%; width: 60%;" data-bind="koGrid:{ data: testData, 
+                                    isMultiSelect: true,
+                                    selectedItem: mySelectedItem,
+                                    rowHeight: 30,
+                                    columnWidth: 130,
+                                    headerRowHeight: 30,
+                                    footerRowHeight: 45,
+                                    autogenerateColumns: false,
+                                    columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, 
+                                                 { field: 'Vendor', displayName: 'Supplier', width: 120 },
+                                                 { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
+                                                 { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
+                                                 { field: 'UPC', displayName: 'Bar Code', width: 140 }],
+                                    enablePaging: true,
+                                    totalServerItems: maxServerItems,
+                                    currentPage: currentPage,
+                                    pageSize: pageSize,
+                                    displaySelectionCheckbox: true,
+                                    displayRowIndex: true,
+                                    showRowIndex: false }">
             </div>
-        </script>
-        <div id="myGrid" style="float: left; max-height: 300px; max-width: 800px;"
-            data-bind="koGrid:{ data: testData, 
-                                isMultiSelect: true,
-                                selectedItem: mySelectedItem,
-                                rowHeight: 30,
-                                columnWidth: 130,
-                                headerRowHeight: 30,
-                                footerRowHeight: 45,
-                                autogenerateColumns: false,
-                                columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, 
-                                             { field: 'Vendor', displayName: 'Supplier', width: 120 },
-                                             { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
-                                             { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
-                                             { field: 'UPC', displayName: 'Bar Code', width: 140 }],
-                                enablePaging: true,
-                                totalServerItems: maxServerItems,
-                                currentPage: currentPage,
-                                pageSize: pageSize,
-                                displaySelectionCheckbox: true,
-                                displayRowIndex: true,
-                                showRowIndex: false }"></div>
         </div>
 
-        <div data-bind="with: mySelectedItem">
+        <div style="position: absolute; top: 0; bottom: 0; right: 20px;" data-bind="with: mySelectedItem">
             <p>SKU: <span data-bind="text: Sku"></span></p>
             <p>Vendor: <span data-bind="text: Vendor"></span></p>
             <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
