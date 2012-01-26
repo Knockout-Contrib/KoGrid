@@ -40,6 +40,13 @@
     this.measureElementMinDims = function ($container) {
         var dims = {};
 
+        dims.minWidth = 0;
+        dims.minHeight = 0;
+        //TODO, the rest of this is not working right now..
+        return dims;
+
+
+        //first hide the child items so that we can 
         $container.children().hide();
 
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
@@ -52,6 +59,8 @@
 
         $container.unwrap();
         $container.children().show();
+
+        $test.remove();
 
         return dims;
     };

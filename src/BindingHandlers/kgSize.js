@@ -6,8 +6,8 @@
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var $container = $(element),
-                $parent = $container.parent();
-            dim = ko.utils.unwrapObservable(valueAccessor()),
+                $parent = $container.parent(),
+                dim = ko.utils.unwrapObservable(valueAccessor()),
                 oldHt = $container.outerHeight(),
                 oldWdth = $container.outerWidth();
 

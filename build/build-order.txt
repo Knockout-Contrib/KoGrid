@@ -22,7 +22,6 @@
 ..\Src\GridClasses\SortManager.js
 ..\Src\GridManager.js
 ..\Src\Grid.js
-..\Src\DomManipulation\DomFormatter.js
 ..\Src\DomManipulation\CssBuilder.js
 ..\Src\DomManipulation\DomUtility.js
 ..\Src\BindingHandlers\koGrid.js

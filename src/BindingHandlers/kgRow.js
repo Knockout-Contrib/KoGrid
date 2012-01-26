@@ -8,10 +8,15 @@ ko.bindingHandlers['kgRow'] = (function () {
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var row = valueAccessor(),
+                classes = 'kgRow',
                 grid = bindingContext.$parent,
                 rowManager = bindingContext.$parent.rowManager;
 
-            kg.domFormatter.formatRow(element, row);
+            classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
+
+            element['_kg_rowIndex_'] = row.rowIndex;
+            element.style.top = row.offsetTop + 'px';
+            element.className = classes;
         }
     };
 

@@ -29,6 +29,12 @@
         return self.column.sortDirection() === "desc";
     });
 
+    this.noSortVisible = ko.computed(function () {
+        var sortDir = self.column.sortDirection();
+
+        return sortDir !== "asc" && sortDir !== "desc";
+    });
+
     this.sort = function () {
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);

@@ -37,8 +37,6 @@
     this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
-    this.height = ko.observable(0);
-    this.width = ko.observable(0);
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 

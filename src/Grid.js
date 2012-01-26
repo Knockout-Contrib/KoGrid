@@ -28,7 +28,7 @@ kg.KoGrid = function (options) {
         useExternalFiltering: false,
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
-        sortInfo: ko.observable(), //observable similar to filterInfo
+        sortInfo: ko.observable() //observable similar to filterInfo
     },
 
     self = this,
@@ -160,6 +160,8 @@ kg.KoGrid = function (options) {
         return newDim;
     });
 
+    this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
+
     this.totalRowWidth = ko.computed(function () {
         var width = 0,
             cols = self.columns();
@@ -190,13 +192,13 @@ kg.KoGrid = function (options) {
             maxHeight = self.maxCanvasHeight(),
             vScrollBarIsOpen = (maxHeight > viewportH),
             hScrollBarIsOpen = (self.viewportDim().outerWidth < self.totalRowWidth())
-            newDim = new kg.Dimension();
+        newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth();
 
         if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
-        else if((maxHeight - viewportH) <= self.elementDims.scrollH){ //if the horizontal scroll is open it forces the viewport to be smaller
+        else if ((maxHeight - viewportH) <= self.elementDims.scrollH) { //if the horizontal scroll is open it forces the viewport to be smaller
             newDim.outerWidth += self.elementDims.scrollW;
         }
         return newDim;
@@ -220,38 +222,38 @@ kg.KoGrid = function (options) {
 
     this.config.selectedItem.subscribe(function (entity) {
         //ensure incoming entity has our selected flag
-        if(entity && !entity['__kg_selected__']){
+        if (entity && !entity['__kg_selected__']) {
             entity['__kg_selected__'] = ko.observable(true);
-        } else if(entity){
-            entity['__kg_selected__'](true);        
+        } else if (entity) {
+            entity['__kg_selected__'](true);
         }
 
         //make sure its scrolled into view
         scrollIntoView(entity);
     });
 
-    this.config.selectedItems.subscribe(function(newItems){
+    this.config.selectedItems.subscribe(function (newItems) {
         var newItemIndex, firstItem;
 
-        if(!newItems){
+        if (!newItems) {
             newItems = [];
         }
 
-        utils.forEach(self.finalData(), function(item, i){
-            
-            if(!item['__kg_selected__']){
+        utils.forEach(self.finalData(), function (item, i) {
+
+            if (!item['__kg_selected__']) {
                 item['__kg_selected__'] = ko.observable(false);
             }
 
-            if(ko.utils.arrayIndexOf(newItems, item) > -1){
+            if (ko.utils.arrayIndexOf(newItems, item) > -1) {
                 //newItems contains the item
                 item['__kg_selected__'](true);
 
-                if(!firstItem){
+                if (!firstItem) {
                     firstItem = item;
                 }
 
-            }else{
+            } else {
                 item['__kg_selected__'](false);
             }
 
@@ -329,10 +331,10 @@ kg.KoGrid = function (options) {
 
             if (self.config.isMultiSelect) {
                 data = self.finalData();
-                
-                if(checkAll){
+
+                if (checkAll) {
                     self.config.selectedItems(data);
-                }else{
+                } else {
                     self.config.selectedItems([]);
                 }
             } else {
@@ -344,36 +346,38 @@ kg.KoGrid = function (options) {
     });
 
     //keep selected item scrolled into view
-    this.finalData.subscribe(function(){
+    this.finalData.subscribe(function () {
         var item;
 
-        if(self.config.isMultiSelect && self.config.selectedItems()){
+        if (self.config.isMultiSelect && self.config.selectedItems()) {
             item = self.config.selectedItems()[0];
-        }else if(self.config.selectedItem()){
+        } else if (self.config.selectedItem()) {
             item = self.config.selectedItem();
         }
 
-        if(item){
+        self.canvasHeight(self.maxCanvasHeight().toString() + 'px');
+
+        if (item) {
             scrollIntoView(item);
         }
     });
 
-    var scrollIntoView = function(entity){
+    var scrollIntoView = function (entity) {
         var itemIndex,
             viewableRange = self.rowManager.viewableRange();
 
-        if(entity){
+        if (entity) {
             itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
         }
 
-        if(itemIndex > -1){
+        if (itemIndex > -1) {
             //check and see if its already in view!
-            if(itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5){
+            if (itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5) {
 
                 //scroll it into view
-                self.rowManager.viewableRange(new kg.Range(itemIndex, itemIndex  + self.minRowsToRender()));
+                self.rowManager.viewableRange(new kg.Range(itemIndex, itemIndex + self.minRowsToRender()));
 
-                if(self.$viewport){
+                if (self.$viewport) {
                     self.$viewport.scrollTop(itemIndex * self.config.rowHeight);
                 }
             }
@@ -386,7 +390,7 @@ kg.KoGrid = function (options) {
             rootH = 0,
             rootW = 0,
             canvasH = 0;
-        
+
         self.elementsNeedMeasuring = true;
 
         //calculate the POSSIBLE biggest viewport height
@@ -498,7 +502,7 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                if(!colDef.width){
+                if (!colDef.width) {
                     colDef.width = column.displayName.length * kg.domUtility.letterW;
                     colDef.width += 25; //for sorting icons and padding
                 }

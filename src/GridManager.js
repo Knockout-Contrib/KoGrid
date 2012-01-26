@@ -46,6 +46,7 @@
                 rootMinH: grid.elementDims.rootMinH,
                 rootMinW: grid.elementDims.rootMinW
             },
+            scrollTop = 0,
             isDifferent = false;
 
             kg.domUtility.measureGrid(grid.$root, grid);
@@ -64,7 +65,12 @@
             }
 
             if (isDifferent) {
+
+                scrollTop = grid.$viewport.scrollTop();
+
                 grid.refreshDomSizes();
+
+                grid.adjustScrollTop(scrollTop); //ensure that the user stays scrolled where they were
             }
         });
     };

@@ -15,8 +15,6 @@
 
             grid.footer = new kg.Footer(grid);
 
-            kg.domFormatter.formatFooter(element, grid.footer);
-
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, makeNewBindingContext(bindingContext, grid.footer));
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

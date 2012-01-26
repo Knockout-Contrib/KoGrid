@@ -6,7 +6,7 @@
                 '</div>' +
             '</div>' +
             '<div class="kgViewport" style="overflow: auto;" data-bind="kgSize: $data.viewportDim">' +
-                '<div class="kgCanvas" data-bind="kgRows: $data.rows" style="position: relative">' +
+                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
                 '</div>' +
             '</div>' +
             '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +

@@ -15,9 +15,10 @@ ko.bindingHandlers['kgRows'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var rowManager = bindingContext.$data.rowManager,
+                grid = bindingContext.$data,
                 rows = ko.utils.unwrapObservable(valueAccessor());
 
-            var newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
+            var newAccessor = makeNewValueAccessor(rows, grid.config.rowTemplate);
 
             return ko.bindingHandlers.template.init(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
         },
@@ -30,9 +31,7 @@ ko.bindingHandlers['kgRows'] = (function () {
                 newAccessor,
                 retVal;
 
-            element.style.height = (bindingContext.$data.maxCanvasHeight()) + 'px';
-
-            newAccessor = makeNewValueAccessor(rows, rowManager.rowTemplateId);
+            newAccessor = makeNewValueAccessor(rows, grid.config.rowTemplate);
 
             retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
 
