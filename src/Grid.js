@@ -39,7 +39,7 @@ kg.KoGrid = function (options) {
     prevScrollTop,
     prevScrollLeft,
     prevMinRowsToRender,
-    maxCanvasHt,
+    maxCanvasHt = 0,
     h_updateTimeout;
 
     this.$root; //this is the root element that is passed in with the binding handler
@@ -70,15 +70,17 @@ kg.KoGrid = function (options) {
     this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
     this.finalData = sortManager.sortedData; //observable Array
+    this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
 
     this.maxRows = ko.computed(function () {
         var rows = self.finalData();
         maxCanvasHt = rows.length * self.config.rowHeight;
+        self.canvasHeight(maxCanvasHt.toString() + 'px');
         return rows.length || 0;
     });
 
     this.maxCanvasHeight = function () {
-        return maxCanvasHt;
+        return maxCanvasHt || 0;
     };
 
     this.selectedItemCount = ko.computed(function () {
@@ -159,8 +161,6 @@ kg.KoGrid = function (options) {
 
         return newDim;
     });
-
-    this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
 
     this.totalRowWidth = ko.computed(function () {
         var width = 0,
@@ -354,8 +354,6 @@ kg.KoGrid = function (options) {
         } else if (self.config.selectedItem()) {
             item = self.config.selectedItem();
         }
-
-        self.canvasHeight(self.maxCanvasHeight().toString() + 'px');
 
         if (item) {
             scrollIntoView(item);
