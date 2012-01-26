@@ -3,21 +3,22 @@
         rowCache = {},
         prevMaxRows = 0,
         prevMinRows = 0,
+        dataChanged = false,
         prevRenderedRange = new kg.Range(0, 1),
         prevViewableRange = new kg.Range(0, 1),
         internalRenderedRange = ko.observable(prevRenderedRange);
 
     this.dataSource = grid.finalData; //observableArray
     this.dataSource.subscribe(function () {
-        prevRenderedRange = new kg.Range(0, 1);
-        prevViewableRange = new kg.Range(0, 1);
+        dataChanged = true;
         rowCache = {}; //if data source changes, kill this!
     });
     this.minViewportRows = grid.minRowsToRender; //observable
     this.excessRows = 8;
     this.rowHeight = grid.config.rowHeight;
     this.cellFactory = new kg.CellFactory(grid.columns());
-    this.viewableRange = ko.observable(new kg.Range(0, 1));
+    this.viewableRange = ko.observable(prevViewableRange);
+    this.renderedRange = ko.observable(prevRenderedRange);
     this.rows = ko.observableArray([]);
 
     var buildRowFromEntity = function (entity, rowIndex) {
@@ -41,7 +42,7 @@
         return row;
     };
 
-    internalRenderedRange.subscribe(function (rg) {
+    this.renderedRange.subscribe(function (rg) {
         var rowArr = [],
             row,
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
@@ -54,47 +55,54 @@
         self.rows(rowArr);
     });
 
-    this.renderedRange = ko.computed(function () {
+    var calcRenderedRange = function () {
         var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
-            isDif = false;
+            isDif = false,
+            newRg;
 
         if (rg) {
 
-            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow)
+            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || dataChanged)
             if (!isDif && prevMaxRows !== maxRows) {
                 isDif = true;
-                rg = prevViewableRange;
+                rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
             }
 
             if (!isDif && prevMinRows !== minRows) {
                 isDif = true;
-                rg = prevViewableRange;
+                rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
             }
 
             if (isDif) {
-
                 //Now build out the new rendered range
                 rg.topRow = rg.bottomRow + minRows;
 
-                prevViewableRange.bottomRow = rg.bottomRow;
-                prevViewableRange.topRow = rg.topRow;
+                //store it for next rev
+                prevViewableRange = rg;
 
-                rg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
-                rg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
+                newRg = new kg.Range(rg.bottomRow, rg.topRow);
+
+                newRg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
+                newRg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
 
                 prevMaxRows = maxRows;
                 prevMinRows = minRows;
 
                 //one last equality check
-                if (prevRenderedRange.topRow !== rg.topRow || prevRenderedRange.bottomRow !== rg.bottomRow) {
-                    prevRenderedRange = rg;
-                    internalRenderedRange(rg);
+                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
+                    dataChanged = false;
+                    prevRenderedRange = newRg;
+                    self.renderedRange(newRg);
                 }
             }
         } else {
-            internalRenderedRange(new kg.Range(0, 0));
+            self.renderedRange(new kg.Range(0, 0));
         }
-    });
+    };
+
+    self.viewableRange.subscribe(calcRenderedRange);
+    self.minViewportRows.subscribe(calcRenderedRange);
+    self.dataSource.subscribe(calcRenderedRange);
 };
