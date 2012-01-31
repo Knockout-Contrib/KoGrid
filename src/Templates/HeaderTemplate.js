@@ -10,14 +10,9 @@
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
-            b.append('  <div class="kgFilterContainer">');
-            b.append('      <div class="kgFilterBtn openBtn" data-bind="click: $parent.showFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
-            b.append('  <div class="kgFilterContainer" data-bind="visible: $data.filterVisible"  style="display: none;">');
-            b.append('      <div class="kgFilterBtn clearBtn" data-bind="click: $parent.clearFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
+            b.append('      <div class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);

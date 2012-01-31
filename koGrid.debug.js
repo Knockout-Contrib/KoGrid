@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:37:58.21 Tue 01/31/2012 
+* Compiled At: 17:58:15.64 Tue 01/31/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -130,14 +130,9 @@ kg.utils = utils;
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
-            b.append('  <div class="kgFilterContainer">');
-            b.append('      <div class="kgFilterBtn openBtn" data-bind="click: $parent.showFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
-            b.append('  <div class="kgFilterContainer" data-bind="visible: $data.filterVisible"  style="display: none;">');
-            b.append('      <div class="kgFilterBtn clearBtn" data-bind="click: $parent.clearFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
+            b.append('      <div class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
@@ -157,9 +152,9 @@ kg.utils = utils;
 
     b.append('<div data-bind="click: $data.sort">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHhJREFUKFONkNEJwCAMRP3oCP11EadxBMUfQcGJneHqCRFbBStIJHk5L1FqOrVWGGPAOOfHmwWtNay1PS6gAM45xBjB+AK/QM55BdnhvUcIASkllFIGJIrdUyvc7V5bs0xSiR3iZ/5OhlC/PFHtOJ34OO5pBncbfwCrHKMbaQIX3AAAAABJRU5ErkJggg=="/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEVJREFUKFPVzsEJADAIA8As4iLuv44zpFiwpKEL9CGRcIggiZmqYmayU/sLRAQBsFPhRl0MaOTwCRzCLwxQeH7SR33/Fi1hef+4O/q8GwAAAABJRU5ErkJggg=="/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAERJREFUKFNj+P//PwMhTFAByIBBqUhWVhboMgacGCz/9u3b/7gUgsRB8mDfYVMIU4ASBMgKkRVghBNIoZWVFdgK5FgAAMGr/7gho9mEAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAADpJREFUGFdjqK+vZ4BiYyC9G4gFYWIwCSWgwF0g/g9VABYHEcgSIEm4ApDkGagATAJGr2L4//8/TgwAbitNeAMDSF8AAAAASUVORK5CYII="/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAADFJREFUGFdjYMAH6uvrzwDxfyx4FQNQUAmI76JJ7oYbiKYAIQFTAVRgDMS7gVgQJgYAcwQspeOio+wAAAAASUVORK5CYII="/>');
     b.append('</div>');
     b.append('<div data-bind="visible: $parent.filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
@@ -210,7 +205,7 @@ kg.utils = utils;
                     '<strong>Selected Items</strong>: <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div style="position: absolute; right: 0; left: 150px; margin-top: 5px;">' +
+            '<div style="position: absolute; right: 0; left: 150px; margin-top: 5px;" data-bind="visible: pagerVisible">' +
                 '<div style="float: right;">' +
                     '<div style="float: left;">' +
                         '<strong>Rows:</strong>' +
@@ -1809,8 +1804,8 @@ kg.cssBuilder = {
 
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; width: {1}px; height: {2}px; line-height: {2}px; display: inline; }",gridId, grid.totalRowWidth(), rowHeight);
-        css.append(".{0} .kgHeaderCell { height: {1}px; }", gridId, rowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, rowHeight);
         
 
         for (; i < len; i++) {

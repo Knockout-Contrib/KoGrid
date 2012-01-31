@@ -23,8 +23,8 @@ kg.cssBuilder = {
 
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; width: {1}px; height: {2}px; line-height: {2}px; display: inline; }",gridId, grid.totalRowWidth(), rowHeight);
-        css.append(".{0} .kgHeaderCell { height: {1}px; }", gridId, rowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, rowHeight);
         
 
         for (; i < len; i++) {
