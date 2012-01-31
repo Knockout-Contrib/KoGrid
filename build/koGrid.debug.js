@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:40:11.24 Thu 01/26/2012 
+* Compiled At: 14:37:58.21 Tue 01/31/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -109,7 +109,7 @@ kg.utils = utils;
                 '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
                 '</div>' +
             '</div>' +
-            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
+            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim" style="position: relative;">' +
                 
             '</div>';
 }; 
@@ -202,14 +202,28 @@ kg.utils = utils;
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
-    return  '<div>' +
-                '<div style="float: left; margin: 5px"><strong>Total Items: </strong><span data-bind="text: maxRows"></span></div>' +
-                '<div style="float: left; margin: 5px"><strong>Selected Items: </strong><span data-bind="text: selectedItemCount"></span></div>' +
-                '<div style="float: left;" data-bind="visible: pagerVisible">' +
-                    'Page Size: <select data-bind="options: pageSizes, value: selectedPageSize"></select>' +
-                    '<button data-bind="click: pageBackward"> << </button>' +
-                    'Page: <span data-bind="text: currentPage"></span> of <span data-bind="text: maxPages"></span>' +
-                    '<button data-bind="click: pageForward"> >> </button>' +
+    return '<div style="margin-top: 5px; margin-bottom: auto; height: 30px; position: absolute; top: 0; bottom: 0; left: 5px;">' +
+                '<div>' +
+                    '<strong>Total Items</strong>: <span data-bind="text: maxRows"></span>' +
+                '</div>' +
+                '<div>' +
+                    '<strong>Selected Items</strong>: <span data-bind="text: selectedItemCount"></span>' +
+                '</div>' +
+            '</div>' +
+            '<div style="position: absolute; right: 0; left: 150px; margin-top: 5px;">' +
+                '<div style="float: right;">' +
+                    '<div style="float: left;">' +
+                        '<strong>Rows:</strong>' +
+                        '<select data-bind="options: pageSizes, value: selectedPageSize">' +
+                        '</select>' +
+                    '</div>' +
+                    '<div style="float: left; min-width: 175px;">' +
+                        '<input type="button" value="<<" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
+                        '<input type="button" value="<" data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
+                        '<input type="text" value="0" style="width: 25px;" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
+                        '<input type="button" value=">" data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
+                        '<input type="button" value=">>" data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
+                    '</div>' +
                 '</div>' +
             '</div>';
 }; 
@@ -649,6 +663,18 @@ kg.ColumnCollection.fn = {
         return Math.ceil(maxCnt / pageSize);
     });
 
+    this.protectedCurrentPage = ko.computed({
+        read: function () {
+            return self.currentPage();
+        },
+        write: function (page) {
+            if (page && page <= self.maxPages() && page > 0){
+                self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
+            }
+        },
+        owner: self
+    });
+
     this.pageForward = function () {
         var page = self.currentPage();
         self.currentPage(Math.min(page + 1, self.maxPages()));
@@ -658,6 +684,26 @@ kg.ColumnCollection.fn = {
         var page = self.currentPage();
         self.currentPage(Math.max(page - 1, 1));
     };
+
+    this.pageToFirst = function () {
+        self.currentPage(1);
+    };
+
+    this.pageToLast = function () {
+        var maxPages = self.maxPages();
+        self.currentPage(maxPages);
+    };
+
+    this.canPageForward = ko.computed(function () {
+        var curPage = self.currentPage();
+        var maxPages = self.maxPages();
+        return curPage < maxPages;
+    });
+
+    this.canPageBackward = ko.computed(function () {
+        var curPage = self.currentPage();
+        return curPage > 1;
+    });
 }; 
  
  

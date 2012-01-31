@@ -20,6 +20,18 @@
         return Math.ceil(maxCnt / pageSize);
     });
 
+    this.protectedCurrentPage = ko.computed({
+        read: function () {
+            return self.currentPage();
+        },
+        write: function (page) {
+            if (page && page <= self.maxPages() && page > 0){
+                self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
+            }
+        },
+        owner: self
+    });
+
     this.pageForward = function () {
         var page = self.currentPage();
         self.currentPage(Math.min(page + 1, self.maxPages()));
@@ -29,4 +41,24 @@
         var page = self.currentPage();
         self.currentPage(Math.max(page - 1, 1));
     };
+
+    this.pageToFirst = function () {
+        self.currentPage(1);
+    };
+
+    this.pageToLast = function () {
+        var maxPages = self.maxPages();
+        self.currentPage(maxPages);
+    };
+
+    this.canPageForward = ko.computed(function () {
+        var curPage = self.currentPage();
+        var maxPages = self.maxPages();
+        return curPage < maxPages;
+    });
+
+    this.canPageBackward = ko.computed(function () {
+        var curPage = self.currentPage();
+        return curPage > 1;
+    });
 };
