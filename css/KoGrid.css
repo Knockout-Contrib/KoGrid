@@ -17,6 +17,7 @@
 .kgHeaderCell {
     position: absolute; 
     padding: 0 5px;
+    cursor: pointer;
     border-right: 1px solid rgb(229, 229, 229); 
 }
 .kgViewport{
