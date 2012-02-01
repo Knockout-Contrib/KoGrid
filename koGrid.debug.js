@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  0:26:16.82 Wed 02/01/2012 
+* Compiled At: 12:33:58.25 Wed 02/01/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1399,7 +1399,7 @@ kg.KoGrid = function (options) {
         sortInfo: self.config.sortInfo,
         useExternalSorting: self.config.useExternalFiltering
     });
-    
+
     this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
     this.finalData = sortManager.sortedData; //observable Array
@@ -1678,6 +1678,9 @@ kg.KoGrid = function (options) {
         item = self.data()[0];
 
         utils.forIn(item, function (prop, propName) {
+            if (propName === '__kg_selected__') {
+                return;
+            }
 
             self.config.columnDefs.push({
                 field: propName
@@ -1753,6 +1756,8 @@ kg.KoGrid = function (options) {
         self.rowManager = new kg.RowManager(self);
 
         self.rows = self.rowManager.rows; // dependent observable
+
+        kg.cssBuilder.buildStyles(self);
 
         self.initPhase = 1;
     };
@@ -1917,11 +1922,8 @@ kg.cssBuilder = {
 
         dims.minWidth = 0;
         dims.minHeight = 0;
-        //TODO, the rest of this is not working right now..
-        return dims;
 
-
-        //first hide the child items so that we can 
+        //first hide the child items so that we can get an accurate reading
         $container.children().hide();
 
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
@@ -1940,7 +1942,7 @@ kg.cssBuilder = {
         return dims;
     };
 
-    this.measureGrid = function ($container, grid) {
+    this.measureGrid = function ($container, grid, measureMins) {
 
         //find max sizes
         var dims = self.measureElementMaxDims($container);
@@ -1948,15 +1950,61 @@ kg.cssBuilder = {
         grid.elementDims.rootMaxW = dims.maxWidth;
         grid.elementDims.rootMaxH = dims.maxHeight;
 
+        //set scroll measurements
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
+
+        if (!measureMins) {
+            return;
+        }
+
         //find min sizes
         dims = self.measureElementMinDims($container);
 
         grid.elementDims.rootMinW = dims.minWidth;
-        grid.elementDims.rootMinH = dims.minHeight;
 
-        //set scroll measurements
-        grid.elementDims.scrollW = kg.domUtility.scrollW;
-        grid.elementDims.scrollH = kg.domUtility.scrollH;
+        // do a little magic here to ensure we always have a decent viewport
+        dims.minHeight = Math.max(dims.minHeight, (grid.config.headerRowHeight + grid.config.footerRowHeight + (3 * grid.config.rowHeight)));
+        dims.minHeight = Math.min(grid.elementDims.rootMaxH, dims.minHeight);
+
+        grid.elementDims.rootMinH = dims.minHeight;
+    };
+
+    this.measureRow = function ($canvas, grid) {
+        var $row,
+            $cell,
+            isDummyRow,
+            isDummyCell;
+
+        $row = $canvas.children().first();
+        if ($row.length === 0) {
+            //add a dummy row
+            $canvas.append('<div class="kgRow"></div>');
+            $row = $canvas.children().first();
+            isDummyRow = true;
+        }
+
+        $cell = $row.children().first();
+        if ($cell.length === 0) {
+            //add a dummy cell
+            $row.append('<div class="kgCell col0"></div>');
+            $cell = $row.children().first();
+            isDummyCell = true;
+        }
+
+        grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+        grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+
+        grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+        grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+
+        grid.elementsNeedMeasuring = false;
+
+        if (isDummyRow) {
+            $row.remove();
+        } else if (isDummyCell) {
+            $cell.remove();
+        }
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
@@ -2015,7 +2063,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             kg.gridManager.storeGrid(element, grid);
 
             //get the container sizes
-            kg.domUtility.measureGrid($element, grid);
+            kg.domUtility.measureGrid($element, grid, true);
 
             $element.hide(); //first hide the grid so that its not freaking the screen out
 
@@ -2111,20 +2159,7 @@ ko.bindingHandlers['kgRows'] = (function () {
             //only measure the row and cell differences when data changes
             if (grid.elementsNeedMeasuring && grid.initPhase > 0) {
                 //Measure the cell and row differences after rendering
-                $row = $(element).children().first();
-                if ($row) {
-                    $cell = $row.children().first();
-                    if ($cell) {
-
-                        grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
-                        grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
-
-                        grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
-                        grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
-
-                        grid.elementsNeedMeasuring = false;
-                    }
-                }
+                kg.domUtility.measureRow($(element), grid);
             }
             return retVal;
         }

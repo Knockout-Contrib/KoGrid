@@ -23,7 +23,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             kg.gridManager.storeGrid(element, grid);
 
             //get the container sizes
-            kg.domUtility.measureGrid($element, grid);
+            kg.domUtility.measureGrid($element, grid, true);
 
             $element.hide(); //first hide the grid so that its not freaking the screen out
 

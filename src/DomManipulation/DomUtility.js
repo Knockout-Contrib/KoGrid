@@ -42,11 +42,8 @@
 
         dims.minWidth = 0;
         dims.minHeight = 0;
-        //TODO, the rest of this is not working right now..
-        return dims;
 
-
-        //first hide the child items so that we can 
+        //first hide the child items so that we can get an accurate reading
         $container.children().hide();
 
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
@@ -65,7 +62,7 @@
         return dims;
     };
 
-    this.measureGrid = function ($container, grid) {
+    this.measureGrid = function ($container, grid, measureMins) {
 
         //find max sizes
         var dims = self.measureElementMaxDims($container);
@@ -73,15 +70,61 @@
         grid.elementDims.rootMaxW = dims.maxWidth;
         grid.elementDims.rootMaxH = dims.maxHeight;
 
+        //set scroll measurements
+        grid.elementDims.scrollW = kg.domUtility.scrollW;
+        grid.elementDims.scrollH = kg.domUtility.scrollH;
+
+        if (!measureMins) {
+            return;
+        }
+
         //find min sizes
         dims = self.measureElementMinDims($container);
 
         grid.elementDims.rootMinW = dims.minWidth;
-        grid.elementDims.rootMinH = dims.minHeight;
 
-        //set scroll measurements
-        grid.elementDims.scrollW = kg.domUtility.scrollW;
-        grid.elementDims.scrollH = kg.domUtility.scrollH;
+        // do a little magic here to ensure we always have a decent viewport
+        dims.minHeight = Math.max(dims.minHeight, (grid.config.headerRowHeight + grid.config.footerRowHeight + (3 * grid.config.rowHeight)));
+        dims.minHeight = Math.min(grid.elementDims.rootMaxH, dims.minHeight);
+
+        grid.elementDims.rootMinH = dims.minHeight;
+    };
+
+    this.measureRow = function ($canvas, grid) {
+        var $row,
+            $cell,
+            isDummyRow,
+            isDummyCell;
+
+        $row = $canvas.children().first();
+        if ($row.length === 0) {
+            //add a dummy row
+            $canvas.append('<div class="kgRow"></div>');
+            $row = $canvas.children().first();
+            isDummyRow = true;
+        }
+
+        $cell = $row.children().first();
+        if ($cell.length === 0) {
+            //add a dummy cell
+            $row.append('<div class="kgCell col0"></div>');
+            $cell = $row.children().first();
+            isDummyCell = true;
+        }
+
+        grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
+        grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
+
+        grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
+        grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
+
+        grid.elementsNeedMeasuring = false;
+
+        if (isDummyRow) {
+            $row.remove();
+        } else if (isDummyCell) {
+            $cell.remove();
+        }
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers

@@ -18,7 +18,7 @@
                 </div>
             </script>
             <div id="myGrid" style="height: 600px; width: 500px;" data-bind="koGrid:{ data: testData, 
-                                    isMultiSelect: false,
+                                    isMultiSelect: true,
                                     selectedItem: mySelectedItem,
                                     autogenerateColumns: false,
                                     columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, 
@@ -39,7 +39,8 @@
             <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
             <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
             <p>UPC: <span data-bind="text: UPC"></span></p>
-        </div>
+            <input type="button" value="Fill Data" data-bind="click: $parent.fillData" />
+        </div>        
     </div>
 
     
@@ -48,12 +49,15 @@
     $(function () {
 
         var vm = {
-            //testData: ko.observableArray(),
-            testData: getTestData(),
+            testData: ko.observableArray(),
+            //testData: getTestData(),
             mySelectedItem: ko.observable({ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' }),
             maxServerItems: ko.observable(2000),
             currentPage: ko.observable(1),
-            pageSize: ko.observable(500)
+            pageSize: ko.observable(500),
+            fillData: function () {
+                vm.testData(getTestData()());
+            }
         };
 
         ko.applyBindings(vm, $('#sandbox1')[0]);

@@ -68,7 +68,7 @@ kg.KoGrid = function (options) {
         sortInfo: self.config.sortInfo,
         useExternalSorting: self.config.useExternalFiltering
     });
-    
+
     this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
     this.finalData = sortManager.sortedData; //observable Array
@@ -347,6 +347,9 @@ kg.KoGrid = function (options) {
         item = self.data()[0];
 
         utils.forIn(item, function (prop, propName) {
+            if (propName === '__kg_selected__') {
+                return;
+            }
 
             self.config.columnDefs.push({
                 field: propName
@@ -422,6 +425,8 @@ kg.KoGrid = function (options) {
         self.rowManager = new kg.RowManager(self);
 
         self.rows = self.rowManager.rows; // dependent observable
+
+        kg.cssBuilder.buildStyles(self);
 
         self.initPhase = 1;
     };
