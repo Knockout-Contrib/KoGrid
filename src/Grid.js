@@ -6,7 +6,7 @@ kg.KoGrid = function (options) {
         rowHeight: 30,
         columnWidth: 100,
         headerRowHeight: 30,
-        footerRowHeight: 45,
+        footerRowHeight: 55,
         filterRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
@@ -22,6 +22,7 @@ kg.KoGrid = function (options) {
         currentPage: ko.observable(1), //ko.observable of what page they are currently on
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
+        selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
@@ -35,6 +36,7 @@ kg.KoGrid = function (options) {
     filterIsOpen = ko.observable(false), //observable so that the header can subscribe and change height when opened
     filterManager, //kg.FilterManager
     sortManager, //kg.SortManager
+    selectionManager,
     isSorting = false,
     prevScrollTop,
     prevScrollLeft,
@@ -66,11 +68,19 @@ kg.KoGrid = function (options) {
         sortInfo: self.config.sortInfo,
         useExternalSorting: self.config.useExternalFiltering
     });
-
+    
     this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
     this.finalData = sortManager.sortedData; //observable Array
     this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
+
+    selectionManager = new kg.SelectionManager({
+        isMultiSelect: self.config.isMultiSelect,
+        data: self.finalData,
+        selectedItem: self.config.selectedItem,
+        selectedItems: self.config.selectedItems,
+        selectedIndex: self.config.selectedIndex
+    });
 
     this.maxRows = ko.computed(function () {
         var rows = self.finalData();
@@ -83,17 +93,7 @@ kg.KoGrid = function (options) {
         return maxCanvasHt || 0;
     };
 
-    this.selectedItemCount = ko.computed(function () {
-        var single = self.config.selectedItem(),
-            arr = self.config.selectedItems();
-
-        if (!self.config.isMultiSelect) {
-            return (single !== null && single !== undefined) ? 1 : 0; //truthy statement
-        } else {
-            return arr.length;
-        }
-    });
-
+    this.selectedItemCount = selectionManager.selectedItemCount;
 
     this.columns = new kg.ColumnCollection();
 
@@ -207,98 +207,8 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-
-    this.config.selectedItem.subscribe(function (currentEntity) {
-        //ensure outgoing entity is de-selected
-        if (!self.config.isMultiSelect) {
-
-            //uncheck the current entity
-            if (currentEntity && currentEntity['__kg_selected__']) {
-                currentEntity['__kg_selected__'](false);
-            }
-        }
-
-    }, self, "beforeChange");
-
-    this.config.selectedItem.subscribe(function (entity) {
-        //ensure incoming entity has our selected flag
-        if (entity && !entity['__kg_selected__']) {
-            entity['__kg_selected__'] = ko.observable(true);
-        } else if (entity) {
-            entity['__kg_selected__'](true);
-        }
-
-        //make sure its scrolled into view
-        scrollIntoView(entity);
-    });
-
-    this.config.selectedItems.subscribe(function (newItems) {
-        var newItemIndex, firstItem;
-
-        if (!newItems) {
-            newItems = [];
-        }
-
-        utils.forEach(self.finalData(), function (item, i) {
-
-            if (!item['__kg_selected__']) {
-                item['__kg_selected__'] = ko.observable(false);
-            }
-
-            if (ko.utils.arrayIndexOf(newItems, item) > -1) {
-                //newItems contains the item
-                item['__kg_selected__'](true);
-
-                if (!firstItem) {
-                    firstItem = item;
-                }
-
-            } else {
-                item['__kg_selected__'](false);
-            }
-
-        });
-    });
-
-    this.changeSelectedItem = function (changedEntity) {
-        var currentEntity = self.config.selectedItem(),
-            currentItems = self.config.selectedItems,
-            keep = false;
-
-        if (!self.config.isMultiSelect) {
-            //Single Select Logic
-
-            //find out if the changed entity is selected or not
-            if (changedEntity && changedEntity['__kg_selected__']) {
-                keep = changedEntity['__kg_selected__']();
-            }
-
-            if (keep) {
-                //set the new entity
-                self.config.selectedItem(changedEntity);
-            } else {
-                //else just set it to null if there are no selected items
-                self.config.selectedItem(null);
-            }
-
-        } else {
-            //Multi-Select Logic
-
-            //if the changed entity was de-selected, remove it from the array
-            if (changedEntity && changedEntity['__kg_selected__']) {
-                keep = changedEntity.__kg_selected__();
-            }
-
-            if (!keep) {
-                currentItems.remove(changedEntity);
-            } else {
-                //first see if it exists, if not add it
-                if (currentItems.indexOf(changedEntity) === -1) {
-                    currentItems.push(changedEntity);
-                }
-            }
-        }
-    };
+    this.changeSelectedItem = selectionManager.changeSelectedItem;
+    this.toggleSelectAll = selectionManager.toggleSelectAll;
 
     this.sortData = function (col, dir) {
         isSorting = true;
@@ -316,34 +226,7 @@ kg.KoGrid = function (options) {
 
     //#endregion
 
-    this.toggleSelectAll = ko.computed({
-        read: function () {
-            var cnt = self.selectedItemCount();
-            if (!self.config.isMultiSelect) {
-                return cnt === 1;
-            }
-            return cnt === self.maxRows();
-        },
-        write: function (val) {
-            var checkAll = val,
-                selectedItemsToPush = [],
-                data;
 
-            if (self.config.isMultiSelect) {
-                data = self.finalData();
-
-                if (checkAll) {
-                    self.config.selectedItems(data);
-                } else {
-                    self.config.selectedItems([]);
-                }
-            } else {
-                if (!checkAll) {
-                    self.config.selectedItem(null);
-                }
-            }
-        }
-    });
 
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {

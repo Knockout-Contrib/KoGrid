@@ -17,13 +17,9 @@
                     <input type="text" data-bind="value: $data.entity().SeasonCode" style="width: 80px"/>
                 </div>
             </script>
-            <div id="myGrid" style="height: 70%; width: 60%;" data-bind="koGrid:{ data: testData, 
-                                    isMultiSelect: true,
+            <div id="myGrid" style="height: 600px; width: 500px;" data-bind="koGrid:{ data: testData, 
+                                    isMultiSelect: false,
                                     selectedItem: mySelectedItem,
-                                    rowHeight: 30,
-                                    columnWidth: 130,
-                                    headerRowHeight: 30,
-                                    footerRowHeight: 45,
                                     autogenerateColumns: false,
                                     columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, 
                                                  { field: 'Vendor', displayName: 'Supplier', width: 120 },
@@ -33,10 +29,7 @@
                                     enablePaging: true,
                                     totalServerItems: maxServerItems,
                                     currentPage: currentPage,
-                                    pageSize: pageSize,
-                                    displaySelectionCheckbox: true,
-                                    displayRowIndex: true,
-                                    showRowIndex: false }">
+                                    pageSize: pageSize }">
             </div>
         </div>
 

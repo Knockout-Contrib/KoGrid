@@ -62,8 +62,8 @@
     right: 0;
 }
 .kgSortImg{
-    height: 11px;
-    width: 10px;
+    height: 9px;
+    width: 7px;
 }
 
 .kgFilterBtn {
@@ -88,4 +88,19 @@
 .kgFooterPanel{
     background-color: rgb(237, 237, 237);
     border-top: 1px solid rgb(229, 229, 229);
+}
+
+.kgFooterSelectedItems {
+	padding: 2px;
+}
+.kgFooterTotalItems {
+	padding: 2px;
+}
+.kgPagerContainer {
+	position: absolute; 
+	right: 0; left: 150px; 
+	margin-top: 5px;
+}
+.kgPagerControl {
+
 }

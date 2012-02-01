@@ -20,6 +20,7 @@
 ..\Src\GridClasses\Footer.js
 ..\Src\GridClasses\FilterManager.js
 ..\Src\GridClasses\SortManager.js
+..\Src\GridClasses\SelectionManager.js
 ..\Src\GridManager.js
 ..\Src\Grid.js
 ..\Src\DomManipulation\CssBuilder.js
