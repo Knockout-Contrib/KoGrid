@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:40:11.24 Thu 01/26/2012 
+* Compiled At:  0:26:16.82 Wed 02/01/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -109,7 +109,7 @@ kg.utils = utils;
                 '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
                 '</div>' +
             '</div>' +
-            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
+            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim" style="position: relative;">' +
                 
             '</div>';
 }; 
@@ -130,14 +130,9 @@ kg.utils = utils;
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
-            b.append('  <div class="kgFilterContainer">');
-            b.append('      <div class="kgFilterBtn openBtn" data-bind="click: $parent.showFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
-            b.append('  <div class="kgFilterContainer" data-bind="visible: $data.filterVisible"  style="display: none;">');
-            b.append('      <div class="kgFilterBtn clearBtn" data-bind="click: $parent.clearFilter_Click">');
-            b.append('      </div>');
-            b.append('  </div>');
+            b.append('      <div class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
+            b.append('      <div class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
@@ -157,9 +152,9 @@ kg.utils = utils;
 
     b.append('<div data-bind="click: $data.sort">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAHhJREFUKFONkNEJwCAMRP3oCP11EadxBMUfQcGJneHqCRFbBStIJHk5L1FqOrVWGGPAOOfHmwWtNay1PS6gAM45xBjB+AK/QM55BdnhvUcIASkllFIGJIrdUyvc7V5bs0xSiR3iZ/5OhlC/PFHtOJ34OO5pBncbfwCrHKMbaQIX3AAAAABJRU5ErkJggg=="/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEVJREFUKFPVzsEJADAIA8As4iLuv44zpFiwpKEL9CGRcIggiZmqYmayU/sLRAQBsFPhRl0MaOTwCRzCLwxQeH7SR33/Fi1hef+4O/q8GwAAAABJRU5ErkJggg=="/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAERJREFUKFNj+P//PwMhTFAByIBBqUhWVhboMgacGCz/9u3b/7gUgsRB8mDfYVMIU4ASBMgKkRVghBNIoZWVFdgK5FgAAMGr/7gho9mEAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPElEQVQoU2NggIL6+npjIN4NxIIwMTANFFAC4rtA/B+kAC6JJgGSRCgAcs5ABWASMHoVw////3HigZAEACKmlTwMfriZAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPUlEQVQoU2P4//8/Ay6MUwKkgQJJBnygvr7+DBD/x4JXMQAFlYD4LprkbriBaAoQEjAVQAXGQLwbiAVhYgD6kIBR+tr9IgAAAABJRU5ErkJggg=="/>');
     b.append('</div>');
     b.append('<div data-bind="visible: $parent.filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
@@ -202,14 +197,28 @@ kg.utils = utils;
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
-    return  '<div>' +
-                '<div style="float: left; margin: 5px"><strong>Total Items: </strong><span data-bind="text: maxRows"></span></div>' +
-                '<div style="float: left; margin: 5px"><strong>Selected Items: </strong><span data-bind="text: selectedItemCount"></span></div>' +
-                '<div style="float: left;" data-bind="visible: pagerVisible">' +
-                    'Page Size: <select data-bind="options: pageSizes, value: selectedPageSize"></select>' +
-                    '<button data-bind="click: pageBackward"> << </button>' +
-                    'Page: <span data-bind="text: currentPage"></span> of <span data-bind="text: maxPages"></span>' +
-                    '<button data-bind="click: pageForward"> >> </button>' +
+    return '<div style="margin-top: 5px; margin-bottom: auto; height: 30px; position: absolute; top: 0; bottom: 0; left: 5px;">' +
+                '<div class="kgFooterTotalItems">' +
+                    '<strong>Total Items</strong>: <span data-bind="text: maxRows"></span>' +
+                '</div>' +
+                '<div class="kgFooterSelectedItems">' +
+                    '<strong>Selected Items</strong>: <span data-bind="text: selectedItemCount"></span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible">' +
+                '<div style="float: right;">' +
+                    '<div class="kgRowCountPicker" style="float: left;">' +
+                        '<strong>Rows:</strong>' +
+                        '<select data-bind="options: pageSizes, value: selectedPageSize">' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="kgPagerControl" style="float: left; min-width: 175px;">' +
+                        '<input type="button" value="<<" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
+                        '<input type="button" value="<" data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
+                        '<input type="text" value="0" style="width: 25px;" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
+                        '<input type="button" value=">" data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
+                        '<input type="button" value=">>" data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
+                    '</div>' +
                 '</div>' +
             '</div>';
 }; 
@@ -649,6 +658,18 @@ kg.ColumnCollection.fn = {
         return Math.ceil(maxCnt / pageSize);
     });
 
+    this.protectedCurrentPage = ko.computed({
+        read: function () {
+            return self.currentPage();
+        },
+        write: function (page) {
+            if (page && page <= self.maxPages() && page > 0){
+                self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
+            }
+        },
+        owner: self
+    });
+
     this.pageForward = function () {
         var page = self.currentPage();
         self.currentPage(Math.min(page + 1, self.maxPages()));
@@ -658,6 +679,26 @@ kg.ColumnCollection.fn = {
         var page = self.currentPage();
         self.currentPage(Math.max(page - 1, 1));
     };
+
+    this.pageToFirst = function () {
+        self.currentPage(1);
+    };
+
+    this.pageToLast = function () {
+        var maxPages = self.maxPages();
+        self.currentPage(maxPages);
+    };
+
+    this.canPageForward = ko.computed(function () {
+        var curPage = self.currentPage();
+        var maxPages = self.maxPages();
+        return curPage < maxPages;
+    });
+
+    this.canPageBackward = ko.computed(function () {
+        var curPage = self.currentPage();
+        return curPage > 1;
+    });
 }; 
  
  
@@ -1047,6 +1088,162 @@ kg.ColumnCollection.fn = {
  
  
 /*********************************************** 
+* FILE: ..\Src\GridClasses\SelectionManager.js 
+***********************************************/ 
+﻿/******************************
+* Use cases to support:
+* 1. Always keep a selectedItem
+*   - first item is selected by default (if selection is enabled)
+* 2. Don't keep both selectedItem/selectedItems in sync - pick one
+* 3. Remember selectedIndex, and if user deletes an item in the array - reselect the next index
+*/
+
+kg.SelectionManager = function (options) {
+    var self = this,
+        isMulti = options.isMultiSelect,
+        dataSource = options.data,
+        KEY = '__kg_selected__',
+        maxRows = ko.computed(function () {
+            return dataSource().length;
+        });
+
+    this.selectedItem = options.selectedItem; //observable
+    this.selectedItems = options.selectedItems; //observableArray
+    this.selectedIndex = options.selectedIndex; //observable
+
+    this.selectedItemCount = ko.computed(function () {
+        var single = self.selectedItem(),
+            arr = self.selectedItems();
+
+        if (!isMulti) {
+            return (single !== null && single !== undefined) ? 1 : 0; //truthy statement
+        } else {
+            return arr.length;
+        }
+    });
+
+    this.selectedItem.subscribe(function (currentEntity) {
+        //ensure outgoing entity is de-selected
+        if (!isMulti) {
+            //uncheck the current entity
+            if (currentEntity && currentEntity[KEY]) {
+                currentEntity[KEY](false);
+            }
+        }
+    }, self, "beforeChange");
+
+    this.selectedItem.subscribe(function (entity) {
+        //ensure incoming entity has our selected flag
+        if (entity && !entity[KEY]) {
+            entity[KEY] = ko.observable(true);
+        } else if (entity) {
+            entity[KEY](true);
+        }
+    });
+
+    this.selectedItems.subscribe(function (newItems) {
+        if (!newItems) {
+            newItems = [];
+        }
+
+        utils.forEach(dataSource(), function (item, i) {
+
+            if (!item[KEY]) {
+                item[KEY] = ko.observable(false);
+            }
+
+            if (ko.utils.arrayIndexOf(newItems, item) > -1) {
+                //newItems contains the item
+                item[KEY](true);
+            } else {
+                item[KEY](false);
+            }
+
+        });
+    });
+
+    this.changeSelectedItem = function (changedEntity) {
+        var currentEntity = self.selectedItem(),
+            currentItems = self.selectedItems,
+            len = 0,
+            keep = false;
+
+        if (!isMulti) {
+            //Single Select Logic
+
+            //find out if the changed entity is selected or not
+            if (changedEntity && changedEntity[KEY]) {
+                keep = changedEntity[KEY]();
+            }
+
+            if (keep) {
+                //set the new entity
+                self.selectedItem(changedEntity);
+            } else {
+                //always keep a selected entity around
+                changedEntity[KEY](true);
+            }
+
+        } else {
+            //Multi-Select Logic
+            len = currentItems().length;
+
+            //if the changed entity was de-selected, remove it from the array
+            if (changedEntity && changedEntity[KEY]) {
+                keep = changedEntity[KEY]();
+            }
+
+            if (!keep && (len > 1)) {
+                currentItems.remove(changedEntity);
+            } else if (!keep && (len <= 1)) {
+                changedEntity[KEY](true);
+            } else {
+                //first see if it exists, if not add it
+                if (currentItems.indexOf(changedEntity) === -1) {
+                    currentItems.push(changedEntity);
+                }
+            }
+        }
+    };
+
+    this.toggleSelectAll = ko.computed({
+        read: function () {
+            var cnt = self.selectedItemCount();
+            if (!isMulti) {
+                return cnt === 1;
+            }
+            return cnt === maxRows();
+        },
+        write: function (val) {
+            var checkAll = val,
+                selectedItemsToPush = [],
+                data;
+
+            if (isMulti) {
+                data = dataSource();
+
+                if (checkAll) {
+                    self.selectedItems(data);
+                } else {
+                    self.selectedItems(data[0] ? [data[0]] : []);
+                }
+            }
+        }
+    });
+
+    //now ensure we always have at least one item selected
+    (function (items) {
+        if (items && items.length > 0) {
+            if (!items[0][KEY]) {
+                items[0][KEY] = ko.observable(true);
+                self.changeSelectedItem(items[0]);
+            }
+        }
+    } (dataSource()));
+}; 
+ 
+ 
+/*********************************************** 
 * FILE: ..\Src\GridManager.js 
 ***********************************************/ 
 ﻿kg.gridManager = (new function () {
@@ -1140,7 +1337,7 @@ kg.KoGrid = function (options) {
         rowHeight: 30,
         columnWidth: 100,
         headerRowHeight: 30,
-        footerRowHeight: 45,
+        footerRowHeight: 55,
         filterRowHeight: 30,
         rowTemplate: 'kgRowTemplate',
         headerTemplate: 'kgHeaderRowTemplate',
@@ -1156,6 +1353,7 @@ kg.KoGrid = function (options) {
         currentPage: ko.observable(1), //ko.observable of what page they are currently on
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
+        selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
@@ -1169,6 +1367,7 @@ kg.KoGrid = function (options) {
     filterIsOpen = ko.observable(false), //observable so that the header can subscribe and change height when opened
     filterManager, //kg.FilterManager
     sortManager, //kg.SortManager
+    selectionManager,
     isSorting = false,
     prevScrollTop,
     prevScrollLeft,
@@ -1200,11 +1399,19 @@ kg.KoGrid = function (options) {
         sortInfo: self.config.sortInfo,
         useExternalSorting: self.config.useExternalFiltering
     });
-
+    
     this.sortInfo = sortManager.sortInfo; //observable
     this.filterInfo = filterManager.filterInfo; //observable
     this.finalData = sortManager.sortedData; //observable Array
     this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
+
+    selectionManager = new kg.SelectionManager({
+        isMultiSelect: self.config.isMultiSelect,
+        data: self.finalData,
+        selectedItem: self.config.selectedItem,
+        selectedItems: self.config.selectedItems,
+        selectedIndex: self.config.selectedIndex
+    });
 
     this.maxRows = ko.computed(function () {
         var rows = self.finalData();
@@ -1217,17 +1424,7 @@ kg.KoGrid = function (options) {
         return maxCanvasHt || 0;
     };
 
-    this.selectedItemCount = ko.computed(function () {
-        var single = self.config.selectedItem(),
-            arr = self.config.selectedItems();
-
-        if (!self.config.isMultiSelect) {
-            return (single !== null && single !== undefined) ? 1 : 0; //truthy statement
-        } else {
-            return arr.length;
-        }
-    });
-
+    this.selectedItemCount = selectionManager.selectedItemCount;
 
     this.columns = new kg.ColumnCollection();
 
@@ -1341,98 +1538,8 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-
-    this.config.selectedItem.subscribe(function (currentEntity) {
-        //ensure outgoing entity is de-selected
-        if (!self.config.isMultiSelect) {
-
-            //uncheck the current entity
-            if (currentEntity && currentEntity['__kg_selected__']) {
-                currentEntity['__kg_selected__'](false);
-            }
-        }
-
-    }, self, "beforeChange");
-
-    this.config.selectedItem.subscribe(function (entity) {
-        //ensure incoming entity has our selected flag
-        if (entity && !entity['__kg_selected__']) {
-            entity['__kg_selected__'] = ko.observable(true);
-        } else if (entity) {
-            entity['__kg_selected__'](true);
-        }
-
-        //make sure its scrolled into view
-        scrollIntoView(entity);
-    });
-
-    this.config.selectedItems.subscribe(function (newItems) {
-        var newItemIndex, firstItem;
-
-        if (!newItems) {
-            newItems = [];
-        }
-
-        utils.forEach(self.finalData(), function (item, i) {
-
-            if (!item['__kg_selected__']) {
-                item['__kg_selected__'] = ko.observable(false);
-            }
-
-            if (ko.utils.arrayIndexOf(newItems, item) > -1) {
-                //newItems contains the item
-                item['__kg_selected__'](true);
-
-                if (!firstItem) {
-                    firstItem = item;
-                }
-
-            } else {
-                item['__kg_selected__'](false);
-            }
-
-        });
-    });
-
-    this.changeSelectedItem = function (changedEntity) {
-        var currentEntity = self.config.selectedItem(),
-            currentItems = self.config.selectedItems,
-            keep = false;
-
-        if (!self.config.isMultiSelect) {
-            //Single Select Logic
-
-            //find out if the changed entity is selected or not
-            if (changedEntity && changedEntity['__kg_selected__']) {
-                keep = changedEntity['__kg_selected__']();
-            }
-
-            if (keep) {
-                //set the new entity
-                self.config.selectedItem(changedEntity);
-            } else {
-                //else just set it to null if there are no selected items
-                self.config.selectedItem(null);
-            }
-
-        } else {
-            //Multi-Select Logic
-
-            //if the changed entity was de-selected, remove it from the array
-            if (changedEntity && changedEntity['__kg_selected__']) {
-                keep = changedEntity.__kg_selected__();
-            }
-
-            if (!keep) {
-                currentItems.remove(changedEntity);
-            } else {
-                //first see if it exists, if not add it
-                if (currentItems.indexOf(changedEntity) === -1) {
-                    currentItems.push(changedEntity);
-                }
-            }
-        }
-    };
+    this.changeSelectedItem = selectionManager.changeSelectedItem;
+    this.toggleSelectAll = selectionManager.toggleSelectAll;
 
     this.sortData = function (col, dir) {
         isSorting = true;
@@ -1450,34 +1557,7 @@ kg.KoGrid = function (options) {
 
     //#endregion
 
-    this.toggleSelectAll = ko.computed({
-        read: function () {
-            var cnt = self.selectedItemCount();
-            if (!self.config.isMultiSelect) {
-                return cnt === 1;
-            }
-            return cnt === self.maxRows();
-        },
-        write: function (val) {
-            var checkAll = val,
-                selectedItemsToPush = [],
-                data;
 
-            if (self.config.isMultiSelect) {
-                data = self.finalData();
-
-                if (checkAll) {
-                    self.config.selectedItems(data);
-                } else {
-                    self.config.selectedItems([]);
-                }
-            } else {
-                if (!checkAll) {
-                    self.config.selectedItem(null);
-                }
-            }
-        }
-    });
 
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {
@@ -1763,8 +1843,8 @@ kg.cssBuilder = {
 
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; width: {1}px; height: {2}px; line-height: {2}px; display: inline; }",gridId, grid.totalRowWidth(), rowHeight);
-        css.append(".{0} .kgHeaderCell { height: {1}px; }", gridId, rowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, rowHeight);
         
 
         for (; i < len; i++) {
