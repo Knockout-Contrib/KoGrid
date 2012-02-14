@@ -17,8 +17,8 @@
                     <input type="text" data-bind="value: $data.entity().SeasonCode" style="width: 80px"/>
                 </div>
             </script>
-            <div id="myGrid" style="height: 600px; width: 500px;" data-bind="koGrid:{ data: testData, 
-                                    isMultiSelect: true,
+            <div id="myGrid" style="height: 70%; width: 60%;" data-bind="koGrid:{ data: testData, 
+                                    isMultiSelect: false,
                                     selectedItem: mySelectedItem,
                                     autogenerateColumns: false,
                                     columnDefs: [{ field: 'Sku', displayName: 'My Sku'}, 
@@ -33,13 +33,15 @@
             </div>
         </div>
 
-        <div style="position: absolute; top: 0; bottom: 0; right: 20px;" data-bind="with: mySelectedItem">
-            <p>SKU: <span data-bind="text: Sku"></span></p>
-            <p>Vendor: <span data-bind="text: Vendor"></span></p>
-            <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
-            <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
-            <p>UPC: <span data-bind="text: UPC"></span></p>
-            <input type="button" value="Fill Data" data-bind="click: $parent.fillData" />
+        <div style="position: absolute; top: 0; bottom: 0; right: 20px;" >
+            <div data-bind="with: mySelectedItem">
+                <p>SKU: <span data-bind="text: Sku"></span></p>
+                <p>Vendor: <span data-bind="text: Vendor"></span></p>
+                <p>Season Code: <span data-bind="text: SeasonCode"></span></p>
+                <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
+                <p>UPC: <span data-bind="text: UPC"></span></p>
+            </div>
+            <input type="button" value="Fill Data" data-bind="click: fillData" />
         </div>        
     </div>
 
@@ -51,7 +53,7 @@
         var vm = {
             testData: ko.observableArray(),
             //testData: getTestData(),
-            mySelectedItem: ko.observable({ 'Sku': ko.observable('343983-061'), 'Vendor': 'NIKE', 'SeasonCode': '0109', 'Mfg_Id': '400112326393', 'UPC': '091201280544' }),
+            mySelectedItem: ko.observable(),
             maxServerItems: ko.observable(2000),
             currentPage: ko.observable(1),
             pageSize: ko.observable(500),

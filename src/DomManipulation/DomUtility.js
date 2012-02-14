@@ -32,6 +32,14 @@
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+        //if they are zero, see what the parent's size is
+        if (dims.maxWidth === 0) {
+            dims.maxWidth = $container.parent().width();
+        }
+        if (dims.maxHeight === 0) {
+            dims.maxHeight = $container.parent().height();
+        }
+
         $test.remove();
 
         return dims;
@@ -50,10 +58,11 @@
         $container.append($test);
 
         $container.wrap("<div style='width: 1px;'></div>");
-
+                
         dims.minWidth = $container.width();
         dims.minHeight = $container.height();
 
+        //This will blip the screen, so make sure to reset scroll bars, etc...
         $container.unwrap();
         $container.children().show();
 
@@ -74,9 +83,9 @@
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
 
-        if (!measureMins) {
-            return;
-        }
+//        if (!measureMins) {
+//            return;
+//        }
 
         //find min sizes
         dims = self.measureElementMinDims($container);
@@ -129,7 +138,7 @@
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
     this.scrollW = 17; // default in IE, Chrome, & most browsers
-    this.letterW = 2;
+    this.letterW = 5;
 
     $(function () {
         $testContainer.appendTo('body');
@@ -138,15 +147,18 @@
         //measure Scroll Bars
         $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
         $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
+
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
+
         $testContainer.empty();
 
         //clear styles
         $testContainer.attr('style', '');
 
-        //measure letter sizes
-        $testContainer.append('<span><strong>M</strong></span>');
+        //measure letter sizes using a pretty typical font size and fat font-family
+        $testContainer.append('<span style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 14px;"><strong>M</strong></span>');
+
         self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();

@@ -1,25 +1,25 @@
 ﻿kg.templates.defaultFooterTemplate = function () {
-    return '<div style="margin-top: 5px; margin-bottom: auto; height: 30px; position: absolute; top: 0; bottom: 0; left: 5px;">' +
+    return '<div class="kgTotalSelectContainer">' +
                 '<div class="kgFooterTotalItems">' +
-                    '<strong>Total Items</strong>: <span data-bind="text: maxRows"></span>' +
+                    '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
                 '<div class="kgFooterSelectedItems">' +
-                    '<strong>Selected Items</strong>: <span data-bind="text: selectedItemCount"></span>' +
+                    '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
             '<div class="kgPagerContainer" data-bind="visible: pagerVisible">' +
                 '<div style="float: right;">' +
-                    '<div class="kgRowCountPicker" style="float: left;">' +
-                        '<strong>Rows:</strong>' +
+                    '<div class="kgRowCountPicker"">' +
+                        '<span class="kgLabel" style="margin-top: 4px;">Rows:</span>' +
                         '<select data-bind="options: pageSizes, value: selectedPageSize">' +
                         '</select>' +
                     '</div>' +
                     '<div class="kgPagerControl" style="float: left; min-width: 175px;">' +
-                        '<input type="button" value="<<" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
-                        '<input type="button" value="<" data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
-                        '<input type="text" value="0" style="width: 25px;" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
-                        '<input type="button" value=">" data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
-                        '<input type="button" value=">>" data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
+                        '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
+                        '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
+                        '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
+                        '<input class="kgPagerNext" type="button"  data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
+                        '<input class="kgPagerLast" type="button"  data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
                     '</div>' +
                 '</div>' +
             '</div>';

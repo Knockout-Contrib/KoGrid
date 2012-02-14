@@ -29,8 +29,7 @@ ko.bindingHandlers['koGrid'] = (function () {
 
             //set the right styling on the container
             $(element).addClass("kgGrid")
-                      .addClass(grid.gridId.toString())
-                      .css("position", "relative");
+                      .addClass(grid.gridId.toString());
 
             //make sure the templates are generated for the Grid
             kg.templateManager.ensureGridTemplates({

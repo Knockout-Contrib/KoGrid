@@ -466,10 +466,10 @@ kg.KoGrid = function (options) {
         });
     };
 
-    this.adjustScrollTop = function (scrollTop) {
+    this.adjustScrollTop = function (scrollTop, force) {
         var rowIndex;
 
-        if (prevScrollTop === scrollTop) { return; }
+        if (prevScrollTop === scrollTop && !force) { return; }
 
         rowIndex = Math.floor(scrollTop / self.config.rowHeight);
 

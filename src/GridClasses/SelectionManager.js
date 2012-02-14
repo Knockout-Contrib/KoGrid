@@ -1,9 +1,10 @@
 ﻿/******************************
 * Use cases to support:
-* 1. Always keep a selectedItem
+* 1. Always keep a selectedItem in single select mode
 *   - first item is selected by default (if selection is enabled)
 * 2. Don't keep both selectedItem/selectedItems in sync - pick one
 * 3. Remember selectedIndex, and if user deletes an item in the array - reselect the next index
+* 4. If Single Select, don't pick a selected item on first data load
 */
 
 kg.SelectionManager = function (options) {
@@ -101,10 +102,8 @@ kg.SelectionManager = function (options) {
                 keep = changedEntity[KEY]();
             }
 
-            if (!keep && (len > 1)) {
+            if (!keep) {
                 currentItems.remove(changedEntity);
-            } else if (!keep && (len <= 1)) {
-                changedEntity[KEY](true);
             } else {
                 //first see if it exists, if not add it
                 if (currentItems.indexOf(changedEntity) === -1) {
@@ -133,19 +132,42 @@ kg.SelectionManager = function (options) {
                 if (checkAll) {
                     self.selectedItems(data);
                 } else {
-                    self.selectedItems(data[0] ? [data[0]] : []);
+                    self.selectedItems([]);
                 }
             }
         }
     });
 
-    //now ensure we always have at least one item selected
-    (function (items) {
-        if (items && items.length > 0) {
-            if (!items[0][KEY]) {
-                items[0][KEY] = ko.observable(true);
-                self.changeSelectedItem(items[0]);
+    //make sure as the data changes, we keep the selectedItem(s) correct
+    dataSource.subscribe(function (items) {
+        var selectedItems, selectedItem, itemsToRemove;
+
+        if (!items) {
+            return;
+        }
+
+        //make sure the selectedItem/Items exist in the new data
+        if (isMulti) {
+            selectedItems = self.selectedItems();
+            itemsToRemove = [];
+
+            ko.utils.arrayForEach(selectedItems, function (item) {
+                if (ko.utils.arrayIndexOf(items, item) < 0) {
+                    itemsToRemove.push(item);
+                }
+            });
+
+            //clean out any selectedItems that don't exist in the new array
+            if (itemsToRemove.length > 0) {
+                self.selectedItems.removeAll(itemsToRemove);
+            }
+
+        } else {
+            selectedItem = self.selectedItem();
+
+            if (selectedItem && ko.utils.arrayIndexOf(items, selectedItem) < 0) {
+                self.selectedItem(items[0] ? items[0] : null);
             }
         }
-    } (dataSource()));
+    });
 };

@@ -48,6 +48,9 @@
             },
             scrollTop = 0,
             isDifferent = false;
+            
+            //catch this so we can return the viewer to their original scroll after the resize!
+            scrollTop = grid.$viewport.scrollTop();
 
             kg.domUtility.measureGrid(grid.$root, grid);
 
@@ -66,11 +69,9 @@
 
             if (isDifferent) {
 
-                scrollTop = grid.$viewport.scrollTop();
-
                 grid.refreshDomSizes();
 
-                grid.adjustScrollTop(scrollTop); //ensure that the user stays scrolled where they were
+                grid.adjustScrollTop(scrollTop, true); //ensure that the user stays scrolled where they were
             }
         });
     };
