@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:03:53.93 Tue 02/14/2012 
+* Compiled At: 19:28:22.61 Wed 02/15/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -401,7 +401,7 @@ kg.ColumnCollection.fn = {
         //check and make sure its not the bubbling up of our checked 'click' event 
         if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
             return true;
-        }else {
+        } else {
             if (self.selected()) {
                 self.selected(false);
             } else {
@@ -415,6 +415,7 @@ kg.ColumnCollection.fn = {
     this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
+    this.rowKey = utils.newId();
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 
@@ -545,6 +546,7 @@ kg.ColumnCollection.fn = {
     this.viewableRange = ko.observable(prevViewableRange);
     this.renderedRange = ko.observable(prevRenderedRange);
     this.rows = ko.observableArray([]);
+    this.rowSubscriptions = {};
 
     var buildRowFromEntity = function (entity, rowIndex) {
         var row = rowCache[rowIndex];
@@ -1870,7 +1872,7 @@ kg.cssBuilder = {
         $style.empty();
 
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
-        css.append(".{0} .kgRow { position: absolute; width: {1}px; height: {2}px; line-height: {2}px; display: inline; }",gridId, grid.totalRowWidth(), rowHeight);
+        css.append(".{0} .kgRow { position: absolute; width: 100%; height: {1}px; line-height: {1}px; display: inline; }",gridId, rowHeight);
         css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, rowHeight);
         css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, rowHeight);
         
@@ -1949,27 +1951,28 @@ kg.cssBuilder = {
     };
 
     this.measureElementMinDims = function ($container) {
-        var dims = {};
+        var dims = {},
+            $testContainer = $container.clone();
+
+        $testContainer.appendTo($container.parent().first());
 
         dims.minWidth = 0;
         dims.minHeight = 0;
 
-        //first hide the child items so that we can get an accurate reading
-        $container.children().hide();
+        //since its cloned... empty it out
+        $testContainer.empty();
 
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
-        $container.append($test);
+        $testContainer.append($test);
 
-        $container.wrap("<div style='width: 1px;'></div>");
-                
-        dims.minWidth = $container.width();
-        dims.minHeight = $container.height();
+        //$testContainer.wrap("<div style='width: 1px; height: 1px;'></div>");
+
+        dims.minWidth = $testContainer.width();
+        dims.minHeight = $testContainer.height();
 
         //This will blip the screen, so make sure to reset scroll bars, etc...
-        $container.unwrap();
-        $container.children().show();
-
-        $test.remove();
+        //$testContainer.unwrap();
+        $testContainer.remove();
 
         return dims;
     };
@@ -1985,10 +1988,6 @@ kg.cssBuilder = {
         //set scroll measurements
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
-
-//        if (!measureMins) {
-//            return;
-//        }
 
         //find min sizes
         dims = self.measureElementMinDims($container);
@@ -2041,7 +2040,7 @@ kg.cssBuilder = {
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
     this.scrollW = 17; // default in IE, Chrome, & most browsers
-    this.letterW = 2;
+    this.letterW = 5;
 
     $(function () {
         $testContainer.appendTo('body');
@@ -2050,20 +2049,51 @@ kg.cssBuilder = {
         //measure Scroll Bars
         $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
         $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
+
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
+
         $testContainer.empty();
 
         //clear styles
         $testContainer.attr('style', '');
 
-        //measure letter sizes
-        $testContainer.append('<span><strong>M</strong></span>');
+        //measure letter sizes using a pretty typical font size and fat font-family
+        $testContainer.append('<span style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 14px;"><strong>M</strong></span>');
+
         self.letterW = $testContainer.children().first().width();
 
         $testContainer.remove();
     });
 
+} ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\Src\BindingHandlers\kgWith.js 
+***********************************************/ 
+﻿
+// This binding only works if the object that you want
+// use as the context of child bindings DOESN't change.
+// It is useful for us here since many of the grids properties
+// don't actually change, and thus this really just helps create
+// more readable and manageable code
+ko.bindingHandlers['kgWith'] = (function () {
+
+    return {
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var val = ko.utils.unwrapObservable(valueAccessor()),
+                newContext = bindingContext.createChildContext(val);
+
+            //we don't want bad binding contexts bc all the child bindings will blow up
+            if (!val) { throw Error("Cannot use a null or undefined value with the 'kgWith' binding"); }
+
+            //now cascade the new binding context throughout child elements...
+            ko.applyBindingsToDescendants(newContext, element);
+
+            return { 'controlsDescendantBindings': true };
+        }
+    };
 } ()); 
  
  
@@ -2155,44 +2185,115 @@ ko.bindingHandlers['koGrid'] = (function () {
 
 ko.bindingHandlers['kgRows'] = (function () {
 
-    var makeNewValueAccessor = function (rows, rowTemplateName) {
-        return function () {
-            return {
-                name: rowTemplateName,
-                foreach: rows
-            };
+    var RowSubscription = function () {
+        this.rowKey;
+        this.rowIndex;
+        this.node;
+        this.subscription;
+    };
+
+    // figures out what rows already exist in DOM and 
+    // what rows need to be added as new DOM nodes
+    //
+    // the 'currentNodeCache' is dictionary of currently existing
+    // DOM nodes indexed by rowIndex
+    var compareRows = function (rows, rowSubscriptions) {
+        rowMap = {},
+        newRows = [],
+        rowSubscriptionsToRemove = [];
+
+        //figure out what rows need to be added
+        ko.utils.arrayForEach(rows, function (row) {
+            rowMap[row.rowIndex] = row;
+
+            // make sure that we create new rows when sorting/filtering happen.
+            // The rowKey tells us whether the row for that rowIndex is different or not
+            var possibleRow = rowSubscriptions[row.rowIndex];
+            if (!possibleRow) {
+                newRows.push(row);
+            } else if (possibleRow.rowKey !== row.rowKey) {
+                newRows.push(row);
+            }
+        });
+
+        //figure out what needs to be deleted
+        utils.forIn(rowSubscriptions, function (rowSubscription, index) {
+
+            //get the row we might be able to compare to
+            var compareRow = rowMap[index];
+
+            // if there is no compare row, we want to remove the row from the DOM
+            // if there is a compare row and the rowKeys are different, we want to remove from the DOM
+            //  bc its most likely due to sorting etc..
+            if (!compareRow) {
+                rowSubscriptionsToRemove.push(rowSubscription);
+            } else if (compareRow.rowKey !== rowSubscription.rowKey) {
+                rowSubscriptionsToRemove.push(rowSubscription);
+            }
+        });
+
+        return {
+            add: newRows,
+            remove: rowSubscriptionsToRemove
         };
     };
 
+
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var rowManager = bindingContext.$data.rowManager,
-                grid = bindingContext.$data,
-                rows = ko.utils.unwrapObservable(valueAccessor());
+        init: function () {
 
-            var newAccessor = makeNewValueAccessor(rows, grid.config.rowTemplate);
-
-            return ko.bindingHandlers.template.init(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+            return { 'controlsDescendantBindings': true };
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var rowManager = bindingContext.$data.rowManager,
                 rows = ko.utils.unwrapObservable(valueAccessor()),
                 grid = bindingContext.$data,
-                $row,
-                $cell,
-                newAccessor,
-                retVal;
+                rowChanges;
 
-            newAccessor = makeNewValueAccessor(rows, grid.config.rowTemplate);
+            //figure out what needs to change
+            rowChanges = compareRows(rows, rowManager.rowSubscriptions || {});
+            
+            // FIRST!! We need to remove old ones in case we are sorting and simply replacing the data at the same rowIndex            
+            ko.utils.arrayForEach(rowChanges.remove, function (rowSubscription) {
 
-            retVal = ko.bindingHandlers.template.update(element, newAccessor, allBindingsAccessor, viewModel, bindingContext);
+                if (rowSubscription.node) {
+                    ko.removeNode(rowSubscription.node);
+                }
+
+                rowSubscription.subscription.dispose();
+
+                delete rowManager.rowSubscriptions[rowSubscription.rowIndex];
+            });
+
+            // and then we add the new row after removing the old rows
+            ko.utils.arrayForEach(rowChanges.add, function (row) {
+                var newBindingCtx,
+                    rowSubscription,
+                    divNode = document.createElement('DIV');
+
+                //make sure the bindingContext of the template is the row and not the grid!
+                newBindingCtx = bindingContext.createChildContext(row);
+
+                //create a node in the DOM to replace, because KO doesn't give us a good hook to just do this...
+                element.appendChild(divNode);
+
+                //create a row subscription to add data to
+                rowSubscription = new RowSubscription();
+                rowSubscription.rowKey = row.rowKey;
+                rowSubscription.rowIndex = row.rowIndex;
+
+                rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
+
+                rowSubscription.subscription = ko.renderTemplate(grid.config.rowTemplate, newBindingCtx, null, divNode, 'replaceNode');
+            });
 
             //only measure the row and cell differences when data changes
             if (grid.elementsNeedMeasuring && grid.initPhase > 0) {
                 //Measure the cell and row differences after rendering
                 kg.domUtility.measureRow($(element), grid);
             }
-            return retVal;
+
+            return { 'controlsDescendantBindings': true };
         }
     };
 
@@ -2214,13 +2315,21 @@ ko.bindingHandlers['kgRow'] = (function () {
             var row = valueAccessor(),
                 classes = 'kgRow',
                 grid = bindingContext.$parent,
-                rowManager = bindingContext.$parent.rowManager;
+                rowManager = bindingContext.$parent.rowManager,
+                rowSubscription;
 
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
             element['_kg_rowIndex_'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
+
+            //ensure we know the node to dispose later!
+
+            rowSubscription = rowManager.rowSubscriptions[row.rowIndex];
+            if (rowSubscription) {
+                rowSubscription.node = element;
+            }
         }
     };
 

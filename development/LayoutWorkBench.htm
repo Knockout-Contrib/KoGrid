@@ -12,10 +12,56 @@
 
     </style>
 </head>
-    <body>
-
+    <body style="height: 100%; width: 100%;">
+        <div id="container" style="height: 70%; width: 60%;">
+            
+        </div>
+        <input type="button" id="sizeBtn" value="click me" />
     <script type="text/javascript">
+        window.Stopwatch = function () {
+            var startTime,
+                endTime;
 
+            var log = function log(info, time) {
+                setTimeout(function () {
+                    $('#testLog').append('<p>' + info + ' : ' + time.toString() + '</p>');
+                }, 0);
+            };
+
+            var getTime = function () {
+                return new Date().getTime();
+            };
+
+
+            this.begin = function (comment) {
+                startTime = getTime();
+
+                log('START: ' + comment, startTime);
+            };
+
+            this.end = function (comment) {
+                endTime = getTime();
+
+                log('END: ' + comment, endTime);
+            };
+
+            this.ellapsed = function (comment) {
+
+                log('ELLAPSED : ' + comment, endTime - startTime);
+            };
+        };
+
+        $('#sizeBtn').click(function () {
+            var $el = $('#container');
+
+            console.log($el[0].clientWidth);
+            console.log($el[0].clientHeight);
+        });
+        
     </script>
+
+    <div id="testLog">
+    
+    </div>
     </body>
 </html>

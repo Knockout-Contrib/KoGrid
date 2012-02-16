@@ -10,13 +10,21 @@ ko.bindingHandlers['kgRow'] = (function () {
             var row = valueAccessor(),
                 classes = 'kgRow',
                 grid = bindingContext.$parent,
-                rowManager = bindingContext.$parent.rowManager;
+                rowManager = bindingContext.$parent.rowManager,
+                rowSubscription;
 
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
             element['_kg_rowIndex_'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
+
+            //ensure we know the node to dispose later!
+
+            rowSubscription = rowManager.rowSubscriptions[row.rowIndex];
+            if (rowSubscription) {
+                rowSubscription.node = element;
+            }
         }
     };
 

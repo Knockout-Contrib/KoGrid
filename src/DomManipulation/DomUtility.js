@@ -46,27 +46,28 @@
     };
 
     this.measureElementMinDims = function ($container) {
-        var dims = {};
+        var dims = {},
+            $testContainer = $container.clone();
+
+        $testContainer.appendTo($container.parent().first());
 
         dims.minWidth = 0;
         dims.minHeight = 0;
 
-        //first hide the child items so that we can get an accurate reading
-        $container.children().hide();
+        //since its cloned... empty it out
+        $testContainer.empty();
 
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
-        $container.append($test);
+        $testContainer.append($test);
 
-        $container.wrap("<div style='width: 1px;'></div>");
-                
-        dims.minWidth = $container.width();
-        dims.minHeight = $container.height();
+        //$testContainer.wrap("<div style='width: 1px; height: 1px;'></div>");
+
+        dims.minWidth = $testContainer.width();
+        dims.minHeight = $testContainer.height();
 
         //This will blip the screen, so make sure to reset scroll bars, etc...
-        $container.unwrap();
-        $container.children().show();
-
-        $test.remove();
+        //$testContainer.unwrap();
+        $testContainer.remove();
 
         return dims;
     };
@@ -82,10 +83,6 @@
         //set scroll measurements
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
-
-//        if (!measureMins) {
-//            return;
-//        }
 
         //find min sizes
         dims = self.measureElementMinDims($container);

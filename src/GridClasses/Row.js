@@ -23,7 +23,7 @@
         //check and make sure its not the bubbling up of our checked 'click' event 
         if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
             return true;
-        }else {
+        } else {
             if (self.selected()) {
                 self.selected(false);
             } else {
@@ -37,6 +37,7 @@
     this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
+    this.rowKey = utils.newId();
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 

@@ -20,6 +20,7 @@
     this.viewableRange = ko.observable(prevViewableRange);
     this.renderedRange = ko.observable(prevRenderedRange);
     this.rows = ko.observableArray([]);
+    this.rowSubscriptions = {};
 
     var buildRowFromEntity = function (entity, rowIndex) {
         var row = rowCache[rowIndex];
