@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 19:28:22.61 Wed 02/15/2012 
+* Compiled At: 18:04:56.40 Thu 02/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -208,11 +208,11 @@ kg.utils = utils;
             '<div class="kgPagerContainer" data-bind="visible: pagerVisible">' +
                 '<div style="float: right;">' +
                     '<div class="kgRowCountPicker"">' +
-                        '<span class="kgLabel" style="margin-top: 4px;">Rows:</span>' +
+                        '<span class="kgLabel">Rows:</span>' +
                         '<select data-bind="options: pageSizes, value: selectedPageSize">' +
                         '</select>' +
                     '</div>' +
-                    '<div class="kgPagerControl" style="float: left; min-width: 175px;">' +
+                    '<div class="kgPagerControl" style="float: left; min-width: 135px;">' +
                         '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
                         '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
                         '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
