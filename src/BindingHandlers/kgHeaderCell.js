@@ -2,7 +2,7 @@
     var makeNewValueAccessor = function (headerCell, grid) {
         return function () {
             return {
-                name: grid.config.headerCellTemplate,
+                name: headerCell.headerTemplate || grid.config.headerCellTemplate,
                 data: headerCell
             };
         };
@@ -41,6 +41,11 @@
                     //format the header cell
                     element.className += " kgHeaderCell col" + cell.colIndex;
                     
+                    //add the custom class in case it has been provided
+                    if (cell.headerClass) {
+                        element.className += " " + cell.headerClass;
+                    }
+
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
                         return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);

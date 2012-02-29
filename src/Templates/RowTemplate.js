@@ -14,7 +14,7 @@
         } else if (col.hasCellTemplate) {
             b.append(kg.templateManager.getTemplateText(col.cellTemplate));
         } else {
-            b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
+            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>',col.cellClass || '',  col.field);
         }
     });
 

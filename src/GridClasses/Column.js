@@ -5,6 +5,8 @@
     this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
+    this.width = ko.observable();
+
 
     //sorting
     this.allowSort = true;
@@ -14,6 +16,21 @@
     this.filter = ko.observable();
 
     //cell Template
-    this.hasCellTemplate = false;
-    this.cellTemplate = null; // string of the cellTemplate script element id
+    this.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
+    this.hasCellTemplate = (this.cellTemplate ? true : false);
+
+    this.cellClass = colDef.cellClass;
+    this.headerClass = colDef.cellClass;
+
+    this.headerTemplate = colDef.headerTemplate
+    this.hasHeaderTemplate = (this.headerTemplate ? true : false);
+        
+    // figure out the width
+    if (!colDef.width) {
+        colDef.width = this.displayName.length * kg.domUtility.letterW;
+        colDef.width += 25; //for sorting icons and padding
+    }
+
+    this.width(colDef.width);
+
 };

@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 18:04:56.40 Thu 02/16/2012 
+* Compiled At: 18:28:05.92 Wed 02/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -183,7 +183,7 @@ kg.utils = utils;
         } else if (col.hasCellTemplate) {
             b.append(kg.templateManager.getTemplateText(col.cellTemplate));
         } else {
-            b.append('  <div data-bind="kgCell: { value: \'{0}\' } "></div>', col.field);
+            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>',col.cellClass || '',  col.field);
         }
     });
 
@@ -343,6 +343,8 @@ kg.utils = utils;
     this.displayName = colDef.displayName || colDef.field;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
+    this.width = ko.observable();
+
 
     //sorting
     this.allowSort = true;
@@ -352,8 +354,23 @@ kg.utils = utils;
     this.filter = ko.observable();
 
     //cell Template
-    this.hasCellTemplate = false;
-    this.cellTemplate = null; // string of the cellTemplate script element id
+    this.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
+    this.hasCellTemplate = (this.cellTemplate ? true : false);
+
+    this.cellClass = colDef.cellClass;
+    this.headerClass = colDef.cellClass;
+
+    this.headerTemplate = colDef.headerTemplate
+    this.hasHeaderTemplate = (this.headerTemplate ? true : false);
+        
+    // figure out the width
+    if (!colDef.width) {
+        colDef.width = this.displayName.length * kg.domUtility.letterW;
+        colDef.width += 25; //for sorting icons and padding
+    }
+
+    this.width(colDef.width);
+
 }; 
  
  
@@ -471,6 +488,10 @@ kg.ColumnCollection.fn = {
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
+
+    this.headerClass = col.headerClass;
+    this.headerTemplate = col.headerTemplate;
+    this.hasHeaderTemplate = col.hasHeaderTemplate;
 
     this.width = ko.computed(function () {
         return col.width();
@@ -1742,21 +1763,9 @@ kg.KoGrid = function (options) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
-                if (!colDef.width) {
-                    colDef.width = column.displayName.length * kg.domUtility.letterW;
-                    colDef.width += 25; //for sorting icons and padding
-                }
-
-                column.width(colDef.width || self.config.columnWidth);
-
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
-
-                if (colDef.cellTemplate) {
-                    column.hasCellTemplate = true;
-                    column.cellTemplate = colDef.cellTemplate;
-                }
 
                 cols.push(column);
             });
@@ -2429,7 +2438,7 @@ ko.bindingHandlers['kgCell'] = (function () {
     var makeNewValueAccessor = function (headerCell, grid) {
         return function () {
             return {
-                name: grid.config.headerCellTemplate,
+                name: headerCell.headerTemplate || grid.config.headerCellTemplate,
                 data: headerCell
             };
         };
@@ -2468,6 +2477,11 @@ ko.bindingHandlers['kgCell'] = (function () {
                     //format the header cell
                     element.className += " kgHeaderCell col" + cell.colIndex;
                     
+                    //add the custom class in case it has been provided
+                    if (cell.headerClass) {
+                        element.className += " " + cell.headerClass;
+                    }
+
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
                         return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);

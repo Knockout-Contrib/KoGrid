@@ -6,6 +6,10 @@
     this.field = col.field;
     this.column = col;
 
+    this.headerClass = col.headerClass;
+    this.headerTemplate = col.headerTemplate;
+    this.hasHeaderTemplate = col.hasHeaderTemplate;
+
     this.width = ko.computed(function () {
         return col.width();
     });
