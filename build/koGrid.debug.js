@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 11:51:25.35 Tue 03/06/2012 
+* Compiled At: 13:00:11.35 Tue 03/06/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -358,7 +358,7 @@ kg.utils = utils;
     this.hasCellTemplate = (this.cellTemplate ? true : false);
 
     this.cellClass = colDef.cellClass;
-    this.headerClass = colDef.cellClass;
+    this.headerClass = colDef.headerClass;
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
@@ -1247,6 +1247,9 @@ kg.SelectionManager = function (options) {
             var cnt = self.selectedItemCount();
             if (!isMulti) {
                 return cnt === 1;
+            }
+            if (maxRows() === 0) {
+                return false;
             }
             return cnt === maxRows();
         },

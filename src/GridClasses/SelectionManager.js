@@ -119,6 +119,9 @@ kg.SelectionManager = function (options) {
             if (!isMulti) {
                 return cnt === 1;
             }
+            if (maxRows() === 0) {
+                return false;
+            }
             return cnt === maxRows();
         },
         write: function (val) {

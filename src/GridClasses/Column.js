@@ -20,7 +20,7 @@
     this.hasCellTemplate = (this.cellTemplate ? true : false);
 
     this.cellClass = colDef.cellClass;
-    this.headerClass = colDef.cellClass;
+    this.headerClass = colDef.headerClass;
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
