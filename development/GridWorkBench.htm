@@ -13,8 +13,8 @@
     <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
         <div style="position: absolute; top: 0; bottom: 0; left: 0; width: 80%" >
             <script type="text/html" id="myCellTemplate">
-                <div data-bind="kgCell: { value: 'SeasonCode'}" >
-                    <input type="text" data-bind="value: $data.entity().SeasonCode" style="width: 80px"/>
+                <div data-bind="kgCell: $cell" >
+                    <input type="text" data-bind="value: $cellValue" style="width: 80px"/>
                 </div>
             </script>
             <div id="myGrid" style="height: 700px; width: 900px;" data-bind="koGrid:{ data: testData, 

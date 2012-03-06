@@ -1,4 +1,8 @@
-﻿kg.Row = function (entity) {
+﻿/// <reference path="../utils.js" />
+/// <reference path="../namespace.js" />
+/// <reference path="../Grid.js" />
+
+kg.Row = function (entity) {
     var self = this;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     //selectify the entity
@@ -42,4 +46,14 @@
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 
+    //during row initialization, let's make all the entities properties first-class properties on the row
+    (function () {
+
+        utils.forIn(entity, function (prop, propName) {
+
+            self[propName] = prop;
+
+        });
+
+    }());
 };

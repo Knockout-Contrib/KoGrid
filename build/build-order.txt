@@ -1,5 +1,6 @@
 ..\Src\Namespace.js
 ..\Src\Constants.js
+..\Src\Labels.js
 ..\Src\Utils.js
 ..\Src\Templates\GridTemplate.js
 ..\Src\Templates\HeaderTemplate.js
