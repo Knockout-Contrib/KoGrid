@@ -28,7 +28,7 @@
     // figure out the width
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
-        colDef.width += 25; //for sorting icons and padding
+        colDef.width += 30; //for sorting icons and padding
     }
 
     this.width(colDef.width);

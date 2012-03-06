@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 13:27:19.30 Tue 03/06/2012 
+* Compiled At: 17:08:36.14 Tue 03/06/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -366,7 +366,7 @@ kg.utils = utils;
     // figure out the width
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
-        colDef.width += 25; //for sorting icons and padding
+        colDef.width += 30; //for sorting icons and padding
     }
 
     this.width(colDef.width);
@@ -2163,6 +2163,7 @@ ko.bindingHandlers['koGrid'] = (function () {
 
             //set the right styling on the container
             $(element).addClass("kgGrid")
+                      .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
 
             //make sure the templates are generated for the Grid
