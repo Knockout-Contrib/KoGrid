@@ -38,6 +38,7 @@
     this.rowIndex = 0;
     this.offsetTop = 0;
     this.rowKey = utils.newId();
+    this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 

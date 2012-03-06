@@ -58,7 +58,9 @@ kg.getTestGrid = function () {
         ]),
         minRowsToRender: ko.observable(3),
         config: {
-            rowHeight: 30
+            rowHeight: 30,
+            currentPage: ko.observable(1),
+            pageSize: ko.observable(100)
         },
         changeSelectedItem: function (handler) {
 
@@ -141,6 +143,27 @@ test('viewableRange stays the same when dataSource is changed!', function () {
 
     equals(renderRg.topRow, 38, "Correct Top Row");
     equals(renderRg.bottomRow, 12, "Correct Top Row");
+
+});
+
+test('RowIndex stays in tune with paging', function () {
+    
+    var grid = kg.getTestGrid();
+    grid.minRowsToRender(10);
+    grid.config.currentPage(2);
+    grid.config.pageSize(100);
+
+    var manager = new kg.RowManager(grid);
+
+    //kickoff a rendering
+    manager.viewableRange(new kg.Range(0, 3));
+
+    //test the row
+    var row = manager.rows()[0];
+
+    ok(row, 'The row was rendered correctly');
+    equals(row.rowIndex, 1, "The underlying rowIndex was correctly calculated");
+    equals(row.rowDisplayIndex, 101, "The rowDisplayIndex was correctly calculated");
 
 });
 

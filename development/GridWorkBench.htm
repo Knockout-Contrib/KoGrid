@@ -29,6 +29,7 @@
                                     enablePaging: true,
                                     totalServerItems: maxServerItems,
                                     currentPage: currentPage,
+                                    footerVisible: footerVisible,
                                     pageSize: pageSize }">
             </div>
         </div>
@@ -57,6 +58,7 @@
             maxServerItems: ko.observable(2000),
             currentPage: ko.observable(1),
             pageSize: ko.observable(500),
+            footerVisible: ko.observable(true),
             fillData: function () {
                 vm.testData(getTestData()());
             }

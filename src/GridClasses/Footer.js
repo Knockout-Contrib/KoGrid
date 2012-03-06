@@ -10,6 +10,7 @@
     }
     this.selectedItemCount = grid.selectedItemCount; //observable
 
+    this.footerVisible = grid.config.footerVisible;
     this.pagerVisible = ko.observable(grid.config.enablePaging);
     this.selectedPageSize = grid.config.pageSize; //observable
     this.pageSizes = ko.observableArray(grid.config.pageSizes);

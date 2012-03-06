@@ -4,6 +4,8 @@
         prevMaxRows = 0,
         prevMinRows = 0,
         dataChanged = false,
+        currentPage = grid.config.currentPage,
+        pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1),
         prevViewableRange = new kg.Range(0, 1),
         internalRenderedRange = ko.observable(prevRenderedRange);
@@ -22,19 +24,23 @@
     this.rows = ko.observableArray([]);
     this.rowSubscriptions = {};
 
-    var buildRowFromEntity = function (entity, rowIndex) {
+    var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
         var row = rowCache[rowIndex];
 
         if (!row) {
 
             row = new kg.Row(entity);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
+            row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
+
+            //setup a selection change handler
             row.onSelectionChanged = function () {
                 var ent = this.entity();
-
                 grid.changeSelectedItem(ent);
             };
+
+            //build out the cells
             self.cellFactory.buildRowCells(row);
 
             rowCache[rowIndex] = row;
@@ -46,11 +52,17 @@
     this.renderedRange.subscribe(function (rg) {
         var rowArr = [],
             row,
+            pagingOffset = (pageSize() * (currentPage() - 1)),
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            row = buildRowFromEntity(item, rg.bottomRow + i);
+            row = buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+
+            //add the row to our return array
             rowArr.push(row);
+
+            //null the row pointer for next iteration
+            row = null;
         });
 
         self.rows(rowArr);

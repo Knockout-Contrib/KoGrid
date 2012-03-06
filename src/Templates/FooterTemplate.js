@@ -1,5 +1,5 @@
 ﻿kg.templates.defaultFooterTemplate = function () {
-    return '<div class="kgTotalSelectContainer">' +
+    return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems">' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
@@ -7,7 +7,7 @@
                     '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible">' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible()">' +
                 '<div style="float: right;">' +
                     '<div class="kgRowCountPicker"">' +
                         '<span class="kgLabel">Rows:</span>' +

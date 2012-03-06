@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 18:28:05.92 Wed 02/29/2012 
+* Compiled At: 11:51:25.35 Tue 03/06/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -129,7 +129,7 @@ kg.utils = utils;
             b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll, visible: $parent.config.isMultiSelect"/>');
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', 'rowDisplayIndex');
             b.append('      <div title="Filter Results" class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
             b.append('      <div title="Close" class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
@@ -197,7 +197,7 @@ kg.utils = utils;
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
-    return '<div class="kgTotalSelectContainer">' +
+    return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems">' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
@@ -205,7 +205,7 @@ kg.utils = utils;
                     '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible">' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible()">' +
                 '<div style="float: right;">' +
                     '<div class="kgRowCountPicker"">' +
                         '<span class="kgLabel">Rows:</span>' +
@@ -433,6 +433,7 @@ kg.ColumnCollection.fn = {
     this.rowIndex = 0;
     this.offsetTop = 0;
     this.rowKey = utils.newId();
+    this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 
@@ -551,6 +552,8 @@ kg.ColumnCollection.fn = {
         prevMaxRows = 0,
         prevMinRows = 0,
         dataChanged = false,
+        currentPage = grid.config.currentPage,
+        pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1),
         prevViewableRange = new kg.Range(0, 1),
         internalRenderedRange = ko.observable(prevRenderedRange);
@@ -569,19 +572,23 @@ kg.ColumnCollection.fn = {
     this.rows = ko.observableArray([]);
     this.rowSubscriptions = {};
 
-    var buildRowFromEntity = function (entity, rowIndex) {
+    var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
         var row = rowCache[rowIndex];
 
         if (!row) {
 
             row = new kg.Row(entity);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
+            row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
+
+            //setup a selection change handler
             row.onSelectionChanged = function () {
                 var ent = this.entity();
-
                 grid.changeSelectedItem(ent);
             };
+
+            //build out the cells
             self.cellFactory.buildRowCells(row);
 
             rowCache[rowIndex] = row;
@@ -593,11 +600,17 @@ kg.ColumnCollection.fn = {
     this.renderedRange.subscribe(function (rg) {
         var rowArr = [],
             row,
+            pagingOffset = (pageSize() * (currentPage() - 1)),
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            row = buildRowFromEntity(item, rg.bottomRow + i);
+            row = buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+
+            //add the row to our return array
             rowArr.push(row);
+
+            //null the row pointer for next iteration
+            row = null;
         });
 
         self.rows(rowArr);
@@ -671,6 +684,7 @@ kg.ColumnCollection.fn = {
     }
     this.selectedItemCount = grid.selectedItemCount; //observable
 
+    this.footerVisible = grid.config.footerVisible;
     this.pagerVisible = ko.observable(grid.config.enablePaging);
     this.selectedPageSize = grid.config.pageSize; //observable
     this.pageSizes = ko.observableArray(grid.config.pageSizes);
@@ -1389,6 +1403,7 @@ kg.KoGrid = function (options) {
         headerTemplate: 'kgHeaderRowTemplate',
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
+        footerVisible: ko.observable(true),
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -1517,10 +1532,15 @@ kg.KoGrid = function (options) {
 
     this.footerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
+            showFooter = self.config.footerVisible(),
             newDim = new kg.Dimension();
 
         newDim.outerHeight = self.config.footerRowHeight;
         newDim.outerWidth = rootDim.outerWidth;
+
+        if (!showFooter) {
+            newDim.outerHeight = 3;
+        }
 
         return newDim;
     });
@@ -2356,7 +2376,7 @@ ko.bindingHandlers['kgCell'] = (function () {
         var func;
 
         if (cell.column.field === 'rowIndex') {
-            return function () { return cell.row.rowIndex; }
+            return function () { return cell.row.rowDisplayIndex; }
         } else {
             return function () { return cell.data; }
         }

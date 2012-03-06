@@ -12,6 +12,7 @@ kg.KoGrid = function (options) {
         headerTemplate: 'kgHeaderRowTemplate',
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
+        footerVisible: ko.observable(true),
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -140,10 +141,15 @@ kg.KoGrid = function (options) {
 
     this.footerDim = ko.computed(function () {
         var rootDim = self.rootDim(),
+            showFooter = self.config.footerVisible(),
             newDim = new kg.Dimension();
 
         newDim.outerHeight = self.config.footerRowHeight;
         newDim.outerWidth = rootDim.outerWidth;
+
+        if (!showFooter) {
+            newDim.outerHeight = 3;
+        }
 
         return newDim;
     });
