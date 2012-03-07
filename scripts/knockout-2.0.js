@@ -336,8 +336,19 @@ ko.utils = new (function () {
                                    : element.textContent = value;
                                    
             if (ieVersion >= 9) {
-                // Believe it or not, this actually fixes an IE9 rendering bug. Insane. https://github.com/SteveSanderson/knockout/issues/209
+                // Believe it or not, this actually fixes an IE9 rendering bug
+                // (See https://github.com/SteveSanderson/knockout/issues/209)
                 element.style.display = element.style.display;
+            }
+        },
+
+        ensureSelectElementIsRenderedCorrectly: function(selectElement) {
+            // Workaround for IE9 rendering bug - it doesn't reliably display all the text in dynamically-added select boxes unless you force it to re-render by updating the width.
+            // (See https://github.com/SteveSanderson/knockout/issues/312, http://stackoverflow.com/questions/5908494/select-only-shows-first-char-of-selected-option)
+            if (ieVersion >= 9) {
+                var originalWidth = selectElement.style.width;
+                selectElement.style.width = 0;
+                selectElement.style.width = originalWidth;
             }
         },
 
@@ -930,25 +941,26 @@ ko.observable = function (initialValue) {
 }
 
 ko.observable['fn'] = {
-    __ko_proto__: ko.observable,
-
     "equalityComparer": function valuesArePrimitiveAndEqual(a, b) {
         var oldValueIsPrimitive = (a === null) || (typeof(a) in primitiveTypes);
         return oldValueIsPrimitive ? (a === b) : false;
     }
 };
 
+var protoProperty = ko.observable.protoProperty = "__ko_proto__";
+ko.observable['fn'][protoProperty] = ko.observable;
+
 ko.isObservable = function (instance) {
-    if ((instance === null) || (instance === undefined) || (instance.__ko_proto__ === undefined)) return false;
-    if (instance.__ko_proto__ === ko.observable) return true;
-    return ko.isObservable(instance.__ko_proto__); // Walk the prototype chain
+    if ((instance === null) || (instance === undefined) || (instance[protoProperty] === undefined)) return false;
+    if (instance[protoProperty] === ko.observable) return true;
+    return ko.isObservable(instance[protoProperty]); // Walk the prototype chain
 }
 ko.isWriteableObservable = function (instance) {
     // Observable
-    if ((typeof instance == "function") && instance.__ko_proto__ === ko.observable)
+    if ((typeof instance == "function") && instance[protoProperty] === ko.observable)
         return true;
     // Writeable dependent observable
-    if ((typeof instance == "function") && (instance.__ko_proto__ === ko.dependentObservable) && (instance.hasWriteFunction))
+    if ((typeof instance == "function") && (instance[protoProperty] === ko.dependentObservable) && (instance.hasWriteFunction))
         return true;
     // Anything else
     return false;
@@ -966,21 +978,13 @@ ko.observableArray = function (initialValues) {
     if ((initialValues !== null) && (initialValues !== undefined) && !('length' in initialValues))
         throw new Error("The argument passed when initializing an observable array must be an array, or null, or undefined.");
         
-    var result = new ko.observable(initialValues);
+    var result = ko.observable(initialValues);
     ko.utils.extend(result, ko.observableArray['fn']);
-    
-    ko.exportProperty(result, "remove", result.remove);
-    ko.exportProperty(result, "removeAll", result.removeAll);
-    ko.exportProperty(result, "destroy", result.destroy);
-    ko.exportProperty(result, "destroyAll", result.destroyAll);
-    ko.exportProperty(result, "indexOf", result.indexOf);
-    ko.exportProperty(result, "replace", result.replace);
-    
     return result;
 }
 
 ko.observableArray['fn'] = {
-    remove: function (valueOrPredicate) {
+    'remove': function (valueOrPredicate) {
         var underlyingArray = this();
         var removedValues = [];
         var predicate = typeof valueOrPredicate == "function" ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
@@ -1001,7 +1005,7 @@ ko.observableArray['fn'] = {
         return removedValues;
     },
 
-    removeAll: function (arrayOfValues) {
+    'removeAll': function (arrayOfValues) {
         // If you passed zero args, we remove everything
         if (arrayOfValues === undefined) {
             var underlyingArray = this();
@@ -1014,12 +1018,12 @@ ko.observableArray['fn'] = {
         // If you passed an arg, we interpret it as an array of entries to remove
         if (!arrayOfValues)
             return [];
-        return this.remove(function (value) {
+        return this['remove'](function (value) {
             return ko.utils.arrayIndexOf(arrayOfValues, value) >= 0;
         });
     },
     
-    destroy: function (valueOrPredicate) {
+    'destroy': function (valueOrPredicate) {
         var underlyingArray = this();
         var predicate = typeof valueOrPredicate == "function" ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
         this.valueWillMutate();
@@ -1031,26 +1035,26 @@ ko.observableArray['fn'] = {
         this.valueHasMutated();
     },
         
-    destroyAll: function (arrayOfValues) {
+    'destroyAll': function (arrayOfValues) {
         // If you passed zero args, we destroy everything
         if (arrayOfValues === undefined)
-            return this.destroy(function() { return true });
+            return this['destroy'](function() { return true });
                 
         // If you passed an arg, we interpret it as an array of entries to destroy
         if (!arrayOfValues)
             return [];
-        return this.destroy(function (value) {
+        return this['destroy'](function (value) {
             return ko.utils.arrayIndexOf(arrayOfValues, value) >= 0;
         });             
     },
 
-    indexOf: function (item) {
+    'indexOf': function (item) {
         var underlyingArray = this();
         return ko.utils.arrayIndexOf(underlyingArray, item);
     },
     
-    replace: function(oldItem, newItem) {
-        var index = this.indexOf(oldItem);
+    'replace': function(oldItem, newItem) {
+        var index = this['indexOf'](oldItem);
         if (index >= 0) {
             this.valueWillMutate();
             this()[index] = newItem;
@@ -1219,11 +1223,11 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
     return dependentObservable;
 };
 
-ko.dependentObservable['fn'] = {
-    __ko_proto__: ko.dependentObservable
-};
+var protoProp = ko.observable.protoProperty; // == "__ko_proto__"
+ko.dependentObservable[protoProp] = ko.observable;
 
-ko.dependentObservable.__ko_proto__ = ko.observable;
+ko.dependentObservable['fn'] = {};
+ko.dependentObservable['fn'][protoProp] = ko.dependentObservable;
 
 ko.exportSymbol('dependentObservable', ko.dependentObservable);
 ko.exportSymbol('computed', ko.dependentObservable); // Make "ko.computed" an alias for "ko.dependentObservable"
@@ -1286,6 +1290,10 @@ ko.exportSymbol('computed', ko.dependentObservable); // Make "ko.computed" an al
         if (rootObject instanceof Array) {
             for (var i = 0; i < rootObject.length; i++)
                 visitorCallback(i);
+            
+            // For arrays, also respect toJSON property for custom mappings (fixes #278)
+            if (typeof rootObject['toJSON'] == 'function')
+                visitorCallback('toJSON');
         } else {
             for (var propertyName in rootObject)
                 visitorCallback(propertyName);
@@ -1672,14 +1680,20 @@ ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.js
             }                           
         },
 
+        firstChild: function(node) {
+            if (!isStartComment(node))
+                return node.firstChild;
+            if (!node.nextSibling || isEndComment(node.nextSibling))
+                return null;
+            return node.nextSibling;
+        },
+
         nextSibling: function(node) {
-            if (!isStartComment(node)) {
-                if (node.nextSibling && isEndComment(node.nextSibling))
-                    return undefined;
-                return node.nextSibling;
-            } else {
-                return getMatchingEndComment(node).nextSibling;
-            }
+            if (isStartComment(node))
+                node = getMatchingEndComment(node);
+            if (node.nextSibling && isEndComment(node.nextSibling))
+                return null;
+            return node.nextSibling;
         },
 
         virtualNodeBindingValue: function(node) {
@@ -1717,6 +1731,14 @@ ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.js
         }  
     };  
 })();
+ko.exportSymbol('virtualElements', ko.virtualElements);
+ko.exportSymbol('virtualElements.allowedBindings', ko.virtualElements.allowedBindings);
+ko.exportSymbol('virtualElements.emptyNode', ko.virtualElements.emptyNode);
+//ko.exportSymbol('virtualElements.firstChild', ko.virtualElements.firstChild);     // firstChild is not minified
+ko.exportSymbol('virtualElements.insertAfter', ko.virtualElements.insertAfter);
+//ko.exportSymbol('virtualElements.nextSibling', ko.virtualElements.nextSibling);   // nextSibling is not minified
+ko.exportSymbol('virtualElements.prepend', ko.virtualElements.prepend);
+ko.exportSymbol('virtualElements.setDomNodeChildren', ko.virtualElements.setDomNodeChildren);
 (function() {
     var defaultBindingAttributeName = "data-bind";
 
@@ -1781,19 +1803,24 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
     ko.bindingHandlers = {};
 
     ko.bindingContext = function(dataItem, parentBindingContext) {
-        this['$data'] = dataItem;
         if (parentBindingContext) {
+            ko.utils.extend(this, parentBindingContext); // Inherit $root and any custom properties
+            this['$parentContext'] = parentBindingContext;
             this['$parent'] = parentBindingContext['$data'];
             this['$parents'] = (parentBindingContext['$parents'] || []).slice(0);
             this['$parents'].unshift(this['$parent']);
-            this['$root'] = parentBindingContext['$root'];
         } else {
             this['$parents'] = [];
             this['$root'] = dataItem;        	
         }
+        this['$data'] = dataItem;
     }
     ko.bindingContext.prototype['createChildContext'] = function (dataItem) {
         return new ko.bindingContext(dataItem, this);
+    };
+    ko.bindingContext.prototype['extend'] = function(properties) {
+        var clone = new ko.bindingContext(this.$data, this);
+        return ko.utils.extend(clone, properties);
     };
 
     function validateThatBindingIsAllowedForVirtualElements(bindingName) {
@@ -1802,36 +1829,43 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             throw new Error("The binding '" + bindingName + "' cannot be used with virtual elements")
     }
 
-    function applyBindingsToDescendantsInternal (viewModel, elementVerified) {
-        var currentChild, nextInQueue = elementVerified.childNodes[0];
+    function applyBindingsToDescendantsInternal (viewModel, elementOrVirtualElement, bindingContextsMayDifferFromDomParentElement) {
+        var currentChild, nextInQueue = ko.virtualElements.firstChild(elementOrVirtualElement);
         while (currentChild = nextInQueue) {
             // Keep a record of the next child *before* applying bindings, in case the binding removes the current child from its position
             nextInQueue = ko.virtualElements.nextSibling(currentChild);
-            applyBindingsToNodeAndDescendantsInternal(viewModel, currentChild, false);
+            applyBindingsToNodeAndDescendantsInternal(viewModel, currentChild, bindingContextsMayDifferFromDomParentElement);
         }        
     }
     
-    function applyBindingsToNodeAndDescendantsInternal (viewModel, nodeVerified, isRootNodeForBindingContext) {
+    function applyBindingsToNodeAndDescendantsInternal (viewModel, nodeVerified, bindingContextMayDifferFromDomParentElement) {
         var shouldBindDescendants = true;
 
         // Perf optimisation: Apply bindings only if...
-        // (1) It's a root element for this binding context, as we will need to store the binding context on this node
+        // (1) We need to store the binding context on this node (because it may differ from the DOM parent node's binding context)
         //     Note that we can't store binding contexts on non-elements (e.g., text nodes), as IE doesn't allow expando properties for those
         // (2) It might have bindings (e.g., it has a data-bind attribute, or it's a marker for a containerless template)
-        var isElement = (nodeVerified.nodeType == 1);
+        var isElement = (nodeVerified.nodeType === 1);
         if (isElement) // Workaround IE <= 8 HTML parsing weirdness
             ko.virtualElements.normaliseVirtualElementDomStructure(nodeVerified);
 
-        var shouldApplyBindings = (isElement && isRootNodeForBindingContext)                             // Case (1)
+        var shouldApplyBindings = (isElement && bindingContextMayDifferFromDomParentElement)             // Case (1)
                                || ko.bindingProvider['instance']['nodeHasBindings'](nodeVerified);       // Case (2)
         if (shouldApplyBindings)
-            shouldBindDescendants = applyBindingsToNodeInternal(nodeVerified, null, viewModel, isRootNodeForBindingContext).shouldBindDescendants;
+            shouldBindDescendants = applyBindingsToNodeInternal(nodeVerified, null, viewModel, bindingContextMayDifferFromDomParentElement).shouldBindDescendants;
             
-        if (isElement && shouldBindDescendants)
-            applyBindingsToDescendantsInternal(viewModel, nodeVerified);
+        if (shouldBindDescendants) {
+            // We're recursing automatically into (real or virtual) child nodes without changing binding contexts. So,
+            //  * For children of a *real* element, the binding context is certainly the same as on their DOM .parentNode,
+            //    hence bindingContextsMayDifferFromDomParentElement is false
+            //  * For children of a *virtual* element, we can't be sure. Evaluating .parentNode on those children may
+            //    skip over any number of intermediate virtual elements, any of which might define a custom binding context,
+            //    hence bindingContextsMayDifferFromDomParentElement is true
+            applyBindingsToDescendantsInternal(viewModel, nodeVerified, /* bindingContextsMayDifferFromDomParentElement: */ !isElement);
+        }
     }    
 
-    function applyBindingsToNodeInternal (node, bindings, viewModelOrBindingContext, isRootNodeForBindingContext) {
+    function applyBindingsToNodeInternal (node, bindings, viewModelOrBindingContext, bindingContextMayDifferFromDomParentElement) {
         // Need to be sure that inits are only run once, and updates never run until all the inits have been run
         var initPhase = 0; // 0 = before all inits, 1 = during inits, 2 = after all inits
 
@@ -1850,7 +1884,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
         }
         
         var bindingHandlerThatControlsDescendantBindings;
-        new ko.dependentObservable(
+        ko.dependentObservable(
             function () {
                 // Ensure we have a nonnull binding context to work with
                 var bindingContextInstance = viewModelOrBindingContext && (viewModelOrBindingContext instanceof ko.bindingContext)
@@ -1858,9 +1892,10 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
                     : new ko.bindingContext(ko.utils.unwrapObservable(viewModelOrBindingContext));
                 var viewModel = bindingContextInstance['$data'];
 
-                // We only need to store the bindingContext at the root of the subtree where it applies
-                // as all descendants will be able to find it by scanning up their ancestry
-                if (isRootNodeForBindingContext)
+                // Optimization: Don't store the binding context on this node if it's definitely the same as on node.parentNode, because
+                // we can easily recover it just by scanning up the node's ancestors in the DOM
+                // (note: here, parent node means "real DOM parent" not "virtual parent", as there's no O(1) way to find the virtual parent)
+                if (bindingContextMayDifferFromDomParentElement)
                     ko.storedBindingContextForNode(node, bindingContextInstance);
 
                 // Use evaluatedBindings if given, otherwise fall back on asking the bindings provider to give us some bindings
@@ -1927,8 +1962,8 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
     };
 
     ko.applyBindingsToDescendants = function(viewModel, rootNode) {
-        if (rootNode.nodeType === 1)
-            applyBindingsToDescendantsInternal(viewModel, rootNode);
+        if (rootNode.nodeType === 1 || rootNode.nodeType === 8)
+            applyBindingsToDescendantsInternal(viewModel, rootNode, true);
     };
 
     ko.applyBindings = function (viewModel, rootNode) {
@@ -2228,6 +2263,9 @@ ko.bindingHandlers['options'] = {
                 // the dropdown selection state is meaningless, so we preserve the model value.
                 ensureDropdownSelectionIsConsistentWithModelValue(element, ko.utils.unwrapObservable(allBindings['value']), /* preferModelValue */ true);
             }
+
+            // Workaround for IE9 bug
+            ko.utils.ensureSelectElementIsRenderedCorrectly(element);
         }
     }
 };
@@ -2241,6 +2279,10 @@ ko.bindingHandlers['selectedOptions'] = {
             var node = nodes[i];
             if ((node.tagName == "OPTION") && node.selected)
                 result.push(ko.selectExtensions.readValue(node));
+            else if (node.tagName == "OPTGROUP") {
+                var selectedValuesFromOptGroup = ko.bindingHandlers['selectedOptions'].getSelectedValuesFromSelectNode(node);
+                Array.prototype.splice.apply(result, [result.length, 0].concat(selectedValuesFromOptGroup)); // Add new entries to existing 'result' instance
+            }
         }
         return result;
     },
@@ -2506,7 +2548,6 @@ ko.bindingHandlers['foreach'] = {
 };
 ko.jsonExpressionRewriting.bindingRewriteValidators['foreach'] = false; // Can't rewrite control flow bindings
 ko.virtualElements.allowedBindings['foreach'] = true;
-ko.exportSymbol('allowedVirtualElementBindings', ko.virtualElements.allowedBindings);
 // If you want to make a custom template engine,
 // 
 // [1] Inherit from this class (like ko.nativeTemplateEngine does)
@@ -2748,34 +2789,34 @@ ko.exportSymbol('templateRewriting.applyMemoizedBindingsToNextSibling', ko.templ
         _templateEngine = templateEngine;
     }
 
-    function invokeForEachNodeOrCommentInParent(nodeArray, parent, action) {
-        for (var i = 0; node = nodeArray[i]; i++) {
-            if (node.parentNode !== parent) // Skip anything that has been removed during binding
-                continue;
-            if ((node.nodeType === 1) || (node.nodeType === 8))
+    function invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, action) {
+        var node, nextInQueue = firstNode, firstOutOfRangeNode = ko.virtualElements.nextSibling(lastNode);
+        while (nextInQueue && ((node = nextInQueue) !== firstOutOfRangeNode)) {
+            nextInQueue = ko.virtualElements.nextSibling(node);
+            if (node.nodeType === 1 || node.nodeType === 8)
                 action(node);
-        }        
+        }
     }
 
-    ko.activateBindingsOnTemplateRenderedNodes = function(nodeArray, bindingContext) {
-        // To be used on any nodes that have been rendered by a template and have been inserted into some parent element. 
-        // Safely iterates through nodeArray (being tolerant of any changes made to it during binding, e.g., 
-        // if a binding inserts siblings), and for each:
+    function activateBindingsOnContinuousNodeArray(continuousNodeArray, bindingContext) {
+        // To be used on any nodes that have been rendered by a template and have been inserted into some parent element
+        // Walks through continuousNodeArray (which *must* be continuous, i.e., an uninterrupted sequence of sibling nodes, because
+        // the algorithm for walking them relies on this), and for each top-level item in the virtual-element sense,
         // (1) Does a regular "applyBindings" to associate bindingContext with this node and to activate any non-memoized bindings
         // (2) Unmemoizes any memos in the DOM subtree (e.g., to activate bindings that had been memoized during template rewriting)
+        
+        if (continuousNodeArray.length) {
+            var firstNode = continuousNodeArray[0], lastNode = continuousNodeArray[continuousNodeArray.length - 1];
 
-        var nodeArrayClone = ko.utils.arrayPushAll([], nodeArray); // So we can tolerate insertions/deletions during binding
-        var commonParentElement = (nodeArray.length > 0) ? nodeArray[0].parentNode : null; // All items must be in the same parent, so this is OK
-        
-        // Need to applyBindings *before* unmemoziation, because unmemoization might introduce extra nodes (that we don't want to re-bind)
-        // whereas a regular applyBindings won't introduce new memoized nodes
-        
-        invokeForEachNodeOrCommentInParent(nodeArrayClone, commonParentElement, function(node) {
-            ko.applyBindings(bindingContext, node);
-        });
-        invokeForEachNodeOrCommentInParent(nodeArrayClone, commonParentElement, function(node) {
-            ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);            
-        });        
+            // Need to applyBindings *before* unmemoziation, because unmemoization might introduce extra nodes (that we don't want to re-bind)
+            // whereas a regular applyBindings won't introduce new memoized nodes
+            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
+                ko.applyBindings(bindingContext, node);
+            });
+            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
+                ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);
+            });
+        }
     }
 
     function getFirstNodeFromPossibleArray(nodeOrNodeArray) {
@@ -2810,7 +2851,7 @@ ko.exportSymbol('templateRewriting.applyMemoizedBindingsToNextSibling', ko.templ
         }
 
         if (haveAddedNodesToParent) {
-            ko.activateBindingsOnTemplateRenderedNodes(renderedNodesArray, bindingContext);
+            activateBindingsOnContinuousNodeArray(renderedNodesArray, bindingContext);
             if (options['afterRender'])
                 options['afterRender'](renderedNodesArray, bindingContext['$data']);  
         }
@@ -2830,7 +2871,7 @@ ko.exportSymbol('templateRewriting.applyMemoizedBindingsToNextSibling', ko.templ
             var whenToDispose = function () { return (!firstTargetNode) || !ko.utils.domNodeIsAttachedToDocument(firstTargetNode); }; // Passive disposal (on next evaluation)
             var activelyDisposeWhenNodeIsRemoved = (firstTargetNode && renderMode == "replaceNode") ? firstTargetNode.parentNode : firstTargetNode;
             
-            return new ko.dependentObservable( // So the DOM is automatically updated when any dependency changes                
+            return ko.dependentObservable( // So the DOM is automatically updated when any dependency changes
                 function () {
                     // Ensure we've got a proper binding context to work with
                     var bindingContext = (dataOrBindingContext && (dataOrBindingContext instanceof ko.bindingContext))
@@ -2865,12 +2906,12 @@ ko.exportSymbol('templateRewriting.applyMemoizedBindingsToNextSibling', ko.templ
         // This will be called whenever setDomNodeChildrenFromArrayMapping has added nodes to targetNode
         var activateBindingsCallback = function(arrayValue, addedNodesArray) {
             var bindingContext = createInnerBindingContext(arrayValue);
-            ko.activateBindingsOnTemplateRenderedNodes(addedNodesArray, bindingContext);
+            activateBindingsOnContinuousNodeArray(addedNodesArray, bindingContext);
             if (options['afterRender'])
                 options['afterRender'](addedNodesArray, bindingContext['$data']);                                                
         };
          
-        return new ko.dependentObservable(function () {
+        return ko.dependentObservable(function () {
             var unwrappedArray = ko.utils.unwrapObservable(arrayOrObservableArray) || [];
             if (typeof unwrappedArray.length == "undefined") // Coerce single value into array
                 unwrappedArray = [unwrappedArray];

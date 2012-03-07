@@ -17,17 +17,17 @@ title: Master Details Example
 
 <div id="sandBox" class="example" style="height: 600px; max-width: 700px; float: left; margin-left: 100px;" 
         data-bind="koGrid: { data: myObsArray,
-                             columnDefs: [ { field: 'Sku', width: 120 },
-                                        { field: 'Vendor', width: 80 },
-                                        { field: 'SeasonCode', displayName: 'Season Code', width: 130 },
-                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 160 },
-                                        { field: 'UPC', width: 150 }],
+                             columnDefs: [ { field: 'Sku', width: 140 },
+                                        { field: 'Vendor', width: 100 },
+                                        { field: 'SeasonCode', displayName: 'Season Code', width: 150 },
+                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 180 },
+                                        { field: 'UPC', width: 170 }],
                              autogenerateColumns: false,
                              selectedItem: mySelectedItem,
                              isMultiSelect: false }">
 
 </div>
-<div style="height: 300px; width: 150px; float: left; margin-left: 25px;" data-bind="with: mySelectedItem">
+<div style="height: 300px; width: 150px; float: left; margin-left: 25px; background-color: Blue; border: thin solid white; padding: 10px;" data-bind="with: mySelectedItem">
     <p>Sku: <span data-bind="text: Sku" /></p>
     <p>Vendor: <span data-bind="text: Vendor" /></p>
     <p>Mfg Id: <span data-bind="text: Mfg_Id" /></p>

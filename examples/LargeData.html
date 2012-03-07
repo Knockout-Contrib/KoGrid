@@ -18,7 +18,7 @@ title: Large Data Example
 
     var Product = function (i) {
         this.ID = i;
-        this.Sku = "sk" + (Math.random() * (100000)).toString();
+        this.Sku = "sk" + ( Math.floor(Math.random() * (100000))).toString();
         this.Qty = ko.observable(generateRandomNum(3));
         this.UPC = generateRandomNum(1).toString() + generateRandomNum(11).toString();
         this.Active = ko.observable(true);

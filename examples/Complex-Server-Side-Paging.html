@@ -16,14 +16,43 @@ title: Complex Server Side Paging, Sorting, Filtering
             this.sortInfo = ko.observable();
             this.filterInfo = ko.observable();
 
-            this.getPagedData = function (pageSize, page, filterInfo, sortInfo) {
+            //use these shortcuts for example purpose
+
+            var filter = function (data, filterInfo) {
+
+                var mgr = new kg.FilterManager({
+                    data: ko.observableArray(data)
+                });
+
+                mgr.filterInfo(filterInfo);
+
+                return mgr.filteredData();
+            };
+
+            var sort = function (data, sortInfo) {
+
+                var mgr = new kg.SortManager({
+                    data: ko.observableArray(data)
+                });
+
+                mgr.sortInfo(sortInfo);
+
+                return mgr.sortedData();
+            };
+
+            //
+
+
+            this.getPagedDataAsync = function (pageSize, page, filterInfo, sortInfo) {
                 setTimeout(function () {
 
                     var data = window.getExampleData();
 
-                    var pagedData = data().slice((page - 1) * pageSize, page * pageSize);
+                    var filteredData = filter(data(), filterInfo);
 
-                    //filter and sort accordingly
+                    var sortedData = sort(filteredData, sortInfo);
+
+                    var pagedData = sortedData.slice((page - 1) * pageSize, page * pageSize);
 
                     self.myObsArray(pagedData);
                 }, 0);
@@ -37,7 +66,7 @@ title: Complex Server Side Paging, Sorting, Filtering
                     sortInfo = self.sortInfo();
 
                 if (page && pageSize) {
-                    self.getPagedData(pageSize, page, filterInfo, sortInfo);
+                    self.getPagedDataAsync(pageSize, page, filterInfo, sortInfo);
                 }
                 return null;
             });
@@ -47,21 +76,25 @@ title: Complex Server Side Paging, Sorting, Filtering
 
         ko.applyBindings(viewModel);
 
-        viewModel.getPagedData(50, 1, null, null);
+        viewModel.getPagedDataAsync(50, 1, viewModel.filterInfo(), viewModel.sortInfo());
     });
 </script>
 
 
 <div id="sandBox" class="example" style="height: 600px; max-width: 700px;" 
         data-bind="koGrid: { data: myObsArray,
-                             columnDefs: [ { field: 'Sku', width: 120 },
-                                        { field: 'Vendor', width: 80 },
-                                        { field: 'SeasonCode', displayName: 'Season Code', width: 130 },
-                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 160 },
-                                        { field: 'UPC', width: 150 }],
+                             columnDefs: [ { field: 'Sku', width: 140 },
+                                        { field: 'Vendor', width: 100 },
+                                        { field: 'SeasonCode', displayName: 'Season Code', width: 150 },
+                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 180 },
+                                        { field: 'UPC', width: 170 }],
                              autogenerateColumns: false,
                              isMultiSelect: false,
                              enablePaging: true,
+                             useExternalFiltering: true,
+                             useExternalSorting: true,
+                             filterInfo: filterInfo,
+                             sortInfo: sortInfo,
                              pageSize: pageSize,
                              pageSizes: [25, 50, 75],
                              currentPage: currentPage,

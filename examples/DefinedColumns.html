@@ -3,6 +3,17 @@ layout: default
 title: Defined Columns Example
 ---
 
+<style type="text/css">
+    .specialCell
+    {
+        background-color: Yellow;
+    }
+    .specialHeader
+    {
+        background-color: Green;
+    }
+</style>
+
 <script type="text/javascript">
     $(function () {
         window.viewModel = {
@@ -13,14 +24,19 @@ title: Defined Columns Example
     });
 </script>
 
+<script type="text/html" id="editTemplate">
+    <div data-bind="kgCell: $cell">
+        <input type="text" data-bind="value: $cellValue" style="width: 120px;"/>
+    </div>
+</script>
 
 <div id="sandBox" class="example" style="height: 600px; max-width: 700px;" 
         data-bind="koGrid: { data: myObsArray,
-                             columnDefs: [ { field: 'Sku', width: 120 },
-                                        { field: 'Vendor', width: 80 },
-                                        { field: 'SeasonCode', displayName: 'Season Code', width: 130 },
-                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 160 },
-                                        { field: 'UPC', width: 150 }],
+                             columnDefs: [ { field: 'Sku', width: 140 },
+                                        { field: 'Vendor', width: 100, headerClass: 'specialHeader' },
+                                        { field: 'SeasonCode', displayName: 'Season Code', width: 150, cellTemplate: 'editTemplate' },
+                                        { field: 'Mfg_Id', displayName: 'Mfg ID', width: 180, cellClass: 'specialCell' },
+                                        { field: 'UPC', width: 170 }],
                              autogenerateColumns: false }">
 
 </div>
