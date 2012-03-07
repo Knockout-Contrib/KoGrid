@@ -36,4 +36,4 @@ Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Gett
 * [Master-Details](http://ericmbarnard.github.com/KoGrid/examples/MasterDetails.html) : Shows an example of Master-Detail display (click on row to display details)
  
 ##Change Log##
-* __2011-03-07__ - Huge Row Rendering Perf improvements, Allow Custom CSS Classes on Header and Data Cells, Allow toggling of Footer Visibility, Much better button iconography, enhanced default CSS styles, various other bug fixes
+* __2011-03-07__ - Huge Row Rendering Perf improvements, Easier syntax for custom cell templates,  Allow Custom CSS Classes on Header and Data Cells, Allow toggling of Footer Visibility, Much better button iconography, enhanced default CSS styles, various other bug fixes
