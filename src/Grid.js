@@ -30,7 +30,8 @@ kg.KoGrid = function (options) {
         useExternalFiltering: false,
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
-        sortInfo: ko.observable() //observable similar to filterInfo
+        sortInfo: ko.observable(), //observable similar to filterInfo
+        filterWildcard: "*"
     },
 
     self = this,

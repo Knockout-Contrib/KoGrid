@@ -1,12 +1,24 @@
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        initPhase = 0,
-        internalFilteredData = ko.observableArray([]);
+        wildcard = options.filterWildcard || "*",
+        regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
+        initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
+        internalFilteredData = ko.observableArray([]); // obs array that we use to manage the filtering before it updates the final data
 
-    //map of column.field values to filterStrings
+    // first check the wildcard as we only support * and % currently
+    if (wildcard === '*' || wildcard === '%') {
+        // do nothing
+    } else {
+        throw new Error("You can only declare a percent sign (%) or an asterisk (*) as a wildcard character");
+    }
+
+    // map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
-    this.data = options.data; //observableArray
 
+    // the obs array of data that the user defined
+    this.data = options.data;
+
+    // the obs array of filtered data we return to the grid
     this.filteredData = ko.computed(function () {
         var data = internalFilteredData();
 
@@ -18,39 +30,92 @@
         }
     });
 
+    // utility function for checking data validity
+    var isEmpty = function (data) {
+        return (data === null || data === undefined || data === '');
+    };
+
+    // performs regex matching on data strings 
+    var matchString = function (itemStr, filterStr) {
+        //first check for RegEx thats already built
+        var regex = regExCache[filterStr];
+
+        //if nothing, build the regex
+        if (!regex) {
+            var replacer = "";
+
+            //escape any wierd characters they might using
+            filterStr = filterStr.replace(/\\/g, "\\");
+            
+            // build our replacer regex
+            if (wildcard === "*") {
+                replacer = /\*/g;
+            } else {
+                replacer = /\%/g;
+            }
+
+            //first replace all % percent signs with the true regex wildcard *
+            var regexStr = filterStr.replace(replacer, "[^\']*");                     
+
+            //ensure that we do "beginsWith" logic
+            regexStr = "^" + regexStr;
+
+            // then create an actual regex object
+            regex = new RegExp(regexStr, "gi");
+
+            // store it
+            regExCache[filterStr] = regex;
+        }
+
+        return itemStr.match(regex);
+    };
+
+    // the core logic for filtering data
     var filterData = function () {
         var filterInfo = self.filterInfo(),
             data = self.data(),
-            keepRow = false,
-            match = true,
-            newArr = [],
-            field,
-            itemData,
-            itemDataStr,
-            filterStr;
+            keepRow = false, // flag to say if the row will be removed or kept in the viewport
+            match = true, // flag for matching logic
+            newArr = [], // the filtered array
+            field, // the field of the column that we are filtering
+            itemData, // the data from the specific row's column
+            itemDataStr, // the stringified version of itemData
+            filterStr; // the user-entered filtering criteria
 
+        // make sure we even have work to do before we get started
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
             internalFilteredData(data);
             return;
         }
 
+        //clear out the regex cache so that we don't get improper results
+        regExCache = {};
+
+        // filter the data array 
         newArr = ko.utils.arrayFilter(data, function (item) {
 
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
+
+                    // pull the data out of the item
                     itemData = ko.utils.unwrapObservable(item[field]);
+
+                    // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
 
-                    if (itemData && filterStr) {
-                        filterStr = filterStr.toUpperCase();
-                        if (typeof itemData === "string") {
-                            itemDataStr = itemData.toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                    // make sure they didn't just enter the wildcard character
+                    if (!isEmpty(filterStr) && filterStr !== wildcard) { 
+
+                        // execute regex matching
+                        if (isEmpty(itemData)) {
+                            match = false;
+                        } else if (typeof itemData === "string") {
+                            match = matchString(itemData, filterStr);
                         } else {
-                            itemDataStr = itemData.toString().toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                            itemDataStr = itemData.toString();
+                            match = matchString(itemDataStr, filterStr);
                         }
                     }
                 }
@@ -75,6 +140,7 @@
             return keepRow;
         });
 
+        // finally set our internal array to the filtered stuff, which will tell the rest of the manager to propogate it up to the grid
         internalFilteredData(newArr);
 
     };
@@ -83,7 +149,10 @@
     this.data.subscribe(filterData);
     this.filterInfo.subscribe(filterData);
 
+    // the grid uses this to asign the change handlers to the filter boxes during initialization
     this.createFilterChangeCallback = function (col) {
+
+        // the callback
         return function (newFilterVal) {
             var info = self.filterInfo();
 
@@ -97,7 +166,8 @@
             if ((newFilterVal === null ||
                 newFilterVal === undefined ||
                 newFilterVal === "") &&
-                info[col.field]) { //null or undefined
+                info[col.field]) { // we don't it to be null or undefined
+
                 //smoke it so we don't loop through it for filtering anymore!
                 delete info[col.field];
 

@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 10:49:58.25 Tue 04/10/2012 
+* Compiled At: 12:25:55.91 Tue 04/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -589,35 +589,59 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.RowManager = function (grid) {
     var self = this,
-        rowCache = {},
-        prevMaxRows = 0,
-        prevMinRows = 0,
-        dataChanged = true,
-        currentPage = grid.config.currentPage,
+        rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
+        prevMaxRows = 0, // for comparison purposes when scrolling
+        prevMinRows = 0, // for comparison purposes when scrolling
+        dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
+        currentPage = grid.config.currentPage, 
         pageSize = grid.config.pageSize,
-        prevRenderedRange = new kg.Range(0, 1),
-        prevViewableRange = new kg.Range(0, 1),
-        internalRenderedRange = ko.observable(prevRenderedRange);
+        prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
+        prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
+        internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
 
+    // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
+
+    // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
         dataChanged = true;
         rowCache = {}; //if data source changes, kill this!
     });
+
+    // shortcut to the calculated minimum viewport rows
     this.minViewportRows = grid.minRowsToRender; //observable
+
+    // the # of rows we want to add to the top and bottom of the rendered grid rows 
     this.excessRows = 8;
+
+    // height of each row
     this.rowHeight = grid.config.rowHeight;
+
+    // the logic that builds cell objects
     this.cellFactory = new kg.CellFactory(grid.columns());
+
+    // the actual range the user can see in the viewport
     this.viewableRange = ko.observable(prevViewableRange);
+
+    // the range of rows that we actually render on the canvas ... essentially 'viewableRange' + 'excessRows' on top and bottom
     this.renderedRange = ko.observable(prevRenderedRange);
+
+    // the array of rows that we've rendered
     this.rows = ko.observableArray([]);
+
+    // change handler subscriptions for disposal purposes (used heavily by the 'rows' binding)
     this.rowSubscriptions = {};
 
+    // Builds rows for each data item in the 'dataSource'
+    // @entity - the data item
+    // @rowIndex - the index of the row
+    // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
     var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
-        var row = rowCache[rowIndex];
+        var row = rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
 
+            // build the row
             row = new kg.Row(entity);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
@@ -626,18 +650,20 @@ kg.Row = function (entity) {
             //setup a selection change handler
             row.onSelectionChanged = function () {
                 var ent = this.entity();
-                grid.changeSelectedItem(ent);
+                grid.changeSelectedItem(ent); // use the grid-defined callback ... yes, i know... should pub an event instead
             };
 
             //build out the cells
             self.cellFactory.buildRowCells(row);
 
+            // finally cache it for the next round
             rowCache[rowIndex] = row;
         }
 
         return row;
     };
 
+    // core logic here - anytime we updated the renderedRange, we need to update the 'rows' array 
     this.renderedRange.subscribe(function (rg) {
         var rowArr = [],
             row,
@@ -657,12 +683,13 @@ kg.Row = function (entity) {
         self.rows(rowArr);
     });
 
+    // core logic that intelligently figures out the rendered range given all the contraints that we have
     var calcRenderedRange = function () {
-        var rg = self.viewableRange(),
+        var rg = self.viewableRange(), 
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
-            isDif = false,
-            newRg;
+            isDif = false, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
+            newRg; // variable to hold our newly-calc'd rendered range 
 
         if (rg) {
 
@@ -684,11 +711,14 @@ kg.Row = function (entity) {
                 //store it for next rev
                 prevViewableRange = rg;
 
+                // now build the new rendered range
                 newRg = new kg.Range(rg.bottomRow, rg.topRow);
 
+                // make sure we are within our data constraints (can't render negative rows or rows greater than the # of data items we have)
                 newRg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
                 newRg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
 
+                // store them for later comparison purposes
                 prevMaxRows = maxRows;
                 prevMinRows = minRows;
 
@@ -696,6 +726,8 @@ kg.Row = function (entity) {
                 if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
                     dataChanged = false;
                     prevRenderedRange = newRg;
+
+                    // now kickoff row building
                     self.renderedRange(newRg);
                 }
             }
@@ -704,6 +736,7 @@ kg.Row = function (entity) {
         }
     };
 
+    // make sure that if any of these change, we re-fire the calc logic
     self.viewableRange.subscribe(calcRenderedRange);
     self.minViewportRows.subscribe(calcRenderedRange);
     self.dataSource.subscribe(calcRenderedRange);
@@ -785,13 +818,25 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        initPhase = 0,
-        internalFilteredData = ko.observableArray([]);
+        wildcard = options.wildcard || "*",
+        regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
+        initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
+        internalFilteredData = ko.observableArray([]); // obs array that we use to manage the filtering before it updates the final data
 
-    //map of column.field values to filterStrings
+    // first check the wildcard as we only support * and % currently
+    if (wildcard === '*' || wildcard === '%') {
+        // do nothing
+    } else {
+        throw new Error("You can only declare a percent sign (%) or an asterisk (*) as a wildcard character");
+    }
+
+    // map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
-    this.data = options.data; //observableArray
 
+    // the obs array of data that the user defined
+    this.data = options.data;
+
+    // the obs array of filtered data we return to the grid
     this.filteredData = ko.computed(function () {
         var data = internalFilteredData();
 
@@ -803,39 +848,92 @@ kg.Row = function (entity) {
         }
     });
 
+    // utility function for checking data validity
+    var isEmpty = function (data) {
+        return (data === null || data === undefined || data === '');
+    };
+
+    // performs regex matching on data strings 
+    var matchString = function (itemStr, filterStr) {
+        //first check for RegEx thats already built
+        var regex = regExCache[filterStr];
+
+        //if nothing, build the regex
+        if (!regex) {
+            var replacer = "";
+
+            //escape any wierd characters they might using
+            filterStr = filterStr.replace(/\\/g, "\\");
+            
+            // build our replacer regex
+            if (wildcard === "*") {
+                replacer = /\*/g;
+            } else {
+                replacer = /\%/g;
+            }
+
+            //first replace all % percent signs with the true regex wildcard *
+            var regexStr = filterStr.replace(replacer, "[^\']*");                     
+
+            //ensure that we do "beginsWith" logic
+            regexStr = "^" + regexStr;
+
+            // then create an actual regex object
+            regex = new RegExp(regexStr, "gi");
+
+            // store it
+            regExCache[filterStr] = regex;
+        }
+
+        return itemStr.match(regex);
+    };
+
+    // the core logic for filtering data
     var filterData = function () {
         var filterInfo = self.filterInfo(),
             data = self.data(),
-            keepRow = false,
-            match = true,
-            newArr = [],
-            field,
-            itemData,
-            itemDataStr,
-            filterStr;
+            keepRow = false, // flag to say if the row will be removed or kept in the viewport
+            match = true, // flag for matching logic
+            newArr = [], // the filtered array
+            field, // the field of the column that we are filtering
+            itemData, // the data from the specific row's column
+            itemDataStr, // the stringified version of itemData
+            filterStr; // the user-entered filtering criteria
 
+        // make sure we even have work to do before we get started
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
             internalFilteredData(data);
             return;
         }
 
+        //clear out the regex cache so that we don't get improper results
+        regExCache = {};
+
+        // filter the data array 
         newArr = ko.utils.arrayFilter(data, function (item) {
 
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
+
+                    // pull the data out of the item
                     itemData = ko.utils.unwrapObservable(item[field]);
+
+                    // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
 
-                    if (itemData && filterStr) {
-                        filterStr = filterStr.toUpperCase();
-                        if (typeof itemData === "string") {
-                            itemDataStr = itemData.toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                    // make sure they didn't just enter the wildcard character
+                    if (!isEmpty(filterStr) && filterStr !== wildcard) { 
+
+                        // execute regex matching
+                        if (isEmpty(itemData)) {
+                            match = false;
+                        } else if (typeof itemData === "string") {
+                            match = matchString(itemData, filterStr);
                         } else {
-                            itemDataStr = itemData.toString().toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                            itemDataStr = itemData.toString();
+                            match = matchString(itemDataStr, filterStr);
                         }
                     }
                 }
@@ -860,6 +958,7 @@ kg.Row = function (entity) {
             return keepRow;
         });
 
+        // finally set our internal array to the filtered stuff, which will tell the rest of the manager to propogate it up to the grid
         internalFilteredData(newArr);
 
     };
@@ -868,7 +967,10 @@ kg.Row = function (entity) {
     this.data.subscribe(filterData);
     this.filterInfo.subscribe(filterData);
 
+    // the grid uses this to asign the change handlers to the filter boxes during initialization
     this.createFilterChangeCallback = function (col) {
+
+        // the callback
         return function (newFilterVal) {
             var info = self.filterInfo();
 
@@ -882,7 +984,8 @@ kg.Row = function (entity) {
             if ((newFilterVal === null ||
                 newFilterVal === undefined ||
                 newFilterVal === "") &&
-                info[col.field]) { //null or undefined
+                info[col.field]) { // we don't it to be null or undefined
+
                 //smoke it so we don't loop through it for filtering anymore!
                 delete info[col.field];
 

@@ -66,10 +66,7 @@
 
         ko.applyBindings(vm, $('#sandbox1')[0]);
 
-        // single row testing
-        var data = getTestData()()[0];
-
-        vm.testData.push(data);
+        vm.testData(getTestData()());
     });
 
 
