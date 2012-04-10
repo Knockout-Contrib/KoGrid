@@ -87,6 +87,24 @@ test('Row Manager Basic Row Test', function () {
     equals(manager.rows().length, 11, 'And returned the correct # of rows');
 });
 
+// See Issue #28 & #26 on Github
+test('Single Row Appears', function () {
+
+    var grid = kg.getTestGrid();
+
+    var singleRow = grid.finalData()[0];
+
+    grid.finalData([]); // empty it out
+
+    //set a single row
+    grid.finalData.push(singleRow);
+
+    var manager = new kg.RowManager(grid);
+    manager.viewableRange(new kg.Range(0, 1));
+
+    equals(manager.rows().length, 1, 'And returned the correct # of rows');
+});
+
 test('Rows Dont Update When viewable Range doesnt change', function () {
 
     var grid = kg.getTestGrid();

@@ -3,7 +3,7 @@
         rowCache = {},
         prevMaxRows = 0,
         prevMinRows = 0,
-        dataChanged = false,
+        dataChanged = true,
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1),

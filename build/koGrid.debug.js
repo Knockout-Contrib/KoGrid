@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:37:54.80 Wed 03/07/2012 
+* Compiled At: 10:49:58.25 Tue 04/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -592,7 +592,7 @@ kg.Row = function (entity) {
         rowCache = {},
         prevMaxRows = 0,
         prevMinRows = 0,
-        dataChanged = false,
+        dataChanged = true,
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1),
