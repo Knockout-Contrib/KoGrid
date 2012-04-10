@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:25:55.91 Tue 04/10/2012 
+* Compiled At: 13:28:58.84 Tue 04/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -818,7 +818,7 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        wildcard = options.wildcard || "*",
+        wildcard = options.filterWildcard || "*",
         regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
         initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
         internalFilteredData = ko.observableArray([]); // obs array that we use to manage the filtering before it updates the final data
@@ -1008,19 +1008,21 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.SortManager = function (options) {
     var self = this,
-        colSortFnCache = {},
-        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/,
-        ASC = "asc",
-        DESC = "desc",
-        prevSortInfo = {},
+        colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
+        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
+        ASC = "asc", // constant for sorting direction
+        DESC = "desc", // constant for sorting direction
+        prevSortInfo = {}, // obj for previous sorting comparison (helps with throttling events)
         dataSource = options.data, //observableArray
-        initPhase = 0,
+        initPhase = 0, // flag for preventing improper dependency registrations with KO
         internalSortedData = ko.observableArray([]);
 
-    var isNull = function (val) {
-        return (val === null || val === undefined);
+    // utility function for null checking
+    var isEmpty = function (val) {
+        return (val === null || val === undefined || val === '');
     };
 
+    // the sorting metadata, eg: { column: { field: 'sku' }, direction: "asc" }
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.sortedData = ko.computed(function () {
@@ -1034,13 +1036,16 @@ kg.Row = function (entity) {
         }
     });
 
+    // this takes an piece of data from the cell and tries to determine its type and what sorting
+    // function to use for it
+    // @item - the cell data
     this.guessSortFn = function (item) {
-        var sortFn,
-            itemStr,
-            itemType,
-            dateParts,
-            month,
-            day;
+        var sortFn, // sorting function that is guessed
+            itemStr, // the stringified version of the item
+            itemType, // the typeof item
+            dateParts, // for date parsing
+            month, // for date parsing
+            day; // for date parsing
 
         if (item === undefined || item === null || item === '') {
             return null;
@@ -1105,22 +1110,39 @@ kg.Row = function (entity) {
 
     };
 
+    //#region Sorting Functions
+
     this.sortNumber = function (a, b) {
 
         return a - b;
     };
 
     this.sortNumberStr = function (a, b) {
-        var numA, numB;
+        var numA, numB, badA = false, badB = false;
 
         numA = parseFloat(a.replace(/[^0-9.-]/g, ''));
         if (isNaN(numA)) {
-            numA = 0;
+            badA = true;
         }
+
         numB = parseFloat(b.replace(/[^0-9.-]/g, ''));
         if (isNaN(numB)) {
-            numB = 0;
+            badB = true;
         }
+
+        // we want bad ones to get pushed to the bottom... which effectively is "greater than"
+        if (badA && badB) {
+            return 0;
+        }
+
+        if (badA) {
+            return 1;
+        }
+
+        if (badB) {
+            return -1;
+        }
+
         return numA - numB;
     };
 
@@ -1182,7 +1204,11 @@ kg.Row = function (entity) {
         return 1;
     };
 
+    //#endregion
 
+    // the actual sort function to call
+    // @col - the column to sort
+    // @direction - "asc" or "desc"
     this.sort = function (col, direction) {
         //do an equality check first
         if (col === prevSortInfo.column && direction === prevSortInfo.direction) {
@@ -1196,6 +1222,7 @@ kg.Row = function (entity) {
         });
     };
 
+    // the core sorting logic trigger
     var sortData = function () {
         var data = dataSource(),
             sortInfo = self.sortInfo(),
@@ -1205,11 +1232,13 @@ kg.Row = function (entity) {
             item,
             prop;
 
+        // first make sure we are even supposed to do work
         if (!data || !sortInfo || options.useExternalSorting) {
             internalSortedData(data);
             return;
         }
 
+        // grab the metadata for the rest of the logic
         col = sortInfo.column;
         direction = sortInfo.direction;
 
@@ -1229,7 +1258,10 @@ kg.Row = function (entity) {
             if (sortFn) {
                 colSortFnCache[col.field] = sortFn;
             } else {
-                return;
+                // we assign the alpha sort because anything that is null/undefined will never get passed to
+                // the actual sorting function. It will get caught in our null check and returned to be sorted
+                // down to the bottom
+                sortFn = self.sortAlpha; 
             }
         }
 
@@ -1237,14 +1269,15 @@ kg.Row = function (entity) {
         data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
                 propB = ko.utils.unwrapObservable(itemB[col.field]),
-                propANull = isNull(propA),
-                propBNull = isNull(propB);
+                propAEmpty = isEmpty(propA),
+                propBEmpty = isEmpty(propB);
 
-            if (propANull && propBNull) {
+            // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
+            if (propAEmpty && propBEmpty) {
                 return 0;
-            } else if (propANull) {
+            } else if (propAEmpty) {
                 return 1;
-            } else if (propBNull) {
+            } else if (propBEmpty) {
                 return -1;
             }
 
@@ -1568,7 +1601,8 @@ kg.KoGrid = function (options) {
         useExternalFiltering: false,
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
-        sortInfo: ko.observable() //observable similar to filterInfo
+        sortInfo: ko.observable(), //observable similar to filterInfo
+        filterWildcard: "*"
     },
 
     self = this,
