@@ -80,8 +80,8 @@ test("Number String Sorting Test", function () {
     mgr.sort({ field: 'SeasonCode' }, "asc");
 
     equals(testData()[0].sortIndex, 2, "First Item is correct");
-    equals(testData()[4].sortIndex, 6, "Empty String is greater than null for our logic in this case");
-    equals(testData()[5].sortIndex, 5, "Last Item is correct");
+    equals(testData()[4].sortIndex, 5, "Empty String is greater than null for our logic in this case");
+    equals(testData()[5].sortIndex, 6, "Last Item is correct");
 });
 
 test("Date Sorting Test", function () {

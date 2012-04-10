@@ -12,9 +12,6 @@ kgTest.getSelectionData = function () {
     ]);
 };
 
-
-
-
 module("Selection Tests");
 
 test("Basic Selection Smoke Test", function () {
@@ -58,7 +55,7 @@ test("Toggle Select-All is false with no items", function () {
     ok(!manager.toggleSelectAll(), "Toggle Select All is False when no items are present");
 });
 
-test("Toggle Select-All is true with some items", function () {
+test("Toggle Select-All is false with only some items", function () {
 
     var data = kgTest.getSelectionData();
     var item = ko.observable();
@@ -74,7 +71,98 @@ test("Toggle Select-All is true with some items", function () {
         data: data
     });
 
+    var entity = data()[1];
+
+    entity['__kg_selected__'] = ko.observable(true);
+
+    manager.changeSelectedItem(entity);
+
     ok(manager, 'Manager Instantiated!');
-    equals(manager.selectedItemCount(), 0, 'Defaults to no selected items!');
-    ok(!manager.toggleSelectAll(), "Toggle Select All is true when some items are present");
+    equals(manager.selectedItemCount(), 1, 'One item is correctly selected');
+    equals(manager.toggleSelectAll(), false, "Toggle Select-All is false with only some items");
+});
+
+
+test("Toggle Select-All actually selects all", function () {
+
+    var data = kgTest.getSelectionData();
+    var item = ko.observable();
+    var items = ko.observableArray([]);
+    var index = ko.observable(0);
+
+
+    var manager = new kg.SelectionManager({
+        isMultiSelect: true,
+        selectedItem: item,
+        selectedItems: items,
+        selectedIndex: index,
+        data: data
+    });
+
+    manager.toggleSelectAll(true);
+
+    equals(manager.selectedItemCount(), 4, 'All items are counted as selected');
+    equals(manager.toggleSelectAll(), true, "Toggle Select All indicates all items are selected");
+});
+
+test("Toggle Select-All actually de-selects all", function () {
+
+    var data = kgTest.getSelectionData();
+    var item = ko.observable();
+    var items = ko.observableArray([]);
+    var index = ko.observable(0);
+
+
+    var manager = new kg.SelectionManager({
+        isMultiSelect: true,
+        selectedItem: item,
+        selectedItems: items,
+        selectedIndex: index,
+        data: data
+    });
+
+    manager.toggleSelectAll(true);
+
+    equals(manager.selectedItemCount(), 4, 'All items are counted as selected');
+    equals(manager.toggleSelectAll(), true, "Toggle Select All indicates all items are selected");
+
+    manager.toggleSelectAll(false);
+    equals(manager.selectedItemCount(), 0, 'No items are counted as selected');
+    equals(manager.toggleSelectAll(), false, "Toggle Select All indicates no items are selected");
+
+});
+
+test("De-select some items, then select-all should re-select all", function () {
+
+    var data = kgTest.getSelectionData();
+    var item = ko.observable();
+    var items = ko.observableArray([]);
+    var index = ko.observable(0);
+
+
+    var manager = new kg.SelectionManager({
+        isMultiSelect: true,
+        selectedItem: item,
+        selectedItems: items,
+        selectedIndex: index,
+        data: data
+    });
+
+    // select everything
+    manager.toggleSelectAll(true);
+
+    // de-select one item
+    var entity = data()[1];
+    entity.__kg_selected__(false);
+    manager.changeSelectedItem(entity);
+
+    // make sure that was handled correctly
+    equals(manager.selectedItemCount(), 3, 'Only 3 items are counted as selected');
+    equals(manager.toggleSelectAll(), false, "Toggle Select All indicates not all items are selected");
+
+    // now re-select all
+    manager.toggleSelectAll(true);
+
+    equals(manager.selectedItemCount(), 4, 'All items are counted as selected');
+    equals(manager.toggleSelectAll(), true, "Toggle Select All indicates all items are selected");
 });

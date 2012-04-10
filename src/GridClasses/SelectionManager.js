@@ -1,17 +1,16 @@
-﻿/******************************
-* Use cases to support:
-* 1. Always keep a selectedItem in single select mode
-*   - first item is selected by default (if selection is enabled)
-* 2. Don't keep both selectedItem/selectedItems in sync - pick one
-* 3. Remember selectedIndex, and if user deletes an item in the array - reselect the next index
-* 4. If Single Select, don't pick a selected item on first data load
-*/
-
+﻿// Class that manages all row selection logic
+// @options - {
+//      selectedItem - an observable to keep in sync w/ the selected data item
+//      selectedItems - an observable array to keep in sync w/ the selected rows
+//      selectedIndex - an observable to keep in sync w/ the index of the selected data item
+//      data - (required) the observable array data source of data items
+//  }
+//
 kg.SelectionManager = function (options) {
     var self = this,
-        isMulti = options.isMultiSelect,
-        dataSource = options.data,
-        KEY = '__kg_selected__',
+        isMulti = options.isMultiSelect, // flag that indicates if grid supports mult-select or single-select mode
+        dataSource = options.data, // the observable array datasource
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
@@ -20,6 +19,7 @@ kg.SelectionManager = function (options) {
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
 
+    // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
         var single = self.selectedItem(),
             arr = self.selectedItems();
@@ -31,8 +31,8 @@ kg.SelectionManager = function (options) {
         }
     });
 
+    // ensure outgoing entity is de-selected
     this.selectedItem.subscribe(function (currentEntity) {
-        //ensure outgoing entity is de-selected
         if (!isMulti) {
             //uncheck the current entity
             if (currentEntity && currentEntity[KEY]) {
@@ -41,8 +41,8 @@ kg.SelectionManager = function (options) {
         }
     }, self, "beforeChange");
 
+    // ensure incoming entity has our selected flag
     this.selectedItem.subscribe(function (entity) {
-        //ensure incoming entity has our selected flag
         if (entity && !entity[KEY]) {
             entity[KEY] = ko.observable(true);
         } else if (entity) {
@@ -50,12 +50,15 @@ kg.SelectionManager = function (options) {
         }
     });
 
+    // ensures our selection flag on each item stays in sync
     this.selectedItems.subscribe(function (newItems) {
+        var data = dataSource();
+
         if (!newItems) {
             newItems = [];
         }
 
-        utils.forEach(dataSource(), function (item, i) {
+        utils.forEach(data, function (item, i) {
 
             if (!item[KEY]) {
                 item[KEY] = ko.observable(false);
@@ -71,6 +74,9 @@ kg.SelectionManager = function (options) {
         });
     });
 
+    // function to manage the selection action of a data item (entity)
+    // just call this func and hand it the item you want to select (or de-select)
+    // @changedEntity - the data item that you want to select/de-select
     this.changeSelectedItem = function (changedEntity) {
         var currentEntity = self.selectedItem(),
             currentItems = self.selectedItems,
@@ -113,6 +119,9 @@ kg.SelectionManager = function (options) {
         }
     };
 
+    // writable-computed observable
+    // @return - boolean indicating if all items are selected or not
+    // @val - boolean indicating whether to select all/de-select all
     this.toggleSelectAll = ko.computed({
         read: function () {
             var cnt = self.selectedItemCount();
@@ -126,14 +135,15 @@ kg.SelectionManager = function (options) {
         },
         write: function (val) {
             var checkAll = val,
-                selectedItemsToPush = [],
-                data;
+                dataSourceCopy = [];
 
             if (isMulti) {
-                data = dataSource();
+                utils.forEach(dataSource(), function (item) {
+                    dataSourceCopy.push(item);
+                });
 
                 if (checkAll) {
-                    self.selectedItems(data);
+                    self.selectedItems(dataSourceCopy);
                 } else {
                     self.selectedItems([]);
                 }
@@ -143,7 +153,9 @@ kg.SelectionManager = function (options) {
 
     //make sure as the data changes, we keep the selectedItem(s) correct
     dataSource.subscribe(function (items) {
-        var selectedItems, selectedItem, itemsToRemove;
+        var selectedItems,
+            selectedItem,
+            itemsToRemove;
 
         if (!items) {
             return;
