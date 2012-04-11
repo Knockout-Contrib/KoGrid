@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 11:15:07.97 Wed 04/11/2012 
+* Compiled At: 12:35:14.52 Wed 04/11/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1547,7 +1547,13 @@ kg.SelectionManager = function (options) {
             grid.adjustScrollTop(scrollTop);
         });
 
-        //resize the grid on window re-size events
+        //resize the grid on parent re-size events
+
+        var $parent = grid.$root.parent();
+
+        if ($parent.length == 0) {
+            $parent = grid.$root;
+        }
 
         $(window).resize(function () {
             var prevSizes = {
@@ -1559,15 +1565,21 @@ kg.SelectionManager = function (options) {
             scrollTop = 0,
             isDifferent = false;
             
+            // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
+            var $hiddens = grid.$root.parents(":hidden");
+            if ($hiddens.length > 0) {
+                return;
+            }
+
             //catch this so we can return the viewer to their original scroll after the resize!
             scrollTop = grid.$viewport.scrollTop();
 
             kg.domUtility.measureGrid(grid.$root, grid);
 
             //check to see if anything has changed
-            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH) {
+            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH && grid.elementDims.rootMaxH !== 0) { // if display: none is set, then these come back as zeros
                 isDifferent = true;
-            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW) {
+            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW && grid.elementDims.rootMaxW !== 0) {
                 isDifferent = true;
             } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
                 isDifferent = true;
@@ -2141,6 +2153,18 @@ kg.cssBuilder = {
     var $testContainer = $('<div></div>'),
         self = this;
 
+    var parsePixelString = function(pixelStr){
+        if(!pixelStr){
+            return 0;
+        }
+
+        var numStr = pixelStr.replace("/px/gi", "");
+
+        var num = parseInt(numStr, 10);
+
+        return isNaN(num) ? 0 : num;
+    };
+
     this.assignGridContainers = function (rootEl, grid) {
 
         grid.$root = $(rootEl);
@@ -2171,6 +2195,17 @@ kg.cssBuilder = {
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+
+        if (!dims.maxWidth) {
+            var pixelStr = $container.css("max-width");
+            dims.maxWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.maxHeight) {
+            var pixelStr = $container.css("max-height");
+            dims.maxHeight = parsePixelString(pixelStr);
+        }
+
         //if they are zero, see what the parent's size is
         if (dims.maxWidth === 0) {
             dims.maxWidth = $container.parent().width();
@@ -2178,7 +2213,7 @@ kg.cssBuilder = {
         if (dims.maxHeight === 0) {
             dims.maxHeight = $container.parent().height();
         }
-
+        
         $test.remove();
 
         return dims;
@@ -2204,8 +2239,16 @@ kg.cssBuilder = {
         dims.minWidth = $testContainer.width();
         dims.minHeight = $testContainer.height();
 
-        //This will blip the screen, so make sure to reset scroll bars, etc...
-        //$testContainer.unwrap();
+        if (!dims.minWidth) {
+            var pixelStr = $testContainer.css("min-width");            
+            dims.minWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.minHeight) {
+            var pixelStr = $testContainer.css("min-height");
+            dims.minHeight = parsePixelString(pixelStr);
+        }
+
         $testContainer.remove();
 
         return dims;

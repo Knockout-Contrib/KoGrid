@@ -38,6 +38,32 @@ test("Measure Container Min Dimensions", function () {
     $wrapper.remove();
 });
 
+test("No Visibility - Measure Container Max Dimensions", function () {
+    var $wrapper = $('<div style="height: 200px; width: 200px; display: none;"></div>').appendTo($('body'));
+    var $container = $('<div style="max-height: 100px; max-width: 100px;"></div>').appendTo($wrapper);
+
+    var dims = kg.domUtility.measureElementMaxDims($container);
+
+    equals(dims.maxWidth, 100, 'Max Width is correct');
+    equals(dims.maxHeight, 100, 'Max Height is correct');
+
+    $container.remove();
+    $wrapper.remove();
+});
+
+test("No Visibility - Measure Container Min Dimensions", function () {
+    var $wrapper = $('<div style="height: 0px; width: 0px; display: none;"></div>').appendTo($('body'));
+    var $container = $('<div style="min-height: 100px; min-width: 100px;"></div>').appendTo($wrapper);
+
+    var dims = kg.domUtility.measureElementMinDims($container);
+
+    equals(dims.minWidth, 100, 'Min Width is correct');
+    equals(dims.minHeight, 100, 'Min Height is correct');
+
+    $container.remove();
+    $wrapper.remove();
+});
+
 test("Measure percentage-based dimensions - Maximum", function () {
     var $wrapper = $('<div style="height: 200px; width: 200px;"></div>').appendTo($('body'));
     var $container = $('<div style="height: 70%; width: 70%;"></div>').appendTo($wrapper);

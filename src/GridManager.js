@@ -37,7 +37,13 @@
             grid.adjustScrollTop(scrollTop);
         });
 
-        //resize the grid on window re-size events
+        //resize the grid on parent re-size events
+
+        var $parent = grid.$root.parent();
+
+        if ($parent.length == 0) {
+            $parent = grid.$root;
+        }
 
         $(window).resize(function () {
             var prevSizes = {
@@ -49,15 +55,21 @@
             scrollTop = 0,
             isDifferent = false;
             
+            // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
+            var $hiddens = grid.$root.parents(":hidden");
+            if ($hiddens.length > 0) {
+                return;
+            }
+
             //catch this so we can return the viewer to their original scroll after the resize!
             scrollTop = grid.$viewport.scrollTop();
 
             kg.domUtility.measureGrid(grid.$root, grid);
 
             //check to see if anything has changed
-            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH) {
+            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH && grid.elementDims.rootMaxH !== 0) { // if display: none is set, then these come back as zeros
                 isDifferent = true;
-            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW) {
+            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW && grid.elementDims.rootMaxW !== 0) {
                 isDifferent = true;
             } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
                 isDifferent = true;

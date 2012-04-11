@@ -11,13 +11,13 @@
 </head>
 <body>
     <div id="sandbox1" style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 12px;">
-        <div style="position: absolute; top: 0; bottom: 0; left: 0; width: 80%" >
+        <div style="position: absolute; top: 0; bottom: 0; left: 0; width: 80%" data-bind="visible: isVisible">
             <script type="text/html" id="myCellTemplate">
                 <div data-bind="kgCell: $cell" >
                     <input type="text" data-bind="value: $cellValue" style="width: 80px"/>
                 </div>
             </script>
-            <div id="myGrid" style="height: 700px; width: 500px;" data-bind="koGrid:{ data: testData, 
+            <div id="myGrid" style="height: 50%; width: 50%;" data-bind="koGrid:{ data: testData, 
                                     isMultiSelect: true,
                                     selectedItem: mySelectedItem,
                                     autogenerateColumns: false,
@@ -43,6 +43,7 @@
                 <p>UPC: <span data-bind="text: UPC"></span></p>
             </div>
             <input type="button" value="Destroy Item" data-bind="click: destroyItem" />
+            <input type="button" value="Change Visibility" data-bind="click: changeVisibility" />
         </div>        
     </div>
 
@@ -65,6 +66,10 @@
             destroyItem: function () {
                 var item = vm.testData()[1];
                 vm.testData.destroy(item);
+            },
+            isVisible: ko.observable(true),
+            changeVisibility: function () {
+                vm.isVisible(!vm.isVisible());
             }
         };
 

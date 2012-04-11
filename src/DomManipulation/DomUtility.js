@@ -2,6 +2,18 @@
     var $testContainer = $('<div></div>'),
         self = this;
 
+    var parsePixelString = function(pixelStr){
+        if(!pixelStr){
+            return 0;
+        }
+
+        var numStr = pixelStr.replace("/px/gi", "");
+
+        var num = parseInt(numStr, 10);
+
+        return isNaN(num) ? 0 : num;
+    };
+
     this.assignGridContainers = function (rootEl, grid) {
 
         grid.$root = $(rootEl);
@@ -32,6 +44,17 @@
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+
+        if (!dims.maxWidth) {
+            var pixelStr = $container.css("max-width");
+            dims.maxWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.maxHeight) {
+            var pixelStr = $container.css("max-height");
+            dims.maxHeight = parsePixelString(pixelStr);
+        }
+
         //if they are zero, see what the parent's size is
         if (dims.maxWidth === 0) {
             dims.maxWidth = $container.parent().width();
@@ -39,7 +62,7 @@
         if (dims.maxHeight === 0) {
             dims.maxHeight = $container.parent().height();
         }
-
+        
         $test.remove();
 
         return dims;
@@ -65,8 +88,16 @@
         dims.minWidth = $testContainer.width();
         dims.minHeight = $testContainer.height();
 
-        //This will blip the screen, so make sure to reset scroll bars, etc...
-        //$testContainer.unwrap();
+        if (!dims.minWidth) {
+            var pixelStr = $testContainer.css("min-width");            
+            dims.minWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.minHeight) {
+            var pixelStr = $testContainer.css("min-height");
+            dims.minHeight = parsePixelString(pixelStr);
+        }
+
         $testContainer.remove();
 
         return dims;
