@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:35:14.52 Wed 04/11/2012 
+* Compiled At: 16:18:10.85 Wed 04/11/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -884,11 +884,20 @@ kg.Row = function (entity) {
             var regexStr = filterStr.replace(replacer, "[^\']*");                     
 
             //ensure that we do "beginsWith" logic
-            regexStr = "^" + regexStr;
-
-            // then create an actual regex object
-            regex = new RegExp(regexStr, "gi");
-
+            if (regexStr !== "*") { // handle the asterisk logic
+                regexStr = "^" + regexStr;
+            }
+            
+            // incase the user makes some nasty regex that we can't use
+            try{
+                // then create an actual regex object
+                regex = new RegExp(regexStr, "gi");
+            }
+            catch (e) {
+                // the user input something we can't parse into a valid RegExp, so just say that the data
+                // was a match 
+                regex = /.*/gi;
+            }
             // store it
             regExCache[filterStr] = regex;
         }

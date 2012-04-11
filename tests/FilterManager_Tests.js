@@ -199,3 +199,28 @@ test("Destroy Filtering Change Event Test", function () {
     equals(manager.filteredData().length, 5, 'Filtered Data does not include _destroyed item');
     deepEqual(manager.filteredData()[0], data()[1], 'The filtered data has been shifted to not include the _destroyed item');
 });
+
+test("Wildcard filtering works with reserved regex characters", function () {
+
+    var data = getFilteringTestData();
+
+    var manager = new kg.FilterManager({ data: data });
+
+    var skuCallback = manager.createFilterChangeCallback({ field: 'Sku' });
+
+    skuCallback('*'); // oooh the asterisk
+
+    equals(manager.filteredData().length, 6, 'All data matches single wildcard');
+
+    // now the % sign
+    manager = new kg.FilterManager({
+        data: data,
+        filterWildcard: '%'
+    });
+
+    var skuCallback = manager.createFilterChangeCallback({ field: 'Sku' });
+
+    skuCallback('*'); // oooh the asterisk
+
+    equals(manager.filteredData().length, 6, 'All data matches single wildcard');
+});
