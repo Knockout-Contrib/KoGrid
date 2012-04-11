@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 18:29:08.78 Tue 04/10/2012 
+* Compiled At: 11:15:07.97 Wed 04/11/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -818,7 +818,8 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        wildcard = options.filterWildcard || "*",
+        wildcard = options.filterWildcard || "*", // the wildcard character used by the user 
+        includeDestroyed = options.includeDestroyed || false, // flag to indicate whether to include _destroy=true items in filtered data
         regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
         initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
         internalFilteredData = ko.observableArray([]); // obs array that we use to manage the filtering before it updates the final data
@@ -830,6 +831,13 @@ kg.Row = function (entity) {
         throw new Error("You can only declare a percent sign (%) or an asterisk (*) as a wildcard character");
     }
 
+    // filters off _destroy = true items
+    var filterDestroyed = function (arr) {
+        return ko.utils.arrayFilter(arr, function (item) {
+            return (item['_destroy'] === true ? false : true);
+        });
+    };
+
     // map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
 
@@ -840,11 +848,11 @@ kg.Row = function (entity) {
     this.filteredData = ko.computed(function () {
         var data = internalFilteredData();
 
-        //this is a bit funky, but it prevents our filtered data from being registered as a subscription to our grid.update bindingHandler
+        //this is a bit funky, but it prevents our options.data observable from being registered as a subscription to our grid.update bindingHandler
         if (initPhase > 0) {
             return data;
         } else {
-            return self.data();
+            return filterDestroyed(self.data());
         }
     });
 
@@ -899,6 +907,9 @@ kg.Row = function (entity) {
             itemData, // the data from the specific row's column
             itemDataStr, // the stringified version of itemData
             filterStr; // the user-entered filtering criteria
+
+        // filter the destroyed items
+        data = filterDestroyed(data);
 
         // make sure we even have work to do before we get started
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
@@ -1614,7 +1625,8 @@ kg.KoGrid = function (options) {
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
         sortInfo: ko.observable(), //observable similar to filterInfo
-        filterWildcard: "*"
+        filterWildcard: "*",
+        includeDestroyed: false // flag to show _destroy=true items in grid
     },
 
     self = this,

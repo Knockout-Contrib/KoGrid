@@ -31,7 +31,8 @@ kg.KoGrid = function (options) {
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
         sortInfo: ko.observable(), //observable similar to filterInfo
-        filterWildcard: "*"
+        filterWildcard: "*",
+        includeDestroyed: false // flag to show _destroy=true items in grid
     },
 
     self = this,

@@ -168,3 +168,34 @@ test("External Filtering ignores internal filtering", function () {
     equals(manager.filteredData()[0].Sku(), 'C-2820164', 'Returns Correct first item'); //4 columns bc of RowIndex and Selected
     
 });
+
+test("Destroy Filtering Basic Test", function () {
+
+    var data = getFilteringTestData();
+    
+    var entity = data()[0];
+
+    data.destroy(entity);
+
+    var manager = new kg.FilterManager({ data: data });
+
+    equals(manager.filteredData().length, 5, 'Filtered Data does not include _destroyed item');
+    deepEqual(manager.filteredData()[0], data()[1], 'The filtered data has been shifted to not include the _destroyed item');
+});
+
+test("Destroy Filtering Change Event Test", function () {
+
+    var data = getFilteringTestData();
+
+    var entity = data()[0];
+    
+    var manager = new kg.FilterManager({ data: data });
+
+    equals(manager.filteredData().length, 6, 'No item is filtered before destroy is called');
+
+    // destroy entity after the filter manager has been created to make sure changes are handled
+    data.destroy(entity);
+
+    equals(manager.filteredData().length, 5, 'Filtered Data does not include _destroyed item');
+    deepEqual(manager.filteredData()[0], data()[1], 'The filtered data has been shifted to not include the _destroyed item');
+});

@@ -42,7 +42,7 @@
                 <p>Manufacturer Id: <span data-bind="text: Mfg_Id"></span></p>
                 <p>UPC: <span data-bind="text: UPC"></span></p>
             </div>
-            <input type="button" value="Fill Data" data-bind="click: fillData" />
+            <input type="button" value="Destroy Item" data-bind="click: destroyItem" />
         </div>        
     </div>
 
@@ -61,6 +61,10 @@
             footerVisible: ko.observable(true),
             fillData: function () {
                 vm.testData(getTestData()());
+            },
+            destroyItem: function () {
+                var item = vm.testData()[1];
+                vm.testData.destroy(item);
             }
         };
 
