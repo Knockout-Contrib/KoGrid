@@ -7,7 +7,8 @@ body { margin: 0 }
 .scroll-y { overflow-y: auto; }
 
 body {
-            font-family: Verdana, Helvetica, Sans-Serif;
+    font-family: Verdana, Helvetica, Sans-Serif;
+    font-size: 12px;
 }
 p {
     color: White; 

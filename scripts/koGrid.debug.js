@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:37:54.80 Wed 03/07/2012 
+* Compiled At: 16:18:10.85 Wed 04/11/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -589,35 +589,59 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.RowManager = function (grid) {
     var self = this,
-        rowCache = {},
-        prevMaxRows = 0,
-        prevMinRows = 0,
-        dataChanged = false,
-        currentPage = grid.config.currentPage,
+        rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
+        prevMaxRows = 0, // for comparison purposes when scrolling
+        prevMinRows = 0, // for comparison purposes when scrolling
+        dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
+        currentPage = grid.config.currentPage, 
         pageSize = grid.config.pageSize,
-        prevRenderedRange = new kg.Range(0, 1),
-        prevViewableRange = new kg.Range(0, 1),
-        internalRenderedRange = ko.observable(prevRenderedRange);
+        prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
+        prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
+        internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
 
+    // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
+
+    // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
         dataChanged = true;
         rowCache = {}; //if data source changes, kill this!
     });
+
+    // shortcut to the calculated minimum viewport rows
     this.minViewportRows = grid.minRowsToRender; //observable
+
+    // the # of rows we want to add to the top and bottom of the rendered grid rows 
     this.excessRows = 8;
+
+    // height of each row
     this.rowHeight = grid.config.rowHeight;
+
+    // the logic that builds cell objects
     this.cellFactory = new kg.CellFactory(grid.columns());
+
+    // the actual range the user can see in the viewport
     this.viewableRange = ko.observable(prevViewableRange);
+
+    // the range of rows that we actually render on the canvas ... essentially 'viewableRange' + 'excessRows' on top and bottom
     this.renderedRange = ko.observable(prevRenderedRange);
+
+    // the array of rows that we've rendered
     this.rows = ko.observableArray([]);
+
+    // change handler subscriptions for disposal purposes (used heavily by the 'rows' binding)
     this.rowSubscriptions = {};
 
+    // Builds rows for each data item in the 'dataSource'
+    // @entity - the data item
+    // @rowIndex - the index of the row
+    // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
     var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
-        var row = rowCache[rowIndex];
+        var row = rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
 
+            // build the row
             row = new kg.Row(entity);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
@@ -626,18 +650,20 @@ kg.Row = function (entity) {
             //setup a selection change handler
             row.onSelectionChanged = function () {
                 var ent = this.entity();
-                grid.changeSelectedItem(ent);
+                grid.changeSelectedItem(ent); // use the grid-defined callback ... yes, i know... should pub an event instead
             };
 
             //build out the cells
             self.cellFactory.buildRowCells(row);
 
+            // finally cache it for the next round
             rowCache[rowIndex] = row;
         }
 
         return row;
     };
 
+    // core logic here - anytime we updated the renderedRange, we need to update the 'rows' array 
     this.renderedRange.subscribe(function (rg) {
         var rowArr = [],
             row,
@@ -657,12 +683,13 @@ kg.Row = function (entity) {
         self.rows(rowArr);
     });
 
+    // core logic that intelligently figures out the rendered range given all the contraints that we have
     var calcRenderedRange = function () {
-        var rg = self.viewableRange(),
+        var rg = self.viewableRange(), 
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
-            isDif = false,
-            newRg;
+            isDif = false, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
+            newRg; // variable to hold our newly-calc'd rendered range 
 
         if (rg) {
 
@@ -684,11 +711,14 @@ kg.Row = function (entity) {
                 //store it for next rev
                 prevViewableRange = rg;
 
+                // now build the new rendered range
                 newRg = new kg.Range(rg.bottomRow, rg.topRow);
 
+                // make sure we are within our data constraints (can't render negative rows or rows greater than the # of data items we have)
                 newRg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
                 newRg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
 
+                // store them for later comparison purposes
                 prevMaxRows = maxRows;
                 prevMinRows = minRows;
 
@@ -696,6 +726,8 @@ kg.Row = function (entity) {
                 if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
                     dataChanged = false;
                     prevRenderedRange = newRg;
+
+                    // now kickoff row building
                     self.renderedRange(newRg);
                 }
             }
@@ -704,6 +736,7 @@ kg.Row = function (entity) {
         }
     };
 
+    // make sure that if any of these change, we re-fire the calc logic
     self.viewableRange.subscribe(calcRenderedRange);
     self.minViewportRows.subscribe(calcRenderedRange);
     self.dataSource.subscribe(calcRenderedRange);
@@ -785,57 +818,142 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        initPhase = 0,
-        internalFilteredData = ko.observableArray([]);
+        wildcard = options.filterWildcard || "*", // the wildcard character used by the user 
+        includeDestroyed = options.includeDestroyed || false, // flag to indicate whether to include _destroy=true items in filtered data
+        regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
+        initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
+        internalFilteredData = ko.observableArray([]); // obs array that we use to manage the filtering before it updates the final data
 
-    //map of column.field values to filterStrings
+    // first check the wildcard as we only support * and % currently
+    if (wildcard === '*' || wildcard === '%') {
+        // do nothing
+    } else {
+        throw new Error("You can only declare a percent sign (%) or an asterisk (*) as a wildcard character");
+    }
+
+    // filters off _destroy = true items
+    var filterDestroyed = function (arr) {
+        return ko.utils.arrayFilter(arr, function (item) {
+            return (item['_destroy'] === true ? false : true);
+        });
+    };
+
+    // map of column.field values to filterStrings
     this.filterInfo = options.filterInfo || ko.observable();
-    this.data = options.data; //observableArray
 
+    // the obs array of data that the user defined
+    this.data = options.data;
+
+    // the obs array of filtered data we return to the grid
     this.filteredData = ko.computed(function () {
         var data = internalFilteredData();
 
-        //this is a bit funky, but it prevents our filtered data from being registered as a subscription to our grid.update bindingHandler
+        //this is a bit funky, but it prevents our options.data observable from being registered as a subscription to our grid.update bindingHandler
         if (initPhase > 0) {
             return data;
         } else {
-            return self.data();
+            return filterDestroyed(self.data());
         }
     });
 
+    // utility function for checking data validity
+    var isEmpty = function (data) {
+        return (data === null || data === undefined || data === '');
+    };
+
+    // performs regex matching on data strings 
+    var matchString = function (itemStr, filterStr) {
+        //first check for RegEx thats already built
+        var regex = regExCache[filterStr];
+
+        //if nothing, build the regex
+        if (!regex) {
+            var replacer = "";
+
+            //escape any wierd characters they might using
+            filterStr = filterStr.replace(/\\/g, "\\");
+            
+            // build our replacer regex
+            if (wildcard === "*") {
+                replacer = /\*/g;
+            } else {
+                replacer = /\%/g;
+            }
+
+            //first replace all % percent signs with the true regex wildcard *
+            var regexStr = filterStr.replace(replacer, "[^\']*");                     
+
+            //ensure that we do "beginsWith" logic
+            if (regexStr !== "*") { // handle the asterisk logic
+                regexStr = "^" + regexStr;
+            }
+            
+            // incase the user makes some nasty regex that we can't use
+            try{
+                // then create an actual regex object
+                regex = new RegExp(regexStr, "gi");
+            }
+            catch (e) {
+                // the user input something we can't parse into a valid RegExp, so just say that the data
+                // was a match 
+                regex = /.*/gi;
+            }
+            // store it
+            regExCache[filterStr] = regex;
+        }
+
+        return itemStr.match(regex);
+    };
+
+    // the core logic for filtering data
     var filterData = function () {
         var filterInfo = self.filterInfo(),
             data = self.data(),
-            keepRow = false,
-            match = true,
-            newArr = [],
-            field,
-            itemData,
-            itemDataStr,
-            filterStr;
+            keepRow = false, // flag to say if the row will be removed or kept in the viewport
+            match = true, // flag for matching logic
+            newArr = [], // the filtered array
+            field, // the field of the column that we are filtering
+            itemData, // the data from the specific row's column
+            itemDataStr, // the stringified version of itemData
+            filterStr; // the user-entered filtering criteria
 
+        // filter the destroyed items
+        data = filterDestroyed(data);
+
+        // make sure we even have work to do before we get started
         if (!filterInfo || $.isEmptyObject(filterInfo) || options.useExternalFiltering) {
             internalFilteredData(data);
             return;
         }
 
+        //clear out the regex cache so that we don't get improper results
+        regExCache = {};
+
+        // filter the data array 
         newArr = ko.utils.arrayFilter(data, function (item) {
 
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
+
+                    // pull the data out of the item
                     itemData = ko.utils.unwrapObservable(item[field]);
+
+                    // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
 
-                    if (itemData && filterStr) {
-                        filterStr = filterStr.toUpperCase();
-                        if (typeof itemData === "string") {
-                            itemDataStr = itemData.toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                    // make sure they didn't just enter the wildcard character
+                    if (!isEmpty(filterStr) && filterStr !== wildcard) { 
+
+                        // execute regex matching
+                        if (isEmpty(itemData)) {
+                            match = false;
+                        } else if (typeof itemData === "string") {
+                            match = matchString(itemData, filterStr);
                         } else {
-                            itemDataStr = itemData.toString().toUpperCase();
-                            match = (itemDataStr.indexOf(filterStr) > -1);
+                            itemDataStr = itemData.toString();
+                            match = matchString(itemDataStr, filterStr);
                         }
                     }
                 }
@@ -860,6 +978,7 @@ kg.Row = function (entity) {
             return keepRow;
         });
 
+        // finally set our internal array to the filtered stuff, which will tell the rest of the manager to propogate it up to the grid
         internalFilteredData(newArr);
 
     };
@@ -868,7 +987,10 @@ kg.Row = function (entity) {
     this.data.subscribe(filterData);
     this.filterInfo.subscribe(filterData);
 
+    // the grid uses this to asign the change handlers to the filter boxes during initialization
     this.createFilterChangeCallback = function (col) {
+
+        // the callback
         return function (newFilterVal) {
             var info = self.filterInfo();
 
@@ -882,7 +1004,8 @@ kg.Row = function (entity) {
             if ((newFilterVal === null ||
                 newFilterVal === undefined ||
                 newFilterVal === "") &&
-                info[col.field]) { //null or undefined
+                info[col.field]) { // we don't it to be null or undefined
+
                 //smoke it so we don't loop through it for filtering anymore!
                 delete info[col.field];
 
@@ -905,19 +1028,21 @@ kg.Row = function (entity) {
 ***********************************************/ 
 ﻿kg.SortManager = function (options) {
     var self = this,
-        colSortFnCache = {},
-        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/,
-        ASC = "asc",
-        DESC = "desc",
-        prevSortInfo = {},
+        colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
+        dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
+        ASC = "asc", // constant for sorting direction
+        DESC = "desc", // constant for sorting direction
+        prevSortInfo = {}, // obj for previous sorting comparison (helps with throttling events)
         dataSource = options.data, //observableArray
-        initPhase = 0,
+        initPhase = 0, // flag for preventing improper dependency registrations with KO
         internalSortedData = ko.observableArray([]);
 
-    var isNull = function (val) {
-        return (val === null || val === undefined);
+    // utility function for null checking
+    var isEmpty = function (val) {
+        return (val === null || val === undefined || val === '');
     };
 
+    // the sorting metadata, eg: { column: { field: 'sku' }, direction: "asc" }
     this.sortInfo = options.sortInfo || ko.observable();
 
     this.sortedData = ko.computed(function () {
@@ -931,13 +1056,16 @@ kg.Row = function (entity) {
         }
     });
 
+    // this takes an piece of data from the cell and tries to determine its type and what sorting
+    // function to use for it
+    // @item - the cell data
     this.guessSortFn = function (item) {
-        var sortFn,
-            itemStr,
-            itemType,
-            dateParts,
-            month,
-            day;
+        var sortFn, // sorting function that is guessed
+            itemStr, // the stringified version of the item
+            itemType, // the typeof item
+            dateParts, // for date parsing
+            month, // for date parsing
+            day; // for date parsing
 
         if (item === undefined || item === null || item === '') {
             return null;
@@ -1002,22 +1130,39 @@ kg.Row = function (entity) {
 
     };
 
+    //#region Sorting Functions
+
     this.sortNumber = function (a, b) {
 
         return a - b;
     };
 
     this.sortNumberStr = function (a, b) {
-        var numA, numB;
+        var numA, numB, badA = false, badB = false;
 
         numA = parseFloat(a.replace(/[^0-9.-]/g, ''));
         if (isNaN(numA)) {
-            numA = 0;
+            badA = true;
         }
+
         numB = parseFloat(b.replace(/[^0-9.-]/g, ''));
         if (isNaN(numB)) {
-            numB = 0;
+            badB = true;
         }
+
+        // we want bad ones to get pushed to the bottom... which effectively is "greater than"
+        if (badA && badB) {
+            return 0;
+        }
+
+        if (badA) {
+            return 1;
+        }
+
+        if (badB) {
+            return -1;
+        }
+
         return numA - numB;
     };
 
@@ -1079,7 +1224,11 @@ kg.Row = function (entity) {
         return 1;
     };
 
+    //#endregion
 
+    // the actual sort function to call
+    // @col - the column to sort
+    // @direction - "asc" or "desc"
     this.sort = function (col, direction) {
         //do an equality check first
         if (col === prevSortInfo.column && direction === prevSortInfo.direction) {
@@ -1093,6 +1242,7 @@ kg.Row = function (entity) {
         });
     };
 
+    // the core sorting logic trigger
     var sortData = function () {
         var data = dataSource(),
             sortInfo = self.sortInfo(),
@@ -1102,11 +1252,13 @@ kg.Row = function (entity) {
             item,
             prop;
 
+        // first make sure we are even supposed to do work
         if (!data || !sortInfo || options.useExternalSorting) {
             internalSortedData(data);
             return;
         }
 
+        // grab the metadata for the rest of the logic
         col = sortInfo.column;
         direction = sortInfo.direction;
 
@@ -1126,7 +1278,10 @@ kg.Row = function (entity) {
             if (sortFn) {
                 colSortFnCache[col.field] = sortFn;
             } else {
-                return;
+                // we assign the alpha sort because anything that is null/undefined will never get passed to
+                // the actual sorting function. It will get caught in our null check and returned to be sorted
+                // down to the bottom
+                sortFn = self.sortAlpha; 
             }
         }
 
@@ -1134,14 +1289,15 @@ kg.Row = function (entity) {
         data.sort(function (itemA, itemB) {
             var propA = ko.utils.unwrapObservable(itemA[col.field]),
                 propB = ko.utils.unwrapObservable(itemB[col.field]),
-                propANull = isNull(propA),
-                propBNull = isNull(propB);
+                propAEmpty = isEmpty(propA),
+                propBEmpty = isEmpty(propB);
 
-            if (propANull && propBNull) {
+            // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
+            if (propAEmpty && propBEmpty) {
                 return 0;
-            } else if (propANull) {
+            } else if (propAEmpty) {
                 return 1;
-            } else if (propBNull) {
+            } else if (propBEmpty) {
                 return -1;
             }
 
@@ -1168,20 +1324,19 @@ kg.Row = function (entity) {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\SelectionManager.js 
 ***********************************************/ 
-﻿/******************************
-* Use cases to support:
-* 1. Always keep a selectedItem in single select mode
-*   - first item is selected by default (if selection is enabled)
-* 2. Don't keep both selectedItem/selectedItems in sync - pick one
-* 3. Remember selectedIndex, and if user deletes an item in the array - reselect the next index
-* 4. If Single Select, don't pick a selected item on first data load
-*/
-
+﻿// Class that manages all row selection logic
+// @options - {
+//      selectedItem - an observable to keep in sync w/ the selected data item
+//      selectedItems - an observable array to keep in sync w/ the selected rows
+//      selectedIndex - an observable to keep in sync w/ the index of the selected data item
+//      data - (required) the observable array data source of data items
+//  }
+//
 kg.SelectionManager = function (options) {
     var self = this,
-        isMulti = options.isMultiSelect,
-        dataSource = options.data,
-        KEY = '__kg_selected__',
+        isMulti = options.isMultiSelect, // flag that indicates if grid supports mult-select or single-select mode
+        dataSource = options.data, // the observable array datasource
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
@@ -1190,6 +1345,7 @@ kg.SelectionManager = function (options) {
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
 
+    // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
         var single = self.selectedItem(),
             arr = self.selectedItems();
@@ -1201,8 +1357,8 @@ kg.SelectionManager = function (options) {
         }
     });
 
+    // ensure outgoing entity is de-selected
     this.selectedItem.subscribe(function (currentEntity) {
-        //ensure outgoing entity is de-selected
         if (!isMulti) {
             //uncheck the current entity
             if (currentEntity && currentEntity[KEY]) {
@@ -1211,8 +1367,8 @@ kg.SelectionManager = function (options) {
         }
     }, self, "beforeChange");
 
+    // ensure incoming entity has our selected flag
     this.selectedItem.subscribe(function (entity) {
-        //ensure incoming entity has our selected flag
         if (entity && !entity[KEY]) {
             entity[KEY] = ko.observable(true);
         } else if (entity) {
@@ -1220,12 +1376,15 @@ kg.SelectionManager = function (options) {
         }
     });
 
+    // ensures our selection flag on each item stays in sync
     this.selectedItems.subscribe(function (newItems) {
+        var data = dataSource();
+
         if (!newItems) {
             newItems = [];
         }
 
-        utils.forEach(dataSource(), function (item, i) {
+        utils.forEach(data, function (item, i) {
 
             if (!item[KEY]) {
                 item[KEY] = ko.observable(false);
@@ -1241,6 +1400,9 @@ kg.SelectionManager = function (options) {
         });
     });
 
+    // function to manage the selection action of a data item (entity)
+    // just call this func and hand it the item you want to select (or de-select)
+    // @changedEntity - the data item that you want to select/de-select
     this.changeSelectedItem = function (changedEntity) {
         var currentEntity = self.selectedItem(),
             currentItems = self.selectedItems,
@@ -1283,6 +1445,9 @@ kg.SelectionManager = function (options) {
         }
     };
 
+    // writable-computed observable
+    // @return - boolean indicating if all items are selected or not
+    // @val - boolean indicating whether to select all/de-select all
     this.toggleSelectAll = ko.computed({
         read: function () {
             var cnt = self.selectedItemCount();
@@ -1296,14 +1461,15 @@ kg.SelectionManager = function (options) {
         },
         write: function (val) {
             var checkAll = val,
-                selectedItemsToPush = [],
-                data;
+                dataSourceCopy = [];
 
             if (isMulti) {
-                data = dataSource();
+                utils.forEach(dataSource(), function (item) {
+                    dataSourceCopy.push(item);
+                });
 
                 if (checkAll) {
-                    self.selectedItems(data);
+                    self.selectedItems(dataSourceCopy);
                 } else {
                     self.selectedItems([]);
                 }
@@ -1313,7 +1479,9 @@ kg.SelectionManager = function (options) {
 
     //make sure as the data changes, we keep the selectedItem(s) correct
     dataSource.subscribe(function (items) {
-        var selectedItems, selectedItem, itemsToRemove;
+        var selectedItems,
+            selectedItem,
+            itemsToRemove;
 
         if (!items) {
             return;
@@ -1388,7 +1556,13 @@ kg.SelectionManager = function (options) {
             grid.adjustScrollTop(scrollTop);
         });
 
-        //resize the grid on window re-size events
+        //resize the grid on parent re-size events
+
+        var $parent = grid.$root.parent();
+
+        if ($parent.length == 0) {
+            $parent = grid.$root;
+        }
 
         $(window).resize(function () {
             var prevSizes = {
@@ -1400,15 +1574,21 @@ kg.SelectionManager = function (options) {
             scrollTop = 0,
             isDifferent = false;
             
+            // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
+            var $hiddens = grid.$root.parents(":hidden");
+            if ($hiddens.length > 0) {
+                return;
+            }
+
             //catch this so we can return the viewer to their original scroll after the resize!
             scrollTop = grid.$viewport.scrollTop();
 
             kg.domUtility.measureGrid(grid.$root, grid);
 
             //check to see if anything has changed
-            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH) {
+            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH && grid.elementDims.rootMaxH !== 0) { // if display: none is set, then these come back as zeros
                 isDifferent = true;
-            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW) {
+            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW && grid.elementDims.rootMaxW !== 0) {
                 isDifferent = true;
             } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
                 isDifferent = true;
@@ -1465,7 +1645,9 @@ kg.KoGrid = function (options) {
         useExternalFiltering: false,
         useExternalSorting: false,
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
-        sortInfo: ko.observable() //observable similar to filterInfo
+        sortInfo: ko.observable(), //observable similar to filterInfo
+        filterWildcard: "*",
+        includeDestroyed: false // flag to show _destroy=true items in grid
     },
 
     self = this,
@@ -1980,6 +2162,18 @@ kg.cssBuilder = {
     var $testContainer = $('<div></div>'),
         self = this;
 
+    var parsePixelString = function(pixelStr){
+        if(!pixelStr){
+            return 0;
+        }
+
+        var numStr = pixelStr.replace("/px/gi", "");
+
+        var num = parseInt(numStr, 10);
+
+        return isNaN(num) ? 0 : num;
+    };
+
     this.assignGridContainers = function (rootEl, grid) {
 
         grid.$root = $(rootEl);
@@ -2010,6 +2204,17 @@ kg.cssBuilder = {
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
 
+
+        if (!dims.maxWidth) {
+            var pixelStr = $container.css("max-width");
+            dims.maxWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.maxHeight) {
+            var pixelStr = $container.css("max-height");
+            dims.maxHeight = parsePixelString(pixelStr);
+        }
+
         //if they are zero, see what the parent's size is
         if (dims.maxWidth === 0) {
             dims.maxWidth = $container.parent().width();
@@ -2017,7 +2222,7 @@ kg.cssBuilder = {
         if (dims.maxHeight === 0) {
             dims.maxHeight = $container.parent().height();
         }
-
+        
         $test.remove();
 
         return dims;
@@ -2043,8 +2248,16 @@ kg.cssBuilder = {
         dims.minWidth = $testContainer.width();
         dims.minHeight = $testContainer.height();
 
-        //This will blip the screen, so make sure to reset scroll bars, etc...
-        //$testContainer.unwrap();
+        if (!dims.minWidth) {
+            var pixelStr = $testContainer.css("min-width");            
+            dims.minWidth = parsePixelString(pixelStr);
+        }
+
+        if (!dims.minHeight) {
+            var pixelStr = $testContainer.css("min-height");
+            dims.minHeight = parsePixelString(pixelStr);
+        }
+
         $testContainer.remove();
 
         return dims;
