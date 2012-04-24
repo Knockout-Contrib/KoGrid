@@ -28,13 +28,21 @@
     };
 
     this.assignGridEventHandlers = function (grid) {
+        var scrollTimer = null;
 
         grid.$viewport.scroll(function (e) {
             var scrollLeft = e.target.scrollLeft,
                 scrollTop = e.target.scrollTop;
 
-            grid.adjustScrollLeft(scrollLeft);
-            grid.adjustScrollTop(scrollTop);
+            if(scrollTimer){
+                clearTimeout(scrollTimer);
+            }
+
+            scrollTimer = setTimeout( function(){
+                scrollTimer = null;
+                grid.adjustScrollLeft(scrollLeft);
+                grid.adjustScrollTop(scrollTop);
+            }, 200);
         });
 
         //resize the grid on parent re-size events
