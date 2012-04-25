@@ -34,13 +34,14 @@
             var scrollLeft = e.target.scrollLeft,
                 scrollTop = e.target.scrollTop;
 
+            grid.adjustScrollLeft(scrollLeft);
+            
             if(scrollTimer){
                 clearTimeout(scrollTimer);
             }
 
             scrollTimer = setTimeout( function(){
-                scrollTimer = null;
-                grid.adjustScrollLeft(scrollLeft);
+                scrollTimer = null;                
                 grid.adjustScrollTop(scrollTop);
             }, 200);
         });
