@@ -412,6 +412,8 @@ kg.KoGrid = function (options) {
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
+                column.width.subscribe(createColumnWidthClosure(column));
+                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);

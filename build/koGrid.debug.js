@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 21:09:39.34 Thu 05/10/2012 
+* Compiled At: 21:20:16.90 Thu 05/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2033,6 +2033,8 @@ kg.KoGrid = function (options) {
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
 
+                column.width.subscribe(createColumnWidthClosure(column));
+                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);
