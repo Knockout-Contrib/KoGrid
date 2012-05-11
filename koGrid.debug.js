@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:18:10.85 Wed 04/11/2012 
+* Compiled At: 21:09:39.34 Thu 05/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -158,11 +158,13 @@ kg.utils = utils;
 ﻿kg.templates.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
-    b.append('<div data-bind="click: $data.sort, css: { kgSorted: !$data.noSortVisible() }">');
+    // the $data.column.width() > 0 thing is a hack... it would be better to have a 'visible' observable, but I'm still trying to get this to work first.
+    b.append('<div data-bind="click: $data.sort, css: { kgSorted: !$data.noSortVisible() }, visible: $data.column.width() > 0">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPElEQVQoU2NggIL6+npjIN4NxIIwMTANFFAC4rtA/B+kAC6JJgGSRCgAcs5ABWASMHoVw////3HigZAEACKmlTwMfriZAAAAAElFTkSuQmCC"/>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPUlEQVQoU2P4//8/Ay6MUwKkgQJJBnygvr7+DBD/x4JXMQAFlYD4LprkbriBaAoQEjAVQAXGQLwbiAVhYgD6kIBR+tr9IgAAAABJRU5ErkJggg=="/>');
+    b.append('  <span data-bind="click: $data.hide">H</span>');
     b.append('</div>');
     b.append('<div data-bind="visible: $parent.filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
@@ -567,6 +569,10 @@ kg.Row = function (entity) {
     this.sort = function () {
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);
+    };
+    
+    this.hide = function () {
+        self.column.width(0);
     };
 
     this.filterHasFocus = ko.observable(false);
@@ -2000,6 +2006,22 @@ kg.KoGrid = function (options) {
                 if (dir) {
                     self.sortData(col, dir);
                 }
+            }
+        }
+        
+        var createColumnWidthClosure = function (col) {
+            return function (width) {
+                // try to fix issues with the width of the headers after hiding the last header.
+                self.elementsNeedMeasuring = true;
+                kg.domUtility.measureGrid(self.$root, self);
+                self.refreshDomSizes();
+                self.adjustScrollTop(0, true);
+                
+                // try to fix issues with the rows not re-rendering (doesn't seem to work the first time for some reason)
+                self.update();
+                var rm = self.rowManager;
+                rm.dataSource.notifySubscribers(rm.dataSource());
+                rm.renderedRange.notifySubscribers(rm.renderedRange());
             }
         }
 

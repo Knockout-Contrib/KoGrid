@@ -387,6 +387,22 @@ kg.KoGrid = function (options) {
                 }
             }
         }
+        
+        var createColumnWidthClosure = function (col) {
+            return function (width) {
+                // try to fix issues with the width of the headers after hiding the last header.
+                self.elementsNeedMeasuring = true;
+                kg.domUtility.measureGrid(self.$root, self);
+                self.refreshDomSizes();
+                self.adjustScrollTop(0, true);
+                
+                // try to fix issues with the rows not re-rendering (doesn't seem to work the first time for some reason)
+                self.update();
+                var rm = self.rowManager;
+                rm.dataSource.notifySubscribers(rm.dataSource());
+                rm.renderedRange.notifySubscribers(rm.renderedRange());
+            }
+        }
 
         if (columnDefs.length > 1) {
 
