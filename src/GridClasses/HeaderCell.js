@@ -43,6 +43,10 @@
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);
     };
+    
+    this.hide = function () {
+        self.column.width(0);
+    };
 
     this.filterHasFocus = ko.observable(false);
 };
