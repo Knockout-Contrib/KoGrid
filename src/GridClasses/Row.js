@@ -2,8 +2,9 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity) {
+kg.Row = function (entity, config) {
     var self = this;
+    var canSelectRows = config.canSelectRows;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
@@ -12,16 +13,25 @@ kg.Row = function (entity) {
 
     this.selected = ko.dependentObservable({
         read: function () {
+            if (!canSelectRows) {
+                return false;
+            }
             var val = self.entity()['__kg_selected__']();
             return val;
         },
         write: function (val) {
+            if (!canSelectRows) {
+                return;
+            }
             self.entity()['__kg_selected__'](val);
             self.onSelectionChanged();
         }
     });
 
     this.toggleSelected = function (data, event) {
+        if (!canSelectRows) {
+            return;
+        }
         var element = event.target;
 
         //check and make sure its not the bubbling up of our checked 'click' event 
@@ -55,5 +65,5 @@ kg.Row = function (entity) {
 
         });
 
-    }());
+    } ());
 };

@@ -43,6 +43,8 @@
 /******** Rows ********/
 .kgRow {
     border-bottom: 1px solid rgb(229, 229, 229);
+}
+.kgRow.kgCanSelect {
     cursor: pointer;
 }
 .kgRow.even {
@@ -115,13 +117,16 @@
 .kgTotalSelectContainer {
     float: left;
     margin: 5px;
-    margin-top: 3px;
+    margin-top: 7px;
 }
 .kgFooterSelectedItems {
 	padding: 2px;
 }
 .kgFooterTotalItems {
 	padding: 2px;
+}
+.kgFooterTotalItems.kgNoMultiSelect {
+	padding: 0px !important;
 }
 
 /******** Pager ********/
@@ -135,12 +140,24 @@
     height: 37px;
     padding-top: 13px;
 }
+.kgPagerContainer.kgNoMultiSelect {
+    height: 22px !important;
+    padding-top: 2px !important;
+}
 
 .kgRowCountPicker {
     position: relative;
     float: left; /*margin-right: 20px!important;*/
     margin-left: -120px !important;
     padding-top: 1px;
+}
+
+.kgRowCountPicker span.kgLabel {
+	padding-top:4px;
+}
+
+.kgRowCountPicker select {
+    margin-top:0px;
 }
 
 .kgPagerControl {

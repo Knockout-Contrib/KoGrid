@@ -8,6 +8,7 @@
     } else {
         this.maxRows = grid.maxRows; //observable
     }
+    this.isMultiSelect = ko.observable(grid.config.canSelectRows && grid.config.isMultiSelect);
     this.selectedItemCount = grid.selectedItemCount; //observable
 
     this.footerVisible = grid.config.footerVisible;
@@ -26,7 +27,7 @@
             return self.currentPage();
         },
         write: function (page) {
-            if (page && page <= self.maxPages() && page > 0){
+            if (page && page <= self.maxPages() && page > 0) {
                 self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
             }
         },

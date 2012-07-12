@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:18:10.85 Wed 04/11/2012 
+* Compiled At: 10:13:11.85 Thu 07/12/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -225,16 +225,16 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
-                '<div class="kgFooterTotalItems">' +
+                '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}" >' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
-                '<div class="kgFooterSelectedItems">' +
+                '<div class="kgFooterSelectedItems" data-bind="visible: isMultiSelect">' +
                     '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible()">' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
                 '<div style="float: right;">' +
-                    '<div class="kgRowCountPicker"">' +
+                    '<div class="kgRowCountPicker">' +
                         '<span class="kgLabel">Rows:</span>' +
                         '<select data-bind="options: pageSizes, value: selectedPageSize">' +
                         '</select>' +
@@ -424,8 +424,9 @@ kg.ColumnCollection.fn = {
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity) {
+kg.Row = function (entity, config) {
     var self = this;
+    var canSelectRows = config.canSelectRows;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
@@ -434,16 +435,25 @@ kg.Row = function (entity) {
 
     this.selected = ko.dependentObservable({
         read: function () {
+            if (!canSelectRows) {
+                return false;
+            }
             var val = self.entity()['__kg_selected__']();
             return val;
         },
         write: function (val) {
+            if (!canSelectRows) {
+                return;
+            }
             self.entity()['__kg_selected__'](val);
             self.onSelectionChanged();
         }
     });
 
     this.toggleSelected = function (data, event) {
+        if (!canSelectRows) {
+            return;
+        }
         var element = event.target;
 
         //check and make sure its not the bubbling up of our checked 'click' event 
@@ -477,7 +487,7 @@ kg.Row = function (entity) {
 
         });
 
-    }());
+    } ());
 }; 
  
  
@@ -593,7 +603,7 @@ kg.Row = function (entity) {
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
         dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
-        currentPage = grid.config.currentPage, 
+        currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
@@ -642,7 +652,7 @@ kg.Row = function (entity) {
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity);
+            row = new kg.Row(entity, grid.config);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
@@ -685,7 +695,7 @@ kg.Row = function (entity) {
 
     // core logic that intelligently figures out the rendered range given all the contraints that we have
     var calcRenderedRange = function () {
-        var rg = self.viewableRange(), 
+        var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
             isDif = false, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
@@ -756,6 +766,7 @@ kg.Row = function (entity) {
     } else {
         this.maxRows = grid.maxRows; //observable
     }
+    this.isMultiSelect = ko.observable(grid.config.canSelectRows && grid.config.isMultiSelect);
     this.selectedItemCount = grid.selectedItemCount; //observable
 
     this.footerVisible = grid.config.footerVisible;
@@ -774,7 +785,7 @@ kg.Row = function (entity) {
             return self.currentPage();
         },
         write: function (page) {
-            if (page && page <= self.maxPages() && page > 0){
+            if (page && page <= self.maxPages() && page > 0) {
                 self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
             }
         },
@@ -1639,6 +1650,7 @@ kg.KoGrid = function (options) {
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
+        canSelectRows: true, //toggles whether or not row selection is allowed
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
@@ -1676,6 +1688,14 @@ kg.KoGrid = function (options) {
     this.initPhase = 0;
 
 
+    // Set new default footer height if not overridden, and multi select is disabled
+    if (this.config.footerRowHeight === defaults.footerRowHeight
+        && (!this.config.canSelectRows
+        || !this.config.isMultiSelect)) {
+        defaults.footerRowHeight = 30;
+        this.config.footerRowHeight = 30;
+    }
+
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
@@ -1684,7 +1704,7 @@ kg.KoGrid = function (options) {
     sortManager = new kg.SortManager({
         data: filterManager.filteredData,
         sortInfo: self.config.sortInfo,
-        useExternalSorting: self.config.useExternalFiltering
+        useExternalSorting: self.config.useExternalSorting
     });
 
     this.sortInfo = sortManager.sortInfo; //observable
@@ -2605,6 +2625,9 @@ ko.bindingHandlers['kgRow'] = (function () {
                 rowManager = bindingContext.$parent.rowManager,
                 rowSubscription;
 
+            if (grid.config.canSelectRows) {
+                classes += ' kgCanSelect';
+            }
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
             element['_kg_rowIndex_'] = row.rowIndex;

@@ -4,7 +4,7 @@
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
         dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
-        currentPage = grid.config.currentPage, 
+        currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
@@ -53,7 +53,7 @@
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity);
+            row = new kg.Row(entity, grid.config);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
@@ -96,7 +96,7 @@
 
     // core logic that intelligently figures out the rendered range given all the contraints that we have
     var calcRenderedRange = function () {
-        var rg = self.viewableRange(), 
+        var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
             isDif = false, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
