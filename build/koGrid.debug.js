@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 10:13:11.85 Thu 07/12/2012 
+* Compiled At: 14:29:28.33 Fri 07/13/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2023,7 +2023,7 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 1) {
+        if (columnDefs.length > 0) {
 
             utils.forEach(columnDefs, function (colDef, i) {
                 column = new kg.Column(colDef);

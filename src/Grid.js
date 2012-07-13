@@ -397,7 +397,7 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 1) {
+        if (columnDefs.length > 0) {
 
             utils.forEach(columnDefs, function (colDef, i) {
                 column = new kg.Column(colDef);
