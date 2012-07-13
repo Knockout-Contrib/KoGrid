@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:29:28.33 Fri 07/13/2012 
+* Compiled At: 14:43:34.24 Fri 07/13/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -443,7 +443,7 @@ kg.Row = function (entity, config) {
         },
         write: function (val) {
             if (!canSelectRows) {
-                return;
+                return true;
             }
             self.entity()['__kg_selected__'](val);
             self.onSelectionChanged();
@@ -452,7 +452,7 @@ kg.Row = function (entity, config) {
 
     this.toggleSelected = function (data, event) {
         if (!canSelectRows) {
-            return;
+            return true;
         }
         var element = event.target;
 

@@ -21,7 +21,7 @@ kg.Row = function (entity, config) {
         },
         write: function (val) {
             if (!canSelectRows) {
-                return;
+                return true;
             }
             self.entity()['__kg_selected__'](val);
             self.onSelectionChanged();
@@ -30,7 +30,7 @@ kg.Row = function (entity, config) {
 
     this.toggleSelected = function (data, event) {
         if (!canSelectRows) {
-            return;
+            return true;
         }
         var element = event.target;
 
