@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  9:57:26.40 Tue 07/17/2012 
+* Compiled At: 15:48:30.64 Wed 07/25/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -942,14 +942,20 @@ kg.Row = function (entity, config) {
 
         // filter the data array 
         newArr = ko.utils.arrayFilter(data, function (item) {
-
+			var propPath,
+				i;
+				
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-                    itemData = ko.utils.unwrapObservable(item[field]);
+					propPath = col.field.split(".");
+					itemData = item;
+					for (i = 0; i < propPath.length; i++) {
+						itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
+					}
 
                     // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
@@ -1037,7 +1043,7 @@ kg.Row = function (entity, config) {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\SortManager.js 
 ***********************************************/ 
-﻿kg.SortManager = function (options) {
+﻿﻿kg.SortManager = function (options) {
     var self = this,
         colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
         dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
@@ -1261,7 +1267,9 @@ kg.Row = function (entity, config) {
             direction,
             sortFn,
             item,
-            prop;
+            propPath,
+            prop,
+            i;
 
         // first make sure we are even supposed to do work
         if (!data || !sortInfo || options.useExternalSorting) {
@@ -1280,7 +1288,11 @@ kg.Row = function (entity, config) {
             item = dataSource()[0];
 
             if (item) {
-                prop = ko.utils.unwrapObservable(item[col.field]);
+                propPath = col.field.split(".");
+                prop = item;
+                for (i = 0; i < propPath.length; i++) {
+                    prop = ko.utils.unwrapObservable(prop[propPath[i]]);
+                }
             }
 
             sortFn = self.guessSortFn(prop);
@@ -1298,10 +1310,20 @@ kg.Row = function (entity, config) {
 
         //now actually sort the data
         data.sort(function (itemA, itemB) {
-            var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]),
-                propAEmpty = isEmpty(propA),
-                propBEmpty = isEmpty(propB);
+            var propA = itemA,
+                propB = itemB,
+                propAEmpty = false,//isEmpty(propA),
+                propBEmpty = false,//isEmpty(propB);
+                propPath,
+                i;
+                
+            propPath = col.field.split(".");
+            for (i = 0; i < propPath.length; i++) {
+                propA = ko.utils.unwrapObservable(propA[propPath[i]]);
+                propB = ko.utils.unwrapObservable(propB[propPath[i]]);
+            }
+            propAEmpty = isEmpty(propA);
+            propBEmpty = isEmpty(propB);
 
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (propAEmpty && propBEmpty) {
@@ -1329,7 +1351,7 @@ kg.Row = function (entity, config) {
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
-}; 
+};  
  
  
 /*********************************************** 

@@ -1,4 +1,4 @@
-﻿kg.SortManager = function (options) {
+﻿﻿kg.SortManager = function (options) {
     var self = this,
         colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
         dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
@@ -222,7 +222,9 @@
             direction,
             sortFn,
             item,
-            prop;
+            propPath,
+            prop,
+            i;
 
         // first make sure we are even supposed to do work
         if (!data || !sortInfo || options.useExternalSorting) {
@@ -241,7 +243,11 @@
             item = dataSource()[0];
 
             if (item) {
-                prop = ko.utils.unwrapObservable(item[col.field]);
+                propPath = col.field.split(".");
+                prop = item;
+                for (i = 0; i < propPath.length; i++) {
+                    prop = ko.utils.unwrapObservable(prop[propPath[i]]);
+                }
             }
 
             sortFn = self.guessSortFn(prop);
@@ -259,10 +265,20 @@
 
         //now actually sort the data
         data.sort(function (itemA, itemB) {
-            var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]),
-                propAEmpty = isEmpty(propA),
-                propBEmpty = isEmpty(propB);
+            var propA = itemA,
+                propB = itemB,
+                propAEmpty = false,//isEmpty(propA),
+                propBEmpty = false,//isEmpty(propB);
+                propPath,
+                i;
+                
+            propPath = col.field.split(".");
+            for (i = 0; i < propPath.length; i++) {
+                propA = ko.utils.unwrapObservable(propA[propPath[i]]);
+                propB = ko.utils.unwrapObservable(propB[propPath[i]]);
+            }
+            propAEmpty = isEmpty(propA);
+            propBEmpty = isEmpty(propB);
 
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (propAEmpty && propBEmpty) {
@@ -290,4 +306,4 @@
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
-};
+}; 

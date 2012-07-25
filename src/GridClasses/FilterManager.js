@@ -113,14 +113,20 @@
 
         // filter the data array 
         newArr = ko.utils.arrayFilter(data, function (item) {
-
+			var propPath,
+				i;
+				
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-                    itemData = ko.utils.unwrapObservable(item[field]);
+					propPath = col.field.split(".");
+					itemData = item;
+					for (i = 0; i < propPath.length; i++) {
+						itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
+					}
 
                     // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
