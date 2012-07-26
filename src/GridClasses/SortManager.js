@@ -19,7 +19,7 @@
 
     this.sortedData = ko.computed(function () {
         var sortData = internalSortedData();
-        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
+        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a
         // dependency during the binding handler's dependency detection :(
         if (initPhase > 0) {
             return sortData;
@@ -77,7 +77,7 @@
             return self.sortNumberStr;
         }
 
-        // check for a date: dd/mm/yyyy or dd/mm/yy 
+        // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
         dateParts = item.match(dateRE)
@@ -259,7 +259,7 @@
                 // we assign the alpha sort because anything that is null/undefined will never get passed to
                 // the actual sorting function. It will get caught in our null check and returned to be sorted
                 // down to the bottom
-                sortFn = self.sortAlpha; 
+                sortFn = self.sortAlpha;
             }
         }
 
@@ -271,7 +271,7 @@
                 propBEmpty = false,//isEmpty(propB);
                 propPath,
                 i;
-                
+
             propPath = col.field.split(".");
             for (i = 0; i < propPath.length; i++) {
                 propA = ko.utils.unwrapObservable(propA[propPath[i]]);
@@ -306,4 +306,4 @@
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
-}; 
+};

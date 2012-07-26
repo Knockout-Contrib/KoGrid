@@ -1,8 +1,8 @@
-/*********************************************** 
+﻿/*********************************************** 
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:48:30.64 Wed 07/25/2012 
+* Compiled At:  9:15:28.88 Thu 07/26/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -118,7 +118,7 @@ kg.utils = utils;
                 '</div>' +
             '</div>' +
             '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim" style="position: relative;">' +
-                
+
             '</div>';
 }; 
  
@@ -133,17 +133,17 @@ kg.utils = utils;
 
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll, visible: $parent.config.isMultiSelect"/>');
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('      <div title="Filter Results" class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
             b.append('      <div title="Close" class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' } ">', col.field);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('</div>');
         }
     });
@@ -158,9 +158,9 @@ kg.utils = utils;
 ﻿kg.templates.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
-    b.append('<div data-bind="click: $data.sort, css: { kgSorted: !$data.noSortVisible() }">');
+    b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.noSortVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
+    b.append('  <img class="kgSortImg" data-bind="visible: $data.allowSort() && $data.noSortVisible()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPElEQVQoU2NggIL6+npjIN4NxIIwMTANFFAC4rtA/B+kAC6JJgGSRCgAcs5ABWASMHoVw////3HigZAEACKmlTwMfriZAAAAAElFTkSuQmCC"/>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPUlEQVQoU2P4//8/Ay6MUwKkgQJJBnygvr7+DBD/x4JXMQAFlYD4LprkbriBaAoQEjAVQAXGQLwbiAVhYgD6kIBR+tr9IgAAAABJRU5ErkJggg=="/>');
     b.append('</div>');
@@ -179,11 +179,11 @@ kg.utils = utils;
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 
-    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { kgSelected: $data.selected }">');
+    b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { \'kgSelected\': $data.selected }">');
 
     utils.forEach(cols, function (col, i) {
 
-        // check for the Selection Column 
+        // check for the Selection Column
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgCell: { value: \'{0}\' } ">', col.field);
             b.append('  <input type="checkbox" data-bind="checked: $data.selected" />');
@@ -197,7 +197,7 @@ kg.utils = utils;
         else if (col.hasCellTemplate) {
             // first pull the template
             var tmpl = kg.templateManager.getTemplateText(col.cellTemplate);
-            
+
             // build the replacement text
             var replacer = "{ value: '" + col.field + "' }";
 
@@ -367,14 +367,21 @@ kg.utils = utils;
     this.width = ko.observable(0);
 
     this.field = colDef.field;
-    this.displayName = colDef.displayName || colDef.field;
+    if (colDef.displayName === undefined || colDef.displayName === null) {
+        // Allow empty column names -- do not check for empty string
+        colDef.displayName = colDef.field;
+    }
+    this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
     this.width = ko.observable();
 
 
     //sorting
-    this.allowSort = true;
+    if (colDef.sortable === undefined || colDef.sortable === null) {
+        colDef.sortable = true;
+    }
+    this.allowSort = colDef.sortable;
     this.sortDirection = ko.observable("");
 
     //filtering
@@ -389,7 +396,7 @@ kg.utils = utils;
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
-        
+
     // figure out the width
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
@@ -560,6 +567,8 @@ kg.Row = function (entity, config) {
 
     this.filterVisible = ko.observable(false);
 
+    this.allowSort = ko.observable(col.allowSort);
+
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
@@ -575,6 +584,9 @@ kg.Row = function (entity, config) {
     });
 
     this.sort = function () {
+        if (!self.allowSort()) {
+            return; // column sorting is disabled, do nothing
+        }
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);
     };
@@ -829,7 +841,7 @@ kg.Row = function (entity, config) {
 ***********************************************/ 
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        wildcard = options.filterWildcard || "*", // the wildcard character used by the user 
+        wildcard = options.filterWildcard || "*", // the wildcard character used by the user
         includeDestroyed = options.includeDestroyed || false, // flag to indicate whether to include _destroy=true items in filtered data
         regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
         initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
@@ -872,7 +884,7 @@ kg.Row = function (entity, config) {
         return (data === null || data === undefined || data === '');
     };
 
-    // performs regex matching on data strings 
+    // performs regex matching on data strings
     var matchString = function (itemStr, filterStr) {
         //first check for RegEx thats already built
         var regex = regExCache[filterStr];
@@ -883,7 +895,7 @@ kg.Row = function (entity, config) {
 
             //escape any wierd characters they might using
             filterStr = filterStr.replace(/\\/g, "\\");
-            
+
             // build our replacer regex
             if (wildcard === "*") {
                 replacer = /\*/g;
@@ -892,13 +904,13 @@ kg.Row = function (entity, config) {
             }
 
             //first replace all % percent signs with the true regex wildcard *
-            var regexStr = filterStr.replace(replacer, "[^\']*");                     
+            var regexStr = filterStr.replace(replacer, "[^\']*");
 
             //ensure that we do "beginsWith" logic
             if (regexStr !== "*") { // handle the asterisk logic
                 regexStr = "^" + regexStr;
             }
-            
+
             // incase the user makes some nasty regex that we can't use
             try{
                 // then create an actual regex object
@@ -906,7 +918,7 @@ kg.Row = function (entity, config) {
             }
             catch (e) {
                 // the user input something we can't parse into a valid RegExp, so just say that the data
-                // was a match 
+                // was a match
                 regex = /.*/gi;
             }
             // store it
@@ -940,28 +952,28 @@ kg.Row = function (entity, config) {
         //clear out the regex cache so that we don't get improper results
         regExCache = {};
 
-        // filter the data array 
+        // filter the data array
         newArr = ko.utils.arrayFilter(data, function (item) {
-			var propPath,
-				i;
-				
+            var propPath,
+                i;
+
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-					propPath = col.field.split(".");
-					itemData = item;
-					for (i = 0; i < propPath.length; i++) {
-						itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
-					}
+                    propPath = col.field.split(".");
+                    itemData = item;
+                    for (i = 0; i < propPath.length; i++) {
+                        itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
+                    }
 
                     // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
 
                     // make sure they didn't just enter the wildcard character
-                    if (!isEmpty(filterStr) && filterStr !== wildcard) { 
+                    if (!isEmpty(filterStr) && filterStr !== wildcard) {
 
                         // execute regex matching
                         if (isEmpty(itemData)) {
@@ -1064,7 +1076,7 @@ kg.Row = function (entity, config) {
 
     this.sortedData = ko.computed(function () {
         var sortData = internalSortedData();
-        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
+        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a
         // dependency during the binding handler's dependency detection :(
         if (initPhase > 0) {
             return sortData;
@@ -1122,7 +1134,7 @@ kg.Row = function (entity, config) {
             return self.sortNumberStr;
         }
 
-        // check for a date: dd/mm/yyyy or dd/mm/yy 
+        // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
         dateParts = item.match(dateRE)
@@ -1304,7 +1316,7 @@ kg.Row = function (entity, config) {
                 // we assign the alpha sort because anything that is null/undefined will never get passed to
                 // the actual sorting function. It will get caught in our null check and returned to be sorted
                 // down to the bottom
-                sortFn = self.sortAlpha; 
+                sortFn = self.sortAlpha;
             }
         }
 
@@ -1316,7 +1328,7 @@ kg.Row = function (entity, config) {
                 propBEmpty = false,//isEmpty(propB);
                 propPath,
                 i;
-                
+
             propPath = col.field.split(".");
             for (i = 0; i < propPath.length; i++) {
                 propA = ko.utils.unwrapObservable(propA[propPath[i]]);
@@ -1351,7 +1363,7 @@ kg.Row = function (entity, config) {
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
-};  
+}; 
  
  
 /*********************************************** 

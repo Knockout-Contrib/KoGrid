@@ -15,29 +15,29 @@
     background-color: rgb(241, 241, 241);
     overflow: hidden;
 }
-.kgHeaderContainer {             
+.kgHeaderContainer {
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgb(229, 229, 229);
     font-weight: bold;
 }
 .kgHeaderScroller {
-    
+
 }
 .kgHeaderCell {
     position: absolute;
-    background-color: rgb(241, 241, 241); 
+    background-color: rgb(241, 241, 241);
     padding: 0;
     cursor: pointer;
     border-right: 1px solid rgb(241, 241, 241);
 }
 /******** Viewport ********/
-.kgViewport{
+.kgViewport {
     background-color: rgb(255, 255, 255);
 }
 
-.kgCanvas{
-    
+.kgCanvas {
+
 }
 
 /******** Rows ********/
@@ -58,19 +58,19 @@
 }
 /******** Cells ********/
 .kgCell {
-    overflow: hidden; 
+    overflow: hidden;
     position: absolute;
     padding: 0;
     display: inline;
 }
-.kgRowIndexCell{ 
+.kgRowIndexCell {
     text-align: center;
 }
 .kgSelectionCell {
-    
+
 }
 .kgSelectionCell input[type="checkbox"] {
-    margin-left: auto; 
+    margin-left: auto;
     margin-right: auto;
     margin-top: 7px;
     height: 15px;
@@ -78,9 +78,13 @@
 }
 
 /******** Header Sorting ********/
-.kgSortImg{
+.kgSortImg {
     height: 9px;
     width: 7px;
+}
+
+.kgNoSort {
+    cursor:default;
 }
 
 /******** Header Filtering ********/
@@ -108,7 +112,7 @@
 }
 
 /******** Footer ********/
-.kgFooterPanel{
+.kgFooterPanel {
     background-color: rgb(241, 241, 241);
     padding: 2px 0;
     border-top: 1px solid rgb(229, 229, 229);
@@ -120,18 +124,18 @@
     margin-top: 7px;
 }
 .kgFooterSelectedItems {
-	padding: 2px;
+    padding: 2px;
 }
 .kgFooterTotalItems {
-	padding: 2px;
+    padding: 2px;
 }
 .kgFooterTotalItems.kgNoMultiSelect {
-	padding: 0px !important;
+    padding: 0px !important;
 }
 
 /******** Pager ********/
 .kgPagerContainer {
-	float: left;
+    float: left;
     position: absolute;
     right: 0;
     left: 150px;
@@ -153,7 +157,7 @@
 }
 
 .kgRowCountPicker span.kgLabel {
-	padding-top:4px;
+    padding-top:4px;
 }
 
 .kgRowCountPicker select {

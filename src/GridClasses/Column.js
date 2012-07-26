@@ -2,14 +2,21 @@
     this.width = ko.observable(0);
 
     this.field = colDef.field;
-    this.displayName = colDef.displayName || colDef.field;
+    if (colDef.displayName === undefined || colDef.displayName === null) {
+        // Allow empty column names -- do not check for empty string
+        colDef.displayName = colDef.field;
+    }
+    this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
     this.width = ko.observable();
 
 
     //sorting
-    this.allowSort = true;
+    if (colDef.sortable === undefined || colDef.sortable === null) {
+        colDef.sortable = true;
+    }
+    this.allowSort = colDef.sortable;
     this.sortDirection = ko.observable("");
 
     //filtering
@@ -24,7 +31,7 @@
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
-        
+
     // figure out the width
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;

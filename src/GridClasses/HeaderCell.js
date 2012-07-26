@@ -25,6 +25,8 @@
 
     this.filterVisible = ko.observable(false);
 
+    this.allowSort = ko.observable(col.allowSort);
+
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
@@ -40,6 +42,9 @@
     });
 
     this.sort = function () {
+        if (!self.allowSort()) {
+            return; // column sorting is disabled, do nothing
+        }
         var dir = self.column.sortDirection() === "asc" ? "desc" : "asc";
         self.column.sortDirection(dir);
     };

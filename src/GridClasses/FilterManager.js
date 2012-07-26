@@ -1,6 +1,6 @@
 ﻿kg.FilterManager = function (options) {
     var self = this,
-        wildcard = options.filterWildcard || "*", // the wildcard character used by the user 
+        wildcard = options.filterWildcard || "*", // the wildcard character used by the user
         includeDestroyed = options.includeDestroyed || false, // flag to indicate whether to include _destroy=true items in filtered data
         regExCache = {}, // a cache of filterString to regex objects, eg: { 'abc%' : RegExp("abc[^\']*, "gi") }
         initPhase = 0, // flag for allowing us to do initialization only once and prevent dependencies from getting improperly registered
@@ -43,7 +43,7 @@
         return (data === null || data === undefined || data === '');
     };
 
-    // performs regex matching on data strings 
+    // performs regex matching on data strings
     var matchString = function (itemStr, filterStr) {
         //first check for RegEx thats already built
         var regex = regExCache[filterStr];
@@ -54,7 +54,7 @@
 
             //escape any wierd characters they might using
             filterStr = filterStr.replace(/\\/g, "\\");
-            
+
             // build our replacer regex
             if (wildcard === "*") {
                 replacer = /\*/g;
@@ -63,13 +63,13 @@
             }
 
             //first replace all % percent signs with the true regex wildcard *
-            var regexStr = filterStr.replace(replacer, "[^\']*");                     
+            var regexStr = filterStr.replace(replacer, "[^\']*");
 
             //ensure that we do "beginsWith" logic
             if (regexStr !== "*") { // handle the asterisk logic
                 regexStr = "^" + regexStr;
             }
-            
+
             // incase the user makes some nasty regex that we can't use
             try{
                 // then create an actual regex object
@@ -77,7 +77,7 @@
             }
             catch (e) {
                 // the user input something we can't parse into a valid RegExp, so just say that the data
-                // was a match 
+                // was a match
                 regex = /.*/gi;
             }
             // store it
@@ -111,28 +111,28 @@
         //clear out the regex cache so that we don't get improper results
         regExCache = {};
 
-        // filter the data array 
+        // filter the data array
         newArr = ko.utils.arrayFilter(data, function (item) {
-			var propPath,
-				i;
-				
+            var propPath,
+                i;
+
             //loop through each property and filter it
             for (field in filterInfo) {
 
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-					propPath = col.field.split(".");
-					itemData = item;
-					for (i = 0; i < propPath.length; i++) {
-						itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
-					}
+                    propPath = col.field.split(".");
+                    itemData = item;
+                    for (i = 0; i < propPath.length; i++) {
+                        itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
+                    }
 
                     // grab the user-entered filter criteria
                     filterStr = filterInfo[field];
 
                     // make sure they didn't just enter the wildcard character
-                    if (!isEmpty(filterStr) && filterStr !== wildcard) { 
+                    if (!isEmpty(filterStr) && filterStr !== wildcard) {
 
                         // execute regex matching
                         if (isEmpty(itemData)) {
