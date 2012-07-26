@@ -245,7 +245,7 @@
             if (item) {
                 propPath = col.field.split(".");
                 prop = item;
-                for (i = 0; i < propPath.length; i++) {
+                for (i = 0; i < propPath.length && prop !== undefined && prop !== null; i++) {
                     prop = ko.utils.unwrapObservable(prop[propPath[i]]);
                 }
             }
@@ -274,8 +274,8 @@
 
             propPath = col.field.split(".");
             for (i = 0; i < propPath.length; i++) {
-                propA = ko.utils.unwrapObservable(propA[propPath[i]]);
-                propB = ko.utils.unwrapObservable(propB[propPath[i]]);
+                if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
+                if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
             }
             propAEmpty = isEmpty(propA);
             propBEmpty = isEmpty(propB);

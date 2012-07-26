@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  9:33:18.77 Thu 07/26/2012 
+* Compiled At:  9:39:02.50 Thu 07/26/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -965,7 +965,7 @@ kg.Row = function (entity, config) {
                     // pull the data out of the item
                     propPath = col.field.split(".");
                     itemData = item;
-                    for (i = 0; i < propPath.length; i++) {
+                    for (i = 0; i < propPath.length && itemData !== undefined && itemData !== null; i++) {
                         itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
                     }
 
@@ -1302,7 +1302,7 @@ kg.Row = function (entity, config) {
             if (item) {
                 propPath = col.field.split(".");
                 prop = item;
-                for (i = 0; i < propPath.length; i++) {
+                for (i = 0; i < propPath.length && prop !== undefined && prop !== null; i++) {
                     prop = ko.utils.unwrapObservable(prop[propPath[i]]);
                 }
             }
@@ -1331,8 +1331,8 @@ kg.Row = function (entity, config) {
 
             propPath = col.field.split(".");
             for (i = 0; i < propPath.length; i++) {
-                propA = ko.utils.unwrapObservable(propA[propPath[i]]);
-                propB = ko.utils.unwrapObservable(propB[propPath[i]]);
+                if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
+                if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
             }
             propAEmpty = isEmpty(propA);
             propBEmpty = isEmpty(propB);
