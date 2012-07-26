@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  9:39:02.50 Thu 07/26/2012 
+* Compiled At:  9:47:19.62 Thu 07/26/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1324,8 +1324,8 @@ kg.Row = function (entity, config) {
         data.sort(function (itemA, itemB) {
             var propA = itemA,
                 propB = itemB,
-                propAEmpty = false,//isEmpty(propA),
-                propBEmpty = false,//isEmpty(propB);
+                propAEmpty = false,
+                propBEmpty = false,
                 propPath,
                 i;
 

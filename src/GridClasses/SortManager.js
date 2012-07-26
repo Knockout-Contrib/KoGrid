@@ -267,8 +267,8 @@
         data.sort(function (itemA, itemB) {
             var propA = itemA,
                 propB = itemB,
-                propAEmpty = false,//isEmpty(propA),
-                propBEmpty = false,//isEmpty(propB);
+                propAEmpty = false,
+                propBEmpty = false,
                 propPath,
                 i;
 
