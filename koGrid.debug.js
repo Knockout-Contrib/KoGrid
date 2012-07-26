@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  9:47:19.62 Thu 07/26/2012 
+* Compiled At: 12:41:45.04 Thu 07/26/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -202,7 +202,7 @@ kg.utils = utils;
             var replacer = "{ value: '" + col.field + "' }";
 
             // run any changes on the template for re-usable templates
-            tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || '');
+            tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || 'kgEmpty');
             tmpl = tmpl.replace(/\$cellValue/g, "$data." + col.field);
             tmpl = tmpl.replace(/\$cell/g, replacer);
 
@@ -210,7 +210,7 @@ kg.utils = utils;
         }
         // finally just use a basic template for the cell
         else {
-            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || '',  col.field);
+            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || 'kgEmpty',  col.field);
         }
     });
 

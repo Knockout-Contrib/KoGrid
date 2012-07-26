@@ -25,7 +25,7 @@
             var replacer = "{ value: '" + col.field + "' }";
 
             // run any changes on the template for re-usable templates
-            tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || '');
+            tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || 'kgEmpty');
             tmpl = tmpl.replace(/\$cellValue/g, "$data." + col.field);
             tmpl = tmpl.replace(/\$cell/g, replacer);
 
@@ -33,7 +33,7 @@
         }
         // finally just use a basic template for the cell
         else {
-            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || '',  col.field);
+            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || 'kgEmpty',  col.field);
         }
     });
 
