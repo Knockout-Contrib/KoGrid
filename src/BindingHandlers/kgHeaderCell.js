@@ -39,7 +39,7 @@
                 if (cell) {
                     
                     //format the header cell
-                    element.className += " kgHeaderCell col" + cell.colIndex;
+                    element.className += " kgHeaderCell col" + cell.colIndex + " ";
                     
                     //add the custom class in case it has been provided
                     if (cell.headerClass) {

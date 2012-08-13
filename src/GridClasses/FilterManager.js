@@ -122,7 +122,7 @@
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-                    propPath = col.field.split(".");
+                    propPath = field.split(".");
                     itemData = item;
                     for (i = 0; i < propPath.length && itemData !== undefined && itemData !== null; i++) {
                         itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);

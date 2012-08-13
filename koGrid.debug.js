@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:41:45.04 Thu 07/26/2012 
+* Compiled At: 12:49:53.97 Mon 08/13/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -963,7 +963,7 @@ kg.Row = function (entity, config) {
                 if (filterInfo.hasOwnProperty(field)) {
 
                     // pull the data out of the item
-                    propPath = col.field.split(".");
+                    propPath = field.split(".");
                     itemData = item;
                     for (i = 0; i < propPath.length && itemData !== undefined && itemData !== null; i++) {
                         itemData = ko.utils.unwrapObservable(itemData[propPath[i]]);
@@ -2711,7 +2711,7 @@ ko.bindingHandlers['kgCell'] = (function () {
             cell = row.cellMap[options.value];
 
             //ensure the cell has the right class so it lines up correctly
-            element.className += " kgCell " + "col" + cell.column.index;
+            element.className += " kgCell " + "col" + cell.column.index + " ";
 
             if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
                 ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
@@ -2811,7 +2811,7 @@ ko.bindingHandlers['kgCell'] = (function () {
                 if (cell) {
                     
                     //format the header cell
-                    element.className += " kgHeaderCell col" + cell.colIndex;
+                    element.className += " kgHeaderCell col" + cell.colIndex + " ";
                     
                     //add the custom class in case it has been provided
                     if (cell.headerClass) {
