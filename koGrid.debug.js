@@ -1,4 +1,4 @@
-/*********************************************** 
+﻿/*********************************************** 
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
@@ -14,7 +14,7 @@
 var kg = window['kg'] = {};
 kg.templates = {}; 
  
- 
+    
 /*********************************************** 
 * FILE: ..\Src\Constants.js 
 ***********************************************/ 
@@ -108,16 +108,16 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.templates.defaultGridInnerTemplate = function () {
     return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
-                '<div class="kgHeaderContainer" style="position: relative; overflow-x: hidden" data-bind="kgSize: $data.headerDim">' +
+                '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">' +
                     '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">' +
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgViewport" style="overflow: auto;" data-bind="kgSize: $data.viewportDim">' +
-                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
+            '<div class="kgViewport" data-bind="kgSize: $data.viewportDim">' +
+                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }">' +
                 '</div>' +
             '</div>' +
-            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim" style="position: relative;">' +
+            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
                 
             '</div>';
 }; 
@@ -234,12 +234,12 @@ kg.utils = utils;
             '</div>' +
             '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible()">' +
                 '<div style="float: right;">' +
-                    '<div class="kgRowCountPicker"">' +
+                    '<div class="kgRowCountPicker">' +
                         '<span class="kgLabel">Rows:</span>' +
                         '<select data-bind="options: pageSizes, value: selectedPageSize">' +
                         '</select>' +
                     '</div>' +
-                    '<div class="kgPagerControl" style="float: left; min-width: 135px;">' +
+                    '<div class="kgPagerControl">' +
                         '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
                         '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
                         '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
@@ -2651,7 +2651,7 @@ ko.bindingHandlers['kgCell'] = (function () {
 
             //get the cell from the options
             cell = row.cellMap[options.value];
-
+            if (cell == undefined) return;
             //ensure the cell has the right class so it lines up correctly
             element.className += " kgCell " + "col" + cell.column.index;
 

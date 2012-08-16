@@ -34,10 +34,11 @@
 /******** Viewport ********/
 .kgViewport{
     background-color: rgb(255, 255, 255);
+	overflow: auto;
 }
 
 .kgCanvas{
-    
+    position: relative;
 }
 
 /******** Rows ********/
@@ -111,6 +112,7 @@
     padding: 2px 0;
     border-top: 1px solid rgb(229, 229, 229);
     border-bottom: 1px solid rgb(229, 229, 229);
+	position: relative;
 }
 .kgTotalSelectContainer {
     float: left;
