@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:11:22.40 Fri 08/17/2012 
+* Compiled At: 16:33:15.83 Fri 08/17/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -14,7 +14,8 @@
 
 $(document).click(function(e) {
     e = e || event;
-    $.lastClickedGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
+	var closestGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
+	if (closestGrid) $.lastClickedGrid = closestGrid;
 });
 
 ko.kgMoveSelection = function (sender, evt) {
