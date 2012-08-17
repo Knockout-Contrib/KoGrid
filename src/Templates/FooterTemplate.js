@@ -23,6 +23,7 @@
                     '</div>' +
                 '</div>' +
             '</div>';
+};
 
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +

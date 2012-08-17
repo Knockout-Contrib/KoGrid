@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 20:10:03.67 Thu 08/16/2012 
+* Compiled At: 22:06:15.23 Thu 08/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -246,6 +246,7 @@ kg.utils = utils;
                     '</div>' +
                 '</div>' +
             '</div>';
+};
 
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
@@ -2736,41 +2737,6 @@ ko.bindingHandlers['kgCell'] = (function () {
             if (cell == undefined) return;
             //ensure the cell has the right class so it lines up correctly
             element.className += " kgCell " + "col" + cell.column.index + " ";
-
-            if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
-                ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
-            }
-        }
-    };
-
-﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
-/// <reference path="../../lib/jquery-1.7.js" />
-
-ko.bindingHandlers['kgCell'] = (function () {
-    var makeValueAccessor = function (cell) {
-        var func;
-
-        if (cell.column.field === 'rowIndex') {
-            return function () { return cell.row.rowDisplayIndex; }
-        } else {
-            return function () { return cell.data; }
-        }
-    };
-
-    return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-        },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var options = valueAccessor(),
-                cell,
-                row = bindingContext.$data;
-
-            //get the cell from the options
-            cell = row.cellMap[options.value];
-
-            //ensure the cell has the right class so it lines up correctly
-            element.className += " kgCell " + "col" + cell.column.index;
 
             if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
                 ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
