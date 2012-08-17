@@ -31,7 +31,21 @@ ko.bindingHandlers['koGrid'] = (function () {
             $(element).addClass("kgGrid")
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
-
+			
+			//set event binding on the grid so we can select using the up/down keys
+			var body = document.getElementsByTagName("body")[0];
+			var bodyAttrib = body.getAttribute("data-bind");
+			if (bodyAttrib == null){
+				body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
+				ko.applyBindings(bindingContext.$parent, body);
+			}
+// TODO: Make it work by binding the event to the dom element instead of the body
+//	        var attributes = $(element)[0].getAttribute("data-bind");
+//			if (attributes.indexOf("keydown") == -1){
+//				$(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
+//			    ko.applyBindings(viewModel, element);
+//			}
+			
             //make sure the templates are generated for the Grid
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,

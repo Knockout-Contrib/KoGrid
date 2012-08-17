@@ -1,9 +1,51 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:06:15.23 Thu 08/16/2012 
+* Compiled At: 16:11:22.40 Fri 08/17/2012 
 ***********************************************/ 
 (function(window, undefined){ 
+ 
+ 
+/*********************************************** 
+* FILE: ..\src\Navigation.js 
+***********************************************/ 
+/// <reference path="../lib/jquery-1.7.js" />
+/// <reference path="../lib/knockout-2.0.0.debug.js" />
+
+$(document).click(function(e) {
+    e = e || event;
+    $.lastClickedGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
+});
+
+ko.kgMoveSelection = function (sender, evt) {
+	var offset,
+		charCode = (evt.which) ? evt.which : event.keyCode;
+	switch (charCode) {
+		case 38:
+			// up - select previous
+			offset = -1;
+			break;
+		case 40:
+			// down - select next
+			offset = 1;
+			break;
+	}
+	var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
+	if (grid != null && grid != undefined){
+		var old = grid.config.selectedItem();
+		if (old != undefined) {
+			old.isSelected(false);
+			var items = grid.finalData();
+			var n = items.length;
+			var index = items.indexOf(old) + offset;
+			if (index >= 0 && index < n) {
+				var item = items[index];
+				item.isSelected(true);
+				grid.config.selectedItem(item);
+			}
+		}
+	}
+};  
  
  
 /*********************************************** 
@@ -1698,6 +1740,7 @@ kg.KoGrid = function (options) {
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
         footerVisible: ko.observable(true),
+		canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -2498,7 +2541,21 @@ ko.bindingHandlers['koGrid'] = (function () {
             $(element).addClass("kgGrid")
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
-
+			
+			//set event binding on the grid so we can select using the up/down keys
+			var body = document.getElementsByTagName("body")[0];
+			var bodyAttrib = body.getAttribute("data-bind");
+			if (bodyAttrib == null){
+				body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
+				ko.applyBindings(bindingContext.$parent, body);
+			}
+// TODO: Make it work by binding the event to the dom element instead of the body
+//	        var attributes = $(element)[0].getAttribute("data-bind");
+//			if (attributes.indexOf("keydown") == -1){
+//				$(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
+//			    ko.applyBindings(viewModel, element);
+//			}
+			
             //make sure the templates are generated for the Grid
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,

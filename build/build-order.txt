@@ -1,3 +1,4 @@
+..\src\Navigation.js
 ..\Src\Namespace.js
 ..\Src\Constants.js
 ..\Src\Labels.js
