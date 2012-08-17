@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 19:37:13.88 Thu 08/16/2012 
+* Compiled At: 19:55:25.14 Thu 08/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -113,12 +113,11 @@ kg.utils = utils;
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgViewport" style="overflow: auto;" data-bind="kgSize: $data.viewportDim">' +
-                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }">' +
+            '<div class="kgViewport" data-bind="kgSize: $data.viewportDim">' +
+                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
                 '</div>' +
             '</div>' +
             '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
-                
             '</div>';
 }; 
  
@@ -223,6 +222,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
+<<<<<<< HEAD
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
@@ -248,6 +248,33 @@ kg.utils = utils;
                     '</div>' +
                 '</div>' +
             '</div>';
+=======
+﻿kg.templates.defaultFooterTemplate = function () {
+    return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
+                '<div class="kgFooterTotalItems">' +
+                    '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
+                '</div>' +
+                '<div class="kgFooterSelectedItems">' +
+                    '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible()">' +
+                '<div style="float: right;">' +
+                    '<div class="kgRowCountPicker"">' +
+                        '<span class="kgLabel">Rows:</span>' +
+                        '<select data-bind="options: pageSizes, value: selectedPageSize">' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="kgPagerControl" style="float: left; min-width: 135px;">' +
+                        '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
+                        '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
+                        '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
+                        '<input class="kgPagerNext" type="button"  data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
+                        '<input class="kgPagerLast" type="button"  data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+>>>>>>> parent of f6037dc... updating source with previous commit's changes
 }; 
  
  
@@ -1598,15 +1625,7 @@ kg.SelectionManager = function (options) {
                 scrollTop = e.target.scrollTop;
 
             grid.adjustScrollLeft(scrollLeft);
-            
-            if(scrollTimer){
-                clearTimeout(scrollTimer);
-            }
-
-            scrollTimer = setTimeout( function(){
-                scrollTimer = null;                
-                grid.adjustScrollTop(scrollTop);
-            }, 200);
+            grid.adjustScrollTop(scrollTop);
         });
 
         //resize the grid on parent re-size events
@@ -2691,6 +2710,7 @@ ko.bindingHandlers['kgRow'] = (function () {
 /*********************************************** 
 * FILE: ..\Src\BindingHandlers\kgCell.js 
 ***********************************************/ 
+<<<<<<< HEAD
 ﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../../lib/jquery-1.7.js" />
 
@@ -2726,6 +2746,43 @@ ko.bindingHandlers['kgCell'] = (function () {
         }
     };
 
+=======
+﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
+/// <reference path="../../lib/jquery-1.7.js" />
+
+ko.bindingHandlers['kgCell'] = (function () {
+    var makeValueAccessor = function (cell) {
+        var func;
+
+        if (cell.column.field === 'rowIndex') {
+            return function () { return cell.row.rowDisplayIndex; }
+        } else {
+            return function () { return cell.data; }
+        }
+    };
+
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var options = valueAccessor(),
+                cell,
+                row = bindingContext.$data;
+
+            //get the cell from the options
+            cell = row.cellMap[options.value];
+
+            //ensure the cell has the right class so it lines up correctly
+            element.className += " kgCell " + "col" + cell.column.index;
+
+            if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
+                ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
+            }
+        }
+    };
+
+>>>>>>> parent of f6037dc... updating source with previous commit's changes
 } ()); 
  
  
