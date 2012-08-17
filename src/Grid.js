@@ -61,6 +61,14 @@ kg.KoGrid = function (options) {
     this.initPhase = 0;
 
 
+    // Set new default footer height if not overridden, and multi select is disabled
+    if (this.config.footerRowHeight === defaults.footerRowHeight
+        && (!this.config.canSelectRows
+        || !this.config.isMultiSelect)) {
+        defaults.footerRowHeight = 30;
+        this.config.footerRowHeight = 30;
+    }
+	
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
@@ -388,7 +396,7 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 1) {
+        if (columnDefs.length > 0) {
 
             utils.forEach(columnDefs, function (colDef, i) {
                 column = new kg.Column(colDef);

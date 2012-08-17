@@ -15,7 +15,7 @@
     background-color: rgb(241, 241, 241);
     overflow: hidden;
 }
-.kgHeaderContainer {             
+.kgHeaderContainer {
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgb(229, 229, 229);
@@ -55,6 +55,10 @@
 .kgRow.kgSelected {
     background-color: rgb(255, 255, 204);
 }
+.kgRow.kgCanSelect {
+    cursor: pointer;
+}
+
 /******** Cells ********/
 .kgCell {
     overflow: hidden; 
@@ -80,6 +84,10 @@
 .kgSortImg{
     height: 9px;
     width: 7px;
+}
+
+.kgNoSort {
+    cursor:default;
 }
 
 /******** Header Filtering ********/
@@ -117,13 +125,16 @@
 .kgTotalSelectContainer {
     float: left;
     margin: 5px;
-    margin-top: 3px;
+    margin-top: 7px;
 }
 .kgFooterSelectedItems {
 	padding: 2px;
 }
 .kgFooterTotalItems {
 	padding: 2px;
+}
+.kgFooterTotalItems.kgNoMultiSelect {
+    padding: 0px !important;
 }
 
 /******** Pager ********/
@@ -137,6 +148,10 @@
     height: 37px;
     padding-top: 13px;
 }
+.kgPagerContainer.kgNoMultiSelect {
+    height: 22px !important;
+    padding-top: 2px !important;
+}
 
 .kgRowCountPicker {
     position: relative;
@@ -145,6 +160,13 @@
     padding-top: 1px;
 }
 
+.kgRowCountPicker span.kgLabel {
+    padding-top:4px;
+}
+
+.kgRowCountPicker select {
+    margin-top:0px;
+}
 .kgPagerControl {
     float: left;
     width: 135px;
