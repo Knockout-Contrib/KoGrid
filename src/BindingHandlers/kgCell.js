@@ -23,7 +23,7 @@ ko.bindingHandlers['kgCell'] = (function () {
 
             //get the cell from the options
             cell = row.cellMap[options.value];
-
+            if (cell == undefined) return;
             //ensure the cell has the right class so it lines up correctly
             element.className += " kgCell " + "col" + cell.column.index;
 

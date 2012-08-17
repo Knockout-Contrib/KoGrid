@@ -14,7 +14,7 @@
                         '<select data-bind="options: pageSizes, value: selectedPageSize">' +
                         '</select>' +
                     '</div>' +
-                    '<div class="kgPagerControl" style="float: left; min-width: 135px;">' +
+                    '<div class="kgPagerControl">' +
                         '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
                         '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
                         '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +

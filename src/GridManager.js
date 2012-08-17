@@ -34,7 +34,15 @@
                 scrollTop = e.target.scrollTop;
 
             grid.adjustScrollLeft(scrollLeft);
-            grid.adjustScrollTop(scrollTop);
+            
+            if(scrollTimer){
+                clearTimeout(scrollTimer);
+            }
+
+            scrollTimer = setTimeout( function(){
+                scrollTimer = null;                
+                grid.adjustScrollTop(scrollTop);
+            }, 200);
         });
 
         //resize the grid on parent re-size events
