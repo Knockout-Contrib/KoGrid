@@ -1,8 +1,8 @@
 @ECHO OFF
 
 SET CurrentDir=%CD%
-SET OutPutFile=%CurrentDir%\koGrid.debug.js
-SET FinalFile=..\koGrid.debug.js
+SET OutPutFile=%CurrentDir%\sKoGrid.debug.js
+SET FinalFile=..\sKoGrid.debug.js
 SET BuildOrder=%CurrentDir%\build-order.txt
 
 ECHO JSBuild Starting...
@@ -23,8 +23,8 @@ DEL %OutPutFile%
 
 @REM Wrap the final output in an IIFE
 @ECHO /*********************************************** >> %OutPutFile%
-@ECHO * KoGrid JavaScript Library >> %OutPutFile%
-@ECHO * (c) Eric M. Barnard >> %OutPutFile%
+@ECHO * sKoGrid JavaScript Library >> %OutPutFile%
+@ECHO * (c) Tim Sweet & Eric M. Barnard  >> %OutPutFile%
 @ECHO * License: MIT (http://www.opensource.org/licenses/mit-license.php) >> %OutputFile%
 @ECHO * Compiled At: %Time% %Date% >> %OutPutFile%
 @ECHO ***********************************************/ >> %OutPutFile%

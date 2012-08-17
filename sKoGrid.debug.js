@@ -1,8 +1,7 @@
 /*********************************************** 
-* KoGrid JavaScript Library 
-* (c) Eric M. Barnard 
+* sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 20:06:15.03 Thu 08/16/2012 
+* Compiled At: 20:10:03.67 Thu 08/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
