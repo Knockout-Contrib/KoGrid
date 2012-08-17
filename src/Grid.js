@@ -13,6 +13,7 @@ kg.KoGrid = function (options) {
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
         footerVisible: ko.observable(true),
+		canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
