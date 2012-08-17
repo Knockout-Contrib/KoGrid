@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 ﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../../lib/jquery-1.7.js" />
 
@@ -34,7 +34,6 @@ ko.bindingHandlers['kgCell'] = (function () {
         }
     };
 
-=======
 ﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../../lib/jquery-1.7.js" />
 
@@ -69,6 +68,4 @@ ko.bindingHandlers['kgCell'] = (function () {
             }
         }
     };
-
->>>>>>> parent of f6037dc... updating source with previous commit's changes
 } ());

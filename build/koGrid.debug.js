@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * (c) Eric M. Barnard 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 19:55:25.14 Thu 08/16/2012 
+* Compiled At: 20:06:15.03 Thu 08/16/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -222,7 +222,6 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
-<<<<<<< HEAD
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
@@ -248,7 +247,7 @@ kg.utils = utils;
                     '</div>' +
                 '</div>' +
             '</div>';
-=======
+
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems">' +
@@ -274,7 +273,6 @@ kg.utils = utils;
                     '</div>' +
                 '</div>' +
             '</div>';
->>>>>>> parent of f6037dc... updating source with previous commit's changes
 }; 
  
  
@@ -2710,7 +2708,7 @@ ko.bindingHandlers['kgRow'] = (function () {
 /*********************************************** 
 * FILE: ..\Src\BindingHandlers\kgCell.js 
 ***********************************************/ 
-<<<<<<< HEAD
+
 ﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../../lib/jquery-1.7.js" />
 
@@ -2746,7 +2744,6 @@ ko.bindingHandlers['kgCell'] = (function () {
         }
     };
 
-=======
 ﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../../lib/jquery-1.7.js" />
 
@@ -2781,8 +2778,6 @@ ko.bindingHandlers['kgCell'] = (function () {
             }
         }
     };
-
->>>>>>> parent of f6037dc... updating source with previous commit's changes
 } ()); 
  
  

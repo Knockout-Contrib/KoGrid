@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
@@ -24,7 +23,7 @@
                     '</div>' +
                 '</div>' +
             '</div>';
-=======
+
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems">' +
@@ -50,5 +49,4 @@
                     '</div>' +
                 '</div>' +
             '</div>';
->>>>>>> parent of f6037dc... updating source with previous commit's changes
 };
