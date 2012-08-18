@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:18:39.57 Sat 08/18/2012 
+* Compiled At: 16:47:37.01 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -14,45 +14,45 @@
 
 $(document).click(function(e) {
     e = e || event;
-	var closestGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
-	if (closestGrid) $.lastClickedGrid = closestGrid;
+    var closestGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
+    if (closestGrid) $.lastClickedGrid = closestGrid;
 });
 
 ko.kgMoveSelection = function (sender, evt) {
-	var offset,
-		charCode = (evt.which) ? evt.which : event.keyCode;
-	switch (charCode) {
-		case 38:
-			// up - select previous
-			offset = -1;
-			break;
-		case 40:
-			// down - select next
-			offset = 1;
-			break;
-	}
-	var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
-	if (grid != null && grid != undefined){
-		if (grid.config.isMultiSelect) return;
-		var old = grid.config.selectedItem();
-		if (old != undefined) {
-			old.isSelected(false);
-			var items = grid.finalData();
-			var n = items.length;
-			var index = items.indexOf(old) + offset;
-			if (index >= 0 && index < n) {
-				var item = items[index];
-				item.isSelected(true);
-				grid.config.selectedItem(item);
-				var itemtoView = document.getElementsByClassName("kgSelected");
-				if (!Element.prototype.scrollIntoViewIfNeeded){
-					itemtoView[0].scrollIntoView(false);
-				} else {
-					itemtoView[0].scrollIntoViewIfNeeded();
-				}
-			}
-		}
-	}
+    var offset,
+        charCode = (evt.which) ? evt.which : event.keyCode;
+    switch (charCode) {
+        case 38:
+            // up - select previous
+            offset = -1;
+            break;
+        case 40:
+            // down - select next
+            offset = 1;
+            break;
+    }
+    var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
+    if (grid != null && grid != undefined){
+        if (grid.config.isMultiSelect) return;
+        var old = grid.config.selectedItem();
+        if (old != undefined) {
+            old.isSelected(false);
+            var items = grid.finalData();
+            var n = items.length;
+            var index = items.indexOf(old) + offset;
+            if (index >= 0 && index < n) {
+                var item = items[index];
+                item.isSelected(true);
+                grid.config.selectedItem(item);
+                var itemtoView = document.getElementsByClassName("kgSelected");
+                if (!Element.prototype.scrollIntoViewIfNeeded){
+                    itemtoView[0].scrollIntoView(false);
+                } else {
+                    itemtoView[0].scrollIntoViewIfNeeded();
+                }
+            }
+        }
+    }
 };  
  
  
@@ -541,6 +541,9 @@ kg.Row = function (entity, config) {
         //check and make sure its not the bubbling up of our checked 'click' event 
         if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
             return true;
+        } 
+        if (config.selectWithCheckboxOnly && element.type != "checkbox"){
+            return;
         } else {
             if (self.selected()) {
                 self.selected(false);
@@ -1541,7 +1544,7 @@ kg.SelectionManager = function (options) {
                 //set the new entity
                 self.selectedItem(changedEntity);
             }// else {
-                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn;t changed.
+                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn't changed.
                 //changedEntity[KEY](true);
             //}
 
@@ -1748,7 +1751,7 @@ kg.KoGrid = function (options) {
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
         footerVisible: ko.observable(true),
-		canSelectRows: true,
+        canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -1768,7 +1771,8 @@ kg.KoGrid = function (options) {
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
         sortInfo: ko.observable(), //observable similar to filterInfo
         filterWildcard: "*",
-        includeDestroyed: false // flag to show _destroy=true items in grid
+        includeDestroyed: false, // flag to show _destroy=true items in grid
+        selectWithCheckboxOnly: false
     },
 
     self = this,
@@ -1804,7 +1808,7 @@ kg.KoGrid = function (options) {
         defaults.footerRowHeight = 30;
         this.config.footerRowHeight = 30;
     }
-	
+    
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;

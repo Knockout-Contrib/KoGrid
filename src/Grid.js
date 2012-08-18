@@ -13,7 +13,7 @@ kg.KoGrid = function (options) {
         headerCellTemplate: 'kgHeaderCellTemplate',
         footerTemplate: 'kgFooterTemplate',
         footerVisible: ko.observable(true),
-		canSelectRows: true,
+        canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
         columnDefs: [],
@@ -33,7 +33,8 @@ kg.KoGrid = function (options) {
         filterInfo: ko.observable(), //observable that holds filter information (fields, and filtering strings)
         sortInfo: ko.observable(), //observable similar to filterInfo
         filterWildcard: "*",
-        includeDestroyed: false // flag to show _destroy=true items in grid
+        includeDestroyed: false, // flag to show _destroy=true items in grid
+        selectWithCheckboxOnly: false
     },
 
     self = this,
@@ -69,7 +70,7 @@ kg.KoGrid = function (options) {
         defaults.footerRowHeight = 30;
         this.config.footerRowHeight = 30;
     }
-	
+    
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
