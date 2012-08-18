@@ -94,10 +94,10 @@ kg.SelectionManager = function (options) {
             if (keep) {
                 //set the new entity
                 self.selectedItem(changedEntity);
-            } else {
-                //always keep a selected entity around
-                changedEntity[KEY](true);
-            }
+            }// else {
+                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn;t changed.
+                //changedEntity[KEY](true);
+            //}
 
         } else {
             //Multi-Select Logic

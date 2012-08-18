@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:23:40.18 Sat 08/18/2012 
+* Compiled At: 16:18:39.57 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -33,6 +33,7 @@ ko.kgMoveSelection = function (sender, evt) {
 	}
 	var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
 	if (grid != null && grid != undefined){
+		if (grid.config.isMultiSelect) return;
 		var old = grid.config.selectedItem();
 		if (old != undefined) {
 			old.isSelected(false);
@@ -1539,10 +1540,10 @@ kg.SelectionManager = function (options) {
             if (keep) {
                 //set the new entity
                 self.selectedItem(changedEntity);
-            } else {
-                //always keep a selected entity around
-                changedEntity[KEY](true);
-            }
+            }// else {
+                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn;t changed.
+                //changedEntity[KEY](true);
+            //}
 
         } else {
             //Multi-Select Logic

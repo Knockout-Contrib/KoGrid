@@ -22,6 +22,7 @@ ko.kgMoveSelection = function (sender, evt) {
 	}
 	var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
 	if (grid != null && grid != undefined){
+		if (grid.config.isMultiSelect) return;
 		var old = grid.config.selectedItem();
 		if (old != undefined) {
 			old.isSelected(false);
