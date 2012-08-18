@@ -32,6 +32,12 @@ ko.kgMoveSelection = function (sender, evt) {
 				var item = items[index];
 				item.isSelected(true);
 				grid.config.selectedItem(item);
+				var itemtoView = document.getElementsByClassName("kgSelected");
+				if (!Element.prototype.scrollIntoViewIfNeeded){
+					itemtoView[0].scrollIntoView(false);
+				} else {
+					itemtoView[0].scrollIntoViewIfNeeded();
+				}
 			}
 		}
 	}

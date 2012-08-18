@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:33:15.83 Fri 08/17/2012 
+* Compiled At: 17:09:05.60 Fri 08/17/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -43,6 +43,12 @@ ko.kgMoveSelection = function (sender, evt) {
 				var item = items[index];
 				item.isSelected(true);
 				grid.config.selectedItem(item);
+				var itemtoView = document.getElementsByClassName("kgSelected");
+				if (!Element.prototype.scrollIntoViewIfNeeded){
+					itemtoView[0].scrollIntoView(false);
+				} else {
+					itemtoView[0].scrollIntoViewIfNeeded();
+				}
 			}
 		}
 	}
