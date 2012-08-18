@@ -47,7 +47,7 @@
     // @entity - the data item
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
-    var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
+    this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
         var row = rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
@@ -82,7 +82,7 @@
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            row = buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+            row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array
             rowArr.push(row);
@@ -95,7 +95,7 @@
     });
 
     // core logic that intelligently figures out the rendered range given all the contraints that we have
-    var calcRenderedRange = function () {
+    this.calcRenderedRange = function () {
         var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
@@ -148,7 +148,7 @@
     };
 
     // make sure that if any of these change, we re-fire the calc logic
-    self.viewableRange.subscribe(calcRenderedRange);
-    self.minViewportRows.subscribe(calcRenderedRange);
-    self.dataSource.subscribe(calcRenderedRange);
+    self.viewableRange.subscribe(self.calcRenderedRange);
+    self.minViewportRows.subscribe(self.calcRenderedRange);
+    self.dataSource.subscribe(self.calcRenderedRange);
 };

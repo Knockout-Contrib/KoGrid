@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:09:05.60 Fri 08/17/2012 
+* Compiled At: 14:23:40.18 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -732,7 +732,7 @@ kg.Row = function (entity, config) {
     // @entity - the data item
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
-    var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
+    this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
         var row = rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
@@ -767,7 +767,7 @@ kg.Row = function (entity, config) {
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            row = buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+            row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array
             rowArr.push(row);
@@ -780,7 +780,7 @@ kg.Row = function (entity, config) {
     });
 
     // core logic that intelligently figures out the rendered range given all the contraints that we have
-    var calcRenderedRange = function () {
+    this.calcRenderedRange = function () {
         var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
@@ -833,9 +833,9 @@ kg.Row = function (entity, config) {
     };
 
     // make sure that if any of these change, we re-fire the calc logic
-    self.viewableRange.subscribe(calcRenderedRange);
-    self.minViewportRows.subscribe(calcRenderedRange);
-    self.dataSource.subscribe(calcRenderedRange);
+    self.viewableRange.subscribe(self.calcRenderedRange);
+    self.minViewportRows.subscribe(self.calcRenderedRange);
+    self.dataSource.subscribe(self.calcRenderedRange);
 }; 
  
  
@@ -1141,7 +1141,7 @@ kg.Row = function (entity, config) {
         internalSortedData = ko.observableArray([]);
 
     // utility function for null checking
-    var isEmpty = function (val) {
+    this.isEmpty = function (val) {
         return (val === null || val === undefined || val === '');
     };
 
@@ -1346,7 +1346,7 @@ kg.Row = function (entity, config) {
     };
 
     // the core sorting logic trigger
-    var sortData = function () {
+    this.sortData = function () {
         var data = dataSource(),
             sortInfo = self.sortInfo(),
             col,
@@ -1408,8 +1408,8 @@ kg.Row = function (entity, config) {
                 if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
                 if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
             }
-            propAEmpty = isEmpty(propA);
-            propBEmpty = isEmpty(propB);
+            propAEmpty = self.isEmpty(propA);
+            propBEmpty = self.isEmpty(propB);
 
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (propAEmpty && propBEmpty) {
@@ -1432,8 +1432,8 @@ kg.Row = function (entity, config) {
     };
 
     //subscribe to the changes in these objects
-    dataSource.subscribe(sortData);
-    this.sortInfo.subscribe(sortData);
+    dataSource.subscribe(self.sortData);
+    this.sortInfo.subscribe(self.sortData);
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
