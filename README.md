@@ -1,6 +1,6 @@
 #sKoGrid : A Knockout DataGrid#
 
-By: Tim Sweet
+By: Tim Sweet   http://ornerydevelopment.blogspot.com/
 
 Original work done by: Eric M. Barnard
 
@@ -46,6 +46,7 @@ Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Gett
 
 also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
+* __2012-08-18__ - Adding new features, up/down arrows now control the selected item when multiselect is disabled. columnDefs are now observable so you can change the columns on the fly.
 * __2012-08-16__ - Styles moved into CSS, minor bug fix for Row templates where cells wouldn't take null values (for instance, when you want to display an image instead of the value)
 * __2012-03-07__ - Huge Row Rendering Perf improvements, Easier syntax for custom cell templates,  Allow Custom CSS Classes on Header and Data Cells, Allow toggling of Footer Visibility, Much better button iconography, enhanced default CSS styles, various other bug fixes
 * __2012-04-10__ - Wildcard Filtering, better grid resizing during window resize events, better sorting, numerous bug-fixes
