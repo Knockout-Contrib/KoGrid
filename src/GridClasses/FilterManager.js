@@ -203,6 +203,7 @@
 
             }
             self.filterInfo(info);
+            options.currentPage(1);
         };
     };
 
