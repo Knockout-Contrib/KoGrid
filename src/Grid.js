@@ -16,7 +16,7 @@ kg.KoGrid = function (options) {
         canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
-        columnDefs: [],
+        columnDefs: ko.observableArray([]),
         pageSizes: [250, 500, 1000], //page Sizes
         enablePaging: false,
         pageSize: ko.observable(250), //Size of Paging data
@@ -57,7 +57,12 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
-
+    
+    //If column Defs are not observable, make them so. Will not update dynamically this way.
+    if (options.columnDefs && !ko.isObservable(options.columnDefs)){
+        var observableColumnDefs = ko.observableArray(options.columnDefs);
+        options.columnDefs = observableColumnDefs;
+    }
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
@@ -355,7 +360,7 @@ kg.KoGrid = function (options) {
 
     });
 
-    var buildColumnDefsFromData = function () {
+    this.buildColumnDefsFromData = function () {
         var item;
 
         if (!self.data() || !self.data()[0]) {
@@ -369,27 +374,27 @@ kg.KoGrid = function (options) {
                 return;
             }
 
-            self.config.columnDefs.push({
+            self.config.columnDefs().push({
                 field: propName
             });
         });
 
     };
 
-    var buildColumns = function () {
+    this.buildColumns = function () {
         var columnDefs = self.config.columnDefs,
             cols = [],
             column;
 
-        if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
+        if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
         if (self.config.displaySelectionCheckbox) {
-            columnDefs.splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
+            columnDefs().splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
         }
         if (self.config.displayRowIndex) {
-            columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+            columnDefs().splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
         }
-
+        
         var createColumnSortClosure = function (col) {
             return function (dir) {
                 if (dir) {
@@ -398,9 +403,9 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 0) {
+        if (columnDefs().length > 0) {
 
-            utils.forEach(columnDefs, function (colDef, i) {
+            utils.forEach(columnDefs(), function (colDef, i) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
@@ -417,7 +422,7 @@ kg.KoGrid = function (options) {
 
     this.init = function () {
 
-        buildColumns();
+        self.buildColumns();
 
         //now if we are using the default templates, then make the generated ones unique
         if (self.config.rowTemplate === 'kgRowTemplate') {

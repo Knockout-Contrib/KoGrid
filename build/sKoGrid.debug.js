@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:47:37.01 Sat 08/18/2012 
+* Compiled At: 20:21:34.78 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -30,6 +30,8 @@ ko.kgMoveSelection = function (sender, evt) {
             // down - select next
             offset = 1;
             break;
+        default:
+            return true;
     }
     var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
     if (grid != null && grid != undefined){
@@ -1122,6 +1124,7 @@ kg.Row = function (entity, config) {
 
             }
             self.filterInfo(info);
+            options.currentPage(1);
         };
     };
 
@@ -1654,6 +1657,10 @@ kg.SelectionManager = function (options) {
         self.gridCache[grid.gridId] = grid;
         element[elementGridKey] = grid.gridId;
     };
+    
+    this.removeGrid = function(gridId) {
+        delete self.gridCache['gridId'];
+    };
 
     this.getGrid = function (element) {
         var grid;
@@ -1754,7 +1761,7 @@ kg.KoGrid = function (options) {
         canSelectRows: true,
         autogenerateColumns: true,
         data: null, //ko.observableArray
-        columnDefs: [],
+        columnDefs: ko.observableArray([]),
         pageSizes: [250, 500, 1000], //page Sizes
         enablePaging: false,
         pageSize: ko.observable(250), //Size of Paging data
@@ -1795,7 +1802,12 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
-
+    
+    //If column Defs are not observable, make them so. Will not update dynamically this way.
+    if (options.columnDefs && !ko.isObservable(options.columnDefs)){
+        var observableColumnDefs = ko.observableArray(options.columnDefs);
+        options.columnDefs = observableColumnDefs;
+    }
     this.config = $.extend(defaults, options)
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
@@ -2093,7 +2105,7 @@ kg.KoGrid = function (options) {
 
     });
 
-    var buildColumnDefsFromData = function () {
+    this.buildColumnDefsFromData = function () {
         var item;
 
         if (!self.data() || !self.data()[0]) {
@@ -2107,27 +2119,27 @@ kg.KoGrid = function (options) {
                 return;
             }
 
-            self.config.columnDefs.push({
+            self.config.columnDefs().push({
                 field: propName
             });
         });
 
     };
 
-    var buildColumns = function () {
+    this.buildColumns = function () {
         var columnDefs = self.config.columnDefs,
             cols = [],
             column;
 
-        if (self.config.autogenerateColumns) { buildColumnDefsFromData(); }
+        if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
         if (self.config.displaySelectionCheckbox) {
-            columnDefs.splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
+            columnDefs().splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
         }
         if (self.config.displayRowIndex) {
-            columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+            columnDefs().splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
         }
-
+        
         var createColumnSortClosure = function (col) {
             return function (dir) {
                 if (dir) {
@@ -2136,9 +2148,9 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 0) {
+        if (columnDefs().length > 0) {
 
-            utils.forEach(columnDefs, function (colDef, i) {
+            utils.forEach(columnDefs(), function (colDef, i) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
@@ -2155,7 +2167,7 @@ kg.KoGrid = function (options) {
 
     this.init = function () {
 
-        buildColumns();
+        self.buildColumns();
 
         //now if we are using the default templates, then make the generated ones unique
         if (self.config.rowTemplate === 'kgRowTemplate') {
@@ -2541,7 +2553,18 @@ ko.bindingHandlers['koGrid'] = (function () {
 
             //create the Grid
             grid = new kg.KoGrid(options);
-
+            var gridId = grid.gridId.toString();
+            
+            //subscribe to the columns and recrate the grid if they change
+            grid.config.columnDefs.subscribe(function (newColumns){
+                $(element).empty(); 
+                $(element).removeClass("kgGrid")
+                          .removeClass("ui-widget")
+                          .removeClass(gridId);
+                kg.gridManager.removeGrid(gridId);
+                ko.applyBindings(bindingContext, element);
+            });
+            
             kg.gridManager.storeGrid(element, grid);
 
             //get the container sizes
@@ -2553,21 +2576,21 @@ ko.bindingHandlers['koGrid'] = (function () {
             $(element).addClass("kgGrid")
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
-			
-			//set event binding on the grid so we can select using the up/down keys
-			var body = document.getElementsByTagName("body")[0];
-			var bodyAttrib = body.getAttribute("data-bind");
-			if (bodyAttrib == null){
-				body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
-				ko.applyBindings(bindingContext.$parent, body);
-			}
+            
+            //set event binding on the grid so we can select using the up/down keys
+            var body = document.getElementsByTagName("body")[0];
+            var bodyAttrib = body.getAttribute("data-bind");
+            if (bodyAttrib == null){
+                $(element).removeClass(gridId);
+                body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
+                ko.applyBindings(bindingContext.$parent, body);
+            }
 // TODO: Make it work by binding the event to the dom element instead of the body
-//	        var attributes = $(element)[0].getAttribute("data-bind");
-//			if (attributes.indexOf("keydown") == -1){
-//				$(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
-//			    ko.applyBindings(viewModel, element);
-//			}
-			
+//            var attributes = $(element)[0].getAttribute("data-bind");
+//            if (attributes.indexOf("keydown") == -1){
+//                $(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
+//                ko.applyBindings(viewModel, element);
+//            }
             //make sure the templates are generated for the Grid
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,

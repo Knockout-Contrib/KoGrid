@@ -19,7 +19,18 @@ ko.bindingHandlers['koGrid'] = (function () {
 
             //create the Grid
             grid = new kg.KoGrid(options);
-
+            var gridId = grid.gridId.toString();
+            
+            //subscribe to the columns and recrate the grid if they change
+            grid.config.columnDefs.subscribe(function (newColumns){
+                $(element).empty(); 
+                $(element).removeClass("kgGrid")
+                          .removeClass("ui-widget")
+                          .removeClass(gridId);
+                kg.gridManager.removeGrid(gridId);
+                ko.applyBindings(bindingContext, element);
+            });
+            
             kg.gridManager.storeGrid(element, grid);
 
             //get the container sizes
@@ -31,21 +42,21 @@ ko.bindingHandlers['koGrid'] = (function () {
             $(element).addClass("kgGrid")
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
-			
-			//set event binding on the grid so we can select using the up/down keys
-			var body = document.getElementsByTagName("body")[0];
-			var bodyAttrib = body.getAttribute("data-bind");
-			if (bodyAttrib == null){
-				body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
-				ko.applyBindings(bindingContext.$parent, body);
-			}
+            
+            //set event binding on the grid so we can select using the up/down keys
+            var body = document.getElementsByTagName("body")[0];
+            var bodyAttrib = body.getAttribute("data-bind");
+            if (bodyAttrib == null){
+                $(element).removeClass(gridId);
+                body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
+                ko.applyBindings(bindingContext.$parent, body);
+            }
 // TODO: Make it work by binding the event to the dom element instead of the body
-//	        var attributes = $(element)[0].getAttribute("data-bind");
-//			if (attributes.indexOf("keydown") == -1){
-//				$(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
-//			    ko.applyBindings(viewModel, element);
-//			}
-			
+//            var attributes = $(element)[0].getAttribute("data-bind");
+//            if (attributes.indexOf("keydown") == -1){
+//                $(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
+//                ko.applyBindings(viewModel, element);
+//            }
             //make sure the templates are generated for the Grid
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,

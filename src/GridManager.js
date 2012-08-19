@@ -12,6 +12,10 @@
         self.gridCache[grid.gridId] = grid;
         element[elementGridKey] = grid.gridId;
     };
+    
+    this.removeGrid = function(gridId) {
+        delete self.gridCache['gridId'];
+    };
 
     this.getGrid = function (element) {
         var grid;

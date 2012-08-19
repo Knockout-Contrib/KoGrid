@@ -19,6 +19,8 @@ ko.kgMoveSelection = function (sender, evt) {
             // down - select next
             offset = 1;
             break;
+        default:
+            return true;
     }
     var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
     if (grid != null && grid != undefined){
