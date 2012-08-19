@@ -361,12 +361,14 @@ kg.KoGrid = function (options) {
     });
 
     this.buildColumnDefsFromData = function () {
-        var item;
-
+        if (self.config.columnDefs().length > 0){
+            return;
+        }
         if (!self.data() || !self.data()[0]) {
             throw 'If auto-generating columns, "data" cannot be of null or undefined type!';
         }
 
+        var item;
         item = self.data()[0];
 
         utils.forIn(item, function (prop, propName) {

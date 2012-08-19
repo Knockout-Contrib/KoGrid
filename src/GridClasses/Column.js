@@ -9,14 +9,19 @@
     this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
-    this.width = ko.observable();
 
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
         colDef.sortable = true;
     }
+    
+    //resizing
+    if (colDef.resizable === undefined || colDef.resizable === null) {
+        colDef.resizable = true;
+    }
     this.allowSort = colDef.sortable;
+    this.allowResize = colDef.resizable;
     this.sortDirection = ko.observable("");
 
     //filtering

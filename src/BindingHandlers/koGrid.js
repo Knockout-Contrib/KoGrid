@@ -21,6 +21,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
                 grid = new kg.KoGrid(options);
+            } else {
+                return;
             }
             
             var gridId = grid.gridId.toString();

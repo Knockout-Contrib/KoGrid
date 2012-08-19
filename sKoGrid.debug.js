@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 10:27:46.76 Sun 08/19/2012 
+* Compiled At: 16:50:25.65 Sun 08/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -193,7 +193,7 @@ kg.utils = utils;
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width }, css: { \'kgNoSort\': {2} }">', col.field, col.colIndex, !col.allowSort);
             b.append('</div>');
         }
     });
@@ -451,14 +451,19 @@ kg.utils = utils;
     this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
-    this.width = ko.observable();
 
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
         colDef.sortable = true;
     }
+    
+    //resizing
+    if (colDef.resizable === undefined || colDef.resizable === null) {
+        colDef.resizable = true;
+    }
     this.allowSort = colDef.sortable;
+    this.allowResize = colDef.resizable;
     this.sortDirection = ko.observable("");
 
     //filtering
@@ -2106,12 +2111,14 @@ kg.KoGrid = function (options) {
     });
 
     this.buildColumnDefsFromData = function () {
-        var item;
-
+        if (self.config.columnDefs().length > 0){
+            return;
+        }
         if (!self.data() || !self.data()[0]) {
             throw 'If auto-generating columns, "data" cannot be of null or undefined type!';
         }
 
+        var item;
         item = self.data()[0];
 
         utils.forIn(item, function (prop, propName) {
@@ -2283,7 +2290,7 @@ kg.cssBuilder = {
             
             colWidth = col.width() - grid.elementDims.cellWdiff;
 
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
 
             sumWidth += col.width();
 
@@ -2555,6 +2562,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
                 grid = new kg.KoGrid(options);
+            } else {
+                return;
             }
             
             var gridId = grid.gridId.toString();
