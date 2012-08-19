@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:07:03.17 Sat 08/18/2012 
+* Compiled At: 10:27:46.76 Sun 08/19/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2561,6 +2561,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             
             //subscribe to the columns and recrate the grid if they change
             grid.config.columnDefs.subscribe(function (newColumns){
+                var oldgrid = kg.gridManager.getGrid(element);
+                var oldgridId = oldgrid.gridId.toString();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")

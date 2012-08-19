@@ -27,6 +27,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             
             //subscribe to the columns and recrate the grid if they change
             grid.config.columnDefs.subscribe(function (newColumns){
+                var oldgrid = kg.gridManager.getGrid(element);
+                var oldgridId = oldgrid.gridId.toString();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")

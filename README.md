@@ -1,23 +1,21 @@
 #sKoGrid : A Knockout DataGrid#
 
-By: Tim Sweet   http://ornerydevelopment.blogspot.com/
+LAtest revisions By: Tim Sweet          http://ornerydevelopment.blogspot.com/
 
-Original work done by: Eric M. Barnard
+Original work done by: Eric M. Barnard  https://github.com/ericmbarnard/KoGrid
 
-Bug Fixes by : Stephen Commisso
+Bug Fixes by : Stephen Commisso         https://github.com/gdscommisso/KoGrid
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 Dependencies: jQuery & Knockout
 ***
 ##About##
-__KoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
+__sKoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
 
 ##Disclaimer##
 This is a fork off the main project created by Eric M. Barnard 
 
-https://github.com/ericmbarnard/KoGrid
-https://github.com/gdscommisso/KoGrid
 
 KoGrid is BETA currently. We are going to be adding more features here in the very near future...
 ***
