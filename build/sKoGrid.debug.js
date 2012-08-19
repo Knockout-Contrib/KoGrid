@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 20:55:41.75 Sat 08/18/2012 
+* Compiled At: 22:07:03.17 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2552,7 +2552,11 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            grid = new kg.KoGrid(options);
+            var grid = kg.gridManager.getGrid(element);
+            if (!grid){
+                grid = new kg.KoGrid(options);
+            }
+            
             var gridId = grid.gridId.toString();
             
             //subscribe to the columns and recrate the grid if they change

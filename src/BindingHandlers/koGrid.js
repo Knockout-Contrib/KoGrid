@@ -18,7 +18,11 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            grid = new kg.KoGrid(options);
+            var grid = kg.gridManager.getGrid(element);
+            if (!grid){
+                grid = new kg.KoGrid(options);
+            }
+            
             var gridId = grid.gridId.toString();
             
             //subscribe to the columns and recrate the grid if they change
