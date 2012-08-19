@@ -14,7 +14,7 @@
     };
     
     this.removeGrid = function(gridId) {
-        delete self.gridCache['gridId'];
+        delete self.gridCache[gridId];
     };
 
     this.getGrid = function (element) {

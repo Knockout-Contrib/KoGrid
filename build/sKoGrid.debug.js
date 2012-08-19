@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 20:21:34.78 Sat 08/18/2012 
+* Compiled At: 20:55:41.75 Sat 08/18/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1659,7 +1659,7 @@ kg.SelectionManager = function (options) {
     };
     
     this.removeGrid = function(gridId) {
-        delete self.gridCache['gridId'];
+        delete self.gridCache[gridId];
     };
 
     this.getGrid = function (element) {
