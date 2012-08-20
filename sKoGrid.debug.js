@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:50:25.65 Sun 08/19/2012 
+* Compiled At: 15:44:40.65 Mon 08/20/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -176,7 +176,7 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\Templates\HeaderTemplate.js 
 ***********************************************/ 
-﻿kg.templates.generateHeaderTemplate = function (options) {
+﻿﻿kg.templates.generateHeaderTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
         cols = options.columns,
         showFilter = options.showFilter;
@@ -193,13 +193,13 @@ kg.utils = utils;
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width }, css: { \'kgNoSort\': {2} }">', col.field, col.colIndex, !col.allowSort);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('</div>');
         }
     });
 
     return b.toString();
-}; 
+};  
  
  
 /*********************************************** 
@@ -1475,7 +1475,8 @@ kg.SelectionManager = function (options) {
     this.selectedItem = options.selectedItem; //observable
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
-
+    this.keepLastSelectedAround = options.keepLastSelectedAround;
+    
     // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
         var single = self.selectedItem(),
@@ -1551,10 +1552,13 @@ kg.SelectionManager = function (options) {
             if (keep) {
                 //set the new entity
                 self.selectedItem(changedEntity);
-            }// else {
-                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn't changed.
-                //changedEntity[KEY](true);
-            //}
+            } else {
+                if (self.keepLastSelectedAround){
+                    changedEntity[KEY](true);
+                } else {
+                    self.selectedItem(undefined);
+                }
+            }
 
         } else {
             //Multi-Select Logic
@@ -1784,7 +1788,8 @@ kg.KoGrid = function (options) {
         sortInfo: ko.observable(), //observable similar to filterInfo
         filterWildcard: "*",
         includeDestroyed: false, // flag to show _destroy=true items in grid
-        selectWithCheckboxOnly: false
+        selectWithCheckboxOnly: false,
+        keepLastSelectedAround: false
     },
 
     self = this,
@@ -2290,7 +2295,7 @@ kg.cssBuilder = {
             
             colWidth = col.width() - grid.elementDims.cellWdiff;
 
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
 
             sumWidth += col.width();
 
@@ -2598,7 +2603,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             if (bodyAttrib == null){
                 $(element).removeClass(gridId);
                 body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
-                ko.applyBindings(bindingContext.$parent, body);
+                ko.applyBindings(bindingContext.$root, body);
             }
 // TODO: Make it work by binding the event to the dom element instead of the body
 //            var attributes = $(element)[0].getAttribute("data-bind");

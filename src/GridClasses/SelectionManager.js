@@ -18,7 +18,8 @@ kg.SelectionManager = function (options) {
     this.selectedItem = options.selectedItem; //observable
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
-
+    this.keepLastSelectedAround = options.keepLastSelectedAround;
+    
     // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
         var single = self.selectedItem(),
@@ -94,10 +95,13 @@ kg.SelectionManager = function (options) {
             if (keep) {
                 //set the new entity
                 self.selectedItem(changedEntity);
-            }// else {
-                //always keep a selected entity around -- We are already keeping it because the underlying observable hasn't changed.
-                //changedEntity[KEY](true);
-            //}
+            } else {
+                if (self.keepLastSelectedAround){
+                    changedEntity[KEY](true);
+                } else {
+                    self.selectedItem(undefined);
+                }
+            }
 
         } else {
             //Multi-Select Logic

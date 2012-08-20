@@ -57,7 +57,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             if (bodyAttrib == null){
                 $(element).removeClass(gridId);
                 body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
-                ko.applyBindings(bindingContext.$parent, body);
+                ko.applyBindings(bindingContext.$root, body);
             }
 // TODO: Make it work by binding the event to the dom element instead of the body
 //            var attributes = $(element)[0].getAttribute("data-bind");

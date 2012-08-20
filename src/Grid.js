@@ -34,7 +34,8 @@ kg.KoGrid = function (options) {
         sortInfo: ko.observable(), //observable similar to filterInfo
         filterWildcard: "*",
         includeDestroyed: false, // flag to show _destroy=true items in grid
-        selectWithCheckboxOnly: false
+        selectWithCheckboxOnly: false,
+        keepLastSelectedAround: false
     },
 
     self = this,
