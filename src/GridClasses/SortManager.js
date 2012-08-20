@@ -1,4 +1,4 @@
-﻿kg.SortManager = function (options) {
+﻿﻿kg.SortManager = function (options) {
     var self = this,
         colSortFnCache = {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
         dateRE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
@@ -19,7 +19,7 @@
 
     this.sortedData = ko.computed(function () {
         var sortData = internalSortedData();
-        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a 
+        //We have to do this because any observable that is invoked inside of a bindingHandler (init or update) is registered as a
         // dependency during the binding handler's dependency detection :(
         if (initPhase > 0) {
             return sortData;
@@ -77,7 +77,7 @@
             return self.sortNumberStr;
         }
 
-        // check for a date: dd/mm/yyyy or dd/mm/yy 
+        // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
         dateParts = item.match(dateRE)
@@ -222,7 +222,9 @@
             direction,
             sortFn,
             item,
-            prop;
+            propPath,
+            prop,
+            i;
 
         // first make sure we are even supposed to do work
         if (!data || !sortInfo || options.useExternalSorting) {
@@ -241,7 +243,11 @@
             item = dataSource()[0];
 
             if (item) {
-                prop = ko.utils.unwrapObservable(item[col.field]);
+                propPath = col.field.split(".");
+                prop = item;
+                for (i = 0; i < propPath.length && prop !== undefined && prop !== null; i++) {
+                    prop = ko.utils.unwrapObservable(prop[propPath[i]]);
+                }
             }
 
             sortFn = self.guessSortFn(prop);
@@ -253,16 +259,26 @@
                 // we assign the alpha sort because anything that is null/undefined will never get passed to
                 // the actual sorting function. It will get caught in our null check and returned to be sorted
                 // down to the bottom
-                sortFn = self.sortAlpha; 
+                sortFn = self.sortAlpha;
             }
         }
 
         //now actually sort the data
         data.sort(function (itemA, itemB) {
-            var propA = ko.utils.unwrapObservable(itemA[col.field]),
-                propB = ko.utils.unwrapObservable(itemB[col.field]),
-                propAEmpty = isEmpty(propA),
-                propBEmpty = isEmpty(propB);
+            var propA = itemA,
+                propB = itemB,
+                propAEmpty = false,
+                propBEmpty = false,
+                propPath,
+                i;
+
+            propPath = col.field.split(".");
+            for (i = 0; i < propPath.length; i++) {
+                if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
+                if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
+            }
+            propAEmpty = isEmpty(propA);
+            propBEmpty = isEmpty(propB);
 
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (propAEmpty && propBEmpty) {

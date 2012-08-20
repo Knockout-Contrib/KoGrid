@@ -24,6 +24,7 @@ kg.KoGrid = function (options) {
         selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
+        canSelectRows: true, //toggles whether or not row selection is allowed
         isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
@@ -61,6 +62,14 @@ kg.KoGrid = function (options) {
     this.initPhase = 0;
 
 
+    // Set new default footer height if not overridden, and multi select is disabled
+    if (this.config.footerRowHeight === defaults.footerRowHeight
+        && (!this.config.canSelectRows
+        || !this.config.isMultiSelect)) {
+        defaults.footerRowHeight = 30;
+        this.config.footerRowHeight = 30;
+    }
+
     // set this during the constructor execution so that the
     // computed observables register correctly;
     this.data = self.config.data;
@@ -69,7 +78,7 @@ kg.KoGrid = function (options) {
     sortManager = new kg.SortManager({
         data: filterManager.filteredData,
         sortInfo: self.config.sortInfo,
-        useExternalSorting: self.config.useExternalFiltering
+        useExternalSorting: self.config.useExternalSorting
     });
 
     this.sortInfo = sortManager.sortInfo; //observable
@@ -388,7 +397,7 @@ kg.KoGrid = function (options) {
             }
         }
 
-        if (columnDefs.length > 1) {
+        if (columnDefs.length > 0) {
 
             utils.forEach(columnDefs, function (colDef, i) {
                 column = new kg.Column(colDef);

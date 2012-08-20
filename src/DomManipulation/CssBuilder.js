@@ -6,6 +6,7 @@ kg.cssBuilder = {
 
     buildStyles: function (grid) {
         var rowHeight = (grid.config.rowHeight - grid.elementDims.rowHdiff),
+            headerRowHeight = grid.config.headerRowHeight,
             $style = grid.$styleSheet,
             gridId = grid.gridId,
             rules,
@@ -24,8 +25,8 @@ kg.cssBuilder = {
         css.append(".{0} .kgCanvas { width: {1}px; }", gridId, grid.totalRowWidth());
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; left: 0; right: 0; height: {1}px; line-height: {1}px; display: inline; }", gridId, rowHeight);
-        css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, rowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, rowHeight);
+        css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, headerRowHeight);
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, headerRowHeight);
 
         for (; i < len; i++) {
             col = grid.columns()[i];
