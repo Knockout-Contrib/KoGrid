@@ -1,12 +1,6 @@
 /// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
-$(document).click(function(e) {
-    e = e || event;
-    var closestGrid = $(e.target).closest(".kgGrid")[0] || $(e.srcElement).closest(".kgGrid")[0];
-    if (closestGrid) $.lastClickedGrid = closestGrid;
-});
-
 ko.kgMoveSelection = function (sender, evt) {
     var offset,
         charCode = (evt.which) ? evt.which : event.keyCode;
@@ -22,7 +16,12 @@ ko.kgMoveSelection = function (sender, evt) {
         default:
             return true;
     }
-    var grid = window['kg'].gridManager.getGrid($.lastClickedGrid);
+    //we have to check for IE because IE thinks the active element is a cell or row when clicked instead of what has a true tab index.
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+        grid = window['kg'].gridManager.getGrid($(document.activeElement).closest(".kgGrid")[0]);
+    } else {
+        grid = window['kg'].gridManager.getGrid(document.activeElement);
+    }
     if (grid != null && grid != undefined){
         if (grid.config.isMultiSelect) return;
         var old = grid.config.selectedItem();

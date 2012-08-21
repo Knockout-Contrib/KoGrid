@@ -21,26 +21,45 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
                 grid = new kg.KoGrid(options);
+                kg.gridManager.storeGrid(element, grid);
             } else {
-                return;
+                return false;
             }
             
-            var gridId = grid.gridId.toString();
+            kg.templateManager.ensureGridTemplates({
+                rowTemplate: grid.config.rowTemplate,
+                headerTemplate: grid.config.headerTemplate,
+                headerCellTemplate: grid.config.headerCellTemplate,
+                footerTemplate: grid.config.footerTemplate,
+                columns: grid.columns(),
+                showFilter: grid.config.allowFiltering
+            });
+
+            //set event binding on the grid so we can select using the up/down keys
+            var dba = $(element)[0].getAttribute("data-bind");
+            if (dba.indexOf("keydown") == -1) {
+                $(element).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + dba);
+                var gridId = grid.gridId.toString();
+                $(element).empty();
+                $(element).removeClass("kgGrid")
+                          .removeClass("ui-widget")
+                          .removeClass(gridId);
+                kg.gridManager.removeGrid(gridId);
+                ko.applyBindings(bindingContext, $element[0]);
+            }
             
             //subscribe to the columns and recrate the grid if they change
-            grid.config.columnDefs.subscribe(function (newColumns){
+            grid.config.columnDefs.subscribe(function (){
                 var oldgrid = kg.gridManager.getGrid(element);
                 var oldgridId = oldgrid.gridId.toString();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")
-                          .removeClass(gridId);
-                kg.gridManager.removeGrid(gridId);
+                          .removeClass(oldgridId);
+                kg.gridManager.removeGrid(oldgridId);
                 ko.applyBindings(bindingContext, element);
             });
             
-            kg.gridManager.storeGrid(element, grid);
-
             //get the container sizes
             kg.domUtility.measureGrid($element, grid, true);
 
@@ -51,29 +70,7 @@ ko.bindingHandlers['koGrid'] = (function () {
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
             
-            //set event binding on the grid so we can select using the up/down keys
-            var body = document.getElementsByTagName("body")[0];
-            var bodyAttrib = body.getAttribute("data-bind");
-            if (bodyAttrib == null){
-                $(element).removeClass(gridId);
-                body.setAttribute("data-bind", "event: { keydown: ko.kgMoveSelection }");
-                ko.applyBindings(bindingContext.$root, body);
-            }
-// TODO: Make it work by binding the event to the dom element instead of the body
-//            var attributes = $(element)[0].getAttribute("data-bind");
-//            if (attributes.indexOf("keydown") == -1){
-//                $(element).attr("data-bind", "event: { keydown: kg.MoveSelection }, " + attributes);
-//                ko.applyBindings(viewModel, element);
-//            }
             //make sure the templates are generated for the Grid
-            kg.templateManager.ensureGridTemplates({
-                rowTemplate: grid.config.rowTemplate,
-                headerTemplate: grid.config.headerTemplate,
-                headerCellTemplate: grid.config.headerCellTemplate,
-                footerTemplate: grid.config.footerTemplate,
-                columns: grid.columns(),
-                showFilter: grid.config.allowFiltering
-            });
 
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 

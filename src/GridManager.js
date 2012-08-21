@@ -11,6 +11,13 @@
     this.storeGrid = function (element, grid) {
         self.gridCache[grid.gridId] = grid;
         element[elementGridKey] = grid.gridId;
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        if (element.tabIndex == -1) {
+            element.tabIndex = self.getIndexOfCache(grid.gridId);
+        }
     };
     
     this.removeGrid = function(gridId) {
@@ -30,6 +37,16 @@
     this.clearGridCache = function () {
         self.gridCache = {};
     };
+    
+    this.getIndexOfCache = function(gridId) {
+        var indx = -1;   
+        for (var grid in self.gridCache) {
+            indx++;
+            if (!self.gridCache.hasOwnProperty(grid)) continue;
+            return indx;
+        }
+        return indx;
+﻿    };
 
     this.assignGridEventHandlers = function (grid) {
 
