@@ -6,6 +6,8 @@ Original work done by: Eric M. Barnard  https://github.com/ericmbarnard/KoGrid
 
 Bug Fixes by : Stephen Commisso         https://github.com/gdscommisso/KoGrid
 
+Special Thanks: Robert Nyman            http://www.robertnyman.com (getElementsByAttribute)
+
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 Dependencies: jQuery & Knockout

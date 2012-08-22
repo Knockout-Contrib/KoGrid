@@ -1,6 +1,19 @@
 /// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
+//set event binding on the grid so we can select using the up/down keys
+var dba = getElementsByAttribute(document.body, "DIV", "data-bind", "koGrid", true);
+var len = dba.length,
+    i = 0;
+for (; i < len; i++) {
+    if (dba[i] !== undefined) {
+        if (dba.indexOf("keydown") == -1) {
+            var cas = $(dba)[i].getAttribute("data-bind")
+            $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
+        }
+    }
+}
+
 ko.kgMoveSelection = function (sender, evt) {
     var offset,
         charCode = (evt.which) ? evt.which : event.keyCode;
