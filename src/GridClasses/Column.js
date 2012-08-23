@@ -20,8 +20,15 @@
     if (colDef.resizable === undefined || colDef.resizable === null) {
         colDef.resizable = true;
     }
+    //resizing
+    if (colDef.filterable === undefined || colDef.filterable === null) {
+        colDef.filterable = true;
+    }
+    
     this.allowSort = colDef.sortable;
     this.allowResize = colDef.resizable;
+    this.allowFilter = colDef.filterable;
+    
     this.sortDirection = ko.observable("");
 
     //filtering

@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:40:15.39 Wed 08/22/2012 
+* Compiled At: 21:54:18.02 Wed 08/22/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -255,7 +255,7 @@ kg.utils = utils;
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPElEQVQoU2NggIL6+npjIN4NxIIwMTANFFAC4rtA/B+kAC6JJgGSRCgAcs5ABWASMHoVw////3HigZAEACKmlTwMfriZAAAAAElFTkSuQmCC"/>');
     b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPUlEQVQoU2P4//8/Ay6MUwKkgQJJBnygvr7+DBD/x4JXMQAFlYD4LprkbriBaAoQEjAVQAXGQLwbiAVhYgD6kIBR+tr9IgAAAABJRU5ErkJggg=="/>');
     b.append('</div>');
-    b.append('<div data-bind="visible: $parent.filterVisible">');
+    b.append('<div data-bind="visible: $data._filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
     b.append('</div>');
 
@@ -508,8 +508,15 @@ kg.utils = utils;
     if (colDef.resizable === undefined || colDef.resizable === null) {
         colDef.resizable = true;
     }
+    //resizing
+    if (colDef.filterable === undefined || colDef.filterable === null) {
+        colDef.filterable = true;
+    }
+    
     this.allowSort = colDef.sortable;
     this.allowResize = colDef.resizable;
+    this.allowFilter = colDef.filterable;
+    
     this.sortDirection = ko.observable("");
 
     //filtering
@@ -682,7 +689,10 @@ kg.Row = function (entity, config) {
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
-
+    
+    this.allowSort = ko.observable(col.allowSort);
+    this.allowFilter = col.allowFilter;
+    
     this.width = ko.computed(function () {
         return col.width();
     });
@@ -697,9 +707,15 @@ kg.Row = function (entity, config) {
     });
 
     this.filterVisible = ko.observable(false);
-
-    this.allowSort = ko.observable(col.allowSort);
-
+    this._filterVisible = ko.computed({
+        read: function () {
+            return self.allowFilter;
+        },
+        write: function (val) {
+            self.filterVisible(val);
+        }
+    });
+    
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });

@@ -9,7 +9,10 @@
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
-
+    
+    this.allowSort = ko.observable(col.allowSort);
+    this.allowFilter = col.allowFilter;
+    
     this.width = ko.computed(function () {
         return col.width();
     });
@@ -24,9 +27,15 @@
     });
 
     this.filterVisible = ko.observable(false);
-
-    this.allowSort = ko.observable(col.allowSort);
-
+    this._filterVisible = ko.computed({
+        read: function () {
+            return self.allowFilter;
+        },
+        write: function (val) {
+            self.filterVisible(val);
+        }
+    });
+    
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
