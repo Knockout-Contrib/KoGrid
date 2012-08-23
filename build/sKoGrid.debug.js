@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:40:35.49 Wed 08/22/2012 
+* Compiled At: 17:15:01.86 Wed 08/22/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -14,7 +14,8 @@
 	Copyright Robert Nyman, http://www.robertnyman.com
 	Free to use if this text is included
 */
-function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue){
+function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue, contains){
+    if (!oElm) return false;
 	var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
 	var arrReturnElements = new Array();
 	var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\\s)" + strAttributeValue + "(\\s|$)") : null;
@@ -24,19 +25,12 @@ function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttribute
 		oCurrent = arrElements[i];
 		oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
 		if(typeof oAttribute == "string" && oAttribute.length > 0){
-			if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
+			if(typeof strAttributeValue == "undefined" || ( contains ? (oAttribute.indexOf(strAttributeValue) != -1) : (oAttributeValue && oAttributeValue.test(oAttribute)))){
 				arrReturnElements.push(oCurrent);
 			}
 		}
 	}
 	return arrReturnElements;
-}
-// ---
-if(typeof Array.prototype.push != "function"){
-	Array.prototype.push = ArrayPush;
-	function ArrayPush(value){
-		this[this.length] = value;
-	}
 }
 // --- 
  
@@ -48,11 +42,11 @@ if(typeof Array.prototype.push != "function"){
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
 //set event binding on the grid so we can select using the up/down keys
-var dba = getElementsByAttribute(document.body, "DIV", "data-bind", "koGrid", true);
+var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", true);
 var len = dba.length,
     i = 0;
 for (; i < len; i++) {
-    if (dba[i] !== undefined) {
+   if (dba[i] !== undefined) {
         if (dba.indexOf("keydown") == -1) {
             var cas = $(dba)[i].getAttribute("data-bind")
             $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
