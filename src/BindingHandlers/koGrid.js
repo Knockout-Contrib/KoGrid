@@ -35,19 +35,6 @@ ko.bindingHandlers['koGrid'] = (function () {
                 showFilter: grid.config.allowFiltering
             });
 
-            //set event binding on the grid so we can select using the up/down keys
-            var dba = $(element)[0].getAttribute("data-bind");
-            if (dba.indexOf("keydown") == -1) {
-                $(element).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + dba);
-                var gridId = grid.gridId.toString();
-                $(element).empty();
-                $(element).removeClass("kgGrid")
-                          .removeClass("ui-widget")
-                          .removeClass(gridId);
-                kg.gridManager.removeGrid(gridId);
-                ko.applyBindings(bindingContext, $element[0]);
-            }
-            
             //subscribe to the columns and recrate the grid if they change
             grid.config.columnDefs.subscribe(function (){
                 var oldgrid = kg.gridManager.getGrid(element);
