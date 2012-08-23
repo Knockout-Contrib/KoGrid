@@ -82,6 +82,7 @@
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
+            item.isSelected = ko.observable(false);
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array

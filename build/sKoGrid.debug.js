@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:31:02.64 Wed 08/22/2012 
+* Compiled At: 17:40:15.39 Wed 08/22/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -824,6 +824,7 @@ kg.Row = function (entity, config) {
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
+            item.isSelected = ko.observable(false);
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array
