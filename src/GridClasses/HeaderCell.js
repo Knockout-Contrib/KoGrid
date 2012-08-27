@@ -1,4 +1,4 @@
-﻿kg.HeaderCell = function (col) {
+kg.HeaderCell = function (col) {
     var self = this;
 
     this.colIndex = 0;

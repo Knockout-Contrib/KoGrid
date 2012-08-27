@@ -1,4 +1,4 @@
-﻿ko.bindingHandlers['kgFooter'] = (function () {
+ko.bindingHandlers['kgFooter'] = (function () {
     var makeNewValueAccessor = function (grid) {
         return function () {
             return { name: grid.config.footerTemplate, data: grid.footer };

@@ -1,4 +1,4 @@
-﻿ko.bindingHandlers['kgHeaderRow'] = (function () {
+ko.bindingHandlers['kgHeaderRow'] = (function () {
 
     var buildHeaders = function (grid) {
         var cols = grid.columns(),

@@ -1,4 +1,4 @@
-﻿kg.FilterManager = function (options) {
+kg.FilterManager = function (options) {
     var self = this,
         wildcard = options.filterWildcard || "*", // the wildcard character used by the user
         includeDestroyed = options.includeDestroyed || false, // flag to indicate whether to include _destroy=true items in filtered data

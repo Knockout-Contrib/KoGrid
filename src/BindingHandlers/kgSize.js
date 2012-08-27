@@ -1,4 +1,4 @@
-﻿ko.bindingHandlers['kgSize'] = (function () {
+ko.bindingHandlers['kgSize'] = (function () {
 
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

@@ -1,4 +1,4 @@
-﻿kg.Cell = function (col) {
+kg.Cell = function (col) {
     this.data = '';
     this.column = col;
     this.row = null;

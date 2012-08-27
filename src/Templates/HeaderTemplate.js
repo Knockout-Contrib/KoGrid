@@ -1,4 +1,4 @@
-﻿kg.templates.generateHeaderTemplate = function (options) {
+kg.templates.generateHeaderTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
         cols = options.columns,
         showFilter = options.showFilter;

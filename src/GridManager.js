@@ -1,4 +1,4 @@
-﻿kg.gridManager = (new function () {
+kg.gridManager = (new function () {
     var self = this,
         elementGridKey = '__koGrid__';
 

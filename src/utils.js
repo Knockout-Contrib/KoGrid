@@ -1,4 +1,4 @@
-﻿var utils = {
+var utils = {
 
     forEach: function (arr, action) {
         var len = arr.length,

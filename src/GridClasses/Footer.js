@@ -1,4 +1,4 @@
-﻿kg.Footer = function (grid) {
+kg.Footer = function (grid) {
     var self = this;
 
     this.maxRows;

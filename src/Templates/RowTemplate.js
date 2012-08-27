@@ -1,4 +1,4 @@
-﻿kg.templates.generateRowTemplate = function (options) {
+kg.templates.generateRowTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
         cols = options.columns;
 

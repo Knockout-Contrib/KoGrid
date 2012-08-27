@@ -1,4 +1,4 @@
-﻿kg.RowManager = function (grid) {
+kg.RowManager = function (grid) {
     var self = this,
         rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
         prevMaxRows = 0, // for comparison purposes when scrolling

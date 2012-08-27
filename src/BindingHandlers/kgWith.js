@@ -1,4 +1,4 @@
-﻿
+
 // This binding only works if the object that you want
 // use as the context of child bindings DOESN't change.
 // It is useful for us here since many of the grids properties

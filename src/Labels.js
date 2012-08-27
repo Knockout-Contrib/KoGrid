@@ -1,3 +1,3 @@
-﻿kg.labels = {
+kg.labels = {
 
 };

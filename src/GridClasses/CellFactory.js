@@ -1,4 +1,4 @@
-﻿kg.CellFactory = function (cols) {
+kg.CellFactory = function (cols) {
     var colCache = cols,
         len = colCache.length;
 

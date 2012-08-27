@@ -1,4 +1,4 @@
-﻿// Class that manages all row selection logic
+// Class that manages all row selection logic
 // @options - {
 //      selectedItem - an observable to keep in sync w/ the selected data item
 //      selectedItems - an observable array to keep in sync w/ the selected rows

@@ -1,4 +1,4 @@
-﻿kg.templateManager = (new function () {
+kg.templateManager = (new function () {
     var self = this;
 
     var templateExists = function (tmplId) {

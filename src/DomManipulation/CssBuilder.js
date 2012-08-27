@@ -1,4 +1,4 @@
-﻿/// <reference path="../../lib/jquery-1.7.js" />
+/// <reference path="../../lib/jquery-1.7.js" />
 /// <reference path="../../lib/knockout-2.0.0.debug.js" />
 /// <reference path="../KoGrid.js" />
 

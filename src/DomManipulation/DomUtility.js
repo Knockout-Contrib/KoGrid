@@ -1,4 +1,4 @@
-﻿kg.domUtility = (new function () {
+kg.domUtility = (new function () {
     var $testContainer = $('<div></div>'),
         self = this;
 

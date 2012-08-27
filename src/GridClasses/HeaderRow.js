@@ -1,4 +1,4 @@
-﻿kg.HeaderRow = function () {
+kg.HeaderRow = function () {
     this.headerCells = [];
     this.height;
     this.headerCellMap = {};

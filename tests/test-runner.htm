@@ -8,12 +8,48 @@
 	<script src="qunit/qunit.js" type="text/javascript"></script>
     
     <link href="../KoGrid.css" rel="stylesheet" type="text/css" />
-
+    <!-- Libs -->
     <script src="../lib/knockout-2.0.0.debug.js" type="text/javascript"></script>
     <script src="../lib/json2.js" type="text/javascript"></script>
     <script src="../lib/jquery-1.7.js" type="text/javascript"></script>
-
-    <script src="../build/koGrid.debug.js" type="text/javascript"></script>
+    <!-- Test Files -->
+    <script src="../Src/Namespace.js" type="text/javascript"></script>
+    <script src="../Src/Constants.js" type="text/javascript"></script>
+    <script src="../Src/Labels.js" type="text/javascript"></script>
+    <script src="../Src/Utils.js" type="text/javascript"></script>
+    <script src="../Src/Templates/GridTemplate.js" type="text/javascript"></script>
+    <script src="../Src/Templates/HeaderTemplate.js" type="text/javascript"></script>
+    <script src="../Src/Templates/HeaderCellTemplate.js" type="text/javascript"></script>
+    <script src="../Src/Templates/RowTemplate.js" type="text/javascript"></script>
+    <script src="../Src/Templates/FooterTemplate.js" type="text/javascript"></script>
+    <script src="../Src/Templates/TemplateManager.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Dimension.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Cell.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Column.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/ColumnCollection.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Row.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Range.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/CellFactory.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/HeaderCell.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/HeaderRow.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/RowManager.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/Footer.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/FilterManager.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/SortManager.js" type="text/javascript"></script>
+    <script src="../Src/GridClasses/SelectionManager.js" type="text/javascript"></script>
+    <script src="../Src/GridManager.js" type="text/javascript"></script>
+    <script src="../Src/Grid.js" type="text/javascript"></script>
+    <script src="../Src/DomManipulation/CssBuilder.js" type="text/javascript"></script>
+    <script src="../Src/DomManipulation/DomUtility.js" type="text/javascript"></script>
+    <script src="../Src/BindingHandlers/kgWith.js" type="text/javascript"></script>
+    <script src="../Src/BindingHandlers/koGrid.js" type="text/javascript"></script>
+    <script src="../Src/BindingHandlers/kgRows.js" type="text/javascript"></script>
+    <script src="../Src/BindingHandlers/kgRow.js" type="text/javascript"></script>
+    <script src="../Src/BindingHandlers/kgCell.js" type="text/javascript"></script>
+    <script src="../src/BindingHandlers/kgHeaderRow.js" type="text/javascript"></script>
+    <script src="../src/BindingHandlers/kgHeaderCell.js" type="text/javascript"></script>
+    <script src="../src/BindingHandlers/kgFooter.js" type="text/javascript"></script>
+    <script src="../src/BindingHandlers/kgSize.js" type="text/javascript"></script>
 </head>
 <body>
 	<h1 id="qunit-header">QUnit Test Suite</h1>
@@ -39,7 +75,7 @@
     <script src="FilterManager_Tests.js" type="text/javascript"></script>
     <script src="SortManager_Tests.js" type="text/javascript"></script>
     <script src="Paging_Tests.js" type="text/javascript"></script>
-    <script type="text/javascript" src="Column_Tests.js"></script>
-    <script type="text/javascript" src="SelectionManager_Tests.js"></script>
+    <script src="Column_Tests.js" type="text/javascript"></script>
+    <script src="SelectionManager_Tests.js" type="text/javascript"></script>
 </body>
 </html>
