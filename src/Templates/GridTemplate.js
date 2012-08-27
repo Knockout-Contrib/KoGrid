@@ -10,6 +10,6 @@
                 '</div>' +
             '</div>' +
             '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim" style="position: relative;">' +
-                
+
             '</div>';
 };

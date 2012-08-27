@@ -13,6 +13,9 @@ ko.bindingHandlers['kgRow'] = (function () {
                 rowManager = bindingContext.$parent.rowManager,
                 rowSubscription;
 
+            if (grid.config.canSelectRows) {
+                classes += ' kgCanSelect';
+            }
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
             element['_kg_rowIndex_'] = row.rowIndex;
