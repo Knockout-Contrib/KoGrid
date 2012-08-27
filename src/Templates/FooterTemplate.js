@@ -1,13 +1,13 @@
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
-                '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
+                '<div class="kgFooterTotalItems">' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
-                '<div class="kgFooterSelectedItems" data-bind="visible: isMultiSelect">' +
+                '<div class="kgFooterSelectedItems" data-bind="visible: selectedItems().length > 1">' +
                     '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': selectedItems().length > 1}">' +
                 '<div style="float: right;">' +
                     '<div class="kgRowCountPicker">' +
                         '<span class="kgLabel">Rows:</span>' +

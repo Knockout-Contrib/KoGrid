@@ -16,6 +16,7 @@ for (; i < len; i++) {
 
 ko.kgMoveSelection = function (sender, evt) {
     var offset,
+        grid,
         charCode = (evt.which) ? evt.which : event.keyCode;
     switch (charCode) {
         case 38:
@@ -36,17 +37,18 @@ ko.kgMoveSelection = function (sender, evt) {
         grid = window['kg'].gridManager.getGrid(document.activeElement);
     }
     if (grid != null && grid != undefined){
-        if (grid.config.isMultiSelect) return;
-        var old = grid.config.selectedItem();
-        if (old != undefined) {
-            old.isSelected(false);
+        if (grid.config.selectedItems() != undefined) {
             var items = grid.finalData();
             var n = items.length;
-            var index = items.indexOf(old) + offset;
+            var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
             if (index >= 0 && index < n) {
-                var item = items[index];
-                item.isSelected(true);
-                grid.config.selectedItem(item);
+                utils.forEach(grid.config.selectedItems(), function (itm) {
+                    itm.myRowEntity.selected(false);
+                });
+                grid.config.selectedItems.removeAll();
+                var selected = items[index];
+                grid.config.selectedItems.push(selected);
+                grid.config.lastClickedRow(selected.myRowEntity);
                 var itemtoView = document.getElementsByClassName("kgSelected");
                 if (!Element.prototype.scrollIntoViewIfNeeded){
                     itemtoView[0].scrollIntoView(false);

@@ -22,10 +22,8 @@ kg.KoGrid = function (options) {
         pageSize: ko.observable(250), //Size of Paging data
         totalServerItems: ko.observable(), //ko.observable of how many items are on the server (for paging)
         currentPage: ko.observable(1), //ko.observable of what page they are currently on
-        selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
-        isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         useExternalFiltering: false,
@@ -35,7 +33,8 @@ kg.KoGrid = function (options) {
         filterWildcard: "*",
         includeDestroyed: false, // flag to show _destroy=true items in grid
         selectWithCheckboxOnly: false,
-        keepLastSelectedAround: false
+        keepLastSelectedAround: false,
+        lastClickedRow: ko.observable()
     },
 
     self = this,
@@ -64,15 +63,14 @@ kg.KoGrid = function (options) {
         var observableColumnDefs = ko.observableArray(options.columnDefs);
         options.columnDefs = observableColumnDefs;
     }
-    this.config = $.extend(defaults, options)
+    this.config = $.extend(defaults, options);
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
 
 
     // Set new default footer height if not overridden, and multi select is disabled
     if (this.config.footerRowHeight === defaults.footerRowHeight
-        && (!this.config.canSelectRows
-        || !this.config.isMultiSelect)) {
+        && !this.config.canSelectRows) {
         defaults.footerRowHeight = 30;
         this.config.footerRowHeight = 30;
     }
@@ -250,20 +248,16 @@ kg.KoGrid = function (options) {
 
     //#endregion
 
-
-
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {
-        var item;
-
-        if (self.config.isMultiSelect && self.config.selectedItems()) {
-            item = self.config.selectedItems()[0];
-        } else if (self.config.selectedItem()) {
-            item = self.config.selectedItem();
-        }
-
-        if (item) {
-            scrollIntoView(item);
+         if (self.config.selectedItems()) {
+            var lastItemIndex = self.config.selectedItems().length - 1;
+            if (lastItemIndex <= 0) {
+                var item = self.config.selectedItems()[lastItemIndex];
+                if (item) {
+                   scrollIntoView(item);
+                }
+            }
         }
     });
 

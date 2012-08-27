@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 21:54:18.02 Wed 08/22/2012 
+* Compiled At:  1:18:23.96 Mon 08/27/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -56,6 +56,7 @@ for (; i < len; i++) {
 
 ko.kgMoveSelection = function (sender, evt) {
     var offset,
+        grid,
         charCode = (evt.which) ? evt.which : event.keyCode;
     switch (charCode) {
         case 38:
@@ -76,17 +77,18 @@ ko.kgMoveSelection = function (sender, evt) {
         grid = window['kg'].gridManager.getGrid(document.activeElement);
     }
     if (grid != null && grid != undefined){
-        if (grid.config.isMultiSelect) return;
-        var old = grid.config.selectedItem();
-        if (old != undefined) {
-            old.isSelected(false);
+        if (grid.config.selectedItems() != undefined) {
             var items = grid.finalData();
             var n = items.length;
-            var index = items.indexOf(old) + offset;
+            var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
             if (index >= 0 && index < n) {
-                var item = items[index];
-                item.isSelected(true);
-                grid.config.selectedItem(item);
+                utils.forEach(grid.config.selectedItems(), function (itm) {
+                    itm.myRowEntity.selected(false);
+                });
+                grid.config.selectedItems.removeAll();
+                var selected = items[index];
+                grid.config.selectedItems.push(selected);
+                grid.config.lastClickedRow(selected.myRowEntity);
                 var itemtoView = document.getElementsByClassName("kgSelected");
                 if (!Element.prototype.scrollIntoViewIfNeeded){
                     itemtoView[0].scrollIntoView(false);
@@ -225,7 +227,7 @@ kg.utils = utils;
     utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
-            b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll, visible: $parent.config.isMultiSelect"/>');
+            b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/>');
             b.append('</div>');
         } else if (col.field === 'rowIndex' && showFilter) {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
@@ -316,14 +318,14 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
-                '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
+                '<div class="kgFooterTotalItems">' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
                 '</div>' +
-                '<div class="kgFooterSelectedItems" data-bind="visible: isMultiSelect">' +
+                '<div class="kgFooterSelectedItems" data-bind="visible: selectedItems().length > 1">' +
                     '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
                 '</div>' +
             '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
+            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': selectedItems().length > 1}">' +
                 '<div style="float: right;">' +
                     '<div class="kgRowCountPicker">' +
                         '<span class="kgLabel">Rows:</span>' +
@@ -566,15 +568,18 @@ kg.ColumnCollection.fn = {
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity, config) {
-    var self = this;
-    var canSelectRows = config.canSelectRows;
+kg.Row = function (entity, config, rowCache) {
+    var self = this,
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+        canSelectRows = config.canSelectRows;
+    this.rows = rowCache;
+    this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
+
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
         this.entity()['__kg_selected__'] = ko.observable(false);
     }
-
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
@@ -603,15 +608,49 @@ kg.Row = function (entity, config) {
             return true;
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
-            return;
+            return true;
+        } else if (event.shiftKey) {
+            document.getSelection().removeAllRanges();
+            if(config.lastClickedRow()) {
+                var thisIndx = self.rows.indexOf(self);
+                var prevIndex = self.rows.indexOf(config.lastClickedRow());
+                if (thisIndx < prevIndex) {
+                    thisIndx = thisIndx ^ prevIndex;
+                    prevIndex = thisIndx ^ prevIndex;
+                    thisIndx = thisIndx ^ prevIndex;
+                }
+                for (; prevIndex <= thisIndx; prevIndex++) {
+                    self.rows[prevIndex].selected(true);
+                    //first see if it exists, if not add it
+                    if (self.selectedItems.indexOf(self.rows[prevIndex].entity()) === -1) {
+                        self.selectedItems.push(self.rows[prevIndex].entity());
+                    }
+                }
+            }
+        } else if (event.ctrlKey) {
+            self.toggle(self);
         } else {
-            if (self.selected()) {
-                self.selected(false);
-            } else {
-                self.selected(true);
+            utils.forEach(self.selectedItems(), function (item) {
+                item.myRowEntity.selected(false);
+            });
+            self.selectedItems.removeAll();
+            self.toggle(self);
+        }
+        config.lastClickedRow(self);
+        return true;
+    };
+
+    this.toggle = function(item) {
+        if (item.selected()) {
+            item.selected(false);
+            self.selectedItems.remove(item.entity());
+        } else {
+            item.selected(true);
+            if (self.selectedItems.indexOf(item.entity()) === -1) {
+                self.selectedItems.push(item.entity());
             }
         }
-        return true;
+
     };
 
     this.cells = ko.observableArray([]);
@@ -758,7 +797,6 @@ kg.Row = function (entity, config) {
 ***********************************************/ 
 ﻿kg.RowManager = function (grid) {
     var self = this,
-        rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
         dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
@@ -767,14 +805,16 @@ kg.Row = function (entity, config) {
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-
+    
+     // we cache rows when they are built, and then blow the cache away when sorting/filtering
+    self.rowCache = []
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
 
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
         dataChanged = true;
-        rowCache = {}; //if data source changes, kill this!
+        self.rowCache = []; //if data source changes, kill this!
     });
 
     // shortcut to the calculated minimum viewport rows
@@ -806,27 +846,21 @@ kg.Row = function (entity, config) {
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
     this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
-        var row = rowCache[rowIndex]; // first check to see if we've already built it
+        var row = self.rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity, grid.config);
+            row = new kg.Row(entity, grid.config, self.rowCache);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
-
-            //setup a selection change handler
-            row.onSelectionChanged = function () {
-                var ent = this.entity();
-                grid.changeSelectedItem(ent); // use the grid-defined callback ... yes, i know... should pub an event instead
-            };
 
             //build out the cells
             self.cellFactory.buildRowCells(row);
 
             // finally cache it for the next round
-            rowCache[rowIndex] = row;
+            self.rowCache[rowIndex] = row;
         }
 
         return row;
@@ -840,9 +874,8 @@ kg.Row = function (entity, config) {
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            item.isSelected = ko.observable(false);
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-
+            item.myRowEntity = row;
             //add the row to our return array
             rowArr.push(row);
 
@@ -1520,7 +1553,6 @@ kg.Row = function (entity, config) {
 ***********************************************/ 
 ﻿// Class that manages all row selection logic
 // @options - {
-//      selectedItem - an observable to keep in sync w/ the selected data item
 //      selectedItems - an observable array to keep in sync w/ the selected rows
 //      selectedIndex - an observable to keep in sync w/ the index of the selected data item
 //      data - (required) the observable array data source of data items
@@ -1528,47 +1560,20 @@ kg.Row = function (entity, config) {
 //
 kg.SelectionManager = function (options) {
     var self = this,
-        isMulti = options.isMultiSelect, // flag that indicates if grid supports mult-select or single-select mode
+
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
 
-    this.selectedItem = options.selectedItem; //observable
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
     this.keepLastSelectedAround = options.keepLastSelectedAround;
     
     // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
-        var single = self.selectedItem(),
-            arr = self.selectedItems();
-
-        if (!isMulti) {
-            return (single !== null && single !== undefined) ? 1 : 0; //truthy statement
-        } else {
-            return arr.length;
-        }
-    });
-
-    // ensure outgoing entity is de-selected
-    this.selectedItem.subscribe(function (currentEntity) {
-        if (!isMulti) {
-            //uncheck the current entity
-            if (currentEntity && currentEntity[KEY]) {
-                currentEntity[KEY](false);
-            }
-        }
-    }, self, "beforeChange");
-
-    // ensure incoming entity has our selected flag
-    this.selectedItem.subscribe(function (entity) {
-        if (entity && !entity[KEY]) {
-            entity[KEY] = ko.observable(true);
-        } else if (entity) {
-            entity[KEY](true);
-        }
+        return self.selectedItems().length;
     });
 
     // ensures our selection flag on each item stays in sync
@@ -1595,53 +1600,7 @@ kg.SelectionManager = function (options) {
         });
     });
 
-    // function to manage the selection action of a data item (entity)
-    // just call this func and hand it the item you want to select (or de-select)
-    // @changedEntity - the data item that you want to select/de-select
-    this.changeSelectedItem = function (changedEntity) {
-        var currentEntity = self.selectedItem(),
-            currentItems = self.selectedItems,
-            len = 0,
-            keep = false;
-
-        if (!isMulti) {
-            //Single Select Logic
-
-            //find out if the changed entity is selected or not
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (keep) {
-                //set the new entity
-                self.selectedItem(changedEntity);
-            } else {
-                if (self.keepLastSelectedAround){
-                    changedEntity[KEY](true);
-                } else {
-                    self.selectedItem(undefined);
-                }
-            }
-
-        } else {
-            //Multi-Select Logic
-            len = currentItems().length;
-
-            //if the changed entity was de-selected, remove it from the array
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (!keep) {
-                currentItems.remove(changedEntity);
-            } else {
-                //first see if it exists, if not add it
-                if (currentItems.indexOf(changedEntity) === -1) {
-                    currentItems.push(changedEntity);
-                }
-            }
-        }
-    };
+    this.lastSelectedItem = options.lastClickedRow;
 
     // writable-computed observable
     // @return - boolean indicating if all items are selected or not
@@ -1649,9 +1608,6 @@ kg.SelectionManager = function (options) {
     this.toggleSelectAll = ko.computed({
         read: function () {
             var cnt = self.selectedItemCount();
-            if (!isMulti) {
-                return cnt === 1;
-            }
             if (maxRows() === 0) {
                 return false;
             }
@@ -1659,18 +1615,16 @@ kg.SelectionManager = function (options) {
         },
         write: function (val) {
             var checkAll = val,
-                dataSourceCopy = [];
+            dataSourceCopy = [];
+            utils.forEach(dataSource(), function (item) {
+                dataSourceCopy.push(item);
+            });
+            if (checkAll) {
+                self.selectedItems(dataSourceCopy);
+            } else {
 
-            if (isMulti) {
-                utils.forEach(dataSource(), function (item) {
-                    dataSourceCopy.push(item);
-                });
+                self.selectedItems([]);
 
-                if (checkAll) {
-                    self.selectedItems(dataSourceCopy);
-                } else {
-                    self.selectedItems([]);
-                }
             }
         }
     });
@@ -1678,38 +1632,27 @@ kg.SelectionManager = function (options) {
     //make sure as the data changes, we keep the selectedItem(s) correct
     dataSource.subscribe(function (items) {
         var selectedItems,
-            selectedItem,
             itemsToRemove;
-
         if (!items) {
             return;
         }
+        
+        //make sure the selectedItem(s) exist in the new data
+        selectedItems = self.selectedItems();
+        itemsToRemove = [];
 
-        //make sure the selectedItem/Items exist in the new data
-        if (isMulti) {
-            selectedItems = self.selectedItems();
-            itemsToRemove = [];
-
-            ko.utils.arrayForEach(selectedItems, function (item) {
-                if (ko.utils.arrayIndexOf(items, item) < 0) {
-                    itemsToRemove.push(item);
-                }
-            });
-
-            //clean out any selectedItems that don't exist in the new array
-            if (itemsToRemove.length > 0) {
-                self.selectedItems.removeAll(itemsToRemove);
+        ko.utils.arrayForEach(selectedItems, function (item) {
+            if (ko.utils.arrayIndexOf(items, item) < 0) {
+                itemsToRemove.push(item);
             }
+        });
 
-        } else {
-            selectedItem = self.selectedItem();
-
-            if (selectedItem && ko.utils.arrayIndexOf(items, selectedItem) < 0) {
-                self.selectedItem(items[0] ? items[0] : null);
-            }
+        //clean out any selectedItems that don't exist in the new array
+        if (itemsToRemove.length > 0) {
+            self.selectedItems.removeAll(itemsToRemove);
         }
     });
-}; 
+};  
  
  
 /*********************************************** 
@@ -1856,10 +1799,8 @@ kg.KoGrid = function (options) {
         pageSize: ko.observable(250), //Size of Paging data
         totalServerItems: ko.observable(), //ko.observable of how many items are on the server (for paging)
         currentPage: ko.observable(1), //ko.observable of what page they are currently on
-        selectedItem: ko.observable(), //ko.observable
         selectedItems: ko.observableArray([]), //ko.observableArray
         selectedIndex: ko.observable(0), //observable of the index of the selectedItem in the data array
-        isMultiSelect: true, //toggles between selectedItem & selectedItems
         displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
         displayRowIndex: true, //shows the rowIndex cell at the far left of each row
         useExternalFiltering: false,
@@ -1869,7 +1810,8 @@ kg.KoGrid = function (options) {
         filterWildcard: "*",
         includeDestroyed: false, // flag to show _destroy=true items in grid
         selectWithCheckboxOnly: false,
-        keepLastSelectedAround: false
+        keepLastSelectedAround: false,
+        lastClickedRow: ko.observable()
     },
 
     self = this,
@@ -1898,15 +1840,14 @@ kg.KoGrid = function (options) {
         var observableColumnDefs = ko.observableArray(options.columnDefs);
         options.columnDefs = observableColumnDefs;
     }
-    this.config = $.extend(defaults, options)
+    this.config = $.extend(defaults, options);
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
 
 
     // Set new default footer height if not overridden, and multi select is disabled
     if (this.config.footerRowHeight === defaults.footerRowHeight
-        && (!this.config.canSelectRows
-        || !this.config.isMultiSelect)) {
+        && !this.config.canSelectRows) {
         defaults.footerRowHeight = 30;
         this.config.footerRowHeight = 30;
     }
@@ -2084,20 +2025,16 @@ kg.KoGrid = function (options) {
 
     //#endregion
 
-
-
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {
-        var item;
-
-        if (self.config.isMultiSelect && self.config.selectedItems()) {
-            item = self.config.selectedItems()[0];
-        } else if (self.config.selectedItem()) {
-            item = self.config.selectedItem();
-        }
-
-        if (item) {
-            scrollIntoView(item);
+         if (self.config.selectedItems()) {
+            var lastItemIndex = self.config.selectedItems().length - 1;
+            if (lastItemIndex <= 0) {
+                var item = self.config.selectedItems()[lastItemIndex];
+                if (item) {
+                   scrollIntoView(item);
+                }
+            }
         }
     });
 

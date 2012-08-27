@@ -2,15 +2,18 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity, config) {
-    var self = this;
-    var canSelectRows = config.canSelectRows;
+kg.Row = function (entity, config, rowCache) {
+    var self = this,
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+        canSelectRows = config.canSelectRows;
+    this.rows = rowCache;
+    this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
+
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
         this.entity()['__kg_selected__'] = ko.observable(false);
     }
-
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
@@ -39,15 +42,49 @@ kg.Row = function (entity, config) {
             return true;
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
-            return;
+            return true;
+        } else if (event.shiftKey) {
+            document.getSelection().removeAllRanges();
+            if(config.lastClickedRow()) {
+                var thisIndx = self.rows.indexOf(self);
+                var prevIndex = self.rows.indexOf(config.lastClickedRow());
+                if (thisIndx < prevIndex) {
+                    thisIndx = thisIndx ^ prevIndex;
+                    prevIndex = thisIndx ^ prevIndex;
+                    thisIndx = thisIndx ^ prevIndex;
+                }
+                for (; prevIndex <= thisIndx; prevIndex++) {
+                    self.rows[prevIndex].selected(true);
+                    //first see if it exists, if not add it
+                    if (self.selectedItems.indexOf(self.rows[prevIndex].entity()) === -1) {
+                        self.selectedItems.push(self.rows[prevIndex].entity());
+                    }
+                }
+            }
+        } else if (event.ctrlKey) {
+            self.toggle(self);
         } else {
-            if (self.selected()) {
-                self.selected(false);
-            } else {
-                self.selected(true);
+            utils.forEach(self.selectedItems(), function (item) {
+                item.myRowEntity.selected(false);
+            });
+            self.selectedItems.removeAll();
+            self.toggle(self);
+        }
+        config.lastClickedRow(self);
+        return true;
+    };
+
+    this.toggle = function(item) {
+        if (item.selected()) {
+            item.selected(false);
+            self.selectedItems.remove(item.entity());
+        } else {
+            item.selected(true);
+            if (self.selectedItems.indexOf(item.entity()) === -1) {
+                self.selectedItems.push(item.entity());
             }
         }
-        return true;
+
     };
 
     this.cells = ko.observableArray([]);

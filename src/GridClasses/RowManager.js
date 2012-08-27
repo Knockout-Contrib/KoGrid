@@ -1,6 +1,5 @@
 ﻿kg.RowManager = function (grid) {
     var self = this,
-        rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
         dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
@@ -9,14 +8,16 @@
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-
+    
+     // we cache rows when they are built, and then blow the cache away when sorting/filtering
+    self.rowCache = []
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
 
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
         dataChanged = true;
-        rowCache = {}; //if data source changes, kill this!
+        self.rowCache = []; //if data source changes, kill this!
     });
 
     // shortcut to the calculated minimum viewport rows
@@ -48,27 +49,21 @@
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
     this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
-        var row = rowCache[rowIndex]; // first check to see if we've already built it
+        var row = self.rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity, grid.config);
+            row = new kg.Row(entity, grid.config, self.rowCache);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
-
-            //setup a selection change handler
-            row.onSelectionChanged = function () {
-                var ent = this.entity();
-                grid.changeSelectedItem(ent); // use the grid-defined callback ... yes, i know... should pub an event instead
-            };
 
             //build out the cells
             self.cellFactory.buildRowCells(row);
 
             // finally cache it for the next round
-            rowCache[rowIndex] = row;
+            self.rowCache[rowIndex] = row;
         }
 
         return row;
@@ -82,9 +77,8 @@
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            item.isSelected = ko.observable(false);
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-
+            item.myRowEntity = row;
             //add the row to our return array
             rowArr.push(row);
 
