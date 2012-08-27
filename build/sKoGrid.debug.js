@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 12:40:39.23 Mon 08/27/2012 
+* Compiled At: 12:55:28.15 Mon 08/27/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1528,6 +1528,7 @@ kg.Row = function (entity, config, selectionManager) {
 //
 kg.SelectionManager = function (options, rowManager) {
     var self = this,
+        isMulti = options.isMulti,
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
@@ -1539,8 +1540,7 @@ kg.SelectionManager = function (options, rowManager) {
     this.lastClickedRow = options.lastClickedRow;
     
     this.changeSelection = function(rowItem, clickEvent){
-        if (clickEvent.shiftKey) {
-            document.getSelection().removeAllRanges();
+        if (isMulti && clickEvent.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
                 var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
@@ -1557,8 +1557,10 @@ kg.SelectionManager = function (options, rowManager) {
                     }
                 }
             }
-        } else if (clickEvent.ctrlKey) {
+            document.getSelection().removeAllRanges();
+        } else if (isMulti && clickEvent.ctrlKey) {
             self.toggle(rowItem);
+            document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
                 item.myRowEntity.selected(false);
@@ -1822,6 +1824,7 @@ kg.KoGrid = function (options) {
         includeDestroyed: false, // flag to show _destroy=true items in grid
         selectWithCheckboxOnly: false,
         keepLastSelectedAround: false,
+        isMultiSelect: true,
         lastClickedRow: ko.observable()
     },
 
@@ -2216,7 +2219,8 @@ kg.KoGrid = function (options) {
             selectedItem: self.config.selectedItem,
             selectedItems: self.config.selectedItems,
             selectedIndex: self.config.selectedIndex,
-            lastClickedRow: self.config.lastClickedRow
+            lastClickedRow: self.config.lastClickedRow,
+            isMulti: self.config.isMultiSelect
         }, self.rowManager);
         
         self.selectedItemCount = self.selectionManager.selectedItemCount;

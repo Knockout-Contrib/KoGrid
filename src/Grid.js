@@ -34,6 +34,7 @@ kg.KoGrid = function (options) {
         includeDestroyed: false, // flag to show _destroy=true items in grid
         selectWithCheckboxOnly: false,
         keepLastSelectedAround: false,
+        isMultiSelect: true,
         lastClickedRow: ko.observable()
     },
 
@@ -428,7 +429,8 @@ kg.KoGrid = function (options) {
             selectedItem: self.config.selectedItem,
             selectedItems: self.config.selectedItems,
             selectedIndex: self.config.selectedIndex,
-            lastClickedRow: self.config.lastClickedRow
+            lastClickedRow: self.config.lastClickedRow,
+            isMulti: self.config.isMultiSelect
         }, self.rowManager);
         
         self.selectedItemCount = self.selectionManager.selectedItemCount;

@@ -7,6 +7,7 @@
 //
 kg.SelectionManager = function (options, rowManager) {
     var self = this,
+        isMulti = options.isMulti,
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
@@ -18,8 +19,7 @@ kg.SelectionManager = function (options, rowManager) {
     this.lastClickedRow = options.lastClickedRow;
     
     this.changeSelection = function(rowItem, clickEvent){
-        if (clickEvent.shiftKey) {
-            document.getSelection().removeAllRanges();
+        if (isMulti && clickEvent.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
                 var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
@@ -36,8 +36,10 @@ kg.SelectionManager = function (options, rowManager) {
                     }
                 }
             }
-        } else if (clickEvent.ctrlKey) {
+            document.getSelection().removeAllRanges();
+        } else if (isMulti && clickEvent.ctrlKey) {
             self.toggle(rowItem);
+            document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
                 item.myRowEntity.selected(false);
