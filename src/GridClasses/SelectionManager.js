@@ -5,18 +5,61 @@
 //      data - (required) the observable array data source of data items
 //  }
 //
-kg.SelectionManager = function (options) {
+kg.SelectionManager = function (options, rowManager) {
     var self = this,
-
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
-
+        
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
-    this.keepLastSelectedAround = options.keepLastSelectedAround;
+    this.lastClickedRow = options.lastClickedRow;
+    
+    this.changeSelection = function(rowItem, clickEvent){
+        if (clickEvent.shiftKey) {
+            document.getSelection().removeAllRanges();
+            if(self.lastClickedRow()) {
+                var thisIndx = rowManager.rowCache.indexOf(rowItem);
+                var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
+                if (thisIndx < prevIndex) {
+                    thisIndx = thisIndx ^ prevIndex;
+                    prevIndex = thisIndx ^ prevIndex;
+                    thisIndx = thisIndx ^ prevIndex;
+                }
+                for (; prevIndex <= thisIndx; prevIndex++) {
+                    rowManager.rowCache[prevIndex].selected(true);
+                    //first see if it exists, if not add it
+                    if (self.selectedItems.indexOf(rowManager.rowCache[prevIndex].entity()) === -1) {
+                        self.selectedItems.push(rowManager.rowCache[prevIndex].entity());
+                    }
+                }
+            }
+        } else if (clickEvent.ctrlKey) {
+            self.toggle(rowItem);
+        } else {
+            utils.forEach(self.selectedItems(), function (item) {
+                item.myRowEntity.selected(false);
+            });
+            self.selectedItems.removeAll();
+            self.toggle(rowItem);
+        }
+        self.lastClickedRow(rowItem);
+        return true;
+    }
+    
+    this.toggle = function(item) {
+        if (item.selected()) {
+            item.selected(false);
+            self.selectedItems.remove(item.entity());
+        } else {
+            item.selected(true);
+            if (self.selectedItems.indexOf(item.entity()) === -1) {
+                self.selectedItems.push(item.entity());
+            }
+        }
+    };
     
     // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {

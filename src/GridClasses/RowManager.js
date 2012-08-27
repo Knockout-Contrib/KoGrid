@@ -10,7 +10,7 @@
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
     
      // we cache rows when they are built, and then blow the cache away when sorting/filtering
-    self.rowCache = []
+    this.rowCache = [];
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
 
@@ -54,7 +54,7 @@
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity, grid.config, self.rowCache);
+            row = new kg.Row(entity, grid.config, grid.selectionManager);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;

@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At:  1:18:23.96 Mon 08/27/2012 
+* Compiled At: 12:40:39.23 Mon 08/27/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -82,13 +82,8 @@ ko.kgMoveSelection = function (sender, evt) {
             var n = items.length;
             var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
             if (index >= 0 && index < n) {
-                utils.forEach(grid.config.selectedItems(), function (itm) {
-                    itm.myRowEntity.selected(false);
-                });
-                grid.config.selectedItems.removeAll();
                 var selected = items[index];
-                grid.config.selectedItems.push(selected);
-                grid.config.lastClickedRow(selected.myRowEntity);
+                grid.selectionManager.changeSelection(selected.myRowEntity ,evt);
                 var itemtoView = document.getElementsByClassName("kgSelected");
                 if (!Element.prototype.scrollIntoViewIfNeeded){
                     itemtoView[0].scrollIntoView(false);
@@ -568,14 +563,13 @@ kg.ColumnCollection.fn = {
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity, config, rowCache) {
+kg.Row = function (entity, config, selectionManager) {
     var self = this,
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         canSelectRows = config.canSelectRows;
-    this.rows = rowCache;
     this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
-
+    this.selectionManager = selectionManager;
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
         this.entity()['__kg_selected__'] = ko.observable(false);
@@ -609,35 +603,9 @@ kg.Row = function (entity, config, rowCache) {
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
-        } else if (event.shiftKey) {
-            document.getSelection().removeAllRanges();
-            if(config.lastClickedRow()) {
-                var thisIndx = self.rows.indexOf(self);
-                var prevIndex = self.rows.indexOf(config.lastClickedRow());
-                if (thisIndx < prevIndex) {
-                    thisIndx = thisIndx ^ prevIndex;
-                    prevIndex = thisIndx ^ prevIndex;
-                    thisIndx = thisIndx ^ prevIndex;
-                }
-                for (; prevIndex <= thisIndx; prevIndex++) {
-                    self.rows[prevIndex].selected(true);
-                    //first see if it exists, if not add it
-                    if (self.selectedItems.indexOf(self.rows[prevIndex].entity()) === -1) {
-                        self.selectedItems.push(self.rows[prevIndex].entity());
-                    }
-                }
-            }
-        } else if (event.ctrlKey) {
-            self.toggle(self);
         } else {
-            utils.forEach(self.selectedItems(), function (item) {
-                item.myRowEntity.selected(false);
-            });
-            self.selectedItems.removeAll();
-            self.toggle(self);
+            self.selectionManager.changeSelection(self, event);
         }
-        config.lastClickedRow(self);
-        return true;
     };
 
     this.toggle = function(item) {
@@ -807,7 +775,7 @@ kg.Row = function (entity, config, rowCache) {
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
     
      // we cache rows when they are built, and then blow the cache away when sorting/filtering
-    self.rowCache = []
+    this.rowCache = [];
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
 
@@ -851,7 +819,7 @@ kg.Row = function (entity, config, rowCache) {
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity, grid.config, self.rowCache);
+            row = new kg.Row(entity, grid.config, grid.selectionManager);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
@@ -1558,18 +1526,61 @@ kg.Row = function (entity, config, rowCache) {
 //      data - (required) the observable array data source of data items
 //  }
 //
-kg.SelectionManager = function (options) {
+kg.SelectionManager = function (options, rowManager) {
     var self = this,
-
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
-
+        
     this.selectedItems = options.selectedItems; //observableArray
     this.selectedIndex = options.selectedIndex; //observable
-    this.keepLastSelectedAround = options.keepLastSelectedAround;
+    this.lastClickedRow = options.lastClickedRow;
+    
+    this.changeSelection = function(rowItem, clickEvent){
+        if (clickEvent.shiftKey) {
+            document.getSelection().removeAllRanges();
+            if(self.lastClickedRow()) {
+                var thisIndx = rowManager.rowCache.indexOf(rowItem);
+                var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
+                if (thisIndx < prevIndex) {
+                    thisIndx = thisIndx ^ prevIndex;
+                    prevIndex = thisIndx ^ prevIndex;
+                    thisIndx = thisIndx ^ prevIndex;
+                }
+                for (; prevIndex <= thisIndx; prevIndex++) {
+                    rowManager.rowCache[prevIndex].selected(true);
+                    //first see if it exists, if not add it
+                    if (self.selectedItems.indexOf(rowManager.rowCache[prevIndex].entity()) === -1) {
+                        self.selectedItems.push(rowManager.rowCache[prevIndex].entity());
+                    }
+                }
+            }
+        } else if (clickEvent.ctrlKey) {
+            self.toggle(rowItem);
+        } else {
+            utils.forEach(self.selectedItems(), function (item) {
+                item.myRowEntity.selected(false);
+            });
+            self.selectedItems.removeAll();
+            self.toggle(rowItem);
+        }
+        self.lastClickedRow(rowItem);
+        return true;
+    }
+    
+    this.toggle = function(item) {
+        if (item.selected()) {
+            item.selected(false);
+            self.selectedItems.remove(item.entity());
+        } else {
+            item.selected(true);
+            if (self.selectedItems.indexOf(item.entity()) === -1) {
+                self.selectedItems.push(item.entity());
+            }
+        }
+    };
     
     // the count of selected items (supports both multi and single-select logic
     this.selectedItemCount = ko.computed(function () {
@@ -1818,7 +1829,6 @@ kg.KoGrid = function (options) {
     filterIsOpen = ko.observable(false), //observable so that the header can subscribe and change height when opened
     filterManager, //kg.FilterManager
     sortManager, //kg.SortManager
-    selectionManager,
     isSorting = false,
     prevScrollTop,
     prevScrollLeft,
@@ -1834,6 +1844,9 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
+    
+    this.selectionManager;
+    this.selectedItemCount;
     
     //If column Defs are not observable, make them so. Will not update dynamically this way.
     if (options.columnDefs && !ko.isObservable(options.columnDefs)){
@@ -1868,14 +1881,6 @@ kg.KoGrid = function (options) {
     this.finalData = sortManager.sortedData; //observable Array
     this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
 
-    selectionManager = new kg.SelectionManager({
-        isMultiSelect: self.config.isMultiSelect,
-        data: self.finalData,
-        selectedItem: self.config.selectedItem,
-        selectedItems: self.config.selectedItems,
-        selectedIndex: self.config.selectedIndex
-    });
-
     this.maxRows = ko.computed(function () {
         var rows = self.finalData();
         maxCanvasHt = rows.length * self.config.rowHeight;
@@ -1886,8 +1891,6 @@ kg.KoGrid = function (options) {
     this.maxCanvasHeight = function () {
         return maxCanvasHt || 0;
     };
-
-    this.selectedItemCount = selectionManager.selectedItemCount;
 
     this.columns = new kg.ColumnCollection();
 
@@ -2006,8 +2009,7 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-    this.changeSelectedItem = selectionManager.changeSelectedItem;
-    this.toggleSelectAll = selectionManager.toggleSelectAll;
+    this.toggleSelectAll;
 
     this.sortData = function (col, dir) {
         isSorting = true;
@@ -2208,7 +2210,17 @@ kg.KoGrid = function (options) {
         }
 
         self.rowManager = new kg.RowManager(self);
-
+        self.selectionManager = new kg.SelectionManager({
+            isMultiSelect: self.config.isMultiSelect,
+            data: self.finalData,
+            selectedItem: self.config.selectedItem,
+            selectedItems: self.config.selectedItems,
+            selectedIndex: self.config.selectedIndex,
+            lastClickedRow: self.config.lastClickedRow
+        }, self.rowManager);
+        
+        self.selectedItemCount = self.selectionManager.selectedItemCount;
+        self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
 
         kg.cssBuilder.buildStyles(self);

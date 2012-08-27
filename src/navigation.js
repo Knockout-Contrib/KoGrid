@@ -42,13 +42,8 @@ ko.kgMoveSelection = function (sender, evt) {
             var n = items.length;
             var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
             if (index >= 0 && index < n) {
-                utils.forEach(grid.config.selectedItems(), function (itm) {
-                    itm.myRowEntity.selected(false);
-                });
-                grid.config.selectedItems.removeAll();
                 var selected = items[index];
-                grid.config.selectedItems.push(selected);
-                grid.config.lastClickedRow(selected.myRowEntity);
+                grid.selectionManager.changeSelection(selected.myRowEntity ,evt);
                 var itemtoView = document.getElementsByClassName("kgSelected");
                 if (!Element.prototype.scrollIntoViewIfNeeded){
                     itemtoView[0].scrollIntoView(false);

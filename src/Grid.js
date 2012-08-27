@@ -41,7 +41,6 @@ kg.KoGrid = function (options) {
     filterIsOpen = ko.observable(false), //observable so that the header can subscribe and change height when opened
     filterManager, //kg.FilterManager
     sortManager, //kg.SortManager
-    selectionManager,
     isSorting = false,
     prevScrollTop,
     prevScrollLeft,
@@ -57,6 +56,9 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
+    
+    this.selectionManager;
+    this.selectedItemCount;
     
     //If column Defs are not observable, make them so. Will not update dynamically this way.
     if (options.columnDefs && !ko.isObservable(options.columnDefs)){
@@ -91,14 +93,6 @@ kg.KoGrid = function (options) {
     this.finalData = sortManager.sortedData; //observable Array
     this.canvasHeight = ko.observable(maxCanvasHt.toString() + 'px');
 
-    selectionManager = new kg.SelectionManager({
-        isMultiSelect: self.config.isMultiSelect,
-        data: self.finalData,
-        selectedItem: self.config.selectedItem,
-        selectedItems: self.config.selectedItems,
-        selectedIndex: self.config.selectedIndex
-    });
-
     this.maxRows = ko.computed(function () {
         var rows = self.finalData();
         maxCanvasHt = rows.length * self.config.rowHeight;
@@ -109,8 +103,6 @@ kg.KoGrid = function (options) {
     this.maxCanvasHeight = function () {
         return maxCanvasHt || 0;
     };
-
-    this.selectedItemCount = selectionManager.selectedItemCount;
 
     this.columns = new kg.ColumnCollection();
 
@@ -229,8 +221,7 @@ kg.KoGrid = function (options) {
     //#endregion
 
     //#region Events
-    this.changeSelectedItem = selectionManager.changeSelectedItem;
-    this.toggleSelectAll = selectionManager.toggleSelectAll;
+    this.toggleSelectAll;
 
     this.sortData = function (col, dir) {
         isSorting = true;
@@ -431,7 +422,17 @@ kg.KoGrid = function (options) {
         }
 
         self.rowManager = new kg.RowManager(self);
-
+        self.selectionManager = new kg.SelectionManager({
+            isMultiSelect: self.config.isMultiSelect,
+            data: self.finalData,
+            selectedItem: self.config.selectedItem,
+            selectedItems: self.config.selectedItems,
+            selectedIndex: self.config.selectedIndex,
+            lastClickedRow: self.config.lastClickedRow
+        }, self.rowManager);
+        
+        self.selectedItemCount = self.selectionManager.selectedItemCount;
+        self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
 
         kg.cssBuilder.buildStyles(self);
