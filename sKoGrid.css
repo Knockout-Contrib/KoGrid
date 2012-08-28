@@ -320,7 +320,6 @@
 	height: 0px;
 	width: 0px;
 }
-
 .kgSortButtonDown {
     position: absolute;
     float: right;
@@ -331,4 +330,24 @@
 	border-width: 5px 5px 0px 5px;
     height: 0px;
 	width: 0px;
+}
+.kgHeaderGrip { 
+    cursor: col-resize; 
+    width: 7px; 
+    right: -5px; 
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
+}
+.kgHeaderGrip:active { 
+    border-left-color: gray;
+    border-left-style: dotted;
+    cursor: col-resize; 
+    width: 7px; 
+    right: -5px; 
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
 }

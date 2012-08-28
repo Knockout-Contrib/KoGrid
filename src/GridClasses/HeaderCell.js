@@ -12,10 +12,9 @@
     
     this.allowSort = ko.observable(col.allowSort);
     this.allowFilter = col.allowFilter;
+    this.allowResize = ko.observable(col.allowResize);
     
-    this.width = ko.computed(function () {
-        return col.width();
-    });
+    this.width = col.width;
 
     this.filter = ko.computed({
         read: function () {
@@ -59,4 +58,23 @@
     };
 
     this.filterHasFocus = ko.observable(false);
+
+﻿    this.startMousePosition = 0;
+    
+    this.gripOnMouseUp = function (event) {
+        var diff = event.clientX - self.startMousePosition;
+        var origWidth = self.width();
+        self.width(diff + origWidth);
+        document.body.style.cursor = 'default';
+        document.onmouseup = null;
+        return false;
+    };
+﻿    
+﻿    this.gripOnMouseDown = function (event) {
+﻿        self.startMousePosition = event.clientX;
+        document.onmouseup = self.gripOnMouseUp;
+        document.body.style.cursor = 'col-resize';
+        event.target.parentElement.style.cursor = 'col-resize';
+        return false;
+    };
 };

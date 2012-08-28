@@ -1,4 +1,4 @@
-﻿kg.Column = function (colDef, rowManager) {
+﻿kg.Column = function (colDef) {
     var self = this,
         wIsOb = ko.isObservable(colDef.width);
     this.width = wIsOb ? colDef.width : ko.observable(0);
