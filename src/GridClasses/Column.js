@@ -12,7 +12,6 @@
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
 
-
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
         colDef.sortable = true;

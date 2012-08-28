@@ -309,3 +309,26 @@
     width: 25px;
     cursor: auto;
 }
+.kgSortButtonUp {
+    position: absolute;
+    float: right;
+    top: 10px;
+    right: 10%;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 0px 5px 5px 5px;
+	height: 0px;
+	width: 0px;
+}
+
+.kgSortButtonDown {
+    position: absolute;
+    float: right;
+    top: 17px;
+    right: 10%;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 5px 5px 0px 5px;
+    height: 0px;
+	width: 0px;
+}
