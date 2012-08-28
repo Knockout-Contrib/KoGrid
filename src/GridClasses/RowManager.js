@@ -2,13 +2,13 @@
     var self = this,
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
-        dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-    
+        
+    this.dataChanged = true;
      // we cache rows when they are built, and then blow the cache away when sorting/filtering
     this.rowCache = [];
     // short cut to sorted and filtered data
@@ -16,7 +16,7 @@
 
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
-        dataChanged = true;
+        self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
     });
 
@@ -99,7 +99,7 @@
 
         if (rg) {
 
-            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || dataChanged)
+            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || self.dataChanged)
             if (!isDif && prevMaxRows !== maxRows) {
                 isDif = true;
                 rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
@@ -129,8 +129,8 @@
                 prevMinRows = minRows;
 
                 //one last equality check
-                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
-                    dataChanged = false;
+                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || self.dataChanged) {
+                    self.dataChanged = false;
                     prevRenderedRange = newRg;
 
                     // now kickoff row building

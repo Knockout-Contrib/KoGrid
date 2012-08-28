@@ -1,7 +1,7 @@
 ﻿kg.HeaderCell = function (col) {
     var self = this;
 
-    this.colIndex = 0;
+    this.colIndex = col.colIndex;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;

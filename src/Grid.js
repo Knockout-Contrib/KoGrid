@@ -399,7 +399,7 @@ kg.KoGrid = function (options) {
                 column.index = i;
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
-
+                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);
@@ -432,7 +432,13 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        
+        utils.forEach(self.columns(), function(col, i){
+            col.width.subscribe(function(){
+                self.rowManager.dataChanged = true;
+                self.rowManager.rowCache = []; //if data source changes, kill this!
+                self.rowManager.calcRenderedRange();
+            });
+        });
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable

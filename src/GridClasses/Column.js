@@ -1,5 +1,7 @@
-﻿kg.Column = function (colDef) {
-    this.width = ko.observable(0);
+﻿kg.Column = function (colDef, rowManager) {
+    var self = this,
+        wIsOb = ko.isObservable(colDef.width);
+    this.width = wIsOb ? colDef.width : ko.observable(0);
 
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
@@ -48,8 +50,10 @@
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
+        self.width(colDef.width);
+    } else {
+        if (!wIsOb){
+            self.width(colDef.width);
+        }
     }
-
-    this.width(colDef.width);
-
 };

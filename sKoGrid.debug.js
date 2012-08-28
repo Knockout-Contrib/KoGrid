@@ -1,7 +1,7 @@
 /*********************************************** 
 * sKoGrid JavaScript Library 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:59:29.34 Mon 08/27/2012 
+* Compiled At: 20:24:17.60 Mon 08/27/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -231,7 +231,7 @@ kg.utils = utils;
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width }, css: { \'kgNoSort\': {2} }">', col.field, col.colIndex, !col.allowSort);
             b.append('</div>');
         }
     });
@@ -456,8 +456,10 @@ kg.utils = utils;
 /*********************************************** 
 * FILE: ..\Src\GridClasses\Column.js 
 ***********************************************/ 
-﻿kg.Column = function (colDef) {
-    this.width = ko.observable(0);
+﻿kg.Column = function (colDef, rowManager) {
+    var self = this,
+        wIsOb = ko.isObservable(colDef.width);
+    this.width = wIsOb ? colDef.width : ko.observable(0);
 
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
@@ -506,10 +508,12 @@ kg.utils = utils;
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
+        self.width(colDef.width);
+    } else {
+        if (!wIsOb){
+            self.width(colDef.width);
+        }
     }
-
-    this.width(colDef.width);
-
 }; 
  
  
@@ -661,7 +665,7 @@ kg.Row = function (entity, config, selectionManager) {
 ﻿kg.HeaderCell = function (col) {
     var self = this;
 
-    this.colIndex = 0;
+    this.colIndex = col.colIndex;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
@@ -740,13 +744,13 @@ kg.Row = function (entity, config, selectionManager) {
     var self = this,
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
-        dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-    
+        
+    this.dataChanged = true;
      // we cache rows when they are built, and then blow the cache away when sorting/filtering
     this.rowCache = [];
     // short cut to sorted and filtered data
@@ -754,7 +758,7 @@ kg.Row = function (entity, config, selectionManager) {
 
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
-        dataChanged = true;
+        self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
     });
 
@@ -837,7 +841,7 @@ kg.Row = function (entity, config, selectionManager) {
 
         if (rg) {
 
-            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || dataChanged)
+            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || self.dataChanged)
             if (!isDif && prevMaxRows !== maxRows) {
                 isDif = true;
                 rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
@@ -867,8 +871,8 @@ kg.Row = function (entity, config, selectionManager) {
                 prevMinRows = minRows;
 
                 //one last equality check
-                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
-                    dataChanged = false;
+                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || self.dataChanged) {
+                    self.dataChanged = false;
                     prevRenderedRange = newRg;
 
                     // now kickoff row building
@@ -2162,7 +2166,7 @@ kg.KoGrid = function (options) {
                 column.index = i;
 
                 column.sortDirection.subscribe(createColumnSortClosure(column));
-
+                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
 
                 cols.push(column);
@@ -2195,7 +2199,13 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        
+        utils.forEach(self.columns(), function(col, i){
+            col.width.subscribe(function(){
+                self.rowManager.dataChanged = true;
+                self.rowManager.rowCache = []; //if data source changes, kill this!
+                self.rowManager.calcRenderedRange();
+            });
+        });
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
@@ -2301,7 +2311,7 @@ kg.cssBuilder = {
             
             colWidth = col.width() - grid.elementDims.cellWdiff;
 
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
 
             sumWidth += col.width();
 
