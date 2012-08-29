@@ -1,8 +1,13 @@
 ﻿kg.Column = function (colDef) {
     var self = this,
-        wIsOb = ko.isObservable(colDef.width);
+        wIsOb = ko.isObservable(colDef.width),
+        minWIsOB = ko.isObservable(colDef.minWidth),
+        maxWIsOB = ko.isObservable(colDef.maxWidth);
+        
     this.width = wIsOb ? colDef.width : ko.observable(0);
-
+    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string
@@ -46,13 +51,11 @@
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
 
     // figure out the width
-    if (!colDef.width) {
+    if (!colDef.width || colDef.width() == "*") {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
         self.width(colDef.width);
-    } else {
-        if (!wIsOb){
-            self.width(colDef.width);
-        }
+    } else if (!wIsOb) {
+        self.width(colDef.width);
     }
 };

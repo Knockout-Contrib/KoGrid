@@ -2,7 +2,7 @@
 * sKoGrid JavaScript Library 
 * (c) Tim Sweet and Eric M. Barnard  
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:28:12.15 Tue 08/28/2012 
+* Compiled At: 16:12:10.04 Wed 08/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -459,9 +459,14 @@ kg.utils = utils;
 ***********************************************/ 
 ﻿kg.Column = function (colDef) {
     var self = this,
-        wIsOb = ko.isObservable(colDef.width);
+        wIsOb = ko.isObservable(colDef.width),
+        minWIsOB = ko.isObservable(colDef.minWidth),
+        maxWIsOB = ko.isObservable(colDef.maxWidth);
+        
     this.width = wIsOb ? colDef.width : ko.observable(0);
-
+    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string
@@ -505,14 +510,12 @@ kg.utils = utils;
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
 
     // figure out the width
-    if (!colDef.width) {
+    if (!colDef.width || colDef.width() == "*") {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
         self.width(colDef.width);
-    } else {
-        if (!wIsOb){
-            self.width(colDef.width);
-        }
+    } else if (!wIsOb) {
+        self.width(colDef.width);
     }
 }; 
  
@@ -679,6 +682,8 @@ kg.Row = function (entity, config, selectionManager) {
     this.allowResize = ko.observable(col.allowResize);
     
     this.width = col.width;
+    this.minWidth = col.minWidth;
+    this.maxWidth = col.maxWidth;
 
     this.filter = ko.computed({
         read: function () {
@@ -737,7 +742,8 @@ kg.Row = function (entity, config, selectionManager) {
 
     this.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
-        self.width(diff + self.origWidth);
+        var newWidth = diff + self.origWidth;
+        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
         return false;
 ﻿    };
 ﻿    
