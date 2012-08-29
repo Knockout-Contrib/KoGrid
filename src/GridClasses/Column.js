@@ -51,7 +51,7 @@
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
 
     // figure out the width
-    if (!colDef.width || colDef.width() == "*") {
+    if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
         self.width(colDef.width);

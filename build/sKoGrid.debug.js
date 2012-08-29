@@ -2,7 +2,7 @@
 * sKoGrid JavaScript Library 
 * (c) Tim Sweet and Eric M. Barnard  
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:12:10.04 Wed 08/29/2012 
+* Compiled At: 16:57:40.55 Wed 08/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -510,7 +510,7 @@ kg.utils = utils;
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
 
     // figure out the width
-    if (!colDef.width || colDef.width() == "*") {
+    if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
         self.width(colDef.width);
