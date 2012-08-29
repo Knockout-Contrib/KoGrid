@@ -2,7 +2,7 @@
 * sKoGrid JavaScript Library 
 * (c) Tim Sweet and Eric M. Barnard  
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:29:56.79 Tue 08/28/2012 
+* Compiled At: 17:28:12.15 Tue 08/28/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -725,18 +725,27 @@ kg.Row = function (entity, config, selectionManager) {
 
 ﻿    this.startMousePosition = 0;
     
-    this.gripOnMouseUp = function (event) {
-        var diff = event.clientX - self.startMousePosition;
-        var origWidth = self.width();
-        self.width(diff + origWidth);
-        document.body.style.cursor = 'default';
+﻿    this.startMousePosition = 0;
+    this.origWidth = 0;
+﻿    
+    this.gripOnMouseUp = function () {
+        document.onmousemove = null;
         document.onmouseup = null;
+        document.body.style.cursor = 'default';
         return false;
     };
+
+    this.onMouseMove = function (event) {
+        var diff = event.clientX - self.startMousePosition;
+        self.width(diff + self.origWidth);
+        return false;
+﻿    };
 ﻿    
-﻿    this.gripOnMouseDown = function (event) {
-﻿        self.startMousePosition = event.clientX;
-        document.onmouseup = self.gripOnMouseUp;
+    this.gripOnMouseDown = function (event) {
+        self.startMousePosition = event.clientX;
+        self.origWidth = self.width();
+﻿        document.onmousemove = self.onMouseMove;
+﻿        document.onmouseup = self.gripOnMouseUp;
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;

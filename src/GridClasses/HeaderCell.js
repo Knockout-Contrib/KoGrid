@@ -61,18 +61,27 @@
 
 ﻿    this.startMousePosition = 0;
     
-    this.gripOnMouseUp = function (event) {
-        var diff = event.clientX - self.startMousePosition;
-        var origWidth = self.width();
-        self.width(diff + origWidth);
-        document.body.style.cursor = 'default';
+﻿    this.startMousePosition = 0;
+    this.origWidth = 0;
+﻿    
+    this.gripOnMouseUp = function () {
+        document.onmousemove = null;
         document.onmouseup = null;
+        document.body.style.cursor = 'default';
         return false;
     };
+
+    this.onMouseMove = function (event) {
+        var diff = event.clientX - self.startMousePosition;
+        self.width(diff + self.origWidth);
+        return false;
+﻿    };
 ﻿    
-﻿    this.gripOnMouseDown = function (event) {
-﻿        self.startMousePosition = event.clientX;
-        document.onmouseup = self.gripOnMouseUp;
+    this.gripOnMouseDown = function (event) {
+        self.startMousePosition = event.clientX;
+        self.origWidth = self.width();
+﻿        document.onmousemove = self.onMouseMove;
+﻿        document.onmouseup = self.gripOnMouseUp;
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;
