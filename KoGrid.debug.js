@@ -1,7 +1,8 @@
 /*********************************************** 
 * KoGrid JavaScript Library 
+* Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:25:22.59 Tue 08/28/2012 
+* Compiled At: 14:44:51.78 Wed 08/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -231,7 +232,7 @@ kg.templates.defaultGridInnerTemplate = function () {
             b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width }, css: { \'kgNoSort\': {2} }">', col.field, col.colIndex, !col.allowSort);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width }, css: { \'kgNoSort\': {2} }">', col.field, i, !col.allowSort);
             b.append('</div>');
         }
     });
@@ -249,10 +250,10 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
     b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.allowSort() && $data.noSortVisible()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAEFJREFUKFNjYICC+vp6YyDeDcSCMDEwDRRQAuK7QPwfpAAuiSYBkkQoAHLOQAVgEjB6FYrxGBy8OvHaide1+PwJAMBIWUlZ9vlNAAAAAElFTkSuQmCC"/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortAscVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPElEQVQoU2NggIL6+npjIN4NxIIwMTANFFAC4rtA/B+kAC6JJgGSRCgAcs5ABWASMHoVw////3HigZAEACKmlTwMfriZAAAAAElFTkSuQmCC"/>');
-    b.append('  <img class="kgSortImg" data-bind="visible: $data.sortDescVisible" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAJCAYAAAD+WDajAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAPUlEQVQoU2P4//8/Ay6MUwKkgQJJBnygvr7+DBD/x4JXMQAFlYD4LprkbriBaAoQEjAVQAXGQLwbiAVhYgD6kIBR+tr9IgAAAABJRU5ErkJggg=="/>');
+    b.append('  <div class="kgSortButtonDown" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortAscVisible) : $data.allowSort())"></div>');
+    b.append('  <div class="kgSortButtonUp" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortDescVisible) : $data.allowSort())"></div>');
     b.append('</div>');
+    b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
     b.append('<div data-bind="visible: $data._filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
     b.append('</div>');
@@ -458,7 +459,7 @@ kg.templates.defaultHeaderCellTemplate = function () {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\Column.js 
 ***********************************************/ 
-﻿kg.Column = function (colDef, rowManager) {
+kg.Column = function (colDef) {
     var self = this,
         wIsOb = ko.isObservable(colDef.width);
     this.width = wIsOb ? colDef.width : ko.observable(0);
@@ -471,7 +472,6 @@ kg.templates.defaultHeaderCellTemplate = function () {
     this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
-
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
@@ -664,7 +664,7 @@ kg.Row = function (entity, config, selectionManager) {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\HeaderCell.js 
 ***********************************************/ 
-kg.HeaderCell = function (col) {
+﻿kg.HeaderCell = function (col) {
     var self = this;
 
     this.colIndex = col.colIndex;
@@ -678,10 +678,9 @@ kg.HeaderCell = function (col) {
     
     this.allowSort = ko.observable(col.allowSort);
     this.allowFilter = col.allowFilter;
+    this.allowResize = ko.observable(col.allowResize);
     
-    this.width = ko.computed(function () {
-        return col.width();
-    });
+    this.width = col.width;
 
     this.filter = ko.computed({
         read: function () {
@@ -725,6 +724,34 @@ kg.HeaderCell = function (col) {
     };
 
     this.filterHasFocus = ko.observable(false);
+
+﻿    this.startMousePosition = 0;
+    
+﻿    this.startMousePosition = 0;
+    this.origWidth = 0;
+﻿    
+    this.gripOnMouseUp = function () {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        document.body.style.cursor = 'default';
+        return false;
+    };
+
+    this.onMouseMove = function (event) {
+        var diff = event.clientX - self.startMousePosition;
+        self.width(diff + self.origWidth);
+        return false;
+﻿    };
+﻿    
+    this.gripOnMouseDown = function (event) {
+        self.startMousePosition = event.clientX;
+        self.origWidth = self.width();
+﻿        document.onmousemove = self.onMouseMove;
+﻿        document.onmouseup = self.gripOnMouseUp;
+        document.body.style.cursor = 'col-resize';
+        event.target.parentElement.style.cursor = 'col-resize';
+        return false;
+    };
 }; 
  
  
@@ -3104,4 +3131,21 @@ ko.bindingHandlers['kgCell'] = (function () {
         }
     };
 } ()); 
+ 
+ 
+/*********************************************** 
+* FILE: ..\src\BindingHandlers\kgMouseEvents.js 
+***********************************************/ 
+ko.bindingHandlers['mouseEvents'] = (function () {
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var eFuncs = valueAccessor();
+            if (eFuncs.mouseDown) {
+                $(element).mousedown(eFuncs.mouseDown);
+            }
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        }
+    };
+}()); 
 }(window)); 

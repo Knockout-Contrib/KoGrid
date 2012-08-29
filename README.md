@@ -1,29 +1,18 @@
-#sKoGrid : A Knockout DataGrid#
+#KoGrid : A Knockout DataGrid#
 
-LAtest revisions By: Tim Sweet          http://ornerydevelopment.blogspot.com/
-
-Original work done by: Eric M. Barnard  https://github.com/ericmbarnard/KoGrid
-
-Bug Fixes by : Stephen Commisso         https://github.com/gdscommisso/KoGrid
-
-Special Thanks: Robert Nyman            http://www.robertnyman.com (getElementsByAttribute)
+Contributors: 
+* [Eric M. Barnard](https://github.com/ericmbarnard/KoGrid)
+* [Tim Sweet](http://ornerydevelopment.blogspot.com/)
+* [Stephen Commisso](https://github.com/gdscommisso/KoGrid)
+* [Robert Nyman](http://www.robertnyman.com)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 Dependencies: jQuery & Knockout
 ***
 ##About##
-__sKoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
+__KoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
 
-##BREAKING CHANGES IN LATEST VERSION##
-
-There is no more "selectedItem" or "isMultiSelect" in the options. There is only the selectedItems observableArray. This simplified the internal logic and allows for the grid selection to behave like a proper grid. Now CTRL/Shift click will multi-select while the default click behavior is single selection. In your own ViewModel if you need a selected item i suggest using something like this:
-
-```javascript
-    var selectedItem = ko.computed(function () {
-        return selectedItems().length == 1 ? selectedItems()[0] : undefined ;// or whatever logic you want to return (last index, always return first index, whatever.
-    });
-```
 
 ##Disclaimer##
 This is a fork off the main project created by Eric M. Barnard 

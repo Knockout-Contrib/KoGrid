@@ -1,4 +1,4 @@
-﻿kg.Column = function (colDef, rowManager) {
+kg.Column = function (colDef) {
     var self = this,
         wIsOb = ko.isObservable(colDef.width);
     this.width = wIsOb ? colDef.width : ko.observable(0);
@@ -11,7 +11,6 @@
     this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
-
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
