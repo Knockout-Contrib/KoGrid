@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:19:06.24 Wed 08/29/2012 
+* Compiled At:  9:58:56.83 Thu 08/30/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -736,8 +736,8 @@ kg.Row = function (entity, config, selectionManager) {
     this.origWidth = 0;
 ﻿    
     this.gripOnMouseUp = function () {
-        document.onmousemove = null;
-        document.onmouseup = null;
+        $(document).off('mousemove');
+        $(document).off('mouseup');
         document.body.style.cursor = 'default';
         return false;
     };
@@ -752,8 +752,8 @@ kg.Row = function (entity, config, selectionManager) {
     this.gripOnMouseDown = function (event) {
         self.startMousePosition = event.clientX;
         self.origWidth = self.width();
-﻿        document.onmousemove = self.onMouseMove;
-﻿        document.onmouseup = self.gripOnMouseUp;
+﻿        $(document).mousemove(self.onMouseMove);
+﻿        $(document).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;

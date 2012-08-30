@@ -67,8 +67,8 @@
     this.origWidth = 0;
 ﻿    
     this.gripOnMouseUp = function () {
-        document.onmousemove = null;
-        document.onmouseup = null;
+        $(document).off('mousemove');
+        $(document).off('mouseup');
         document.body.style.cursor = 'default';
         return false;
     };
@@ -83,8 +83,8 @@
     this.gripOnMouseDown = function (event) {
         self.startMousePosition = event.clientX;
         self.origWidth = self.width();
-﻿        document.onmousemove = self.onMouseMove;
-﻿        document.onmouseup = self.gripOnMouseUp;
+﻿        $(document).mousemove(self.onMouseMove);
+﻿        $(document).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;
