@@ -35,4 +35,5 @@ DEL %OutPutFile%.temp
 COPY %OutputFile% %FinalFile%
 ECHO JSBuild Succeeded
 ENDLOCAL
+>>>>>>> ericmbarnard/skogrid-merge
 GOTO :eof

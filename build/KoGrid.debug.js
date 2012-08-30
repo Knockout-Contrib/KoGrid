@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:44:51.78 Wed 08/29/2012 
+* Compiled At: 21:59:05.01 Wed 08/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -459,11 +459,16 @@ kg.templates.defaultHeaderCellTemplate = function () {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\Column.js 
 ***********************************************/ 
-kg.Column = function (colDef) {
+﻿kg.Column = function (colDef) {
     var self = this,
-        wIsOb = ko.isObservable(colDef.width);
+        wIsOb = ko.isObservable(colDef.width),
+        minWIsOB = ko.isObservable(colDef.minWidth),
+        maxWIsOB = ko.isObservable(colDef.maxWidth);
+        
     this.width = wIsOb ? colDef.width : ko.observable(0);
-
+    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string
@@ -511,10 +516,8 @@ kg.Column = function (colDef) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
         self.width(colDef.width);
-    } else {
-        if (!wIsOb){
-            self.width(colDef.width);
-        }
+    } else if (!wIsOb) {
+        self.width(colDef.width);
     }
 }; 
  
@@ -681,6 +684,8 @@ kg.Row = function (entity, config, selectionManager) {
     this.allowResize = ko.observable(col.allowResize);
     
     this.width = col.width;
+    this.minWidth = col.minWidth;
+    this.maxWidth = col.maxWidth;
 
     this.filter = ko.computed({
         read: function () {
@@ -739,7 +744,8 @@ kg.Row = function (entity, config, selectionManager) {
 
     this.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
-        self.width(diff + self.origWidth);
+        var newWidth = diff + self.origWidth;
+        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
         return false;
 ﻿    };
 ﻿    
@@ -3136,6 +3142,7 @@ ko.bindingHandlers['kgCell'] = (function () {
 /*********************************************** 
 * FILE: ..\src\BindingHandlers\kgMouseEvents.js 
 ***********************************************/ 
+<<<<<<< HEAD
 ko.bindingHandlers['mouseEvents'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -3147,5 +3154,18 @@ ko.bindingHandlers['mouseEvents'] = (function () {
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         }
     };
+=======
+ko.bindingHandlers['mouseEvents'] = (function () {
+    return {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var eFuncs = valueAccessor();
+            if (eFuncs.mouseDown) {
+                $(element).mousedown(eFuncs.mouseDown);
+            }
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        }
+    };
+>>>>>>> ericmbarnard/skogrid-merge
 }()); 
 }(window)); 
