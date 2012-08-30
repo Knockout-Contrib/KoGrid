@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 21:59:05.01 Wed 08/29/2012 
+* Compiled At: 22:19:06.24 Wed 08/29/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -3142,7 +3142,6 @@ ko.bindingHandlers['kgCell'] = (function () {
 /*********************************************** 
 * FILE: ..\src\BindingHandlers\kgMouseEvents.js 
 ***********************************************/ 
-<<<<<<< HEAD
 ko.bindingHandlers['mouseEvents'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -3154,18 +3153,5 @@ ko.bindingHandlers['mouseEvents'] = (function () {
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         }
     };
-=======
-ko.bindingHandlers['mouseEvents'] = (function () {
-    return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var eFuncs = valueAccessor();
-            if (eFuncs.mouseDown) {
-                $(element).mousedown(eFuncs.mouseDown);
-            }
-        },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        }
-    };
->>>>>>> ericmbarnard/skogrid-merge
 }()); 
 }(window)); 
