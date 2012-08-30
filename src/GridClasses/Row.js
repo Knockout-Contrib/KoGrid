@@ -1,16 +1,18 @@
-﻿/// <reference path="../utils.js" />
+/// <reference path="../utils.js" />
 /// <reference path="../namespace.js" />
 /// <reference path="../Grid.js" />
 
-kg.Row = function (entity, config) {
-    var self = this;
-    var canSelectRows = config.canSelectRows;
+kg.Row = function (entity, config, selectionManager) {
+    var self = this,
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+        canSelectRows = config.canSelectRows;
+    this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
+    this.selectionManager = selectionManager;
     //selectify the entity
     if (this.entity()['__kg_selected__'] === undefined) {
         this.entity()['__kg_selected__'] = ko.observable(false);
     }
-
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
@@ -37,14 +39,25 @@ kg.Row = function (entity, config) {
         //check and make sure its not the bubbling up of our checked 'click' event 
         if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
             return true;
+        } 
+        if (config.selectWithCheckboxOnly && element.type != "checkbox"){
+            return true;
         } else {
-            if (self.selected()) {
-                self.selected(false);
-            } else {
-                self.selected(true);
+            self.selectionManager.changeSelection(self, event);
+        }
+    };
+
+    this.toggle = function(item) {
+        if (item.selected()) {
+            item.selected(false);
+            self.selectedItems.remove(item.entity());
+        } else {
+            item.selected(true);
+            if (self.selectedItems.indexOf(item.entity()) === -1) {
+                self.selectedItems.push(item.entity());
             }
         }
-        return true;
+
     };
 
     this.cells = ko.observableArray([]);

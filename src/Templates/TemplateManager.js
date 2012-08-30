@@ -1,12 +1,12 @@
 ﻿kg.templateManager = (new function () {
     var self = this;
 
-    var templateExists = function (tmplId) {
+    self.templateExists = function (tmplId) {
         var el = document.getElementById(tmplId);
         return (el !== undefined && el !== null);
     };
 
-    var addTemplate = function (templateText, tmplId) {
+    self.addTemplate = function (templateText, tmplId) {
         var tmpl = document.createElement("SCRIPT");
         tmpl.type = "text/html";
         tmpl.id = tmplId;
@@ -18,10 +18,15 @@
 
         document.body.appendChild(tmpl);
     };
-
+    
+    this.removeTemplate = function (tmplId){
+        var element = document.getElementById(tmplId);
+        if (element) element.parentNode.removeChild(element);
+    };
+    
     this.addTemplateSafe = function (tmplId, templateTextAccessor) {
-        if (!templateExists(tmplId)) {
-            addTemplate(templateTextAccessor(), tmplId);
+        if (!self.templateExists(tmplId)) {
+            self.addTemplate(templateTextAccessor(), tmplId);
         }
     };
 
@@ -65,7 +70,7 @@
     };
 
     this.getTemplateText = function (tmplId) {
-        if (!templateExists(tmplId)) {
+        if (!self.templateExists(tmplId)) {
             return "";
         } else {
             var el = document.getElementById(tmplId);

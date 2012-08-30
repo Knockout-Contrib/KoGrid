@@ -18,10 +18,35 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            grid = new kg.KoGrid(options);
+            var grid = kg.gridManager.getGrid(element);
+            if (!grid){
+                grid = new kg.KoGrid(options);
+                kg.gridManager.storeGrid(element, grid);
+            } else {
+                return false;
+            }
+            
+            kg.templateManager.ensureGridTemplates({
+                rowTemplate: grid.config.rowTemplate,
+                headerTemplate: grid.config.headerTemplate,
+                headerCellTemplate: grid.config.headerCellTemplate,
+                footerTemplate: grid.config.footerTemplate,
+                columns: grid.columns(),
+                showFilter: grid.config.allowFiltering
+            });
 
-            kg.gridManager.storeGrid(element, grid);
-
+            //subscribe to the columns and recrate the grid if they change
+            grid.config.columnDefs.subscribe(function (){
+                var oldgrid = kg.gridManager.getGrid(element);
+                var oldgridId = oldgrid.gridId.toString();
+                $(element).empty(); 
+                $(element).removeClass("kgGrid")
+                          .removeClass("ui-widget")
+                          .removeClass(oldgridId);
+                kg.gridManager.removeGrid(oldgridId);
+                ko.applyBindings(bindingContext, element);
+            });
+            
             //get the container sizes
             kg.domUtility.measureGrid($element, grid, true);
 
@@ -31,16 +56,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             $(element).addClass("kgGrid")
                       .addClass("ui-widget")
                       .addClass(grid.gridId.toString());
-
+            
             //make sure the templates are generated for the Grid
-            kg.templateManager.ensureGridTemplates({
-                rowTemplate: grid.config.rowTemplate,
-                headerTemplate: grid.config.headerTemplate,
-                headerCellTemplate: grid.config.headerCellTemplate,
-                footerTemplate: grid.config.footerTemplate,
-                columns: grid.columns(),
-                showFilter: grid.config.allowFiltering
-            });
 
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 

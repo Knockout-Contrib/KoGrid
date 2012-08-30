@@ -1,6 +1,10 @@
 #KoGrid : A Knockout DataGrid#
 
-By: Eric M. Barnard
+Contributors: 
+* [Eric M. Barnard](https://github.com/ericmbarnard/KoGrid)
+* [Tim Sweet](http://ornerydevelopment.blogspot.com/)
+* [Stephen Commisso](https://github.com/gdscommisso/KoGrid)
+* [Robert Nyman](http://www.robertnyman.com)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
@@ -9,8 +13,11 @@ Dependencies: jQuery & Knockout
 ##About##
 __KoGrid__ came out of our need for a decent datagrid that was built for MVVM/Knockout-style development. It draws considerable inspiration and architecture from SlickGrid, but is still KO throughout.
 
+
 ##Disclaimer##
-KoGrid is ALPHA currently... _BUT_ I might know a few organizations going live in production here soon...
+This is a fork off the main project created by Eric M. Barnard 
+
+KoGrid is ALPHA currently. We are going to be adding more features here in the very near future...
 ***
 _The sizzle_:
 
@@ -37,5 +44,8 @@ Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Gett
 
 also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
+* __2012-08-27__ - BREAKING CHANGES: "selectedItem" and "isMultiSelect" is now gone. Logic for selection is totally redone that enables shift/ctrl click selections with the default being a single item slection on regular click. This could break existing user implementations!
+* __2012-08-18__ - Adding new features, up/down arrows now control the selected item when multiselect is disabled. columnDefs are now observable so you can change the columns on the fly.
+* __2012-08-16__ - Styles moved into CSS, minor bug fix for Row templates where cells wouldn't take null values (for instance, when you want to display an image instead of the value)
 * __2012-03-07__ - Huge Row Rendering Perf improvements, Easier syntax for custom cell templates,  Allow Custom CSS Classes on Header and Data Cells, Allow toggling of Footer Visibility, Much better button iconography, enhanced default CSS styles, various other bug fixes
 * __2012-04-10__ - Wildcard Filtering, better grid resizing during window resize events, better sorting, numerous bug-fixes
