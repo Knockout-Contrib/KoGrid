@@ -203,7 +203,10 @@
 
             }
             self.filterInfo(info);
-            options.currentPage(1);
+
+            if (options && options.currentPage) {
+                options.currentPage(1);
+            }
         };
     };
 

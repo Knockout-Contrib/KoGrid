@@ -1,4 +1,4 @@
-﻿kg.templates.defaultHeaderCellTemplate = function () {
+kg.templates.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');

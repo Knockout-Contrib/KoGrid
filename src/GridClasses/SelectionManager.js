@@ -7,17 +7,34 @@
 //
 kg.SelectionManager = function (options, rowManager) {
     var self = this,
-        isMulti = options.isMulti,
+        isMulti = options.isMulti || options.isMultiSelect,
+        ignoreSelectedItemChanges = false, // flag to prevent circular event loops keeping single-select observable in sync
         dataSource = options.data, // the observable array datasource
         KEY = '__kg_selected__', // constant for the selection property that we add to each data item
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
         
-    this.selectedItems = options.selectedItems; //observableArray
+    this.selectedItem = options.selectedItem || ko.observable(); // observable
+    this.selectedItems = options.selectedItems || ko.observableArray([]); //observableArray
     this.selectedIndex = options.selectedIndex; //observable
     this.lastClickedRow = options.lastClickedRow;
-    
+
+    // some subscriptions to keep the selectedItem in sync
+    this.selectedItem.subscribe(function (val) {
+        if (ignoreSelectedItemChanges)
+            return;
+
+        self.selectedItems([val]);
+    });
+    this.selectedItems.subscribe(function (vals) {
+        ignoreSelectedItemChanges = true;
+
+        self.selectedItem(vals ? vals[0] : null);
+
+        ignoreSelectedItemChanges = false;
+    });
+
     this.changeSelection = function(rowItem, clickEvent){
         if (isMulti && clickEvent.shiftKey) {
             if(self.lastClickedRow()) {
@@ -42,7 +59,9 @@ kg.SelectionManager = function (options, rowManager) {
             document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
-                item.myRowEntity.selected(false);
+                if (item && item.myRowEntity && item.myRowEntity.selected) {
+                    item.myRowEntity.selected(false);
+                }
             });
             self.selectedItems.removeAll();
             self.toggle(rowItem);
@@ -51,6 +70,51 @@ kg.SelectionManager = function (options, rowManager) {
         return true;
     }
     
+    // function to manage the selection action of a data item (entity)
+    // just call this func and hand it the item you want to select (or de-select)
+    // @changedEntity - the data item that you want to select/de-select
+    this.changeSelectedItem = function (changedEntity) {
+        var currentEntity = self.selectedItem(),
+            currentItems = self.selectedItems,
+            len = 0,
+            keep = false;
+
+        if (!isMulti) {
+            //Single Select Logic
+
+            //find out if the changed entity is selected or not
+            if (changedEntity && changedEntity[KEY]) {
+                keep = changedEntity[KEY]();
+            }
+
+            if (keep) {
+                //set the new entity
+                self.selectedItem(changedEntity);
+            } else {
+                //always keep a selected entity around
+                changedEntity[KEY](true);
+            }
+
+        } else {
+            //Multi-Select Logic
+            len = currentItems().length;
+
+            //if the changed entity was de-selected, remove it from the array
+            if (changedEntity && changedEntity[KEY]) {
+                keep = changedEntity[KEY]();
+            }
+
+            if (!keep) {
+                currentItems.remove(changedEntity);
+            } else {
+                //first see if it exists, if not add it
+                if (currentItems.indexOf(changedEntity) === -1) {
+                    currentItems.push(changedEntity);
+                }
+            }
+        }
+    };
+
     this.toggle = function(item) {
         if (item.selected()) {
             item.selected(false);

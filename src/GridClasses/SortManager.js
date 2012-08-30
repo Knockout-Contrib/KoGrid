@@ -277,6 +277,7 @@
                 if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
                 if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
             }
+
             propAEmpty = self.isEmpty(propA);
             propBEmpty = self.isEmpty(propB);
 
