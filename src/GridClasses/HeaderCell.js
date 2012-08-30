@@ -15,6 +15,8 @@
     this.allowResize = ko.observable(col.allowResize);
     
     this.width = col.width;
+    this.minWidth = col.minWidth;
+    this.maxWidth = col.maxWidth;
 
     this.filter = ko.computed({
         read: function () {
@@ -73,7 +75,8 @@
 
     this.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
-        self.width(diff + self.origWidth);
+        var newWidth = diff + self.origWidth;
+        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
         return false;
 ﻿    };
 ﻿    
