@@ -37,6 +37,16 @@
         }
     });
     
+    this.leftPosition = ko.computed(function () {
+        var chars = self.displayName.length;
+        var charW = 8; // pixel width of avg character
+        var totalWidth = ko.utils.unwrapObservable(self.width);
+        var leftWidth = (chars * charW) + 10; // add 10 for a little space beside the text
+
+        var offset = Math.min(totalWidth, leftWidth)
+        return offset.toString() + 'px';
+    });
+
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
