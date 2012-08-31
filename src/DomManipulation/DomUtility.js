@@ -2,7 +2,7 @@
     var $testContainer = $('<div></div>'),
         self = this;
 
-    var parsePixelString = function(pixelStr){
+    function parsePixelString(pixelStr){
         if(!pixelStr){
             return 0;
         }
@@ -162,6 +162,16 @@
         } else if (isDummyCell) {
             $cell.remove();
         }
+    };
+
+    this.measureText = function (element) {
+        var $el = $(element).clone(); // give this a shot
+
+        $el.appendTo($('body'));
+        var width = $el.width();
+        $el.remove();
+
+        return width;
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers

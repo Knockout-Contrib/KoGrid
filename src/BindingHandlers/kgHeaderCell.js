@@ -1,5 +1,5 @@
 ﻿ko.bindingHandlers['kgHeader'] = (function () {
-    var makeNewValueAccessor = function (headerCell, grid) {
+    function makeNewValueAccessor (headerCell, grid) {
         return function () {
             return {
                 name: headerCell.headerTemplate || grid.config.headerCellTemplate,
@@ -7,6 +7,18 @@
             };
         };
     };
+
+    // measures the width of the text in a header cell
+    function measureHeaderText(element, cell) {
+        var $el = $(element);
+        var $span = $('.kgHeaderText', $el);
+        var width = kg.domUtility.measureText($span);
+
+        cell.textWidth(width);
+
+        return width;
+    };
+
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,
@@ -48,7 +60,12 @@
 
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
-                        return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
+                        ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
+
+                        // get the text width
+                        measureHeaderText(element, cell);
+
+                        return { 'controlsDescendantBindings': true }
                     }
                 }
             }
