@@ -39,7 +39,7 @@ kg.cssBuilder = {
 
         }
 
-        if ($style[0].styleSheet) { // IE
+        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {

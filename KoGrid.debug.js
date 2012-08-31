@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 13:39:41.30 Thu 08/30/2012 
+* Compiled At: 19:47:10.23 Thu 08/30/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2420,7 +2420,7 @@ kg.cssBuilder = {
 
         }
 
-        if ($style[0].styleSheet) { // IE
+        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {
