@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:02:06.59 Thu 08/30/2012 
+* Compiled At: 19:47:10.23 Thu 08/30/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -250,8 +250,8 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
     b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');
     b.append('  <span data-bind="text: $data.displayName"></span>');
-    b.append('  <div class="kgSortButtonDown" data-bind="style: { left: $data.leftPosition }, visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortAscVisible) : $data.allowSort())"></div>');
-    b.append('  <div class="kgSortButtonUp" data-bind="style: { left: $data.leftPosition }, visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortDescVisible) : $data.allowSort())"></div>');
+    b.append('  <div class="kgSortButtonDown" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortAscVisible) : $data.allowSort())"></div>');
+    b.append('  <div class="kgSortButtonUp" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortDescVisible) : $data.allowSort())"></div>');
     b.append('</div>');
     b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
     b.append('<div data-bind="visible: $data._filterVisible">');
@@ -706,16 +706,6 @@ kg.Row = function (entity, config, selectionManager) {
         }
     });
     
-    this.leftPosition = ko.computed(function () {
-        var chars = self.displayName.length;
-        var charW = 8; // pixel width of avg character
-        var totalWidth = ko.utils.unwrapObservable(self.width);
-        var leftWidth = (chars * charW) + 10; // add 10 for a little space beside the text
-
-        var offset = Math.min(totalWidth, leftWidth)
-        return offset.toString() + 'px';
-    });
-
     this.sortAscVisible = ko.computed(function () {
         return self.column.sortDirection() === "asc";
     });
