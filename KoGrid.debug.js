@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:16:10.85 Fri 08/31/2012 
+* Compiled At: 22:02:06.59 Thu 08/30/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -249,7 +249,7 @@ kg.templates.defaultHeaderCellTemplate = function () {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');
-    b.append('  <span class="kgHeaderText" data-bind="text: $data.displayName"></span>');
+    b.append('  <span data-bind="text: $data.displayName"></span>');
     b.append('  <div class="kgSortButtonDown" data-bind="style: { left: $data.leftPosition }, visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortAscVisible) : $data.allowSort())"></div>');
     b.append('  <div class="kgSortButtonUp" data-bind="style: { left: $data.leftPosition }, visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortDescVisible) : $data.allowSort())"></div>');
     b.append('</div>');
@@ -706,11 +706,13 @@ kg.Row = function (entity, config, selectionManager) {
         }
     });
     
-    this.textWidth = ko.observable(0);
-
     this.leftPosition = ko.computed(function () {
-        var offset = self.textWidth() + 4;
+        var chars = self.displayName.length;
+        var charW = 8; // pixel width of avg character
+        var totalWidth = ko.utils.unwrapObservable(self.width);
+        var leftWidth = (chars * charW) + 10; // add 10 for a little space beside the text
 
+        var offset = Math.min(totalWidth, leftWidth)
         return offset.toString() + 'px';
     });
 
@@ -2447,7 +2449,7 @@ kg.cssBuilder = {
     var $testContainer = $('<div></div>'),
         self = this;
 
-    function parsePixelString(pixelStr){
+    var parsePixelString = function(pixelStr){
         if(!pixelStr){
             return 0;
         }
@@ -2607,16 +2609,6 @@ kg.cssBuilder = {
         } else if (isDummyCell) {
             $cell.remove();
         }
-    };
-
-    this.measureText = function (element) {
-        var $el = $(element).clone(); // give this a shot
-
-        $el.appendTo($('body'));
-        var width = $el.width();
-        $el.remove();
-
-        return width;
     };
 
     this.scrollH = 17; // default in IE, Chrome, & most browsers
@@ -3023,7 +3015,7 @@ ko.bindingHandlers['kgCell'] = (function () {
 * FILE: ..\src\BindingHandlers\kgHeaderCell.js 
 ***********************************************/ 
 ﻿ko.bindingHandlers['kgHeader'] = (function () {
-    function makeNewValueAccessor (headerCell, grid) {
+    var makeNewValueAccessor = function (headerCell, grid) {
         return function () {
             return {
                 name: headerCell.headerTemplate || grid.config.headerCellTemplate,
@@ -3031,18 +3023,6 @@ ko.bindingHandlers['kgCell'] = (function () {
             };
         };
     };
-
-    // measures the width of the text in a header cell
-    function measureHeaderText(element, cell) {
-        var $el = $(element);
-        var $span = $('.kgHeaderText', $el);
-        var width = kg.domUtility.measureText($span);
-
-        cell.textWidth(width);
-
-        return width;
-    };
-
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,
@@ -3084,12 +3064,7 @@ ko.bindingHandlers['kgCell'] = (function () {
 
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
                         //render the cell template
-                        ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
-
-                        // get the text width
-                        measureHeaderText(element, cell);
-
-                        return { 'controlsDescendantBindings': true }
+                        return ko.bindingHandlers.template.update(element, makeNewValueAccessor(cell, grid), allBindingsAccessor, viewModel, bindingContext);
                     }
                 }
             }

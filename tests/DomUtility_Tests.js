@@ -109,32 +109,24 @@ test('Measure Full Grid Test', function () {
         }
     };
 
-    // Chrome and IE measure things slightly differently and sometimes come up 1px differently
-    function diffOk(a, b, msg) {
-        var diff = a - b;
-        var absDiff = Math.abs(diff);
-
-        ok(absDiff <= 1, msg);
-    }
-
     kg.domUtility.measureGrid($container, fakeGrid, true);
 
-    diffOk(fakeGrid.elementDims.rootMaxH, 201, 'MaxHeight before change is correct');
+    equals(fakeGrid.elementDims.rootMaxH, 201, 'MaxHeight before change is correct');
     //equals(fakeGrid.elementDims.rootMaxW, 202, 'MaxWidth before change is correct');
 
-    diffOk(fakeGrid.elementDims.rootMinH, 99, 'MinHeight before change is correct');
-    diffOk(fakeGrid.elementDims.rootMinW, 98, 'MinWidth before change is correct');
+    equals(fakeGrid.elementDims.rootMinH, 99, 'MinHeight before change is correct');
+    equals(fakeGrid.elementDims.rootMinW, 98, 'MinWidth before change is correct');
 
     //now append a few things to the container, so we can check that the assertions still work after the container has children
     $container.append("<div style='height: 2000px; width: 2000px;'></div>");
     $wrapper.width(300);
     $wrapper.height(300);
 
-    diffOk(fakeGrid.elementDims.rootMaxH, 201, 'Max Height after change is correct');
+    equals(fakeGrid.elementDims.rootMaxH, 201, 'Max Height after change is correct');
     //equals(fakeGrid.elementDims.rootMaxW, 202, 'Max Width after change is correct');
 
-    diffOk(fakeGrid.elementDims.rootMinH, 99, 'Min Height after change is correct');
-    diffOk(fakeGrid.elementDims.rootMinW, 98, 'Min Width after change is correct');
+    equals(fakeGrid.elementDims.rootMinH, 99, 'Min Height after change is correct');
+    equals(fakeGrid.elementDims.rootMinW, 98, 'Min Width after change is correct');
 
     $container.remove();
     $wrapper.remove();
