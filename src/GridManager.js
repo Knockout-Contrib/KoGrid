@@ -61,7 +61,8 @@
         grid.$root.off('keydown');
         grid.$root.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
-            return true;
+            
+            e.preventDefault();
         });
 
         //resize the grid on parent re-size events

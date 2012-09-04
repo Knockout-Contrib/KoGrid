@@ -15,7 +15,7 @@ ko.bindingHandlers['kgRow'] = (function () {
             }
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
-            element['_kg_rowIndex_'] = row.rowIndex;
+            element['__kg_rowIndex__'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
 

@@ -58,8 +58,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
 
     return {
-        init: function () {
-
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             return { 'controlsDescendantBindings': true };
         },
         update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

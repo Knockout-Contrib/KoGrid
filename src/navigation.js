@@ -16,6 +16,13 @@ var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", tr
         }
     }
 */
+//kg.moveSelectionHandler = function (sender, evt) {
+//    var $el = $(sender).closest('.kgGrid');
+//    var grid = kg.gridManager.getGrid($el[0]);
+
+//    gridOnKeyDown(grid, evt);
+//};
+
 kg.moveSelectionHandler = function (grid, evt) {
     var
         offset,
@@ -36,7 +43,7 @@ kg.moveSelectionHandler = function (grid, evt) {
         default:
             return true;
     }
-    
+
     // null checks 
     if (grid === null || grid === undefined)
         return;
@@ -48,6 +55,8 @@ kg.moveSelectionHandler = function (grid, evt) {
         n = items.length,
         index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
         rowCache = grid.rowManager.rowCache,
+        rowHeight = grid.config.rowHeight,
+        currScroll = grid.$viewport.scrollTop(),
         row = null,
         selected = null,
         itemToView = null;
@@ -66,9 +75,13 @@ kg.moveSelectionHandler = function (grid, evt) {
         // finally scroll it into view as we arrow through
         if (!Element.prototype.scrollIntoViewIfNeeded) {
             itemtoView[0].scrollIntoView(false);
+            grid.$viewport.focus();
+           
         } else {
             itemtoView[0].scrollIntoViewIfNeeded();
         }
+
+        //grid.$viewport.scrollTop(currScroll + (offset * rowHeight));
 
         return false;
     }

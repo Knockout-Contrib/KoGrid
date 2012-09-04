@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:32:49.50 Tue 09/04/2012 
+* Compiled At: 17:35:00.49 Tue 09/04/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -73,6 +73,13 @@ var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", tr
         }
     }
 */
+//kg.moveSelectionHandler = function (sender, evt) {
+//    var $el = $(sender).closest('.kgGrid');
+//    var grid = kg.gridManager.getGrid($el[0]);
+
+//    gridOnKeyDown(grid, evt);
+//};
+
 kg.moveSelectionHandler = function (grid, evt) {
     var
         offset,
@@ -93,7 +100,7 @@ kg.moveSelectionHandler = function (grid, evt) {
         default:
             return true;
     }
-    
+
     // null checks 
     if (grid === null || grid === undefined)
         return;
@@ -105,6 +112,8 @@ kg.moveSelectionHandler = function (grid, evt) {
         n = items.length,
         index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
         rowCache = grid.rowManager.rowCache,
+        rowHeight = grid.config.rowHeight,
+        currScroll = grid.$viewport.scrollTop(),
         row = null,
         selected = null,
         itemToView = null;
@@ -123,11 +132,13 @@ kg.moveSelectionHandler = function (grid, evt) {
         // finally scroll it into view as we arrow through
         if (!Element.prototype.scrollIntoViewIfNeeded) {
             itemtoView[0].scrollIntoView(false);
+            grid.$viewport.focus();
+           
         } else {
             itemtoView[0].scrollIntoViewIfNeeded();
         }
 
-        $(evt.sender).click();// hack to get IE to fire events on new dom nodes
+        //grid.$viewport.scrollTop(currScroll + (offset * rowHeight));
 
         return false;
     }
@@ -1868,7 +1879,8 @@ kg.SelectionManager = function (options, rowManager) {
         grid.$root.off('keydown');
         grid.$root.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
-            return true;
+            
+            e.preventDefault();
         });
 
         //resize the grid on parent re-size events
@@ -2879,8 +2891,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
 
     return {
-        init: function () {
-
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             return { 'controlsDescendantBindings': true };
         },
         update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
@@ -2959,7 +2970,7 @@ ko.bindingHandlers['kgRow'] = (function () {
             }
             classes += (row.rowIndex % 2) === 0 ? ' even' : ' odd';
 
-            element['_kg_rowIndex_'] = row.rowIndex;
+            element['__kg_rowIndex__'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
 
