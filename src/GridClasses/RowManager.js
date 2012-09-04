@@ -4,6 +4,7 @@
         prevMinRows = 0, // for comparison purposes when scrolling
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
+        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
@@ -64,6 +65,9 @@
 
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
+
+            // store the row's index on the entity for future ref
+            entity[ROW_KEY] = rowIndex;
         }
 
         return row;
@@ -78,7 +82,7 @@
 
         utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-            item.myRowEntity = row;
+            //item.myRowEntity = row;
             //add the row to our return array
             rowArr.push(row);
 

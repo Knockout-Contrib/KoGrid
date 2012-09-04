@@ -1,7 +1,7 @@
 ..\src\getElementsByAttribute.js
-..\src\Navigation.js
 ..\Src\Namespace.js
 ..\Src\Constants.js
+..\src\Navigation.js
 ..\Src\Labels.js
 ..\Src\Utils.js
 ..\Src\Templates\GridTemplate.js

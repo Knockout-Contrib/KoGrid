@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 19:47:10.23 Thu 08/30/2012 
+* Compiled At: 11:09:33.00 Tue 09/04/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -37,67 +37,6 @@ function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttribute
  
  
 /*********************************************** 
-* FILE: ..\src\Navigation.js 
-***********************************************/ 
-/// <reference path="../lib/jquery-1.7.js" />
-/// <reference path="../lib/knockout-2.0.0.debug.js" />
-
-//set event binding on the grid so we can select using the up/down keys
-var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", true);
-var len = dba.length,
-    i = 0;
-for (; i < len; i++) {
-   if (dba[i] !== undefined) {
-        if (dba.indexOf("keydown") == -1) {
-            var cas = $(dba)[i].getAttribute("data-bind")
-            $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
-        }
-    }
-}
-
-ko.kgMoveSelection = function (sender, evt) {
-    var offset,
-        grid,
-        charCode = (evt.which) ? evt.which : event.keyCode;
-    switch (charCode) {
-        case 38:
-            // up - select previous
-            offset = -1;
-            break;
-        case 40:
-            // down - select next
-            offset = 1;
-            break;
-        default:
-            return true;
-    }
-    //we have to check for IE because IE thinks the active element is a cell or row when clicked instead of what has a true tab index.
-    if (navigator.appName == 'Microsoft Internet Explorer') {
-        grid = window['kg'].gridManager.getGrid($(document.activeElement).closest(".kgGrid")[0]);
-    } else {
-        grid = window['kg'].gridManager.getGrid(document.activeElement);
-    }
-    if (grid != null && grid != undefined){
-        if (grid.config.selectedItems() != undefined) {
-            var items = grid.finalData();
-            var n = items.length;
-            var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
-            if (index >= 0 && index < n) {
-                var selected = items[index];
-                grid.selectionManager.changeSelection(selected.myRowEntity ,evt);
-                var itemtoView = document.getElementsByClassName("kgSelected");
-                if (!Element.prototype.scrollIntoViewIfNeeded){
-                    itemtoView[0].scrollIntoView(false);
-                } else {
-                    itemtoView[0].scrollIntoViewIfNeeded();
-                }
-            }
-        }
-    }
-};  
- 
- 
-/*********************************************** 
 * FILE: ..\Src\Namespace.js 
 ***********************************************/ 
 ﻿
@@ -111,6 +50,84 @@ kg.templates = {};
 ﻿
 var SELECTED_PROP = '__kg_selected__';
 var GRID_TEMPLATE = 'koGridTmpl'; 
+ 
+ 
+/*********************************************** 
+* FILE: ..\src\Navigation.js 
+***********************************************/ 
+/// <reference path="../lib/jquery-1.7.js" />
+/// <reference path="../lib/knockout-2.0.0.debug.js" />
+
+//set event binding on the grid so we can select using the up/down keys
+
+/* Doesn't work if the kogrid script is executed before the DOM is built 
+var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", true);
+    var len = dba.length,
+        i = 0;
+    for (; i < len; i++) {
+        if (dba[i] !== undefined) {
+            if (dba.indexOf("keydown") == -1) {
+                var cas = $(dba)[i].getAttribute("data-bind")
+                $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
+            }
+        }
+    }
+*/
+kg.moveSelectionHandler = function (grid, evt) {
+    var
+        offset,
+        charCode = (evt.which) ? evt.which : event.keyCode,
+        isIe = utils.isIe(),
+        ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
+
+    // detect which direction for arrow keys to navigate the grid
+    switch (charCode) {
+        case 38:
+            // up - select previous
+            offset = -1;
+            break;
+        case 40:
+            // down - select next
+            offset = 1;
+            break;
+        default:
+            return true;
+    }
+    
+    // null checks 
+    if (grid === null || grid === undefined)
+        return;
+
+    if (grid.config.selectedItems() === undefined)
+        return;
+
+    var items = grid.finalData(),
+        n = items.length,
+        index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
+        rowCache = grid.rowManager.rowCache,
+        row = null,
+        selected = null,
+        itemToView = null;
+
+    // now find the item we arrowed to, and select it
+    if (index >= 0 && index < n) {
+
+        selected = items[index];
+        row = rowCache[selected[ROW_KEY]];
+
+        // fire the selection
+        grid.selectionManager.changeSelection(row, evt);
+
+        itemtoView = document.getElementsByClassName("kgSelected");
+
+        // finally scroll it into view as we arrow through
+        if (!Element.prototype.scrollIntoViewIfNeeded) {
+            itemtoView[0].scrollIntoView(false);
+        } else {
+            itemtoView[0].scrollIntoViewIfNeeded();
+        }
+    }
+}; 
  
  
 /*********************************************** 
@@ -154,6 +171,29 @@ utils.newId = (function () {
         return seedId += 1;
     };
 } ());
+
+// we copy KO's ie detection here bc it isn't exported in the min versions of KO
+// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness)
+
+var ieVersion = (function () {
+    var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
+
+    // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
+    while (
+        div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
+        iElems[0]
+    );
+    return version > 4 ? version : undefined;
+}());
+var isIe6 = ieVersion === 6,
+    isIe7 = ieVersion === 7;
+
+$.extend(utils, {
+    isIe6: isIe6,
+    isIe7: isIe7,
+    ieVersion: ieVersion,
+    isIe: function () { return ieVersion !== undefined; }
+});
 
 utils.StringBuilder = function () {
     var strArr = [];
@@ -781,6 +821,7 @@ kg.Row = function (entity, config, selectionManager) {
         prevMinRows = 0, // for comparison purposes when scrolling
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
+        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
@@ -841,6 +882,9 @@ kg.Row = function (entity, config, selectionManager) {
 
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
+
+            // store the row's index on the entity for future ref
+            entity[ROW_KEY] = rowIndex;
         }
 
         return row;
@@ -855,7 +899,7 @@ kg.Row = function (entity, config, selectionManager) {
 
         utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-            item.myRowEntity = row;
+            //item.myRowEntity = row;
             //add the row to our return array
             rowArr.push(row);
 
@@ -1547,7 +1591,8 @@ kg.SelectionManager = function (options, rowManager) {
         isMulti = options.isMulti || options.isMultiSelect,
         ignoreSelectedItemChanges = false, // flag to prevent circular event loops keeping single-select observable in sync
         dataSource = options.data, // the observable array datasource
-        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item,
+        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
@@ -1572,7 +1617,7 @@ kg.SelectionManager = function (options, rowManager) {
         ignoreSelectedItemChanges = false;
     });
 
-    this.changeSelection = function(rowItem, clickEvent){
+    this.changeSelection = function (rowItem, clickEvent) {
         if (isMulti && clickEvent.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
@@ -1596,8 +1641,12 @@ kg.SelectionManager = function (options, rowManager) {
             document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
-                if (item && item.myRowEntity && item.myRowEntity.selected) {
-                    item.myRowEntity.selected(false);
+                if (item && item[ROW_KEY]) {
+                    var row = rowManager.rowCache[item[ROW_KEY]];
+
+                    if (row) {
+                        row.selected(false);
+                    }
                 }
             });
             self.selectedItems.removeAll();
@@ -1811,8 +1860,12 @@ kg.SelectionManager = function (options, rowManager) {
             grid.adjustScrollTop(scrollTop);
         });
 
-        //resize the grid on parent re-size events
+        // allow for arrow-key navigation
+        grid.$root.keydown(function (e) {
+            kg.moveSelectionHandler(grid, e);
+        });
 
+        //resize the grid on parent re-size events
         var $parent = grid.$root.parent();
 
         if ($parent.length == 0) {

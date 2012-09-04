@@ -10,7 +10,8 @@ kg.SelectionManager = function (options, rowManager) {
         isMulti = options.isMulti || options.isMultiSelect,
         ignoreSelectedItemChanges = false, // flag to prevent circular event loops keeping single-select observable in sync
         dataSource = options.data, // the observable array datasource
-        KEY = '__kg_selected__', // constant for the selection property that we add to each data item
+        KEY = '__kg_selected__', // constant for the selection property that we add to each data item,
+        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         maxRows = ko.computed(function () {
             return dataSource().length;
         });
@@ -35,7 +36,7 @@ kg.SelectionManager = function (options, rowManager) {
         ignoreSelectedItemChanges = false;
     });
 
-    this.changeSelection = function(rowItem, clickEvent){
+    this.changeSelection = function (rowItem, clickEvent) {
         if (isMulti && clickEvent.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
@@ -59,8 +60,12 @@ kg.SelectionManager = function (options, rowManager) {
             document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
-                if (item && item.myRowEntity && item.myRowEntity.selected) {
-                    item.myRowEntity.selected(false);
+                if (item && item[ROW_KEY]) {
+                    var row = rowManager.rowCache[item[ROW_KEY]];
+
+                    if (row) {
+                        row.selected(false);
+                    }
                 }
             });
             self.selectedItems.removeAll();

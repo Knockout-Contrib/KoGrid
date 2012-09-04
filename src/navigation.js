@@ -2,22 +2,28 @@
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
 //set event binding on the grid so we can select using the up/down keys
+
+/* Doesn't work if the kogrid script is executed before the DOM is built 
 var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", true);
-var len = dba.length,
-    i = 0;
-for (; i < len; i++) {
-   if (dba[i] !== undefined) {
-        if (dba.indexOf("keydown") == -1) {
-            var cas = $(dba)[i].getAttribute("data-bind")
-            $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
+    var len = dba.length,
+        i = 0;
+    for (; i < len; i++) {
+        if (dba[i] !== undefined) {
+            if (dba.indexOf("keydown") == -1) {
+                var cas = $(dba)[i].getAttribute("data-bind")
+                $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
+            }
         }
     }
-}
+*/
+kg.moveSelectionHandler = function (grid, evt) {
+    var
+        offset,
+        charCode = (evt.which) ? evt.which : event.keyCode,
+        isIe = utils.isIe(),
+        ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
-ko.kgMoveSelection = function (sender, evt) {
-    var offset,
-        grid,
-        charCode = (evt.which) ? evt.which : event.keyCode;
+    // detect which direction for arrow keys to navigate the grid
     switch (charCode) {
         case 38:
             // up - select previous
@@ -30,27 +36,38 @@ ko.kgMoveSelection = function (sender, evt) {
         default:
             return true;
     }
-    //we have to check for IE because IE thinks the active element is a cell or row when clicked instead of what has a true tab index.
-    if (navigator.appName == 'Microsoft Internet Explorer') {
-        grid = window['kg'].gridManager.getGrid($(document.activeElement).closest(".kgGrid")[0]);
-    } else {
-        grid = window['kg'].gridManager.getGrid(document.activeElement);
-    }
-    if (grid != null && grid != undefined){
-        if (grid.config.selectedItems() != undefined) {
-            var items = grid.finalData();
-            var n = items.length;
-            var index = items.indexOf(grid.config.lastClickedRow().entity()) + offset;
-            if (index >= 0 && index < n) {
-                var selected = items[index];
-                grid.selectionManager.changeSelection(selected.myRowEntity ,evt);
-                var itemtoView = document.getElementsByClassName("kgSelected");
-                if (!Element.prototype.scrollIntoViewIfNeeded){
-                    itemtoView[0].scrollIntoView(false);
-                } else {
-                    itemtoView[0].scrollIntoViewIfNeeded();
-                }
-            }
+    
+    // null checks 
+    if (grid === null || grid === undefined)
+        return;
+
+    if (grid.config.selectedItems() === undefined)
+        return;
+
+    var items = grid.finalData(),
+        n = items.length,
+        index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
+        rowCache = grid.rowManager.rowCache,
+        row = null,
+        selected = null,
+        itemToView = null;
+
+    // now find the item we arrowed to, and select it
+    if (index >= 0 && index < n) {
+
+        selected = items[index];
+        row = rowCache[selected[ROW_KEY]];
+
+        // fire the selection
+        grid.selectionManager.changeSelection(row, evt);
+
+        itemtoView = document.getElementsByClassName("kgSelected");
+
+        // finally scroll it into view as we arrow through
+        if (!Element.prototype.scrollIntoViewIfNeeded) {
+            itemtoView[0].scrollIntoView(false);
+        } else {
+            itemtoView[0].scrollIntoViewIfNeeded();
         }
     }
-}; 
+};

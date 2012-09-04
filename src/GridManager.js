@@ -58,8 +58,12 @@
             grid.adjustScrollTop(scrollTop);
         });
 
-        //resize the grid on parent re-size events
+        // allow for arrow-key navigation
+        grid.$root.keydown(function (e) {
+            kg.moveSelectionHandler(grid, e);
+        });
 
+        //resize the grid on parent re-size events
         var $parent = grid.$root.parent();
 
         if ($parent.length == 0) {
