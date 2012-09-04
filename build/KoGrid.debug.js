@@ -2,38 +2,9 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 17:35:00.49 Tue 09/04/2012 
+* Compiled At: 16:00:16.13 Tue 09/04/2012 
 ***********************************************/ 
 (function(window, undefined){ 
- 
- 
-/*********************************************** 
-* FILE: ..\src\getElementsByAttribute.js 
-***********************************************/ 
-// ---
-/*
-	Copyright Robert Nyman, http://www.robertnyman.com
-	Free to use if this text is included
-*/
-function getElementsByAttribute(oElm, strTagName, strAttributeName, strAttributeValue, contains){
-    if (!oElm) return false;
-	var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
-	var arrReturnElements = new Array();
-	var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\\s)" + strAttributeValue + "(\\s|$)") : null;
-	var oCurrent;
-	var oAttribute;
-	for(var i=0; i<arrElements.length; i++){
-		oCurrent = arrElements[i];
-		oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
-		if(typeof oAttribute == "string" && oAttribute.length > 0){
-			if(typeof strAttributeValue == "undefined" || ( contains ? (oAttribute.indexOf(strAttributeValue) != -1) : (oAttributeValue && oAttributeValue.test(oAttribute)))){
-				arrReturnElements.push(oCurrent);
-			}
-		}
-	}
-	return arrReturnElements;
-}
-// --- 
  
  
 /*********************************************** 
@@ -59,27 +30,6 @@ var GRID_TEMPLATE = 'koGridTmpl';
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
 //set event binding on the grid so we can select using the up/down keys
-
-/* Doesn't work if the kogrid script is executed before the DOM is built 
-var dba = getElementsByAttribute(window.document, "*", "data-bind", "koGrid", true);
-    var len = dba.length,
-        i = 0;
-    for (; i < len; i++) {
-        if (dba[i] !== undefined) {
-            if (dba.indexOf("keydown") == -1) {
-                var cas = $(dba)[i].getAttribute("data-bind")
-                $(dba[i]).attr("data-bind", "event: { keydown: ko.kgMoveSelection }, " + cas);
-            }
-        }
-    }
-*/
-//kg.moveSelectionHandler = function (sender, evt) {
-//    var $el = $(sender).closest('.kgGrid');
-//    var grid = kg.gridManager.getGrid($el[0]);
-
-//    gridOnKeyDown(grid, evt);
-//};
-
 kg.moveSelectionHandler = function (grid, evt) {
     var
         offset,
@@ -1631,9 +1581,10 @@ kg.SelectionManager = function (options, rowManager) {
 
         ignoreSelectedItemChanges = false;
     });
-
-    this.changeSelection = function (rowItem, clickEvent) {
-        if (isMulti && clickEvent.shiftKey) {
+    
+    // function to manage the selection action of a data item (entity)
+    this.changeSelection = function (rowItem, evt) {
+        if (isMulti && evt.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
                 var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
@@ -1651,16 +1602,14 @@ kg.SelectionManager = function (options, rowManager) {
                 }
             }
             document.getSelection().removeAllRanges();
-        } else if (isMulti && clickEvent.ctrlKey) {
+        } else if (isMulti && evt.ctrlKey) {
             self.toggle(rowItem);
             document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
                 if (item && item[ROW_KEY]) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
-
                     if (row) {
-
                         row.selected(false);
                     }
                 }
@@ -1671,52 +1620,8 @@ kg.SelectionManager = function (options, rowManager) {
         self.lastClickedRow(rowItem);
         return true;
     }
-    
-    // function to manage the selection action of a data item (entity)
-    // just call this func and hand it the item you want to select (or de-select)
-    // @changedEntity - the data item that you want to select/de-select
-    this.changeSelectedItem = function (changedEntity) {
-        var currentEntity = self.selectedItem(),
-            currentItems = self.selectedItems,
-            len = 0,
-            keep = false;
 
-        if (!isMulti) {
-            //Single Select Logic
-
-            //find out if the changed entity is selected or not
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (keep) {
-                //set the new entity
-                self.selectedItem(changedEntity);
-            } else {
-                //always keep a selected entity around
-                changedEntity[KEY](true);
-            }
-
-        } else {
-            //Multi-Select Logic
-            len = currentItems().length;
-
-            //if the changed entity was de-selected, remove it from the array
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (!keep) {
-                currentItems.remove(changedEntity);
-            } else {
-                //first see if it exists, if not add it
-                if (currentItems.indexOf(changedEntity) === -1) {
-                    currentItems.push(changedEntity);
-                }
-            }
-        }
-    };
-
+    // just call this func and hand it the item you want to select (or de-select)    
     this.toggle = function(item) {
         if (item.selected()) {
             item.selected(false);

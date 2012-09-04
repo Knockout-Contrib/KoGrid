@@ -9,7 +9,6 @@ KoGrid Team:
 
 Special Thanks:
 * [Stephen Commisso](https://github.com/gdscommisso/KoGrid)
-* [Robert Nyman](http://www.robertnyman.com)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 

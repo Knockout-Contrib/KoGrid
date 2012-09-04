@@ -35,9 +35,10 @@ kg.SelectionManager = function (options, rowManager) {
 
         ignoreSelectedItemChanges = false;
     });
-
-    this.changeSelection = function (rowItem, clickEvent) {
-        if (isMulti && clickEvent.shiftKey) {
+    
+    // function to manage the selection action of a data item (entity)
+    this.changeSelection = function (rowItem, evt) {
+        if (isMulti && evt.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
                 var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
@@ -55,16 +56,14 @@ kg.SelectionManager = function (options, rowManager) {
                 }
             }
             document.getSelection().removeAllRanges();
-        } else if (isMulti && clickEvent.ctrlKey) {
+        } else if (isMulti && evt.ctrlKey) {
             self.toggle(rowItem);
             document.getSelection().removeAllRanges();
         } else {
             utils.forEach(self.selectedItems(), function (item) {
                 if (item && item[ROW_KEY]) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
-
                     if (row) {
-
                         row.selected(false);
                     }
                 }
@@ -75,52 +74,8 @@ kg.SelectionManager = function (options, rowManager) {
         self.lastClickedRow(rowItem);
         return true;
     }
-    
-    // function to manage the selection action of a data item (entity)
-    // just call this func and hand it the item you want to select (or de-select)
-    // @changedEntity - the data item that you want to select/de-select
-    this.changeSelectedItem = function (changedEntity) {
-        var currentEntity = self.selectedItem(),
-            currentItems = self.selectedItems,
-            len = 0,
-            keep = false;
 
-        if (!isMulti) {
-            //Single Select Logic
-
-            //find out if the changed entity is selected or not
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (keep) {
-                //set the new entity
-                self.selectedItem(changedEntity);
-            } else {
-                //always keep a selected entity around
-                changedEntity[KEY](true);
-            }
-
-        } else {
-            //Multi-Select Logic
-            len = currentItems().length;
-
-            //if the changed entity was de-selected, remove it from the array
-            if (changedEntity && changedEntity[KEY]) {
-                keep = changedEntity[KEY]();
-            }
-
-            if (!keep) {
-                currentItems.remove(changedEntity);
-            } else {
-                //first see if it exists, if not add it
-                if (currentItems.indexOf(changedEntity) === -1) {
-                    currentItems.push(changedEntity);
-                }
-            }
-        }
-    };
-
+    // just call this func and hand it the item you want to select (or de-select)    
     this.toggle = function(item) {
         if (item.selected()) {
             item.selected(false);

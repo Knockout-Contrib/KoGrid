@@ -1,4 +1,3 @@
-..\src\getElementsByAttribute.js
 ..\Src\Namespace.js
 ..\Src\Constants.js
 ..\src\Navigation.js
