@@ -53,12 +53,11 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.hide(); //first hide the grid so that its not freaking the screen out
 
             //set the right styling on the container
-            $(element).addClass("kgGrid")
-                      .addClass("ui-widget")
-                      .addClass(grid.gridId.toString());
-            
-            //make sure the templates are generated for the Grid
+            $element.addClass("kgGrid")
+                    .addClass("ui-widget")
+                    .addClass(grid.gridId.toString());
 
+            //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
         },

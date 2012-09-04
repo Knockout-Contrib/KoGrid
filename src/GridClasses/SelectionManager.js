@@ -64,6 +64,7 @@ kg.SelectionManager = function (options, rowManager) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
 
                     if (row) {
+
                         row.selected(false);
                     }
                 }

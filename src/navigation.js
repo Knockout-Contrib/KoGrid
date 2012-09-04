@@ -69,5 +69,7 @@ kg.moveSelectionHandler = function (grid, evt) {
         } else {
             itemtoView[0].scrollIntoViewIfNeeded();
         }
+
+        return false;
     }
 };

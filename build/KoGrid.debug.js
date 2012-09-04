@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 11:09:33.00 Tue 09/04/2012 
+* Compiled At: 14:32:49.50 Tue 09/04/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -126,6 +126,10 @@ kg.moveSelectionHandler = function (grid, evt) {
         } else {
             itemtoView[0].scrollIntoViewIfNeeded();
         }
+
+        $(evt.sender).click();// hack to get IE to fire events on new dom nodes
+
+        return false;
     }
 }; 
  
@@ -882,10 +886,10 @@ kg.Row = function (entity, config, selectionManager) {
 
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
-
-            // store the row's index on the entity for future ref
-            entity[ROW_KEY] = rowIndex;
         }
+
+        // store the row's index on the entity for future ref
+        entity[ROW_KEY] = rowIndex;
 
         return row;
     };
@@ -899,7 +903,7 @@ kg.Row = function (entity, config, selectionManager) {
 
         utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-            //item.myRowEntity = row;
+
             //add the row to our return array
             rowArr.push(row);
 
@@ -1645,6 +1649,7 @@ kg.SelectionManager = function (options, rowManager) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
 
                     if (row) {
+
                         row.selected(false);
                     }
                 }
@@ -1860,9 +1865,10 @@ kg.SelectionManager = function (options, rowManager) {
             grid.adjustScrollTop(scrollTop);
         });
 
-        // allow for arrow-key navigation
-        grid.$root.keydown(function (e) {
+        grid.$root.off('keydown');
+        grid.$root.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
+            return true;
         });
 
         //resize the grid on parent re-size events
@@ -2771,12 +2777,11 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.hide(); //first hide the grid so that its not freaking the screen out
 
             //set the right styling on the container
-            $(element).addClass("kgGrid")
-                      .addClass("ui-widget")
-                      .addClass(grid.gridId.toString());
-            
-            //make sure the templates are generated for the Grid
+            $element.addClass("kgGrid")
+                    .addClass("ui-widget")
+                    .addClass(grid.gridId.toString());
 
+            //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
         },

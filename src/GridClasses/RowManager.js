@@ -65,10 +65,10 @@
 
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
-
-            // store the row's index on the entity for future ref
-            entity[ROW_KEY] = rowIndex;
         }
+
+        // store the row's index on the entity for future ref
+        entity[ROW_KEY] = rowIndex;
 
         return row;
     };
@@ -82,7 +82,7 @@
 
         utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-            //item.myRowEntity = row;
+
             //add the row to our return array
             rowArr.push(row);
 

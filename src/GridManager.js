@@ -58,9 +58,10 @@
             grid.adjustScrollTop(scrollTop);
         });
 
-        // allow for arrow-key navigation
-        grid.$root.keydown(function (e) {
+        grid.$root.off('keydown');
+        grid.$root.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
+            return true;
         });
 
         //resize the grid on parent re-size events
