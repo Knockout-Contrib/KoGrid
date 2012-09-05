@@ -68,14 +68,15 @@ test("Toggle Select-All is false with only some items", function () {
         selectedItem: item,
         selectedItems: items,
         selectedIndex: index,
-        data: data
+        data: data,
+        lastClickedRow: ko.observable()
     });
 
     var entity = data()[1];
 
     entity['__kg_selected__'] = ko.observable(true);
-
-    manager.changeSelectedItem(entity);
+    var row = new kg.Row(entity, {selectWithCheckboxOnly: false, canSelectRows: true, selectedItems: ko.observableArray([])}, manager);
+    manager.changeSelection(row, {shiftKey: false, ctrlKey: false});
 
     ok(manager, 'Manager Instantiated!');
     equals(manager.selectedItemCount(), 1, 'One item is correctly selected');
@@ -96,7 +97,8 @@ test("Toggle Select-All actually selects all", function () {
         selectedItem: item,
         selectedItems: items,
         selectedIndex: index,
-        data: data
+        data: data,
+        lastClickedRow: ko.observable()
     });
 
     manager.toggleSelectAll(true);
@@ -118,7 +120,8 @@ test("Toggle Select-All actually de-selects all", function () {
         selectedItem: item,
         selectedItems: items,
         selectedIndex: index,
-        data: data
+        data: data,
+        lastClickedRow: ko.observable()
     });
 
     manager.toggleSelectAll(true);
@@ -145,7 +148,8 @@ test("De-select some items, then select-all should re-select all", function () {
         selectedItem: item,
         selectedItems: items,
         selectedIndex: index,
-        data: data
+        data: data,
+        lastClickedRow: ko.observable()
     });
 
     // select everything
@@ -154,7 +158,8 @@ test("De-select some items, then select-all should re-select all", function () {
     // de-select one item
     var entity = data()[1];
     entity.__kg_selected__(false);
-    manager.changeSelectedItem(entity);
+    var row = new kg.Row(entity, {selectWithCheckboxOnly: false, canSelectRows: true, selectedItems: ko.observableArray([])}, manager);
+    manager.changeSelection(row, {shiftKey: false, ctrlKey: false});
 
     // make sure that was handled correctly
     equals(manager.selectedItemCount(), 3, 'Only 3 items are counted as selected');
