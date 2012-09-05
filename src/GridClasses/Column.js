@@ -1,6 +1,13 @@
 ﻿kg.Column = function (colDef) {
-    this.width = ko.observable(0);
-
+    var self = this,
+        wIsOb = ko.isObservable(colDef.width),
+        minWIsOB = ko.isObservable(colDef.minWidth),
+        maxWIsOB = ko.isObservable(colDef.maxWidth);
+        
+    this.width = wIsOb ? colDef.width : ko.observable(0);
+    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string
@@ -9,14 +16,25 @@
     this.displayName = colDef.displayName;
     this.colIndex = 0;
     this.isVisible = ko.observable(false);
-    this.width = ko.observable();
-
 
     //sorting
     if (colDef.sortable === undefined || colDef.sortable === null) {
         colDef.sortable = true;
     }
+    
+    //resizing
+    if (colDef.resizable === undefined || colDef.resizable === null) {
+        colDef.resizable = true;
+    }
+    //resizing
+    if (colDef.filterable === undefined || colDef.filterable === null) {
+        colDef.filterable = true;
+    }
+    
     this.allowSort = colDef.sortable;
+    this.allowResize = colDef.resizable;
+    this.allowFilter = colDef.filterable;
+    
     this.sortDirection = ko.observable("");
 
     //filtering
@@ -36,8 +54,8 @@
     if (!colDef.width) {
         colDef.width = this.displayName.length * kg.domUtility.letterW;
         colDef.width += 30; //for sorting icons and padding
+        self.width(colDef.width);
+    } else if (!wIsOb) {
+        self.width(colDef.width);
     }
-
-    this.width(colDef.width);
-
 };

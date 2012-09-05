@@ -29,6 +29,29 @@ utils.newId = (function () {
     };
 } ());
 
+// we copy KO's ie detection here bc it isn't exported in the min versions of KO
+// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness)
+
+var ieVersion = (function () {
+    var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
+
+    // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
+    while (
+        div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
+        iElems[0]
+    );
+    return version > 4 ? version : undefined;
+}());
+var isIe6 = ieVersion === 6,
+    isIe7 = ieVersion === 7;
+
+$.extend(utils, {
+    isIe6: isIe6,
+    isIe7: isIe7,
+    ieVersion: ieVersion,
+    isIe: function () { return ieVersion !== undefined; }
+});
+
 utils.StringBuilder = function () {
     var strArr = [];
 

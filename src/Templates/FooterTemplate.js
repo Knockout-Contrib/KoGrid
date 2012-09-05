@@ -1,4 +1,4 @@
-﻿kg.templates.defaultFooterTemplate = function () {
+﻿﻿kg.templates.defaultFooterTemplate = function () {
     return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
                 '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}" >' +
                     '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
