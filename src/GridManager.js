@@ -11,13 +11,6 @@
     this.storeGrid = function (element, grid) {
         self.gridCache[grid.gridId] = grid;
         element[elementGridKey] = grid.gridId;
-        //Chrome and firefox both need a tab index so the grid can recieve focus.
-        //need to give the grid a tabindex if it doesn't already have one so
-        //we'll just give it a tab index of the corresponding gridcache index 
-        //that way we'll get the same result every time it is run.
-        if (element.tabIndex == -1) {
-            element.tabIndex = self.getIndexOfCache(grid.gridId);
-        }
     };
     
     this.removeGrid = function(gridId) {
@@ -26,11 +19,9 @@
 
     this.getGrid = function (element) {
         var grid;
-
         if (element[elementGridKey]) {
             grid = self.gridCache[element[elementGridKey]];
         }
-
         return grid;
     };
 
@@ -58,13 +49,23 @@
             grid.adjustScrollTop(scrollTop);
         });
 
-        grid.$root.off('keydown');
-        grid.$root.on('keydown', function (e) {
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
-            
             e.preventDefault();
         });
-
+        
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1){
+            grid.$viewport.attr('tabIndex', self.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        
         //resize the grid on parent re-size events
         var $parent = grid.$root.parent();
 

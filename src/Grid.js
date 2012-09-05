@@ -35,7 +35,8 @@ kg.KoGrid = function (options) {
         selectWithCheckboxOnly: false,
         keepLastSelectedAround: false,
         isMultiSelect: true,
-        lastClickedRow: ko.observable()
+        lastClickedRow: ko.observable(),
+        tabIndex: -1
     },
 
     self = this,

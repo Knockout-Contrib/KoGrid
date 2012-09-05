@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:00:16.13 Tue 09/04/2012 
+* Compiled At: 11:41:52.94 Wed 09/05/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -1734,13 +1734,6 @@ kg.SelectionManager = function (options, rowManager) {
     this.storeGrid = function (element, grid) {
         self.gridCache[grid.gridId] = grid;
         element[elementGridKey] = grid.gridId;
-        //Chrome and firefox both need a tab index so the grid can recieve focus.
-        //need to give the grid a tabindex if it doesn't already have one so
-        //we'll just give it a tab index of the corresponding gridcache index 
-        //that way we'll get the same result every time it is run.
-        if (element.tabIndex == -1) {
-            element.tabIndex = self.getIndexOfCache(grid.gridId);
-        }
     };
     
     this.removeGrid = function(gridId) {
@@ -1749,11 +1742,9 @@ kg.SelectionManager = function (options, rowManager) {
 
     this.getGrid = function (element) {
         var grid;
-
         if (element[elementGridKey]) {
             grid = self.gridCache[element[elementGridKey]];
         }
-
         return grid;
     };
 
@@ -1781,13 +1772,23 @@ kg.SelectionManager = function (options, rowManager) {
             grid.adjustScrollTop(scrollTop);
         });
 
-        grid.$root.off('keydown');
-        grid.$root.on('keydown', function (e) {
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function (e) {
             kg.moveSelectionHandler(grid, e);
-            
             e.preventDefault();
         });
-
+        
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1){
+            grid.$viewport.attr('tabIndex', self.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        
         //resize the grid on parent re-size events
         var $parent = grid.$root.parent();
 
@@ -1881,7 +1882,8 @@ kg.KoGrid = function (options) {
         selectWithCheckboxOnly: false,
         keepLastSelectedAround: false,
         isMultiSelect: true,
-        lastClickedRow: ko.observable()
+        lastClickedRow: ko.observable(),
+        tabIndex: -1
     },
 
     self = this,
