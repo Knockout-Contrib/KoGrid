@@ -10,6 +10,26 @@
     // Namespace
     var kg = window.kg = {};
 
+    kg.i18n = {
+        /* label names and values here */
+
+    };
+
+    // map of css classes to add to each element
+    // we create a map here, so folks can configure this 
+    // as needed (ie: jquery ui classes, etc...)
+    kg.css = {
+        grid: 'kgGrid',
+        viewport: 'kgViewPort',
+        row: 'kgRow'
+    };
+/*
+===============================================================================
+    Debug.js
+        
+    Description: Debugging logic for development
+===============================================================================
+    */
     // Debugging and Diagnostic info
     var DEBUG = kg.debug = true;
 
@@ -54,6 +74,29 @@
             this._start = 0; this._stop = 0;
         }
     });
+
+/*
+===============================================================================
+    Plugins.js
+        
+    Description: Plugin logic for KoGrid
+===============================================================================
+*/
+    kg.plugins = {}; // global plugins
+
+    // Example plugin:
+    kg.plugins['blah'] = {
+
+        onGridInit: function (grid) { },
+        onGridUpdate: function (grid) { },
+
+        onRowInit: function (row) { },
+        onRowUpdate: function (row) { },
+
+        onCellInit: function (cell) { },
+        onCellUpdate: function (cell) { }
+
+    };
 
 /*
 ===============================================================================
@@ -113,9 +156,23 @@
     Description: Row
 ===============================================================================
 */
-    kg.Row = kg.gridElement.extend(function () {
+    kg.Row = kg.gridElement.extend(function (entity) {
+        var
+            self = this;
 
+        this.entity = entity;
         this.cells = ko.observableArray([]);
+
+        this.init = function () {
+
+            var cell = new kg.Cell();
+            cell.data = 'blah';
+            
+            // obviously we would want to still use templates
+            cell.$el = $('<div data-bind="kgCell: $data"><span data-bind="text: $data.entity.Sku"></span></div>');
+
+            self.$el.append(cell.$el);
+        };
     });
 
 /*
@@ -132,6 +189,7 @@
             _rowColl = [];
 
         this.data = data; // observable array
+        this.controlsDescendantBindings = true;
 
         this.init = function(){
             var items = self.data();
@@ -141,10 +199,11 @@
             });
 
             ko.utils.arrayForEach(_rowColl, function (row) {
-                var div = document.createElement('DIV');
-                this.$el[0].appendChild(div);
+                row.$el = $('<div data-bind="kgRow: $data"></div>');
 
-                ko.applyBindings(row, div);
+                self.$el.append(row.$el);
+
+                ko.applyBindings(row, row.$el[0]);
             });
         };
 
@@ -197,8 +256,8 @@
             // assign the element
             gridElement.$el = $(element);
 
-            // make sure we call the 'init' method
-            gridElement.init.call(gridElement);
+            // make sure we call the 'init' method and give it the correct context
+            gridElement.init.apply(gridElement, arguments);
 
             if (gridElement.controlsDescendantBindings) {
                 newBindingContext = bindingContext.createChildContext(gridElement);
@@ -216,7 +275,10 @@
 
         this.update = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var
+                sw = new StopWatch(),
                 gridElement = ko.utils.unwrapObservable(valueAccessor());
+
+            sw.start();
 
             // allow the overrides to change the args if needed
             if (handlerOverrides && handlerOverrides.update) {
@@ -224,7 +286,10 @@
             }
 
             // make sure we call the update function
-            gridElement.update.call(gridElement);
+            gridElement.update.apply(gridElement, arguments);
+
+            sw.stop();
+            log("[" + name + "]BindingHandler.Update: " + sw.ellapsed());
         }
     };
 
@@ -236,23 +301,43 @@
 
         init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var
+                sw = new StopWatch(),
                 gridOpts = ko.utils.unwrapObservable(valueAccessor()),
-                grid = new Grid(gridOpts);
+                grid = null;
 
+            // Track the timing
+            sw.start();
+
+            // initialize the grid
+            grid = new Grid(gridOpts);
+
+            // we have jQuery to store this with, so use it
             $(element).data('__kg_grid__', grid);
 
             ko.applyBindingsToDescendants(grid, element);
+
+            sw.stop();
+            log("[koGrid]BindingHandler.Init: " + sw.ellapsed());
 
             return { 'controlsDescendantBindings': true };
         },
 
         update: function (element, valueAccessor) {
             var
+                sw = new StopWatch(),
                 grid = $(element).data('__kg_grid__');
 
+            sw.start();
+
             grid.update();
+
+            sw.stop();
+            log("[koGrid]BindingHandler.Update: " + sw.ellapsed());
         }
     };
 
+    // declare each bindingHandler
     kg.defineBindingHandler('kgRows');
+    kg.defineBindingHandler('kgRow');
+    //kg.defineBindingHandler('kgCell');
 }());

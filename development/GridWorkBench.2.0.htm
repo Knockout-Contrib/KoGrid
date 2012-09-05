@@ -43,8 +43,10 @@
 <script type="text/javascript">
     $(function () {
 
+        var data = getTestData().slice(0, 50);
+
         var vm = {
-            testData: getTestData()
+            testData: ko.observableArray(data)
         };
 
         ko.applyBindings(vm, $('#sandbox1')[0]);
