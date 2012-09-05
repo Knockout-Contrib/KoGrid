@@ -1,22 +1,24 @@
 ﻿kg.RowManager = function (grid) {
     var self = this,
-        rowCache = {}, // we cache rows when they are built, and then blow the cache away when sorting/filtering
         prevMaxRows = 0, // for comparison purposes when scrolling
         prevMinRows = 0, // for comparison purposes when scrolling
-        dataChanged = true, // flag to determine if the dataSource has been sorted, filtered, or updated
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
+        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-
+        
+    this.dataChanged = true;
+     // we cache rows when they are built, and then blow the cache away when sorting/filtering
+    this.rowCache = [];
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
 
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
-        dataChanged = true;
-        rowCache = {}; //if data source changes, kill this!
+        self.dataChanged = true;
+        self.rowCache = []; //if data source changes, kill this!
     });
 
     // shortcut to the calculated minimum viewport rows
@@ -47,29 +49,26 @@
     // @entity - the data item
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
-    var buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
-        var row = rowCache[rowIndex]; // first check to see if we've already built it
+    this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
+        var row = self.rowCache[rowIndex]; // first check to see if we've already built it
 
         if (!row) {
 
             // build the row
-            row = new kg.Row(entity, grid.config);
+            row = new kg.Row(entity, grid.config, grid.selectionManager);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
-
-            //setup a selection change handler
-            row.onSelectionChanged = function () {
-                var ent = this.entity();
-                grid.changeSelectedItem(ent); // use the grid-defined callback ... yes, i know... should pub an event instead
-            };
 
             //build out the cells
             self.cellFactory.buildRowCells(row);
 
             // finally cache it for the next round
-            rowCache[rowIndex] = row;
+            self.rowCache[rowIndex] = row;
         }
+
+        // store the row's index on the entity for future ref
+        entity[ROW_KEY] = rowIndex;
 
         return row;
     };
@@ -82,7 +81,7 @@
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
         utils.forEach(dataArr, function (item, i) {
-            row = buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+            row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array
             rowArr.push(row);
@@ -95,7 +94,7 @@
     });
 
     // core logic that intelligently figures out the rendered range given all the contraints that we have
-    var calcRenderedRange = function () {
+    this.calcRenderedRange = function () {
         var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
@@ -104,7 +103,7 @@
 
         if (rg) {
 
-            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || dataChanged)
+            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || self.dataChanged)
             if (!isDif && prevMaxRows !== maxRows) {
                 isDif = true;
                 rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
@@ -134,8 +133,8 @@
                 prevMinRows = minRows;
 
                 //one last equality check
-                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || dataChanged) {
-                    dataChanged = false;
+                if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || self.dataChanged) {
+                    self.dataChanged = false;
                     prevRenderedRange = newRg;
 
                     // now kickoff row building
@@ -148,7 +147,7 @@
     };
 
     // make sure that if any of these change, we re-fire the calc logic
-    self.viewableRange.subscribe(calcRenderedRange);
-    self.minViewportRows.subscribe(calcRenderedRange);
-    self.dataSource.subscribe(calcRenderedRange);
+    self.viewableRange.subscribe(self.calcRenderedRange);
+    self.minViewportRows.subscribe(self.calcRenderedRange);
+    self.dataSource.subscribe(self.calcRenderedRange);
 };

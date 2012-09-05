@@ -1,5 +1,6 @@
 ..\Src\Namespace.js
 ..\Src\Constants.js
+..\src\Navigation.js
 ..\Src\Labels.js
 ..\Src\Utils.js
 ..\Src\Templates\GridTemplate.js
@@ -35,3 +36,4 @@
 ..\src\BindingHandlers\kgHeaderCell.js
 ..\src\BindingHandlers\kgFooter.js
 ..\src\BindingHandlers\kgSize.js
+..\src\BindingHandlers\kgMouseEvents.js

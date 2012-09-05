@@ -18,21 +18,14 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            grid = new kg.KoGrid(options);
-
-            kg.gridManager.storeGrid(element, grid);
-
-            //get the container sizes
-            kg.domUtility.measureGrid($element, grid, true);
-
-            $element.hide(); //first hide the grid so that its not freaking the screen out
-
-            //set the right styling on the container
-            $(element).addClass("kgGrid")
-                      .addClass("ui-widget")
-                      .addClass(grid.gridId.toString());
-
-            //make sure the templates are generated for the Grid
+            var grid = kg.gridManager.getGrid(element);
+            if (!grid){
+                grid = new kg.KoGrid(options);
+                kg.gridManager.storeGrid(element, grid);
+            } else {
+                return false;
+            }
+            
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,
                 headerTemplate: grid.config.headerTemplate,
@@ -42,6 +35,29 @@ ko.bindingHandlers['koGrid'] = (function () {
                 showFilter: grid.config.allowFiltering
             });
 
+            //subscribe to the columns and recrate the grid if they change
+            grid.config.columnDefs.subscribe(function (){
+                var oldgrid = kg.gridManager.getGrid(element);
+                var oldgridId = oldgrid.gridId.toString();
+                $(element).empty(); 
+                $(element).removeClass("kgGrid")
+                          .removeClass("ui-widget")
+                          .removeClass(oldgridId);
+                kg.gridManager.removeGrid(oldgridId);
+                ko.applyBindings(bindingContext, element);
+            });
+            
+            //get the container sizes
+            kg.domUtility.measureGrid($element, grid, true);
+
+            $element.hide(); //first hide the grid so that its not freaking the screen out
+
+            //set the right styling on the container
+            $element.addClass("kgGrid")
+                    .addClass("ui-widget")
+                    .addClass(grid.gridId.toString());
+
+            //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
         },

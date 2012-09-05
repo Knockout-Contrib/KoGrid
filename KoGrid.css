@@ -22,29 +22,28 @@
     font-weight: bold;
 }
 .kgHeaderScroller {
-
+    position: absolute;
 }
 .kgHeaderCell {
     position: absolute;
-    background-color: rgb(241, 241, 241);
+    background-color: rgb(241, 241, 241); 
     padding: 0;
     cursor: pointer;
     border-right: 1px solid rgb(241, 241, 241);
 }
 /******** Viewport ********/
-.kgViewport {
+.kgViewport{
     background-color: rgb(255, 255, 255);
+	overflow: auto;
 }
 
-.kgCanvas {
-
+.kgCanvas{
+    position: relative;
 }
 
 /******** Rows ********/
 .kgRow {
     border-bottom: 1px solid rgb(229, 229, 229);
-}
-.kgRow.kgCanSelect {
     cursor: pointer;
 }
 .kgRow.even {
@@ -56,21 +55,25 @@
 .kgRow.kgSelected {
     background-color: rgb(255, 255, 204);
 }
+.kgRow.kgCanSelect {
+    cursor: pointer;
+}
+
 /******** Cells ********/
 .kgCell {
-    overflow: hidden;
+    overflow: hidden; 
     position: absolute;
     padding: 0;
     display: inline;
 }
-.kgRowIndexCell {
+.kgRowIndexCell{ 
     text-align: center;
 }
 .kgSelectionCell {
-
+    
 }
 .kgSelectionCell input[type="checkbox"] {
-    margin-left: auto;
+    margin-left: auto; 
     margin-right: auto;
     margin-top: 7px;
     height: 15px;
@@ -78,7 +81,7 @@
 }
 
 /******** Header Sorting ********/
-.kgSortImg {
+.kgSortImg{
     height: 9px;
     width: 7px;
 }
@@ -112,11 +115,12 @@
 }
 
 /******** Footer ********/
-.kgFooterPanel {
+.kgFooterPanel{
     background-color: rgb(241, 241, 241);
     padding: 2px 0;
     border-top: 1px solid rgb(229, 229, 229);
     border-bottom: 1px solid rgb(229, 229, 229);
+	position: relative;
 }
 .kgTotalSelectContainer {
     float: left;
@@ -124,10 +128,10 @@
     margin-top: 7px;
 }
 .kgFooterSelectedItems {
-    padding: 2px;
+	padding: 2px;
 }
 .kgFooterTotalItems {
-    padding: 2px;
+	padding: 2px;
 }
 .kgFooterTotalItems.kgNoMultiSelect {
     padding: 0px !important;
@@ -135,7 +139,7 @@
 
 /******** Pager ********/
 .kgPagerContainer {
-    float: left;
+	float: left;
     position: absolute;
     right: 0;
     left: 150px;
@@ -163,7 +167,6 @@
 .kgRowCountPicker select {
     margin-top:0px;
 }
-
 .kgPagerControl {
     float: left;
     width: 135px;
@@ -285,8 +288,8 @@
     -moz-border-radius-bottomright: 3px;
     border-bottom-right-radius: 3px;
     border: 1px solid #494949;
-    background: #494949 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat;
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat, -moz-linear-gradient(top,  #494949 0%, #202020 100%);
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat;
+    background: #494949 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat, -moz-linear-gradient(top,  #494949 0%, #202020 100%);
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat, -webkit-gradient(linear, left top, left bottom, color-stop(0%,#494949), color-stop(100%,#202020));
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat, -webkit-linear-gradient(top,  #494949 0%,#202020 100%);
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAALCAYAAABLcGxfAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEVJREFUeNqUUckNADAIUtOR2H+C7kTTv7TCE8MVk2QY2KUOSlEvt45cH8fLY5rQJlWYmAjQbYCoAScBTiUolzQ/HUeAAQDjeAzfPT7YJAAAAABJRU5ErkJggg==) 50% 50% no-repeat, -o-linear-gradient(top,  #494949 0%,#202020 100%);
@@ -305,4 +308,56 @@
     background: linear-gradient(top,  #838383 0%,#6b6b6b 100%);
     width: 25px;
     cursor: auto;
+}
+.kgHeaderDisplayNameContainer{
+}
+
+.kgHeaderDisplayName{
+    
+}
+.kgSortButtonUp {
+    position: absolute;
+    top: 10px;
+    margin-left: 5px;
+    display: inline;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 0px 5px 5px 5px;
+	height: 0px;
+	width: 0px;
+}
+.kgSortButtonDown {
+    position: absolute;
+    top: 17px;
+    margin-left: 5px;
+    display: inline;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 5px 5px 0px 5px;
+    height: 0px;
+	width: 0px;
+}
+.kgHeaderGrip { 
+    cursor: col-resize; 
+    width: 10px; 
+    right: 5px;
+    margin-right: 10px;
+    margin-left: 3px;
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
+}
+.kgHeaderGrip:hover { 
+    border-right-color: gray;
+    border-right-style: dotted;
+    cursor: col-resize; 
+    width: 10px; 
+    right: 5px;
+    margin-right: 10px;
+    margin-left: 3px;
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
 }

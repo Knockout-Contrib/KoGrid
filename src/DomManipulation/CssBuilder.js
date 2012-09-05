@@ -33,13 +33,13 @@ kg.cssBuilder = {
             
             colWidth = col.width() - grid.elementDims.cellWdiff;
 
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
 
             sumWidth += col.width();
 
         }
 
-        if ($style[0].styleSheet) { // IE
+        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {

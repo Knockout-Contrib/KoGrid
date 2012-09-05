@@ -10,7 +10,7 @@
         internalSortedData = ko.observableArray([]);
 
     // utility function for null checking
-    var isEmpty = function (val) {
+    this.isEmpty = function (val) {
         return (val === null || val === undefined || val === '');
     };
 
@@ -215,7 +215,7 @@
     };
 
     // the core sorting logic trigger
-    var sortData = function () {
+    this.sortData = function () {
         var data = dataSource(),
             sortInfo = self.sortInfo(),
             col,
@@ -277,8 +277,9 @@
                 if (propA !== undefined && propA !== null) { propA = ko.utils.unwrapObservable(propA[propPath[i]]); }
                 if (propB !== undefined && propB !== null) { propB = ko.utils.unwrapObservable(propB[propPath[i]]); }
             }
-            propAEmpty = isEmpty(propA);
-            propBEmpty = isEmpty(propB);
+
+            propAEmpty = self.isEmpty(propA);
+            propBEmpty = self.isEmpty(propB);
 
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (propAEmpty && propBEmpty) {
@@ -301,8 +302,8 @@
     };
 
     //subscribe to the changes in these objects
-    dataSource.subscribe(sortData);
-    this.sortInfo.subscribe(sortData);
+    dataSource.subscribe(self.sortData);
+    this.sortInfo.subscribe(self.sortData);
 
     //change the initPhase so computed bindings now work!
     initPhase = 1;
