@@ -87,7 +87,7 @@ kg.KoGrid = function (options) {
     sortManager = new kg.SortManager({
         data: filterManager.filteredData,
         sortInfo: self.config.sortInfo,
-        useExternalSorting: self.config.useExternalFiltering
+        useExternalSorting: self.config.useExternalSorting
     });
 
     this.sortInfo = sortManager.sortInfo; //observable

@@ -27,8 +27,9 @@
             return self.currentPage();
         },
         write: function (page) {
-            if (page && page <= self.maxPages() && page > 0) {
-                self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
+            var pageInt = parseInt(page);
+            if (!isNaN(pageInt) || (pageInt && pageInt <= self.maxPages() && pageInt > 0)) {
+                self.currentPage(pageInt); //KO does an equality check on primitives before notifying subscriptions here
             }
         },
         owner: self
