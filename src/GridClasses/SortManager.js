@@ -239,6 +239,9 @@
         //see if we already figured out what to use to sort the column
         if (colSortFnCache[col.field]) {
             sortFn = colSortFnCache[col.field];
+        } else if (col.sortingAlgorithm != undefined){
+            sortFn = col.sortingAlgorithm;
+            colSortFnCache[col.field] = col.sortingAlgorithm;
         } else { // try and guess what sort function to use
             item = dataSource()[0];
 

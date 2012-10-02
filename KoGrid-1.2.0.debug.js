@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:34:54.28 Mon 10/01/2012 
+* Compiled At: 13:41:54.73 Tue 10/02/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -516,6 +516,7 @@ kg.templates.defaultHeaderCellTemplate = function () {
     this.allowFilter = colDef.filterable;
     
     this.sortDirection = ko.observable("");
+    this.sortingAlgorithm = colDef.sortFn;
 
     //filtering
     this.filter = ko.observable();
@@ -1481,6 +1482,9 @@ kg.Row = function (entity, config, selectionManager) {
         //see if we already figured out what to use to sort the column
         if (colSortFnCache[col.field]) {
             sortFn = colSortFnCache[col.field];
+        } else if (col.sortingAlgorithm != undefined){
+            sortFn = col.sortingAlgorithm;
+            colSortFnCache[col.field] = col.sortingAlgorithm;
         } else { // try and guess what sort function to use
             item = dataSource()[0];
 
