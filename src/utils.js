@@ -55,16 +55,12 @@
         };
     },
 
-    unwrapPropertyPath: function(field, row){
-        var propPath = field.split('.');
-        var tempProp = row.entity()[propPath[0]]; 
+    unwrapPropertyPath: function(path, entity){
+        var propPath = path.split('.');
+        var tempProp = entity[propPath[0]];
 
         for (var j = 1; j < propPath.length; j++){
-            // entity could be observable or not...
-            if (ko.isObservable(tempProp)){
-                tempProp = ko.utils.unwrapObservable(tempProp);
-            }
-            tempProp = tempProp[propPath[j]];
+            tempProp = ko.utils.unwrapObservable(tempProp)[propPath[j]];
         }
         return tempProp;
     },

@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 13:41:54.73 Tue 10/02/2012 
+* Compiled At: 15:27:30.16 Tue 10/02/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -163,16 +163,12 @@ kg.moveSelectionHandler = function (grid, evt) {
         };
     },
 
-    unwrapPropertyPath: function(field, row){
-        var propPath = field.split('.');
-        var tempProp = row.entity()[propPath[0]]; 
+    unwrapPropertyPath: function(path, entity){
+        var propPath = path.split('.');
+        var tempProp = entity[propPath[0]];
 
         for (var j = 1; j < propPath.length; j++){
-            // entity could be observable or not...
-            if (ko.isObservable(tempProp)){
-                tempProp = ko.utils.unwrapObservable(tempProp);
-            }
-            tempProp = tempProp[propPath[j]];
+            tempProp = ko.utils.unwrapObservable(tempProp)[propPath[j]];
         }
         return tempProp;
     },
@@ -669,7 +665,7 @@ kg.Row = function (entity, config, selectionManager) {
             cell = new kg.Cell(col);
             cell.row = row;
             //enabling nested property values in a viewmodel
-            cell.data = kg.utils.unwrapPropertyPath(col.field, row); 
+            cell.data = kg.utils.unwrapPropertyPath(col.field, row.entity()); 
             cells.push(cell);
             row.cellMap[col.field] = cell;
         }

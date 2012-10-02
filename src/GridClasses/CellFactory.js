@@ -14,7 +14,7 @@
             cell = new kg.Cell(col);
             cell.row = row;
             //enabling nested property values in a viewmodel
-            cell.data = kg.utils.unwrapPropertyPath(col.field, row); 
+            cell.data = kg.utils.unwrapPropertyPath(col.field, row.entity()); 
             cells.push(cell);
             row.cellMap[col.field] = cell;
         }
