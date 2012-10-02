@@ -4,7 +4,7 @@
 
     b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { \'kgSelected\': $data.selected }">');
 
-    utils.forEach(cols, function (col, i) {
+    kg.utils.forEach(cols, function (col, i) {
 
         // check for the Selection Column
         if (col.field === '__kg_selected__') {

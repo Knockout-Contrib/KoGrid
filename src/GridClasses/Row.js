@@ -64,19 +64,15 @@ kg.Row = function (entity, config, selectionManager) {
     this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
-    this.rowKey = utils.newId();
+    this.rowKey = kg.utils.newId();
     this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 
     //during row initialization, let's make all the entities properties first-class properties on the row
     (function () {
-
-        utils.forIn(entity, function (prop, propName) {
-
+        kg.utils.forIn(entity, function (prop, propName) {
             self[propName] = prop;
-
         });
-
     } ());
 };

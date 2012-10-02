@@ -6,7 +6,7 @@ kg.moveSelectionHandler = function (grid, evt) {
     var
         offset,
         charCode = (evt.which) ? evt.which : event.keyCode,
-        isIe = utils.isIe(),
+        isIe = kg.utils.isIe(),
         ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
     // detect which direction for arrow keys to navigate the grid
