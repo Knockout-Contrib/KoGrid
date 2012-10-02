@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 11:41:52.94 Wed 09/05/2012 
+* Compiled At: 22:07:47.67 Mon 10/01/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -34,7 +34,7 @@ kg.moveSelectionHandler = function (grid, evt) {
     var
         offset,
         charCode = (evt.which) ? evt.which : event.keyCode,
-        isIe = utils.isIe(),
+        isIe = kg.utils.isIe(),
         ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
     // detect which direction for arrow keys to navigate the grid
@@ -106,7 +106,7 @@ kg.moveSelectionHandler = function (grid, evt) {
 /*********************************************** 
 * FILE: ..\Src\Utils.js 
 ***********************************************/ 
-﻿var utils = {
+﻿kg.utils = {
 
     forEach: function (arr, action) {
         var len = arr.length,
@@ -126,76 +126,90 @@ kg.moveSelectionHandler = function (grid, evt) {
                 action(obj[prop], prop);
             }
         }
-    }
+    },
+    
+    StringBuilder: function () {
+        var strArr = [];
+        
+        this.append = function (str, data) {
+            var len = arguments.length,
+                intMatch = 0,
+                strMatch = '{0}',
+                i = 1;
+
+            if (len > 1) { // they provided data
+                while (i < len) {
+
+                    //apparently string.replace only works on one match at a time
+                    //so, loop through the string and hit all matches
+                    while (str.indexOf(strMatch) !== -1) {
+                        str = str.replace(strMatch, arguments[i]);
+                    }
+                    i++;
+                    intMatch = i - 1;
+                    strMatch = "{" + intMatch.toString() + "}";
+                }
+            }
+            strArr.push(str);
+        };
+
+        this.toString = function () {
+            var separator = arguments[0];
+            if (separator !== null && separator !== undefined) {
+                return strArr.join(separator);
+            } else {
+                return strArr.join("");
+            }
+        };
+    },
+
+    unwrapPropertyPath: function(field, row){
+        var propPath = field.split('.');
+        var tempProp = row.entity()[propPath[0]]; 
+
+        for (var j = 1; j < propPath.length; j++){
+            // entity could be observable or not...
+            if (ko.isObservable(tempProp)){
+                tempProp = ko.utils.unwrapObservable(tempProp);
+            }
+            tempProp = tempProp[propPath[j]];
+        }
+        return tempProp;
+    },
+    
+    newId: (function () {
+        var seedId = new Date().getTime();
+
+        return function () {
+            return seedId += 1;
+        };
+    })()
 };
-
-utils.newId = (function () {
-    var seedId = new Date().getTime();
-
-    return function () {
-        return seedId += 1;
-    };
-} ());
 
 // we copy KO's ie detection here bc it isn't exported in the min versions of KO
-// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness)
+// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
+$.extend(kg.utils, {
+    ieVersion: (function () {
+        var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
 
-var ieVersion = (function () {
-    var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
-
-    // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
-    while (
-        div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
-        iElems[0]
-    );
-    return version > 4 ? version : undefined;
-}());
-var isIe6 = ieVersion === 6,
-    isIe7 = ieVersion === 7;
-
-$.extend(utils, {
-    isIe6: isIe6,
-    isIe7: isIe7,
-    ieVersion: ieVersion,
-    isIe: function () { return ieVersion !== undefined; }
-});
-
-utils.StringBuilder = function () {
-    var strArr = [];
-
-    this.append = function (str, data) {
-        var len = arguments.length,
-            intMatch = 0,
-            strMatch = '{0}',
-            i = 1;
-
-        if (len > 1) { // they provided data
-            while (i < len) {
-
-                //apparently string.replace only works on one match at a time
-                //so, loop through the string and hit all matches
-                while (str.indexOf(strMatch) !== -1) {
-                    str = str.replace(strMatch, arguments[i]);
-                }
-                i++;
-                intMatch = i - 1;
-                strMatch = "{" + intMatch.toString() + "}";
-            }
-        }
-        strArr.push(str);
-    };
-
-    this.toString = function () {
-        var separator = arguments[0];
-        if (separator !== null && separator !== undefined) {
-            return strArr.join(separator);
-        } else {
-            return strArr.join("");
-        }
-    };
-};
-
-kg.utils = utils; 
+        // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
+        while (
+            div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
+            iElems[0]
+        );
+        return version > 4 ? version : undefined;
+    })(),
+    
+    isIe6: (function(){ 
+        return kg.utils.ieVersion === 6}
+    )(),
+    isIe7: (function(){ 
+        return kg.utils.ieVersion === 7}
+    )(),
+    isIe: (function () { 
+        return kg.utils.ieVersion !== undefined; 
+    })()
+}); 
  
  
 /*********************************************** 
@@ -225,7 +239,7 @@ kg.templates.defaultGridInnerTemplate = function () {
         cols = options.columns,
         showFilter = options.showFilter;
 
-    utils.forEach(cols, function (col, i) {
+    kg.utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/>');
@@ -276,7 +290,7 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
     b.append('<div data-bind="kgRow: $data, click: $data.toggleSelected, css: { \'kgSelected\': $data.selected }">');
 
-    utils.forEach(cols, function (col, i) {
+    kg.utils.forEach(cols, function (col, i) {
 
         // check for the Selection Column
         if (col.field === '__kg_selected__') {
@@ -612,20 +626,16 @@ kg.Row = function (entity, config, selectionManager) {
     this.cellMap = {};
     this.rowIndex = 0;
     this.offsetTop = 0;
-    this.rowKey = utils.newId();
+    this.rowKey = kg.utils.newId();
     this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
 
     //during row initialization, let's make all the entities properties first-class properties on the row
     (function () {
-
-        utils.forIn(entity, function (prop, propName) {
-
+        kg.utils.forIn(entity, function (prop, propName) {
             self[propName] = prop;
-
         });
-
     } ());
 }; 
  
@@ -657,8 +667,8 @@ kg.Row = function (entity, config, selectionManager) {
 
             cell = new kg.Cell(col);
             cell.row = row;
-            cell.data = row.entity()[col.field]; //could be observable or not...
-
+            //enabling nested property values in a viewmodel
+            cell.data = kg.utils.unwrapPropertyPath(col.field, row); 
             cells.push(cell);
             row.cellMap[col.field] = cell;
         }
@@ -862,7 +872,7 @@ kg.Row = function (entity, config, selectionManager) {
             pagingOffset = (pageSize() * (currentPage() - 1)),
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
-        utils.forEach(dataArr, function (item, i) {
+        kg.utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array
@@ -1606,7 +1616,7 @@ kg.SelectionManager = function (options, rowManager) {
             self.toggle(rowItem);
             document.getSelection().removeAllRanges();
         } else {
-            utils.forEach(self.selectedItems(), function (item) {
+            kg.utils.forEach(self.selectedItems(), function (item) {
                 if (item && item[ROW_KEY]) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
                     if (row) {
@@ -1647,7 +1657,7 @@ kg.SelectionManager = function (options, rowManager) {
             newItems = [];
         }
 
-        utils.forEach(data, function (item, i) {
+        kg.utils.forEach(data, function (item, i) {
 
             if (!item[KEY]) {
                 item[KEY] = ko.observable(false);
@@ -1679,7 +1689,7 @@ kg.SelectionManager = function (options, rowManager) {
         write: function (val) {
             var checkAll = val,
             dataSourceCopy = [];
-            utils.forEach(dataSource(), function (item) {
+            kg.utils.forEach(dataSource(), function (item) {
                 dataSourceCopy.push(item);
             });
             if (checkAll) {
@@ -2029,7 +2039,7 @@ kg.KoGrid = function (options) {
         var width = 0,
             cols = self.columns();
 
-        utils.forEach(cols, function (col, i) {
+        kg.utils.forEach(cols, function (col, i) {
             width += col.width();
         });
 
@@ -2075,7 +2085,7 @@ kg.KoGrid = function (options) {
     this.sortData = function (col, dir) {
         isSorting = true;
 
-        utils.forEach(self.columns(), function (column) {
+        kg.utils.forEach(self.columns(), function (column) {
             if (column.field !== col.field) {
                 if (column.sortDirection() !== "") { column.sortDirection(""); }
             }
@@ -2206,7 +2216,7 @@ kg.KoGrid = function (options) {
         var item;
         item = self.data()[0];
 
-        utils.forIn(item, function (prop, propName) {
+        kg.utils.forIn(item, function (prop, propName) {
             if (propName === '__kg_selected__') {
                 return;
             }
@@ -2242,7 +2252,7 @@ kg.KoGrid = function (options) {
 
         if (columnDefs().length > 0) {
 
-            utils.forEach(columnDefs(), function (colDef, i) {
+            kg.utils.forEach(columnDefs(), function (colDef, i) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
@@ -2280,7 +2290,7 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        utils.forEach(self.columns(), function(col, i){
+        kg.utils.forEach(self.columns(), function(col, i){
             col.width.subscribe(function(){
                 self.rowManager.dataChanged = true;
                 self.rowManager.rowCache = []; //if data source changes, kill this!
@@ -2326,7 +2336,7 @@ kg.KoGrid = function (options) {
     };
 
     this.clearFilter_Click = function () {
-        utils.forEach(self.columns(), function (col, i) {
+        kg.utils.forEach(self.columns(), function (col, i) {
             col.filter(null);
         });
     };
@@ -2775,7 +2785,7 @@ ko.bindingHandlers['kgRows'] = (function () {
         });
 
         //figure out what needs to be deleted
-        utils.forIn(rowSubscriptions, function (rowSubscription, index) {
+        kg.utils.forIn(rowSubscriptions, function (rowSubscription, index) {
 
             //get the row we might be able to compare to
             var compareRow = rowMap[index];
@@ -2942,7 +2952,7 @@ ko.bindingHandlers['kgCell'] = (function () {
             cell,
             headerRow = new kg.HeaderRow();
 
-        utils.forEach(cols, function (col, i) {
+        kg.utils.forEach(cols, function (col, i) {
             cell = new kg.HeaderCell(col);
             cell.colIndex = i;
 

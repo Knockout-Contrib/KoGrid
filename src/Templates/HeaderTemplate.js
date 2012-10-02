@@ -3,7 +3,7 @@
         cols = options.columns,
         showFilter = options.showFilter;
 
-    utils.forEach(cols, function (col, i) {
+    kg.utils.forEach(cols, function (col, i) {
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
             b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/>');

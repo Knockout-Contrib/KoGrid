@@ -2,7 +2,7 @@
 
 SET CurrentDir=%CD%
 SET OutPutFile=%CurrentDir%\KoGrid.debug.js
-SET FinalFile=..\KoGrid.debug.js
+SET FinalFile=..\KoGrid-1.2.0.debug.js
 SET BuildOrder=%CurrentDir%\build-order.txt
 
 ECHO JSBuild Starting...

@@ -182,7 +182,7 @@ kg.KoGrid = function (options) {
         var width = 0,
             cols = self.columns();
 
-        utils.forEach(cols, function (col, i) {
+        kg.utils.forEach(cols, function (col, i) {
             width += col.width();
         });
 
@@ -228,7 +228,7 @@ kg.KoGrid = function (options) {
     this.sortData = function (col, dir) {
         isSorting = true;
 
-        utils.forEach(self.columns(), function (column) {
+        kg.utils.forEach(self.columns(), function (column) {
             if (column.field !== col.field) {
                 if (column.sortDirection() !== "") { column.sortDirection(""); }
             }
@@ -359,7 +359,7 @@ kg.KoGrid = function (options) {
         var item;
         item = self.data()[0];
 
-        utils.forIn(item, function (prop, propName) {
+        kg.utils.forIn(item, function (prop, propName) {
             if (propName === '__kg_selected__') {
                 return;
             }
@@ -395,7 +395,7 @@ kg.KoGrid = function (options) {
 
         if (columnDefs().length > 0) {
 
-            utils.forEach(columnDefs(), function (colDef, i) {
+            kg.utils.forEach(columnDefs(), function (colDef, i) {
                 column = new kg.Column(colDef);
                 column.index = i;
 
@@ -433,7 +433,7 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        utils.forEach(self.columns(), function(col, i){
+        kg.utils.forEach(self.columns(), function(col, i){
             col.width.subscribe(function(){
                 self.rowManager.dataChanged = true;
                 self.rowManager.rowCache = []; //if data source changes, kill this!
@@ -479,7 +479,7 @@ kg.KoGrid = function (options) {
     };
 
     this.clearFilter_Click = function () {
-        utils.forEach(self.columns(), function (col, i) {
+        kg.utils.forEach(self.columns(), function (col, i) {
             col.filter(null);
         });
     };

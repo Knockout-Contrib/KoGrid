@@ -5,7 +5,7 @@
             cell,
             headerRow = new kg.HeaderRow();
 
-        utils.forEach(cols, function (col, i) {
+        kg.utils.forEach(cols, function (col, i) {
             cell = new kg.HeaderCell(col);
             cell.colIndex = i;
 
