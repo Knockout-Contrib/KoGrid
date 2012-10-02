@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 22:07:47.67 Mon 10/01/2012 
+* Compiled At: 22:28:23.49 Mon 10/01/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -977,8 +977,9 @@ kg.Row = function (entity, config, selectionManager) {
             return self.currentPage();
         },
         write: function (page) {
-            if (page && page <= self.maxPages() && page > 0) {
-                self.currentPage(page); //KO does an equality check on primitives before notifying subscriptions here
+            var pageInt = parseInt(page);
+            if (!isNaN(pageInt) || (pageInt && pageInt <= self.maxPages() && pageInt > 0)) {
+                self.currentPage(pageInt); //KO does an equality check on primitives before notifying subscriptions here
             }
         },
         owner: self
@@ -1784,8 +1785,7 @@ kg.SelectionManager = function (options, rowManager) {
 
         grid.$viewport.off('keydown');
         grid.$viewport.on('keydown', function (e) {
-            kg.moveSelectionHandler(grid, e);
-            e.preventDefault();
+            return kg.moveSelectionHandler(grid, e);
         });
         
         //Chrome and firefox both need a tab index so the grid can recieve focus.
@@ -1944,7 +1944,7 @@ kg.KoGrid = function (options) {
     sortManager = new kg.SortManager({
         data: filterManager.filteredData,
         sortInfo: self.config.sortInfo,
-        useExternalSorting: self.config.useExternalFiltering
+        useExternalSorting: self.config.useExternalSorting
     });
 
     this.sortInfo = sortManager.sortInfo; //observable

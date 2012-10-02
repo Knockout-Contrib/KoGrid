@@ -51,8 +51,7 @@
 
         grid.$viewport.off('keydown');
         grid.$viewport.on('keydown', function (e) {
-            kg.moveSelectionHandler(grid, e);
-            e.preventDefault();
+            return kg.moveSelectionHandler(grid, e);
         });
         
         //Chrome and firefox both need a tab index so the grid can recieve focus.
