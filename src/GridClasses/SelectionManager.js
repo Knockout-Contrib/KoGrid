@@ -60,7 +60,7 @@ kg.SelectionManager = function (options, rowManager) {
             self.toggle(rowItem);
             document.getSelection().removeAllRanges();
         } else {
-            utils.forEach(self.selectedItems(), function (item) {
+            kg.utils.forEach(self.selectedItems(), function (item) {
                 if (item && item[ROW_KEY]) {
                     var row = rowManager.rowCache[item[ROW_KEY]];
                     if (row) {
@@ -101,7 +101,7 @@ kg.SelectionManager = function (options, rowManager) {
             newItems = [];
         }
 
-        utils.forEach(data, function (item, i) {
+        kg.utils.forEach(data, function (item, i) {
 
             if (!item[KEY]) {
                 item[KEY] = ko.observable(false);
@@ -133,7 +133,7 @@ kg.SelectionManager = function (options, rowManager) {
         write: function (val) {
             var checkAll = val,
             dataSourceCopy = [];
-            utils.forEach(dataSource(), function (item) {
+            kg.utils.forEach(dataSource(), function (item) {
                 dataSourceCopy.push(item);
             });
             if (checkAll) {

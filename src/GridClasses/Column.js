@@ -36,6 +36,7 @@
     this.allowFilter = colDef.filterable;
     
     this.sortDirection = ko.observable("");
+    this.sortingAlgorithm = colDef.sortFn;
 
     //filtering
     this.filter = ko.observable();

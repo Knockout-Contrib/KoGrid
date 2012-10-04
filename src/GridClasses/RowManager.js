@@ -80,7 +80,7 @@
             pagingOffset = (pageSize() * (currentPage() - 1)),
             dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
 
-        utils.forEach(dataArr, function (item, i) {
+        kg.utils.forEach(dataArr, function (item, i) {
             row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
 
             //add the row to our return array

@@ -35,7 +35,7 @@ ko.bindingHandlers['kgRows'] = (function () {
         });
 
         //figure out what needs to be deleted
-        utils.forIn(rowSubscriptions, function (rowSubscription, index) {
+        kg.utils.forIn(rowSubscriptions, function (rowSubscription, index) {
 
             //get the row we might be able to compare to
             var compareRow = rowMap[index];
