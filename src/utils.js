@@ -54,7 +54,18 @@
             }
         };
     },
-
+    
+    getElementsByClassName: function(cl) {
+        var retnode = [];
+        var myclass = new RegExp('\\b'+cl+'\\b');
+        var elem = document.getElementsByTagName('*');
+        for (var i = 0; i < elem.length; i++) {
+            var classes = elem[i].className;
+            if (myclass.test(classes)) retnode.push(elem[i]);
+        }
+        return retnode;
+    },
+    
     unwrapPropertyPath: function(path, entity){
         var propPath = path.split('.');
         var tempProp = entity[propPath[0]];
@@ -71,12 +82,10 @@
         return function () {
             return seedId += 1;
         };
-    })()
-};
-
-// we copy KO's ie detection here bc it isn't exported in the min versions of KO
-// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
-$.extend(kg.utils, {
+    })(),
+    
+    // we copy KO's ie detection here bc it isn't exported in the min versions of KO
+    // Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
     ieVersion: (function () {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
 
@@ -87,7 +96,9 @@ $.extend(kg.utils, {
         );
         return version > 4 ? version : undefined;
     })(),
-    
+};
+
+$.extend(kg.utils, {
     isIe6: (function(){ 
         return kg.utils.ieVersion === 6}
     )(),
@@ -97,4 +108,4 @@ $.extend(kg.utils, {
     isIe: (function () { 
         return kg.utils.ieVersion !== undefined; 
     })()
-});
+}); 

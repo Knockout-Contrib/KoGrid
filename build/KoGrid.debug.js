@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:48:12.66 Mon 10/08/2012 
+* Compiled At: 16:10:52.42 Mon 10/08/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -31,8 +31,14 @@ var GRID_TEMPLATE = 'koGridTmpl';
 
 //set event binding on the grid so we can select using the up/down keys
 kg.moveSelectionHandler = function (grid, evt) {
-    var
-        offset,
+    // null checks 
+    if (grid === null || grid === undefined)
+        return true;
+
+    if (grid.config.selectedItems() === undefined)
+        return true;
+        
+    var offset,
         charCode = (evt.which) ? evt.which : event.keyCode,
         ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
@@ -50,16 +56,9 @@ kg.moveSelectionHandler = function (grid, evt) {
             return true;
     }
 
-    // null checks 
-    if (grid === null || grid === undefined)
-        return;
-
-    if (grid.config.selectedItems() === undefined)
-        return;
-
     var items = grid.finalData(),
         n = items.length,
-        index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
+        index = ko.utils.arrayIndexOf(items, grid.config.lastClickedRow().entity()) + offset,
         rowCache = grid.rowManager.rowCache,
         rowHeight = grid.config.rowHeight,
         currScroll = grid.$viewport.scrollTop(),
@@ -74,9 +73,9 @@ kg.moveSelectionHandler = function (grid, evt) {
         row = rowCache[selected[ROW_KEY]];
 
         // fire the selection
-        grid.selectionManager.changeSelection(row, evt);
+        row.toggleSelected(null, evt);
 
-        itemtoView = document.getElementsByClassName("kgSelected");
+        itemtoView = kg.utils.getElementsByClassName("kgSelected");
 
         // finally scroll it into view as we arrow through
         if (!Element.prototype.scrollIntoViewIfNeeded) {
@@ -91,7 +90,7 @@ kg.moveSelectionHandler = function (grid, evt) {
 
         return false;
     }
-}; 
+};  
  
  
 /*********************************************** 
@@ -161,7 +160,18 @@ kg.moveSelectionHandler = function (grid, evt) {
             }
         };
     },
-
+    
+    getElementsByClassName: function(cl) {
+        var retnode = [];
+        var myclass = new RegExp('\\b'+cl+'\\b');
+        var elem = document.getElementsByTagName('*');
+        for (var i = 0; i < elem.length; i++) {
+            var classes = elem[i].className;
+            if (myclass.test(classes)) retnode.push(elem[i]);
+        }
+        return retnode;
+    },
+    
     unwrapPropertyPath: function(path, entity){
         var propPath = path.split('.');
         var tempProp = entity[propPath[0]];
@@ -178,12 +188,10 @@ kg.moveSelectionHandler = function (grid, evt) {
         return function () {
             return seedId += 1;
         };
-    })()
-};
-
-// we copy KO's ie detection here bc it isn't exported in the min versions of KO
-// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
-$.extend(kg.utils, {
+    })(),
+    
+    // we copy KO's ie detection here bc it isn't exported in the min versions of KO
+    // Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
     ieVersion: (function () {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
 
@@ -194,7 +202,9 @@ $.extend(kg.utils, {
         );
         return version > 4 ? version : undefined;
     })(),
-    
+};
+
+$.extend(kg.utils, {
     isIe6: (function(){ 
         return kg.utils.ieVersion === 6}
     )(),
@@ -204,7 +214,7 @@ $.extend(kg.utils, {
     isIe: (function () { 
         return kg.utils.ieVersion !== undefined; 
     })()
-}); 
+});  
  
  
 /*********************************************** 
@@ -1616,11 +1626,9 @@ kg.SelectionManager = function (options, rowManager) {
                 self.lastClickedRow(rowItem);
                 return true;
             }
-            document.getSelection().removeAllRanges();
         } else if (!isMulti) {
             rowItem.selected() ? self.selectedItems([rowItem.entity()]) :self.selectedItems([]);
-        }   
-        document.getSelection().removeAllRanges();        
+        }      
         self.addOrRemove(rowItem);
         self.lastClickedRow(rowItem);
         return true;
@@ -2400,7 +2408,7 @@ kg.cssBuilder = {
 
         }
 
-        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
+        if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {

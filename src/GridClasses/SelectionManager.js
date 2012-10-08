@@ -56,11 +56,9 @@ kg.SelectionManager = function (options, rowManager) {
                 self.lastClickedRow(rowItem);
                 return true;
             }
-            document.getSelection().removeAllRanges();
         } else if (!isMulti) {
             rowItem.selected() ? self.selectedItems([rowItem.entity()]) :self.selectedItems([]);
-        }   
-        document.getSelection().removeAllRanges();        
+        }      
         self.addOrRemove(rowItem);
         self.lastClickedRow(rowItem);
         return true;

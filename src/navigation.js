@@ -3,8 +3,14 @@
 
 //set event binding on the grid so we can select using the up/down keys
 kg.moveSelectionHandler = function (grid, evt) {
-    var
-        offset,
+    // null checks 
+    if (grid === null || grid === undefined)
+        return true;
+
+    if (grid.config.selectedItems() === undefined)
+        return true;
+        
+    var offset,
         charCode = (evt.which) ? evt.which : event.keyCode,
         ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
@@ -22,16 +28,9 @@ kg.moveSelectionHandler = function (grid, evt) {
             return true;
     }
 
-    // null checks 
-    if (grid === null || grid === undefined)
-        return;
-
-    if (grid.config.selectedItems() === undefined)
-        return;
-
     var items = grid.finalData(),
         n = items.length,
-        index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
+        index = ko.utils.arrayIndexOf(items, grid.config.lastClickedRow().entity()) + offset,
         rowCache = grid.rowManager.rowCache,
         rowHeight = grid.config.rowHeight,
         currScroll = grid.$viewport.scrollTop(),
@@ -46,9 +45,9 @@ kg.moveSelectionHandler = function (grid, evt) {
         row = rowCache[selected[ROW_KEY]];
 
         // fire the selection
-        grid.selectionManager.changeSelection(row, evt);
+        row.toggleSelected(null, evt);
 
-        itemtoView = document.getElementsByClassName("kgSelected");
+        itemtoView = kg.utils.getElementsByClassName("kgSelected");
 
         // finally scroll it into view as we arrow through
         if (!Element.prototype.scrollIntoViewIfNeeded) {
@@ -63,4 +62,4 @@ kg.moveSelectionHandler = function (grid, evt) {
 
         return false;
     }
-};
+}; 
