@@ -21,11 +21,14 @@ kg.Row = function (entity, config, selectionManager) {
             var val = self.entity()['__kg_selected__']();
             return val;
         },
-        write: function (val) {
+        write: function (val, evt) {
             if (!canSelectRows) {
                 return true;
             }
+            self.beforeSelectionChange();
             self.entity()['__kg_selected__'](val);
+            self.selectionManager.changeSelection(self, evt);
+            self.afterSelectionChange();
             self.onSelectionChanged();
         }
     });
@@ -43,7 +46,7 @@ kg.Row = function (entity, config, selectionManager) {
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
         } else {
-            self.selectionManager.changeSelection(self, event);
+            self.selected() ? self.selected(false, event) : self.selected(true, event);
         }
     };
 
@@ -68,11 +71,12 @@ kg.Row = function (entity, config, selectionManager) {
     this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
-
+    this.beforeSelectionChange = function () { };
+    this.afterSelectionChange = function () { };
     //during row initialization, let's make all the entities properties first-class properties on the row
     (function () {
         kg.utils.forIn(entity, function (prop, propName) {
             self[propName] = prop;
         });
     } ());
-};
+}; 
