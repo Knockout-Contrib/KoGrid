@@ -39,11 +39,11 @@
             columns: null,
             showFilter: true
         },
-        config = $.extend(defaults, options);
+        var config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
         self.addTemplateSafe(GRID_TEMPLATE,  function () {
-                return kg.templates.defaultGridInnerTemplate(options);
+                return kg.templates.defaultGridInnerTemplate(config);
             });
 
         //header row template
@@ -70,7 +70,7 @@
         //footer template
         if (config.footerTemplate) {
             self.addTemplateSafe(config.footerTemplate, function () {
-                return kg.templates.defaultFooterTemplate(options);
+                return kg.templates.defaultFooterTemplate(config);
             });
         }
     };
