@@ -42,9 +42,7 @@
         config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
-        self.addTemplateSafe(GRID_TEMPLATE,  function () {
-                return kg.templates.defaultGridInnerTemplate(options);
-            });
+        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate);
 
         //header row template
         if (config.headerTemplate) {
@@ -55,9 +53,7 @@
 
         //header cell template
         if (config.headerCellTemplate) {
-            self.addTemplateSafe(config.headerCellTemplate, function () {
-                return kg.templates.defaultHeaderCellTemplate(config);
-            });
+            self.addTemplateSafe(config.headerCellTemplate, kg.templates.defaultHeaderCellTemplate);
         }
 
         //row template
@@ -69,9 +65,7 @@
 
         //footer template
         if (config.footerTemplate) {
-            self.addTemplateSafe(config.footerTemplate, function () {
-                return kg.templates.defaultFooterTemplate(options);
-            });
+            self.addTemplateSafe(config.footerTemplate, kg.templates.defaultFooterTemplate);
         }
     };
 
