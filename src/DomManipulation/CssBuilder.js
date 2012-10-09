@@ -39,7 +39,7 @@ kg.cssBuilder = {
 
         }
 
-        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
+        if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {

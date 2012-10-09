@@ -38,52 +38,39 @@ kg.SelectionManager = function (options, rowManager) {
     
     // function to manage the selection action of a data item (entity)
     this.changeSelection = function (rowItem, evt) {
-        if (isMulti && evt.shiftKey) {
+        if (isMulti && evt && evt.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
-                var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
-                if (thisIndx < prevIndex) {
-                    thisIndx = thisIndx ^ prevIndex;
-                    prevIndex = thisIndx ^ prevIndex;
-                    thisIndx = thisIndx ^ prevIndex;
+                var prevIndx = rowManager.rowCache.indexOf(self.lastClickedRow());
+                if (thisIndx == prevIndx) return;
+                prevIndx++;
+                if (thisIndx < prevIndx) {
+                    thisIndx = thisIndx ^ prevIndx;
+                    prevIndx = thisIndx ^ prevIndx;
+                    thisIndx = thisIndx ^ prevIndx;
                 }
-                for (; prevIndex <= thisIndx; prevIndex++) {
-                    rowManager.rowCache[prevIndex].selected(true);
-                    //first see if it exists, if not add it
-                    if (self.selectedItems.indexOf(rowManager.rowCache[prevIndex].entity()) === -1) {
-                        self.selectedItems.push(rowManager.rowCache[prevIndex].entity());
-                    }
+                for (; prevIndx <= thisIndx; prevIndx++) {
+                    rowManager.rowCache[prevIndx].selected(self.lastClickedRow().selected());
+                    self.addOrRemove(rowItem);
                 }
+                self.lastClickedRow(rowItem);
+                return true;
             }
-            document.getSelection().removeAllRanges();
-        } else if (isMulti && evt.ctrlKey) {
-            self.toggle(rowItem);
-            document.getSelection().removeAllRanges();
-        } else {
-            kg.utils.forEach(self.selectedItems(), function (item) {
-                if (item && item[ROW_KEY]) {
-                    var row = rowManager.rowCache[item[ROW_KEY]];
-                    if (row) {
-                        row.selected(false);
-                    }
-                }
-            });
-            self.selectedItems.removeAll();
-            self.toggle(rowItem);
-        }
+        } else if (!isMulti) {
+            rowItem.selected() ? self.selectedItems([rowItem.entity()]) :self.selectedItems([]);
+        }      
+        self.addOrRemove(rowItem);
         self.lastClickedRow(rowItem);
         return true;
     }
 
-    // just call this func and hand it the item you want to select (or de-select)    
-    this.toggle = function(item) {
-        if (item.selected()) {
-            item.selected(false);
-            self.selectedItems.remove(item.entity());
+    // just call this func and hand it the rowItem you want to select (or de-select)    
+    this.addOrRemove = function(rowItem) {
+        if (!rowItem.selected()) {
+            self.selectedItems.remove(rowItem.entity());
         } else {
-            item.selected(true);
-            if (self.selectedItems.indexOf(item.entity()) === -1) {
-                self.selectedItems.push(item.entity());
+            if (self.selectedItems.indexOf(rowItem.entity()) === -1) {
+                self.selectedItems.push(rowItem.entity());
             }
         }
     };
@@ -169,4 +156,4 @@ kg.SelectionManager = function (options, rowManager) {
             self.selectedItems.removeAll(itemsToRemove);
         }
     });
-}; 
+};  

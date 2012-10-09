@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 15:27:30.16 Tue 10/02/2012 
+* Compiled At: 16:10:52.42 Mon 10/08/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -31,10 +31,15 @@ var GRID_TEMPLATE = 'koGridTmpl';
 
 //set event binding on the grid so we can select using the up/down keys
 kg.moveSelectionHandler = function (grid, evt) {
-    var
-        offset,
+    // null checks 
+    if (grid === null || grid === undefined)
+        return true;
+
+    if (grid.config.selectedItems() === undefined)
+        return true;
+        
+    var offset,
         charCode = (evt.which) ? evt.which : event.keyCode,
-        isIe = kg.utils.isIe(),
         ROW_KEY = '__kg_rowIndex__'; // constant for the entity's row's rowIndex
 
     // detect which direction for arrow keys to navigate the grid
@@ -51,16 +56,9 @@ kg.moveSelectionHandler = function (grid, evt) {
             return true;
     }
 
-    // null checks 
-    if (grid === null || grid === undefined)
-        return;
-
-    if (grid.config.selectedItems() === undefined)
-        return;
-
     var items = grid.finalData(),
         n = items.length,
-        index = items.indexOf(grid.config.lastClickedRow().entity()) + offset,
+        index = ko.utils.arrayIndexOf(items, grid.config.lastClickedRow().entity()) + offset,
         rowCache = grid.rowManager.rowCache,
         rowHeight = grid.config.rowHeight,
         currScroll = grid.$viewport.scrollTop(),
@@ -75,9 +73,9 @@ kg.moveSelectionHandler = function (grid, evt) {
         row = rowCache[selected[ROW_KEY]];
 
         // fire the selection
-        grid.selectionManager.changeSelection(row, evt);
+        row.toggleSelected(null, evt);
 
-        itemtoView = document.getElementsByClassName("kgSelected");
+        itemtoView = kg.utils.getElementsByClassName("kgSelected");
 
         // finally scroll it into view as we arrow through
         if (!Element.prototype.scrollIntoViewIfNeeded) {
@@ -92,7 +90,7 @@ kg.moveSelectionHandler = function (grid, evt) {
 
         return false;
     }
-}; 
+};  
  
  
 /*********************************************** 
@@ -162,7 +160,18 @@ kg.moveSelectionHandler = function (grid, evt) {
             }
         };
     },
-
+    
+    getElementsByClassName: function(cl) {
+        var retnode = [];
+        var myclass = new RegExp('\\b'+cl+'\\b');
+        var elem = document.getElementsByTagName('*');
+        for (var i = 0; i < elem.length; i++) {
+            var classes = elem[i].className;
+            if (myclass.test(classes)) retnode.push(elem[i]);
+        }
+        return retnode;
+    },
+    
     unwrapPropertyPath: function(path, entity){
         var propPath = path.split('.');
         var tempProp = entity[propPath[0]];
@@ -179,12 +188,10 @@ kg.moveSelectionHandler = function (grid, evt) {
         return function () {
             return seedId += 1;
         };
-    })()
-};
-
-// we copy KO's ie detection here bc it isn't exported in the min versions of KO
-// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
-$.extend(kg.utils, {
+    })(),
+    
+    // we copy KO's ie detection here bc it isn't exported in the min versions of KO
+    // Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
     ieVersion: (function () {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
 
@@ -195,7 +202,9 @@ $.extend(kg.utils, {
         );
         return version > 4 ? version : undefined;
     })(),
-    
+};
+
+$.extend(kg.utils, {
     isIe6: (function(){ 
         return kg.utils.ieVersion === 6}
     )(),
@@ -205,7 +214,7 @@ $.extend(kg.utils, {
     isIe: (function () { 
         return kg.utils.ieVersion !== undefined; 
     })()
-}); 
+});  
  
  
 /*********************************************** 
@@ -580,11 +589,14 @@ kg.Row = function (entity, config, selectionManager) {
             var val = self.entity()['__kg_selected__']();
             return val;
         },
-        write: function (val) {
+        write: function (val, evt) {
             if (!canSelectRows) {
                 return true;
             }
+            self.beforeSelectionChange();
             self.entity()['__kg_selected__'](val);
+            self.selectionManager.changeSelection(self, evt);
+            self.afterSelectionChange();
             self.onSelectionChanged();
         }
     });
@@ -602,7 +614,7 @@ kg.Row = function (entity, config, selectionManager) {
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
         } else {
-            self.selectionManager.changeSelection(self, event);
+            self.selected() ? self.selected(false, event) : self.selected(true, event);
         }
     };
 
@@ -627,14 +639,15 @@ kg.Row = function (entity, config, selectionManager) {
     this.rowDisplayIndex = 0;
 
     this.onSelectionChanged = function () { }; //replaced in rowManager
-
+    this.beforeSelectionChange = function () { };
+    this.afterSelectionChange = function () { };
     //during row initialization, let's make all the entities properties first-class properties on the row
     (function () {
         kg.utils.forIn(entity, function (prop, propName) {
             self[propName] = prop;
         });
     } ());
-}; 
+};  
  
  
 /*********************************************** 
@@ -1595,52 +1608,39 @@ kg.SelectionManager = function (options, rowManager) {
     
     // function to manage the selection action of a data item (entity)
     this.changeSelection = function (rowItem, evt) {
-        if (isMulti && evt.shiftKey) {
+        if (isMulti && evt && evt.shiftKey) {
             if(self.lastClickedRow()) {
                 var thisIndx = rowManager.rowCache.indexOf(rowItem);
-                var prevIndex = rowManager.rowCache.indexOf(self.lastClickedRow());
-                if (thisIndx < prevIndex) {
-                    thisIndx = thisIndx ^ prevIndex;
-                    prevIndex = thisIndx ^ prevIndex;
-                    thisIndx = thisIndx ^ prevIndex;
+                var prevIndx = rowManager.rowCache.indexOf(self.lastClickedRow());
+                if (thisIndx == prevIndx) return;
+                prevIndx++;
+                if (thisIndx < prevIndx) {
+                    thisIndx = thisIndx ^ prevIndx;
+                    prevIndx = thisIndx ^ prevIndx;
+                    thisIndx = thisIndx ^ prevIndx;
                 }
-                for (; prevIndex <= thisIndx; prevIndex++) {
-                    rowManager.rowCache[prevIndex].selected(true);
-                    //first see if it exists, if not add it
-                    if (self.selectedItems.indexOf(rowManager.rowCache[prevIndex].entity()) === -1) {
-                        self.selectedItems.push(rowManager.rowCache[prevIndex].entity());
-                    }
+                for (; prevIndx <= thisIndx; prevIndx++) {
+                    rowManager.rowCache[prevIndx].selected(self.lastClickedRow().selected());
+                    self.addOrRemove(rowItem);
                 }
+                self.lastClickedRow(rowItem);
+                return true;
             }
-            document.getSelection().removeAllRanges();
-        } else if (isMulti && evt.ctrlKey) {
-            self.toggle(rowItem);
-            document.getSelection().removeAllRanges();
-        } else {
-            kg.utils.forEach(self.selectedItems(), function (item) {
-                if (item && item[ROW_KEY]) {
-                    var row = rowManager.rowCache[item[ROW_KEY]];
-                    if (row) {
-                        row.selected(false);
-                    }
-                }
-            });
-            self.selectedItems.removeAll();
-            self.toggle(rowItem);
-        }
+        } else if (!isMulti) {
+            rowItem.selected() ? self.selectedItems([rowItem.entity()]) :self.selectedItems([]);
+        }      
+        self.addOrRemove(rowItem);
         self.lastClickedRow(rowItem);
         return true;
     }
 
-    // just call this func and hand it the item you want to select (or de-select)    
-    this.toggle = function(item) {
-        if (item.selected()) {
-            item.selected(false);
-            self.selectedItems.remove(item.entity());
+    // just call this func and hand it the rowItem you want to select (or de-select)    
+    this.addOrRemove = function(rowItem) {
+        if (!rowItem.selected()) {
+            self.selectedItems.remove(rowItem.entity());
         } else {
-            item.selected(true);
-            if (self.selectedItems.indexOf(item.entity()) === -1) {
-                self.selectedItems.push(item.entity());
+            if (self.selectedItems.indexOf(rowItem.entity()) === -1) {
+                self.selectedItems.push(rowItem.entity());
             }
         }
     };
@@ -1726,7 +1726,7 @@ kg.SelectionManager = function (options, rowManager) {
             self.selectedItems.removeAll(itemsToRemove);
         }
     });
-};  
+};   
  
  
 /*********************************************** 
@@ -2408,7 +2408,7 @@ kg.cssBuilder = {
 
         }
 
-        if ($style[0].styleSheet && $style[0].styleSheet.cssText !== '') { // IE
+        if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
         }
         else {
