@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 16:10:52.42 Mon 10/08/2012 
+* Compiled At: 14:28:04.47 Wed 10/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -125,6 +125,10 @@ kg.moveSelectionHandler = function (grid, evt) {
             }
         }
     },
+        
+    endsWith: function (str, suffix) {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    },
     
     StringBuilder: function () {
         var strArr = [];
@@ -220,19 +224,21 @@ $.extend(kg.utils, {
 /*********************************************** 
 * FILE: ..\Src\Templates\GridTemplate.js 
 ***********************************************/ 
-kg.templates.defaultGridInnerTemplate = function () {
-    return  '<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">' +
-                '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">' +
-                    '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">' +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="kgViewport" data-bind="kgSize: $data.viewportDim">' +
-                '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">' +
-                '</div>' +
-            '</div>' +
-            '<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">' +
-            '</div>';
+kg.templates.defaultGridInnerTemplate = function (options) {
+    var b = new kg.utils.StringBuilder();
+    b.append('<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">');
+    b.append(    '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
+    b.append(        '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">');
+    b.append(        '</div>');
+    b.append(    '</div>');
+    b.append('</div>');
+    b.append('<div class="kgViewport {0}" data-bind="{0}kgSize: $data.viewportDim">', options.disableTextSelection ? "kgNoSelect": "");
+    b.append(    '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">');
+    b.append(    '</div>');
+    b.append('</div>');
+    b.append('<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">');
+    b.append('</div>');
+    return b.toString();
 }; 
  
  
@@ -337,31 +343,33 @@ kg.templates.defaultHeaderCellTemplate = function () {
 /*********************************************** 
 * FILE: ..\Src\Templates\FooterTemplate.js 
 ***********************************************/ 
-﻿﻿kg.templates.defaultFooterTemplate = function () {
-    return '<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">' +
-                '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}" >' +
-                    '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>' +
-                '</div>' +
-                '<div class="kgFooterSelectedItems" data-bind="visible: isMultiSelect">' +
-                    '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>' +
-                '</div>' +
-            '</div>' +
-            '<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': !isMultiSelect()}">' +
-                '<div style="float: right;">' +
-                    '<div class="kgRowCountPicker">' +
-                        '<span class="kgLabel">Rows:</span>' +
-                        '<select data-bind="options: pageSizes, value: selectedPageSize">' +
-                        '</select>' +
-                    '</div>' +
-                    '<div class="kgPagerControl" style="float: left; min-width: 135px;">' +
-                        '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>' +
-                        '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>' +
-                        '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />' +
-                        '<input class="kgPagerNext" type="button"  data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>' +
-                        '<input class="kgPagerLast" type="button"  data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
+﻿﻿kg.templates.defaultFooterTemplate = function (options) {
+    var b = new kg.utils.StringBuilder();
+    b.append('<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">');
+    b.append(    '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}" >');
+    b.append(        '<span class="kgLabel">Total Items:</span> <span data-bind="text: maxRows"></span>');
+    b.append(    '</div>');
+    b.append(    '<div class="kgFooterSelectedItems" data-bind="visible: isMultiSelect">');
+    b.append(        '<span class="kgLabel">Selected Items:</span> <span data-bind="text: selectedItemCount"></span>');
+    b.append(    '</div>');
+    b.append('</div>');
+    b.append('<div class="kgPagerContainer" data-bind="visible: pagerVisible() && footerVisible(), css: {\'kgNoMultiSelect\': !isMultiSelect()}">');
+    b.append(    '<div style="float: right;">');
+    b.append(        '<div class="kgRowCountPicker">');
+    b.append(            '<span class="kgLabel">Rows:</span>');
+    b.append(            '<select data-bind="options: pageSizes, value: selectedPageSize">');
+    b.append(            '</select>');
+    b.append(        '</div>');
+    b.append(        '<div class="kgPagerControl" style="float: left; min-width: 135px;">');
+    b.append(            '<input class="kgPagerFirst" type="button" data-bind="click: pageToFirst, enable: canPageBackward" title="First Page"/>');
+    b.append(            '<input class="kgPagerPrev" type="button"  data-bind="click: pageBackward, enable: canPageBackward" title="Previous Page"/>');
+    b.append(            '<input class="kgPagerCurrent" type="text" data-bind="value: protectedCurrentPage, enable: maxPages() > 1" />');
+    b.append(            '<input class="kgPagerNext" type="button"  data-bind="click: pageForward, enable: canPageForward" title="Next Page"/>');
+    b.append(            '<input class="kgPagerLast" type="button"  data-bind="click: pageToLast, enable: canPageForward" title="Last Page"/>');
+    b.append(        '</div>');
+    b.append(    '</div>');
+    b.append('</div>');
+    return b.toString();
 };
  
  
@@ -410,10 +418,12 @@ kg.templates.defaultHeaderCellTemplate = function () {
             columns: null,
             showFilter: true
         },
-        config = $.extend(defaults, options);
+            config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
-        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate);
+        self.addTemplateSafe(GRID_TEMPLATE,  function () {
+                return kg.templates.defaultGridInnerTemplate(config);
+            });
 
         //header row template
         if (config.headerTemplate) {
@@ -424,7 +434,9 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
         //header cell template
         if (config.headerCellTemplate) {
-            self.addTemplateSafe(config.headerCellTemplate, kg.templates.defaultHeaderCellTemplate);
+            self.addTemplateSafe(config.headerCellTemplate, function () {
+                return kg.templates.defaultHeaderCellTemplate(config);
+            });
         }
 
         //row template
@@ -436,7 +448,9 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
         //footer template
         if (config.footerTemplate) {
-            self.addTemplateSafe(config.footerTemplate, kg.templates.defaultFooterTemplate);
+            self.addTemplateSafe(config.footerTemplate, function () {
+                return kg.templates.defaultFooterTemplate(config);
+            });
         }
     };
 
@@ -483,13 +497,13 @@ kg.templates.defaultHeaderCellTemplate = function () {
 /*********************************************** 
 * FILE: ..\Src\GridClasses\Column.js 
 ***********************************************/ 
-﻿kg.Column = function (colDef) {
+﻿﻿kg.Column = function (colDef, index) {
     var self = this,
-        wIsOb = ko.isObservable(colDef.width),
         minWIsOB = ko.isObservable(colDef.minWidth),
         maxWIsOB = ko.isObservable(colDef.maxWidth);
         
-    this.width = wIsOb ? colDef.width : ko.observable(0);
+    this.width = ko.observable(colDef.width);
+    this.widthIsConfigured = false;
     this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
     this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
     
@@ -499,7 +513,7 @@ kg.templates.defaultHeaderCellTemplate = function () {
         colDef.displayName = colDef.field;
     }
     this.displayName = colDef.displayName;
-    this.colIndex = 0;
+    this.index = index;
     this.isVisible = ko.observable(false);
 
     //sorting
@@ -535,15 +549,6 @@ kg.templates.defaultHeaderCellTemplate = function () {
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
-
-    // figure out the width
-    if (!colDef.width) {
-        colDef.width = this.displayName.length * kg.domUtility.letterW;
-        colDef.width += 30; //for sorting icons and padding
-        self.width(colDef.width);
-    } else if (!wIsOb) {
-        self.width(colDef.width);
-    }
 }; 
  
  
@@ -1858,7 +1863,7 @@ kg.SelectionManager = function (options, rowManager) {
 ﻿/// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
-kg.KoGrid = function (options) {
+kg.KoGrid = function (options, gridWidth) {
     var defaults = {
         rowHeight: 30,
         columnWidth: 100,
@@ -1893,7 +1898,8 @@ kg.KoGrid = function (options) {
         keepLastSelectedAround: false,
         isMultiSelect: true,
         lastClickedRow: ko.observable(),
-        tabIndex: -1
+        tabIndex: -1,
+        disableTextSelection: false
     },
 
     self = this,
@@ -1915,7 +1921,7 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
-    
+    this.width = ko.observable(gridWidth);
     this.selectionManager;
     this.selectedItemCount;
     
@@ -2040,9 +2046,19 @@ kg.KoGrid = function (options) {
             cols = self.columns();
 
         kg.utils.forEach(cols, function (col, i) {
+            var t = col.width();
+            if (isNaN(t)){
+                if (t == "*"){
+                    col.width(self.width() - width);
+                } else if (kg.utils.endsWith(t, "%")){
+                    col.width(self.width() % (100 % t.slice(0, - 1)));
+                } else {
+                    throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" on last column (to use remaining width of grid)";
+                }
+            }
             width += col.width();
+            col.widthIsConfigured = true;
         });
-
         return width;
     });
 
@@ -2230,8 +2246,7 @@ kg.KoGrid = function (options) {
 
     this.buildColumns = function () {
         var columnDefs = self.config.columnDefs,
-            cols = [],
-            column;
+            cols = [];
 
         if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
@@ -2253,13 +2268,9 @@ kg.KoGrid = function (options) {
         if (columnDefs().length > 0) {
 
             kg.utils.forEach(columnDefs(), function (colDef, i) {
-                column = new kg.Column(colDef);
-                column.index = i;
-
-                column.sortDirection.subscribe(createColumnSortClosure(column));
-                
+                var column = new kg.Column(colDef, i);
+                column.sortDirection.subscribe(createColumnSortClosure(column));                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
-
                 cols.push(column);
             });
 
@@ -2290,13 +2301,17 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        kg.utils.forEach(self.columns(), function(col, i){
-            col.width.subscribe(function(){
-                self.rowManager.dataChanged = true;
-                self.rowManager.rowCache = []; //if data source changes, kill this!
-                self.rowManager.calcRenderedRange();
-            });
+        
+        kg.utils.forEach(self.columns(), function(col) {
+            if (col.widthIsConfigured){
+                col.width.subscribe(function(){
+                    self.rowManager.dataChanged = true;
+                    self.rowManager.rowCache = []; //if data source changes, kill this!
+                    self.rowManager.calcRenderedRange();
+                });
+            }
         });
+        
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
@@ -2395,18 +2410,16 @@ kg.cssBuilder = {
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; left: 0; right: 0; height: {1}px; line-height: {1}px; display: inline; }", gridId, rowHeight);
         css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, headerRowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, headerRowHeight);
-
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, headerRowHeight);    
+        
         for (; i < len; i++) {
             col = grid.columns()[i];
-            
             colWidth = col.width() - grid.elementDims.cellWdiff;
-
             css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
-
             sumWidth += col.width();
-
         }
+
+
 
         if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css.toString(" ");
@@ -2673,7 +2686,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //create the Grid
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
-                grid = new kg.KoGrid(options);
+                grid = new kg.KoGrid(options, $(element).width());
                 kg.gridManager.storeGrid(element, grid);
             } else {
                 return false;
@@ -2685,7 +2698,8 @@ ko.bindingHandlers['koGrid'] = (function () {
                 headerCellTemplate: grid.config.headerCellTemplate,
                 footerTemplate: grid.config.footerTemplate,
                 columns: grid.columns(),
-                showFilter: grid.config.allowFiltering
+                showFilter: grid.config.allowFiltering,
+                disableTextSelection: grid.config.disableTextSelection
             });
 
             //subscribe to the columns and recrate the grid if they change

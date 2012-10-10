@@ -1,10 +1,10 @@
-﻿kg.Column = function (colDef) {
+﻿﻿kg.Column = function (colDef, index) {
     var self = this,
-        wIsOb = ko.isObservable(colDef.width),
         minWIsOB = ko.isObservable(colDef.minWidth),
         maxWIsOB = ko.isObservable(colDef.maxWidth);
         
-    this.width = wIsOb ? colDef.width : ko.observable(0);
+    this.width = ko.observable(colDef.width);
+    this.widthIsConfigured = false;
     this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
     this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
     
@@ -14,7 +14,7 @@
         colDef.displayName = colDef.field;
     }
     this.displayName = colDef.displayName;
-    this.colIndex = 0;
+    this.index = index;
     this.isVisible = ko.observable(false);
 
     //sorting
@@ -50,13 +50,4 @@
 
     this.headerTemplate = colDef.headerTemplate
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
-
-    // figure out the width
-    if (!colDef.width) {
-        colDef.width = this.displayName.length * kg.domUtility.letterW;
-        colDef.width += 30; //for sorting icons and padding
-        self.width(colDef.width);
-    } else if (!wIsOb) {
-        self.width(colDef.width);
-    }
 };

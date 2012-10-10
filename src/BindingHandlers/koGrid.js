@@ -20,7 +20,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //create the Grid
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
-                grid = new kg.KoGrid(options);
+                grid = new kg.KoGrid(options, $(element).width());
                 kg.gridManager.storeGrid(element, grid);
             } else {
                 return false;

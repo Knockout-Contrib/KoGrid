@@ -39,7 +39,7 @@
             columns: null,
             showFilter: true
         },
-        var config = $.extend(defaults, options);
+            config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
         self.addTemplateSafe(GRID_TEMPLATE,  function () {
