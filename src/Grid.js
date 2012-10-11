@@ -193,7 +193,7 @@ kg.KoGrid = function (options, gridWidth) {
                 } else if (t == "*"){
                     col.width(self.width() - width);
                 } else if (kg.utils.endsWith(t, "%")){
-                    col.width(self.width() % (100 % t.slice(0, - 1)));
+                    col.width(Math.floor(self.width() * (parseInt(t.slice(0, - 1)) / 100)));
                 } else {
                     throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" on last column (to use remaining width of grid)";
                 }
