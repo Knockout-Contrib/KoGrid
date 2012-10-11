@@ -20,7 +20,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //create the Grid
             var grid = kg.gridManager.getGrid(element);
             if (!grid){
-                grid = new kg.KoGrid(options);
+                grid = new kg.KoGrid(options, $(element).width());
                 kg.gridManager.storeGrid(element, grid);
             } else {
                 return false;
@@ -32,7 +32,10 @@ ko.bindingHandlers['koGrid'] = (function () {
                 headerCellTemplate: grid.config.headerCellTemplate,
                 footerTemplate: grid.config.footerTemplate,
                 columns: grid.columns(),
-                showFilter: grid.config.allowFiltering
+                showFilter: grid.config.allowFiltering,
+                disableTextSelection: grid.config.disableTextSelection,
+                autogenerateColumns: grid.config.autogenerateColumns,
+                enableColumnResize: grid.config.enableColumnResize
             });
 
             //subscribe to the columns and recrate the grid if they change

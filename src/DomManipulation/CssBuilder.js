@@ -26,18 +26,16 @@ kg.cssBuilder = {
         css.append(".{0} .kgCell { height: {1}px; }", gridId, rowHeight);
         css.append(".{0} .kgRow { position: absolute; left: 0; right: 0; height: {1}px; line-height: {1}px; display: inline; }", gridId, rowHeight);
         css.append(".{0} .kgHeaderCell { top: 0; bottom: 0; }", gridId, headerRowHeight);
-        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, headerRowHeight);
-
+        css.append(".{0} .kgHeaderScroller { line-height: {1}px; overflow: none; }", gridId, headerRowHeight);    
+        
         for (; i < len; i++) {
             col = grid.columns()[i];
-            
             colWidth = col.width() - grid.elementDims.cellWdiff;
-
             css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
-
             sumWidth += col.width();
-
         }
+
+
 
         if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css.toString(" ");

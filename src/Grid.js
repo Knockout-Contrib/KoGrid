@@ -1,7 +1,7 @@
 ﻿/// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
-kg.KoGrid = function (options) {
+kg.KoGrid = function (options, gridWidth) {
     var defaults = {
         rowHeight: 30,
         columnWidth: 100,
@@ -36,7 +36,9 @@ kg.KoGrid = function (options) {
         keepLastSelectedAround: false,
         isMultiSelect: true,
         lastClickedRow: ko.observable(),
-        tabIndex: -1
+        tabIndex: -1,
+        disableTextSelection: false,
+        enableColumnResize: true
     },
 
     self = this,
@@ -58,7 +60,7 @@ kg.KoGrid = function (options) {
     this.$viewport;
     this.$canvas;
     this.$footerPanel;
-    
+    this.width = ko.observable(gridWidth);
     this.selectionManager;
     this.selectedItemCount;
     
@@ -121,7 +123,7 @@ kg.KoGrid = function (options) {
         cellWdiff: 0,
         rowWdiff: 0,
         rowHdiff: 0,
-        rowIndexCellW: 35,
+        rowIndexCellW: 25,
         rowSelectedCellW: 25,
         rootMaxW: 0,
         rootMaxH: 0,
@@ -183,9 +185,22 @@ kg.KoGrid = function (options) {
             cols = self.columns();
 
         kg.utils.forEach(cols, function (col, i) {
+            var t = col.width();
+            if (isNaN(t)){
+                // figure out the width
+                if (t == undefined) {
+                    col.width((col.displayName.length * kg.domUtility.letterW) + 30); // +30 for sorting icons and padding
+                } else if (t == "*"){
+                    col.width(self.width() - width);
+                } else if (kg.utils.endsWith(t, "%")){
+                    col.width(self.width() % (100 % t.slice(0, - 1)));
+                } else {
+                    throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" on last column (to use remaining width of grid)";
+                }
+            }
             width += col.width();
+            col.widthIsConfigured = true;
         });
-
         return width;
     });
 
@@ -373,8 +388,7 @@ kg.KoGrid = function (options) {
 
     this.buildColumns = function () {
         var columnDefs = self.config.columnDefs,
-            cols = [],
-            column;
+            cols = [];
 
         if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
@@ -396,13 +410,9 @@ kg.KoGrid = function (options) {
         if (columnDefs().length > 0) {
 
             kg.utils.forEach(columnDefs(), function (colDef, i) {
-                column = new kg.Column(colDef);
-                column.index = i;
-
-                column.sortDirection.subscribe(createColumnSortClosure(column));
-                
+                var column = new kg.Column(colDef, i);
+                column.sortDirection.subscribe(createColumnSortClosure(column));                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
-
                 cols.push(column);
             });
 
@@ -433,13 +443,17 @@ kg.KoGrid = function (options) {
             lastClickedRow: self.config.lastClickedRow,
             isMulti: self.config.isMultiSelect
         }, self.rowManager);
-        kg.utils.forEach(self.columns(), function(col, i){
-            col.width.subscribe(function(){
-                self.rowManager.dataChanged = true;
-                self.rowManager.rowCache = []; //if data source changes, kill this!
-                self.rowManager.calcRenderedRange();
-            });
+        
+        kg.utils.forEach(self.columns(), function(col) {
+            if (col.widthIsConfigured){
+                col.width.subscribe(function(){
+                    self.rowManager.dataChanged = true;
+                    self.rowManager.rowCache = []; //if data source changes, kill this!
+                    self.rowManager.calcRenderedRange();
+                });
+            }
         });
+        
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
