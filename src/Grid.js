@@ -37,7 +37,8 @@ kg.KoGrid = function (options, gridWidth) {
         isMultiSelect: true,
         lastClickedRow: ko.observable(),
         tabIndex: -1,
-        disableTextSelection: false
+        disableTextSelection: false,
+        enableColumnResize: true
     },
 
     self = this,
@@ -122,7 +123,7 @@ kg.KoGrid = function (options, gridWidth) {
         cellWdiff: 0,
         rowWdiff: 0,
         rowHdiff: 0,
-        rowIndexCellW: 35,
+        rowIndexCellW: 25,
         rowSelectedCellW: 25,
         rootMaxW: 0,
         rootMaxH: 0,
@@ -186,7 +187,10 @@ kg.KoGrid = function (options, gridWidth) {
         kg.utils.forEach(cols, function (col, i) {
             var t = col.width();
             if (isNaN(t)){
-                if (t == "*"){
+                // figure out the width
+                if (t == undefined) {
+                    col.width((col.displayName.length * kg.domUtility.letterW) + 30); // +30 for sorting icons and padding
+                } else if (t == "*"){
                     col.width(self.width() - width);
                 } else if (kg.utils.endsWith(t, "%")){
                     col.width(self.width() % (100 % t.slice(0, - 1)));

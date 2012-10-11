@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 14:28:04.47 Wed 10/10/2012 
+* Compiled At: 17:35:39.45 Wed 10/10/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -275,7 +275,7 @@ kg.templates.defaultGridInnerTemplate = function (options) {
 /*********************************************** 
 * FILE: ..\Src\Templates\HeaderCellTemplate.js 
 ***********************************************/ 
-kg.templates.defaultHeaderCellTemplate = function () {
+kg.templates.defaultHeaderCellTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }">');
@@ -283,7 +283,9 @@ kg.templates.defaultHeaderCellTemplate = function () {
     b.append('  <div class="kgSortButtonDown" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortAscVisible) : $data.allowSort())"></div>');
     b.append('  <div class="kgSortButtonUp" data-bind="visible: ($data.allowSort() ? ($data.noSortVisible() || $data.sortDescVisible) : $data.allowSort())"></div>');
     b.append('</div>');
-    b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
+    if (!options.autogenerateColumns && options.enableColumnResize){
+        b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
+    }
     b.append('<div data-bind="visible: $data._filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
     b.append('</div>');
@@ -1899,7 +1901,8 @@ kg.KoGrid = function (options, gridWidth) {
         isMultiSelect: true,
         lastClickedRow: ko.observable(),
         tabIndex: -1,
-        disableTextSelection: false
+        disableTextSelection: false,
+        enableColumnResize: true
     },
 
     self = this,
@@ -1984,7 +1987,7 @@ kg.KoGrid = function (options, gridWidth) {
         cellWdiff: 0,
         rowWdiff: 0,
         rowHdiff: 0,
-        rowIndexCellW: 35,
+        rowIndexCellW: 25,
         rowSelectedCellW: 25,
         rootMaxW: 0,
         rootMaxH: 0,
@@ -2048,7 +2051,10 @@ kg.KoGrid = function (options, gridWidth) {
         kg.utils.forEach(cols, function (col, i) {
             var t = col.width();
             if (isNaN(t)){
-                if (t == "*"){
+                // figure out the width
+                if (t == undefined) {
+                    col.width((col.displayName.length * kg.domUtility.letterW) + 30); // +30 for sorting icons and padding
+                } else if (t == "*"){
                     col.width(self.width() - width);
                 } else if (kg.utils.endsWith(t, "%")){
                     col.width(self.width() % (100 % t.slice(0, - 1)));
@@ -2699,7 +2705,9 @@ ko.bindingHandlers['koGrid'] = (function () {
                 footerTemplate: grid.config.footerTemplate,
                 columns: grid.columns(),
                 showFilter: grid.config.allowFiltering,
-                disableTextSelection: grid.config.disableTextSelection
+                disableTextSelection: grid.config.disableTextSelection,
+                autogenerateColumns: grid.config.autogenerateColumns,
+                enableColumnResize: grid.config.enableColumnResize
             });
 
             //subscribe to the columns and recrate the grid if they change
