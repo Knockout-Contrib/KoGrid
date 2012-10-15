@@ -2,7 +2,7 @@
 * KoGrid JavaScript Library 
 * Authors:  https://github.com/ericmbarnard/KoGrid/blob/master/README.md 
 * License: MIT (http://www.opensource.org/licenses/mit-license.php) 
-* Compiled At: 18:10:12.86 Wed 10/10/2012 
+* Compiled At: 17:20:59.65 Fri 10/12/2012 
 ***********************************************/ 
 (function(window, undefined){ 
  
@@ -2045,27 +2045,66 @@ kg.KoGrid = function (options, gridWidth) {
     });
 
     this.totalRowWidth = ko.computed(function () {
-        var width = 0,
-            cols = self.columns();
-
+        var totalWidth = 0,
+            cols = self.columns(),
+            numOfCols = self.columns().length,
+            asterisksArray = [],
+            percentArray = [],
+            asteriskNum = 0;
+            
         kg.utils.forEach(cols, function (col, i) {
+            // get column width out of the observable
             var t = col.width();
+            // check if it is a number
             if (isNaN(t)){
-                // figure out the width
+                // figure out if the width is defined or if we need to calculate it
                 if (t == undefined) {
-                    col.width((col.displayName.length * kg.domUtility.letterW) + 30); // +30 for sorting icons and padding
-                } else if (t == "*"){
-                    col.width(self.width() - width);
-                } else if (kg.utils.endsWith(t, "%")){
-                    col.width(Math.floor(self.width() * (parseInt(t.slice(0, - 1)) / 100)));
-                } else {
-                    throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" on last column (to use remaining width of grid)";
+                    // set the width to the length of the header title +30 for sorting icons and padding
+                    col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
+                } else if (t.indexOf("*") != -1){
+                    // if it is the last of the columns just configure it to use the remaining space
+                    if (i + 1 == numOfCols && asteriskNum == 0){
+                        col.width(self.width() - totalWidth);
+                    } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
+                        asteriskNum += t.length;
+                        asterisksArray.push(col);
+                        return;
+                    }
+                } else if (kg.utils.endsWith(t, "%")){ // If the width is a percentage, save it until the very last.
+                    percentArray.push(col);
+                    return;
+                } else { // we can't parse the width so lets throw an error.
+                    throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" to use remaining width of grid";
                 }
             }
-            width += col.width();
+            // add the caluclated or pre-defined width the total width
+            totalWidth += col.width();
+            // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
         });
-        return width;
+        // check if we saved any asterisk columns for calculating later
+        if (asterisksArray.length > 0){
+            // get the remaining width
+            var remainigWidth = self.width() - totalWidth;
+            // calculate the weight of each asterisk rounded down
+            var asteriskVal = Math.floor(remainigWidth / asteriskNum);
+            // set the width of each column based on the number of stars
+            kg.utils.forEach(asterisksArray, function (col, i) {
+                var t = col.width().length;
+                col.width(asteriskVal * t);
+                totalWidth += col.width();
+            });
+        }
+        // Now we check if we saved any percentage columns for calculating last
+        if (percentArray.length > 0){
+            // do the math
+            kg.utils.forEach(percentArray, function (col, i) {
+                var t = col.width();
+                col.width(Math.floor(self.width() * (parseInt(t.slice(0, - 1)) / 100)));
+                totalWidth += col.width();
+            });
+        }
+        return totalWidth;
     });
 
     this.minRowsToRender = ko.computed(function () {
