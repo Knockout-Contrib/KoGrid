@@ -1,4 +1,4 @@
-﻿﻿kg.templates.defaultFooterTemplate = function (options) {
+﻿kg.templates.defaultFooterTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
     b.append('<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">');
     b.append(    '<div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !isMultiSelect()}" >');

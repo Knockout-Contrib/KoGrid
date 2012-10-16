@@ -1,4 +1,4 @@
-﻿﻿kg.Column = function (colDef, index) {
+﻿kg.Column = function (colDef, index) {
     var self = this,
         minWIsOB = ko.isObservable(colDef.minWidth),
         maxWIsOB = ko.isObservable(colDef.maxWidth);

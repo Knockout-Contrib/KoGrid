@@ -37,7 +37,7 @@
             return indx;
         }
         return indx;
-﻿    };
+    };
 
     this.assignGridEventHandlers = function (grid) {
 
