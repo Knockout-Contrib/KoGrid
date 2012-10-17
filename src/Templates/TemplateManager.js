@@ -15,9 +15,9 @@
         delete self.templateCache[tmplId];
     };
     
-    this.addTemplateSafe = function (tmplId, templateTextAccessor) {
+    this.addTemplateSafe = function (tmplId, templateText) {
         if (!self.templateExists(tmplId)) {
-            self.addTemplate(templateTextAccessor(), tmplId);
+            self.addTemplate(templateText, tmplId);
         }
     };
 
@@ -33,41 +33,39 @@
             config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
-        self.addTemplateSafe(GRID_TEMPLATE,  function () {
-                return kg.templates.defaultGridInnerTemplate(config);
-            });
+        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate(config));
 
         //header row template
         if (config.headerTemplate) {
-            self.addTemplateSafe(config.headerTemplate, function () {
-                return kg.templates.generateHeaderTemplate(config);
-            });
+            var template = self.getTemplateFromDom(config.headerTemplate) || kg.templates.generateHeaderTemplate(config);
+            self.addTemplateSafe(config.headerTemplate, template);
         }
 
         //header cell template
         if (config.headerCellTemplate) {
-            self.addTemplateSafe(config.headerCellTemplate, function () {
-                return kg.templates.defaultHeaderCellTemplate(config);
-            });
+            var template = self.getTemplateFromDom(config.headerCellTemplate) || kg.templates.defaultHeaderCellTemplate(config);
+            self.addTemplateSafe(config.headerCellTemplate, template);
         }
 
         //row template
         if (config.rowTemplate) {
-            self.addTemplateSafe(config.rowTemplate, function () {
-                return kg.templates.generateRowTemplate(config);
-            });
+            var template = self.getTemplateFromDom(config.rowTemplate) || kg.templates.generateRowTemplate(config);
+            self.addTemplateSafe(config.rowTemplate, template);
         }
 
         //footer template
         if (config.footerTemplate) {
-            self.addTemplateSafe(config.footerTemplate, function () {
-                return kg.templates.defaultFooterTemplate(config);
-            });
+            var template = self.getTemplateFromDom(config.footerTemplate) || kg.templates.defaultFooterTemplate(config);
+            self.addTemplateSafe(config.footerTemplate, template);
         }
     };
 
     this.getTemplateText = function (tmplId) {
         return self.templateCache[tmplId] || "";
     };
-
+    
+    this.getTemplateFromDom = function(templId){
+        var temp = document.getElementById(templId);
+        return temp ? temp.innerHTML : undefined;
+    };
 } ());
