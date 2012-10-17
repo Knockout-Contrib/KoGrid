@@ -1,8 +1,14 @@
 ﻿ko.bindingHandlers['kgHeader'] = (function () {
     var makeNewValueAccessor = function (headerCell, grid) {
+        var key = headerCell.headerTemplate || grid.config.headerCellTemplate;
+        var templateText =  kg.templateManager.getTemplateText(key);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', key);
+        template.innerHTML = templateText;
         return function () {
             return {
-                name: headerCell.headerTemplate || grid.config.headerCellTemplate,
+                name: template,
                 data: headerCell
             };
         };

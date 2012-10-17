@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/16/2012 15:50:10
+* Compiled At: 10/16/2012 21:37:10
 ***********************************************/
 
 
@@ -366,28 +366,19 @@ kg.templates.defaultFooterTemplate = function (options) {
 ***********************************************/
 kg.templateManager = (new function () {
     var self = this;
-
+    self.templateCache = {};
+    
     self.templateExists = function (tmplId) {
-        var el = document.getElementById(tmplId);
+        var el = self.templateCache[tmplId];
         return (el !== undefined && el !== null);
     };
 
     self.addTemplate = function (templateText, tmplId) {
-        var tmpl = document.createElement("SCRIPT");
-        tmpl.type = "text/html";
-        tmpl.id = tmplId;
-
-        //        'innerText' in tmpl ? tmpl.innerText = templateText
-        //                            : tmpl.textContent = templateText;
-
-        tmpl.text = templateText;
-
-        document.body.appendChild(tmpl);
+        self.templateCache[tmplId] = templateText;
     };
     
     this.removeTemplate = function (tmplId){
-        var element = document.getElementById(tmplId);
-        if (element) element.parentNode.removeChild(element);
+        delete self.templateCache[tmplId];
     };
     
     this.addTemplateSafe = function (tmplId, templateTextAccessor) {
@@ -442,12 +433,7 @@ kg.templateManager = (new function () {
     };
 
     this.getTemplateText = function (tmplId) {
-        if (!self.templateExists(tmplId)) {
-            return "";
-        } else {
-            var el = document.getElementById(tmplId);
-            return el.text;
-        }
+        return self.templateCache[tmplId] || "";
     };
 
 } ());
@@ -2663,9 +2649,14 @@ ko.bindingHandlers['kgWith'] = (function () {
 
 ko.bindingHandlers['koGrid'] = (function () {
     var makeNewValueAccessor = function (grid) {
+        var templateText =  kg.templateManager.getTemplateText(GRID_TEMPLATE);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', GRID_TEMPLATE);
+        template.innerHTML = templateText;
         return function () {
             return {
-                name: GRID_TEMPLATE,
+                name: template,
                 data: grid
             };
         };
@@ -2719,7 +2710,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-
+            
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -2734,7 +2725,6 @@ ko.bindingHandlers['koGrid'] = (function () {
             if (!grid) {
                 return { 'controlsDescendantBindings': true };
             }
-
             //fire the with "update" bindingHandler
             returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -2966,9 +2956,17 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
     };
 
     var makeNewValueAccessor = function (grid) {
+        var templateText =  kg.templateManager.getTemplateText(grid.config.headerTemplate);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', grid.config.headerTemplate);
+        template.innerHTML = templateText;
         return function () {
-            return { name: grid.config.headerTemplate, data: grid.headerRow };
-        }
+            return {
+                name: template,
+                data: grid.headerRow
+            };
+        };
     };
 
     return {
@@ -2992,9 +2990,15 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
 ***********************************************/
 ko.bindingHandlers['kgHeader'] = (function () {
     var makeNewValueAccessor = function (headerCell, grid) {
+        var key = headerCell.headerTemplate || grid.config.headerCellTemplate;
+        var templateText =  kg.templateManager.getTemplateText(key);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', key);
+        template.innerHTML = templateText;
         return function () {
             return {
-                name: headerCell.headerTemplate || grid.config.headerCellTemplate,
+                name: template,
                 data: headerCell
             };
         };
@@ -3053,9 +3057,17 @@ ko.bindingHandlers['kgHeader'] = (function () {
 ***********************************************/
 ko.bindingHandlers['kgFooter'] = (function () {
     var makeNewValueAccessor = function (grid) {
+        var templateText =  kg.templateManager.getTemplateText(grid.config.footerTemplate);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', grid.config.footerTemplate);
+        template.innerHTML = templateText;
         return function () {
-            return { name: grid.config.footerTemplate, data: grid.footer };
-        }
+            return {
+                name: template,
+                data: grid.footer
+            };
+        };
     };
 
     var makeNewBindingContext = function (bindingContext, footer) {
@@ -3137,3 +3149,20 @@ ko.bindingHandlers['mouseEvents'] = (function () {
         }
     };
 }());
+
+/***********************************************
+* FILE: ..\src\overrides.js
+***********************************************/
+// only overriding this until knockout supports storing templates in memory instead of requiring they be appended to the dom.
+ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSource, bindingContext, options) {
+    var useNodesIfAvailable = !(ko.utils.ieVersion < 9), // IE<9 cloneNode doesn't work properly
+        templateNodesFunc = useNodesIfAvailable ? templateSource['nodes'] : null,
+        templateNodes = templateNodesFunc ? templateSource['nodes']() : null;
+
+    if (templateNodes) {
+        return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
+    } else {
+        var templateText = templateSource['text']() || templateSource.domElement.innerHTML;
+        return ko.utils.parseHtmlFragment(templateText);
+    }
+};

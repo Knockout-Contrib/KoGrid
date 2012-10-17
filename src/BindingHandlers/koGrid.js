@@ -3,9 +3,14 @@
 
 ko.bindingHandlers['koGrid'] = (function () {
     var makeNewValueAccessor = function (grid) {
+        var templateText =  kg.templateManager.getTemplateText(GRID_TEMPLATE);
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', GRID_TEMPLATE);
+        template.innerHTML = templateText;
         return function () {
             return {
-                name: GRID_TEMPLATE,
+                name: template,
                 data: grid
             };
         };
@@ -59,7 +64,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-
+            
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -74,7 +79,6 @@ ko.bindingHandlers['koGrid'] = (function () {
             if (!grid) {
                 return { 'controlsDescendantBindings': true };
             }
-
             //fire the with "update" bindingHandler
             returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 

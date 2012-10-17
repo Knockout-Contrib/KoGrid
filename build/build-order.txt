@@ -37,3 +37,4 @@
 ..\src\BindingHandlers\kgFooter.js
 ..\src\BindingHandlers\kgSize.js
 ..\src\BindingHandlers\kgMouseEvents.js
+..\src\overrides.js

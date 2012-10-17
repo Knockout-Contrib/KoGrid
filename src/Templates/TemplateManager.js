@@ -1,27 +1,18 @@
 ﻿kg.templateManager = (new function () {
     var self = this;
-
+    self.templateCache = {};
+    
     self.templateExists = function (tmplId) {
-        var el = document.getElementById(tmplId);
+        var el = self.templateCache[tmplId];
         return (el !== undefined && el !== null);
     };
 
     self.addTemplate = function (templateText, tmplId) {
-        var tmpl = document.createElement("SCRIPT");
-        tmpl.type = "text/html";
-        tmpl.id = tmplId;
-
-        //        'innerText' in tmpl ? tmpl.innerText = templateText
-        //                            : tmpl.textContent = templateText;
-
-        tmpl.text = templateText;
-
-        document.body.appendChild(tmpl);
+        self.templateCache[tmplId] = templateText;
     };
     
     this.removeTemplate = function (tmplId){
-        var element = document.getElementById(tmplId);
-        if (element) element.parentNode.removeChild(element);
+        delete self.templateCache[tmplId];
     };
     
     this.addTemplateSafe = function (tmplId, templateTextAccessor) {
@@ -76,12 +67,7 @@
     };
 
     this.getTemplateText = function (tmplId) {
-        if (!self.templateExists(tmplId)) {
-            return "";
-        } else {
-            var el = document.getElementById(tmplId);
-            return el.text;
-        }
+        return self.templateCache[tmplId] || "";
     };
 
 } ());
