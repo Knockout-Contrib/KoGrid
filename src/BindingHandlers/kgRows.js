@@ -2,7 +2,12 @@
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['kgRows'] = (function () {
-
+    var makeNewTemplate = function (grid) {
+        var templateText =  kg.templateManager.getTemplateText(grid.config.rowTemplate);
+        var template = document.createElement('div');
+        template.innerHTML = templateText;
+        return template.firstChild;
+    };
     var RowSubscription = function () {
         this.rowKey;
         this.rowIndex;
@@ -101,7 +106,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
                 rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
 
-                rowSubscription.subscription = ko.renderTemplate(grid.config.rowTemplate, newBindingCtx, null, divNode, 'replaceNode');
+                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceNode');
             });
 
             //only measure the row and cell differences when data changes

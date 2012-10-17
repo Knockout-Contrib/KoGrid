@@ -7,7 +7,7 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
     if (templateNodes) {
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
-        var templateText = templateSource['text']() || templateSource.domElement.innerHTML;
+        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i.innerHTML;
         return ko.utils.parseHtmlFragment(templateText);
     }
 };
