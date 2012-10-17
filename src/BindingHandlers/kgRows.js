@@ -4,9 +4,11 @@
 ko.bindingHandlers['kgRows'] = (function () {
     var makeNewTemplate = function (grid) {
         var templateText =  kg.templateManager.getTemplateText(grid.config.rowTemplate);
-        var template = document.createElement('div');
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', grid.config.rowTemplate);
         template.innerHTML = templateText;
-        return template.firstChild;
+        return template;
     };
     var RowSubscription = function () {
         this.rowKey;
@@ -106,7 +108,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
                 rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
 
-                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceNode');
+                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceChildren');
             });
 
             //only measure the row and cell differences when data changes

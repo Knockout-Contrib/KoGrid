@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/16/2012 23:10:59
+* Compiled At: 10/16/2012 23:27:15
 ***********************************************/
 
 
@@ -2750,9 +2750,11 @@ ko.bindingHandlers['koGrid'] = (function () {
 ko.bindingHandlers['kgRows'] = (function () {
     var makeNewTemplate = function (grid) {
         var templateText =  kg.templateManager.getTemplateText(grid.config.rowTemplate);
-        var template = document.createElement('div');
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', grid.config.rowTemplate);
         template.innerHTML = templateText;
-        return template.firstChild;
+        return template;
     };
     var RowSubscription = function () {
         this.rowKey;
@@ -2852,7 +2854,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
                 rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
 
-                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceNode');
+                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceChildren');
             });
 
             //only measure the row and cell differences when data changes
