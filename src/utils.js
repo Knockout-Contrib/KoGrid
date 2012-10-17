@@ -100,6 +100,14 @@
         );
         return version > 4 ? version : undefined;
     })(),
+    
+    makeTemplate: function (templId, templText) {
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', templId);
+        template.innerHTML = templText;
+        return template;
+    }
 };
 
 $.extend(kg.utils, {

@@ -18,14 +18,9 @@
     };
 
     var makeNewValueAccessor = function (grid) {
-        var templateText =  kg.templateManager.getTemplateText(grid.config.headerTemplate);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', grid.config.headerTemplate);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(grid.config.headerTemplate),
                 data: grid.headerRow
             };
         };

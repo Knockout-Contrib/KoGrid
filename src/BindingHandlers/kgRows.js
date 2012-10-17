@@ -108,7 +108,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
                 rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
 
-                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceNode');
+                rowSubscription.subscription = ko.renderTemplate(kg.templateManager.getTemplate(grid.config.rowTemplate), newBindingCtx, null, divNode, 'replaceNode');
             });
 
             //only measure the row and cell differences when data changes

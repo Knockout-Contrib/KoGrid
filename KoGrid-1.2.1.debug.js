@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/17/2012 00:02:54
+* Compiled At: 10/17/2012 08:05:39
 ***********************************************/
 
 
@@ -199,6 +199,14 @@ kg.utils = {
         );
         return version > 4 ? version : undefined;
     })(),
+    
+    makeTemplate: function (templId, templText) {
+        var template = document.createElement('script');
+        template.setAttribute('type', 'text/html');
+        template.setAttribute('id', templId);
+        template.innerHTML = templText;
+        return template;
+    }
 };
 
 $.extend(kg.utils, {
@@ -374,7 +382,7 @@ kg.templateManager = (new function () {
     };
 
     self.addTemplate = function (templateText, tmplId) {
-        self.templateCache[tmplId] = templateText;
+        self.templateCache[tmplId] = kg.utils.makeTemplate(tmplId, templateText);
     };
     
     this.removeTemplate = function (tmplId){
@@ -383,7 +391,7 @@ kg.templateManager = (new function () {
     
     this.addTemplateSafe = function (tmplId, templateText) {
         if (!self.templateExists(tmplId)) {
-            self.addTemplate(templateText, tmplId);
+            self.addTemplate(templateText , tmplId);
         }
     };
 
@@ -426,7 +434,7 @@ kg.templateManager = (new function () {
         }
     };
 
-    this.getTemplateText = function (tmplId) {
+    this.getTemplate = function (tmplId) {
         return self.templateCache[tmplId] || "";
     };
     
@@ -2647,14 +2655,9 @@ ko.bindingHandlers['kgWith'] = (function () {
 
 ko.bindingHandlers['koGrid'] = (function () {
     var makeNewValueAccessor = function (grid) {
-        var templateText =  kg.templateManager.getTemplateText(GRID_TEMPLATE);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', GRID_TEMPLATE);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(GRID_TEMPLATE),
                 data: grid
             };
         };
@@ -2852,7 +2855,7 @@ ko.bindingHandlers['kgRows'] = (function () {
 
                 rowManager.rowSubscriptions[row.rowIndex] = rowSubscription;
 
-                rowSubscription.subscription = ko.renderTemplate(makeNewTemplate(grid), newBindingCtx, null, divNode, 'replaceNode');
+                rowSubscription.subscription = ko.renderTemplate(kg.templateManager.getTemplate(grid.config.rowTemplate), newBindingCtx, null, divNode, 'replaceNode');
             });
 
             //only measure the row and cell differences when data changes
@@ -2961,14 +2964,9 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
     };
 
     var makeNewValueAccessor = function (grid) {
-        var templateText =  kg.templateManager.getTemplateText(grid.config.headerTemplate);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', grid.config.headerTemplate);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(grid.config.headerTemplate),
                 data: grid.headerRow
             };
         };
@@ -2995,15 +2993,9 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
 ***********************************************/
 ko.bindingHandlers['kgHeader'] = (function () {
     var makeNewValueAccessor = function (headerCell, grid) {
-        var key = headerCell.headerTemplate || grid.config.headerCellTemplate;
-        var templateText =  kg.templateManager.getTemplateText(key);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', key);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(headerCell.headerTemplate || grid.config.headerCellTemplate),
                 data: headerCell
             };
         };
@@ -3062,14 +3054,9 @@ ko.bindingHandlers['kgHeader'] = (function () {
 ***********************************************/
 ko.bindingHandlers['kgFooter'] = (function () {
     var makeNewValueAccessor = function (grid) {
-        var templateText = kg.templateManager.getTemplateText(grid.config.footerTemplate);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', grid.config.footerTemplate);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(grid.config.footerTemplate),
                 data: grid.footer
             };
         };

@@ -3,14 +3,9 @@
 
 ko.bindingHandlers['koGrid'] = (function () {
     var makeNewValueAccessor = function (grid) {
-        var templateText =  kg.templateManager.getTemplateText(GRID_TEMPLATE);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', GRID_TEMPLATE);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(GRID_TEMPLATE),
                 data: grid
             };
         };

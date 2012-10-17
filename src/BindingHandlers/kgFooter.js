@@ -1,13 +1,8 @@
 ﻿ko.bindingHandlers['kgFooter'] = (function () {
     var makeNewValueAccessor = function (grid) {
-        var templateText = kg.templateManager.getTemplateText(grid.config.footerTemplate);
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', grid.config.footerTemplate);
-        template.innerHTML = templateText;
         return function () {
             return {
-                name: template,
+                name: kg.templateManager.getTemplate(grid.config.footerTemplate),
                 data: grid.footer
             };
         };

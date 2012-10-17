@@ -8,7 +8,7 @@
     };
 
     self.addTemplate = function (templateText, tmplId) {
-        self.templateCache[tmplId] = templateText;
+        self.templateCache[tmplId] = kg.utils.makeTemplate(tmplId, templateText);
     };
     
     this.removeTemplate = function (tmplId){
@@ -17,7 +17,7 @@
     
     this.addTemplateSafe = function (tmplId, templateText) {
         if (!self.templateExists(tmplId)) {
-            self.addTemplate(templateText, tmplId);
+            self.addTemplate(templateText , tmplId);
         }
     };
 
@@ -60,7 +60,7 @@
         }
     };
 
-    this.getTemplateText = function (tmplId) {
+    this.getTemplate = function (tmplId) {
         return self.templateCache[tmplId] || "";
     };
     
