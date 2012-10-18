@@ -45,7 +45,9 @@
     this.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
     this.hasCellTemplate = (this.cellTemplate ? true : false);
     if (self.hasCellTemplate){
-        kg.templateManager.addTemplateSafe(self.cellTemplate, document.getElementById(self.cellTemplate).innerHTML);
+        var elem = document.getElementById(self.cellTemplate);
+        var templText = elem ? elem.innerHTML : undefined;
+        kg.templateManager.addTemplateSafe(self.cellTemplate, templText);
     }
     this.cellClass = colDef.cellClass;
     this.headerClass = colDef.headerClass;
