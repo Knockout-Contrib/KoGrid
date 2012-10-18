@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/18/2012 11:14:04
+* Compiled At: 10/18/2012 15:01:25
 ***********************************************/
 
 
@@ -519,7 +519,9 @@ kg.Column = function (colDef, index) {
     //cell Template
     this.cellTemplate = colDef.cellTemplate; // string of the cellTemplate script element id
     this.hasCellTemplate = (this.cellTemplate ? true : false);
-
+    if (self.hasCellTemplate){
+        kg.templateManager.addTemplateSafe(self.cellTemplate, document.getElementById(self.cellTemplate).innerHTML);
+    }
     this.cellClass = colDef.cellClass;
     this.headerClass = colDef.headerClass;
 
@@ -3122,6 +3124,9 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         templateNodes = templateNodesFunc ? templateSource['nodes']() : null;
 
     if (templateNodes) {
+        if (ko.a && ko.a.L){
+            return ko.a.L(templateNodes.cloneNode(true).childNodes);
+        }
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
         var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i.innerHTML;

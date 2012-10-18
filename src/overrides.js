@@ -5,6 +5,9 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         templateNodes = templateNodesFunc ? templateSource['nodes']() : null;
 
     if (templateNodes) {
+        if (ko.a && ko.a.L){
+            return ko.a.L(templateNodes.cloneNode(true).childNodes);
+        }
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
         var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i.innerHTML;
