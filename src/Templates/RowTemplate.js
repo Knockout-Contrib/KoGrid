@@ -19,7 +19,7 @@
         // check for a Column with a Cell Template
         else if (col.hasCellTemplate) {
             // first pull the template
-            var tmpl = kg.templateManager.getTemplateText(col.cellTemplate);
+            var tmpl = kg.templateManager.getTemplate(col.cellTemplate).innerHTML;
 
             // build the replacement text
             var replacer = "{ value: '" + col.field + "' }";
