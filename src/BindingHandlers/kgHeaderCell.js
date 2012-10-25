@@ -19,12 +19,11 @@
                 cell = headerRow.headerCellMap[property];
                 if (cell) {
                     if (property !== 'rowIndex' && property !== '__kg_selected__') {
-                        return { 'controlsDescendantBindings': true }
+                        return { 'controlsDescendantBindings': true };
                     }
                 }
             }
-
-            
+            return { 'controlsDescendantBindings': true };
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,
@@ -52,6 +51,7 @@
                     }
                 }
             }
+            return null;
         }
-    }
+    };
 } ());
