@@ -2,8 +2,8 @@ kg.templates.defaultGridInnerTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
     b.append('<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">');
     b.append(    '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
-    b.append(        '<table class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">');
-    b.append(        '</table>');
+    b.append(        '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">');
+    b.append(        '</div>');
     b.append(    '</div>');
     b.append('</div>');
     b.append('<div class="kgViewport {0}" data-bind="kgSize: $data.viewportDim">', options.disableTextSelection ? "kgNoSelect": "");

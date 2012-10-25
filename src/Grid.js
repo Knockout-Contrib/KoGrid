@@ -38,7 +38,8 @@ kg.KoGrid = function (options, gridWidth) {
         lastClickedRow: ko.observable(),
         tabIndex: -1,
         disableTextSelection: false,
-        enableColumnResize: true
+        enableColumnResize: true,
+		allowFiltering: true
     },
 
     self = this,
@@ -524,11 +525,8 @@ kg.KoGrid = function (options, gridWidth) {
     };
 
     this.showFilter_Click = function () {
-        var isOpen = (filterIsOpen() ? false : true);
-
-        self.headerRow.filterVisible(isOpen);
-
-        filterIsOpen(isOpen);
+        self.headerRow.filterVisible(!filterIsOpen());
+        filterIsOpen(!filterIsOpen());
     };
 
     this.clearFilter_Click = function () {

@@ -22,15 +22,16 @@
                                     selectedItem: mySelectedItem,
                                     autogenerateColumns: false,
                                     columnDefs: [{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
-                                                 { field: 'Vendor', displayName: 'Supplier', width: 120 },
+                                                 { field: 'Vendor', displayName: 'Supplier', width: 120, headerGroup: 'test' },
                                                  { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
                                                  { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
-                                                 { field: 'UPC', displayName: 'Bar Code', width: 140 }],
+                                                 { field: 'UPC', displayName: 'Bar Code', width: 140}],
                                     enablePaging: true,
                                     totalServerItems: maxServerItems,
                                     currentPage: currentPage,
                                     footerVisible: footerVisible,
-                                    pageSize: pageSize }">
+                                    pageSize: pageSize,
+									headerRowHeight: 60}">
             </div>
         </div>
 
