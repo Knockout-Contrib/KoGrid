@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/25/2012 16:20:01
+* Compiled At: 10/25/2012 17:03:12
 ***********************************************/
 
 
@@ -202,9 +202,9 @@ kg.utils = {
     
     makeTemplate: function (templId, templText) {
         var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', templId);
-        template.innerHTML = templText;
+        $(template).attr('type', 'text/html');
+        $(template).attr('id', templId);
+        $(template).html(templText);
         return template;
     }
 };
@@ -278,7 +278,7 @@ kg.templates.generateHeaderTemplate = function (options) {
         });
         b.append('</div>');
     }
-    b.append('<div style="position: absolute; line-height: 30px; height 30px; top: {0}px}">', hasHeaderGroups ? "30" : "0");
+    b.append('<div style="position: absolute; line-height: 30px; height 30px; top: {0}px;">', hasHeaderGroups ? "30" : "0");
     kg.utils.forEach(cols, function (col) {
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);

@@ -32,7 +32,7 @@
         });
         b.append('</div>');
     }
-    b.append('<div style="position: absolute; line-height: 30px; height 30px; top: {0}px}">', hasHeaderGroups ? "30" : "0");
+    b.append('<div style="position: absolute; line-height: 30px; height 30px; top: {0}px;">', hasHeaderGroups ? "30" : "0");
     kg.utils.forEach(cols, function (col) {
         if (col.field === '__kg_selected__') {
             b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
