@@ -25,6 +25,7 @@
     position: absolute;
 }
 .kgHeaderCell {
+    text-align: left;
     position: absolute;
     background-color: rgb(241, 241, 241); 
     padding: 0;
@@ -33,6 +34,7 @@
 }
 /******** Viewport ********/
 .kgViewport{
+    position: relative;
     background-color: rgb(255, 255, 255);
 	overflow: auto;
 }
@@ -107,12 +109,11 @@
 .kgFilterBtn.clearBtn {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAStJREFUeNpi/P//PwMxoKamBqbwABA7trS0gDksxGpu8fQEs/9//OhQe+wYyDBGEJ+JRM1gusnAAO4iRnxewKb5/7dvcPm6CxcOsBDSDNOIrpnpwgUQ5cCES3NacibDIykFuEYsmhmwhgFIc3l5OcN/xr8Mf/7/ZHisqY8iD9NcA+GmM2HT/O7te4a///4wMDOxgA15YGSEVTMwKmcxYdP8n+EfWAxkCC6bgXgW3AswzSAgJCzI8O/fP7hGUVFRhosXL2LVDDYAqHk/TDOyJhi9Z88eDGcjqwVFowO2mEDWfPbsWRTNsGSMNyVegPoZXTM6YAJKMHZ2dmJIvHnzhqBmSCIBJmUQrq6u/v/p0ycwXrdu3X8QH4jTYPK4MEpeAAUoUpjgtxkKAAIMABQE1z53txVTAAAAAElFTkSuQmCC);
     background-repeat:no-repeat;
-    top: 50%;
+    top: 30px;
 }
 .kgFilterBtn.closeBtn {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAm5JREFUeNqkUztv01AUPrex62AnbhORGCVNgDzUBlGKyBSJCZaOpBIMiAmJmR/AzIaQmBlYCgNDw5gubYpqQFWDSAeKSpEKTa2keVC7SbBjJ+YeS1gIAkLiSp+Pz+u7n6/PJbZtw/8sBh/X8gt3o5Eow46z/9Rk9k04UA6sF4WlRw4Bw7CMJIUgEAhAKpWCer3u4PDwEFqtFqiqCpZlASEEfijmvDzjKhgOh05wc3MTOI4DTdOgWq3C/v4+KIrikHW7XVdBLpdzexwCwzAsVdWYZDIJgiCAJEng9/shFApBLBaDdrsNnU7H3T2RSMLH3U+WS7C+/rIwGFj5c5kMgzsjQa1Wg+Dq6tmLOzuz0vFxyj8YSEeE1NWTod29Trfy5G35gUugqeqXV7JcsEwrf2FulonH4zBXKmWjlcrVM+l0WJicpN/sBUPXI92jo8ipN6+jMsAGbV0kKAsPB5fP549fymbzt4OB9HlZvp5MJMJ8vw82PRMwTQCWBSKK0Bsfh72trQ+05Q78OgeCz3f6aTi8+nl62rbW1uxhs2mby8u26vE4Fn2MY36D5x/CqEEqCcJ7ZWrKbnq9tlEs2sNGwwX6GMe8LAjvxkYNCqVMDqls3TCgMT8PRrmMMceij3HM9wEyDgGq+Bl9QraPdR0M+h4oFoHNZh0CtOhjHPNYN1IBZV75Sg9WosUcbdLpzjt0JtCij3HMYx0ZdQYFUbxMzeNIrzfjHQx+y+seDyg87/wF8qfb+FwUb1FzL2gYMyfoPWDp6JpjY/CNYaDNcdh8/4amLZK/XednExOoZIHiCkWGYptihWLppqquY813AQYA7FRN7864Qk4AAAAASUVORK5CYII=);
     background-repeat:no-repeat;
-    bottom: 50%;
 }
 
 /******** Footer ********/
@@ -318,9 +319,8 @@
 }
 .kgSortButtonUp {
     position: absolute;
-    top: 10px;
-    margin-left: 5px;
-    display: inline;
+    top: 3px;
+	left: 44%;
 	border-color: gray transparent;
 	border-style: solid;
 	border-width: 0px 5px 5px 5px;
@@ -329,9 +329,8 @@
 }
 .kgSortButtonDown {
     position: absolute;
-    top: 17px;
-    margin-left: 5px;
-    display: inline;
+    top: 3px;
+	left: 44%;
 	border-color: gray transparent;
 	border-style: solid;
 	border-width: 5px 5px 0px 5px;
