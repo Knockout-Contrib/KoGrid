@@ -6,9 +6,9 @@ ko.bindingHandlers['kgCell'] = (function () {
         var func;
 
         if (cell.column.field === 'rowIndex') {
-            return function () { return cell.row.rowDisplayIndex; }
+            return function() { return cell.row.rowDisplayIndex; };
         } else {
-            return function () { return cell.data; }
+            return function() { return cell.data; };
         }
     };
 

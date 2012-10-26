@@ -22,41 +22,33 @@
     };
 
     this.ensureGridTemplates = function (options) {
-        var defaults = {
-            rowTemplate: '',
-            headerTemplate: '',
-            headerCellTemplate: '',
-            footerTemplate: '',
-            columns: null,
-            showFilter: true
-        },
-            config = $.extend(defaults, options);
 
         //first ensure the koGrid template!
-        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate(config));
+        self.addTemplateSafe(GRID_TEMPLATE, kg.templates.defaultGridInnerTemplate(options));
 
         //header row template
-        if (config.headerTemplate) {
-            var template = self.getTemplateFromDom(config.headerTemplate) || kg.templates.generateHeaderTemplate(config);
-            self.addTemplateSafe(config.headerTemplate, template);
+        var template;
+        if (options.headerTemplate) {
+            template = self.getTemplateFromDom(options.headerTemplate) || kg.templates.generateHeaderTemplate(options);
+            self.addTemplateSafe(options.headerTemplate, template);
         }
 
         //header cell template
-        if (config.headerCellTemplate) {
-            var template = self.getTemplateFromDom(config.headerCellTemplate) || kg.templates.defaultHeaderCellTemplate(config);
-            self.addTemplateSafe(config.headerCellTemplate, template);
+        if (options.headerCellTemplate) {
+            template = self.getTemplateFromDom(options.headerCellTemplate) || kg.templates.defaultHeaderCellTemplate(options);
+            self.addTemplateSafe(options.headerCellTemplate, template);
         }
 
         //row template
-        if (config.rowTemplate) {
-            var template = self.getTemplateFromDom(config.rowTemplate) || kg.templates.generateRowTemplate(config);
-            self.addTemplateSafe(config.rowTemplate, template);
+        if (options.rowTemplate) {
+            template = self.getTemplateFromDom(options.rowTemplate) || kg.templates.generateRowTemplate(options);
+            self.addTemplateSafe(options.rowTemplate, template);
         }
 
         //footer template
-        if (config.footerTemplate) {
-            var template = self.getTemplateFromDom(config.footerTemplate) || kg.templates.defaultFooterTemplate(config);
-            self.addTemplateSafe(config.footerTemplate, template);
+        if (options.footerTemplate) {
+            template = self.getTemplateFromDom(options.footerTemplate) || kg.templates.defaultFooterTemplate(options);
+            self.addTemplateSafe(options.footerTemplate, template);
         }
     };
 

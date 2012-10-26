@@ -35,7 +35,8 @@ ko.bindingHandlers['koGrid'] = (function () {
                 showFilter: grid.config.allowFiltering,
                 disableTextSelection: grid.config.disableTextSelection,
                 autogenerateColumns: grid.config.autogenerateColumns,
-                enableColumnResize: grid.config.enableColumnResize
+                enableColumnResize: grid.config.enableColumnResize,
+                headerRowHeight: grid.config.headerRowHeight
             });
 
             //subscribe to the columns and recrate the grid if they change

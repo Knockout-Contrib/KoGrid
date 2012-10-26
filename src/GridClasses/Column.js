@@ -1,12 +1,15 @@
 ﻿kg.Column = function (colDef, index) {
-    var self = this,
-        minWIsOB = ko.isObservable(colDef.minWidth),
-        maxWIsOB = ko.isObservable(colDef.maxWidth);
-        
+    var self = this;
+    var minWisOb = ko.isObservable(colDef.minWidth);
+    var maxWisOb = ko.isObservable(colDef.maxWidth);
+
     this.width = ko.observable(colDef.width);
     this.widthIsConfigured = false;
-    this.minWidth = minWIsOB ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
-    this.maxWidth = maxWIsOB ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+
+    this.headerGroup = colDef.headerGroup;
+
+    this.minWidth = minWisOb ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
     
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
@@ -52,6 +55,6 @@
     this.cellClass = colDef.cellClass;
     this.headerClass = colDef.headerClass;
 
-    this.headerTemplate = colDef.headerTemplate
+    this.headerTemplate = colDef.headerTemplate;
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
 };
