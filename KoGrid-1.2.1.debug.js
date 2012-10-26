@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/25/2012 20:00:40
+* Compiled At: 10/25/2012 20:03:48
 ***********************************************/
 
 
@@ -269,7 +269,7 @@ kg.templates.generateHeaderTemplate = function (options) {
     });
 
     if (hasHeaderGroups) {
-        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 0px; background-color: rgb(105, 186, 224); ">');
+        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; background-color: rgb(105, 186, 224); ">');
         kg.utils.forIn(headerGroups, function (group) {
             if (group.columns.length > 0) {
                 b.append('<div style="position: absolute; border-left: 1px solid white; border-right: 1px solid white; color: white; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
