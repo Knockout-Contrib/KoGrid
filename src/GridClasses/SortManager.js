@@ -33,15 +33,12 @@
     // @item - the cell data
     this.guessSortFn = function (item) {
         var sortFn, // sorting function that is guessed
-            itemStr, // the stringified version of the item
             itemType, // the typeof item
             dateParts, // for date parsing
             month, // for date parsing
             day; // for date parsing
 
-        if (item === undefined || item === null || item === '') {
-            return null;
-        }
+        if (item === undefined || item === null || item === '') return null;
 
         itemType = typeof (item);
 
@@ -56,31 +53,21 @@
         }
 
         //if we found one, return it
-        if (sortFn) {
-            return sortFn;
-        }
+        if (sortFn) return sortFn;
 
         //check if the item is a valid Date
-        if (Object.prototype.toString.call(item) === '[object Date]') {
-            return self.sortDate;
-        }
+        if (Object.prototype.toString.call(item) === '[object Date]') return self.sortDate;
 
-        // if we aren't left with a string, we can't sort full objects...
-        if (itemType !== "string") {
-            return null;
-        }
+        // if we aren't left with a string, return a basic sorting function...
+        if (itemType !== "string") return self.basicSort;
 
         // now lets string check..
-
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
-            return self.sortNumberStr;
-        }
-
+        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) return self.sortNumberStr;
         // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
-        dateParts = item.match(dateRE)
+        dateParts = item.match(self.dateRE);
         if (dateParts) {
             // looks like a date
             month = parseInt(dateParts[1]);
@@ -89,7 +76,6 @@
                 // definitely dd/mm
                 return self.sortDDMMStr;
             } else if (day > 12) {
-
                 return self.sortMMDDStr;
             } else {
                 // looks like a date, but we can't tell which, so assume that it's MM/DD
@@ -99,11 +85,14 @@
 
         //finally just sort the normal string...
         return self.sortAlpha;
-
     };
 
-    //#region Sorting Functions
-
+    self.basicSort = function (a, b) {
+        if (a == b) return 0;
+        if (a < b) return -1;
+        return 1;
+    };
+    
     this.sortNumber = function (a, b) {
 
         return a - b;
@@ -155,7 +144,7 @@
     this.sortBool = function (a, b) {
         if (a && b) { return 0; }
         if (!a && !b) { return 0; }
-        else { return a ? 1 : -1 }
+        else { return a ? 1 : -1; }
     };
 
     this.sortDDMMStr = function (a, b) {
