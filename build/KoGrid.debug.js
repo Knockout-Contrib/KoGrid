@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/25/2012 20:12:13
+* Compiled At: 10/25/2012 20:20:29
 ***********************************************/
 
 
@@ -1311,7 +1311,7 @@ kg.SortManager = function (options) {
         // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
-        dateParts = item.match(self.dateRE);
+        dateParts = item.match(dateRE);
         if (dateParts) {
             // looks like a date
             month = parseInt(dateParts[1]);
