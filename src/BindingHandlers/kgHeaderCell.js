@@ -23,7 +23,7 @@
                     }
                 }
             }
-            return { 'controlsDescendantBindings': true };
+            return null;
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,

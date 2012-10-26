@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/25/2012 17:03:12
+* Compiled At: 10/25/2012 19:29:29
 ***********************************************/
 
 
@@ -246,8 +246,7 @@ kg.templates.defaultGridInnerTemplate = function (options) {
 ***********************************************/
 kg.templates.generateHeaderTemplate = function (options) {
     var b = new kg.utils.StringBuilder(),
-        cols = options.columns,
-        showFilter = options.showFilter;
+        cols = options.columns;
 
     var hasHeaderGroups = false;
     var headerGroups = { };
@@ -277,25 +276,27 @@ kg.templates.generateHeaderTemplate = function (options) {
             }
         });
         b.append('</div>');
+        b.append('<div style="position: absolute; line-height: 30px; height 30px; top: 30px;">');
     }
-    b.append('<div style="position: absolute; line-height: 30px; height 30px; top: {0}px;">', hasHeaderGroups ? "30" : "0");
+    
     kg.utils.forEach(cols, function (col) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
-            b.append('  <input type="checkbox" data-bind="checked: $parent.toggleSelectAll"/>');
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{2}].width() + \'px\'}, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort, col.index);
+            b.append('  <input type="checkbox" data-bind="visible: $parent.isMultiSelect, checked: $parent.toggleSelectAll"/>');
             b.append('</div>');
-        } else if (col.field === 'rowIndex' && showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort);
-            b.append('      <div title="Filter Results" class="kgFilterBtn openBtn" data-bind="visible: !$data.filterVisible(), click: $parent.showFilter_Click"></div>');
-            b.append('      <div title="Close" class="kgFilterBtn closeBtn" data-bind="visible: $data.filterVisible, click: $parent.showFilter_Click"></div>');
-            b.append('      <div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
+        } else if (col.field === 'rowIndex' &&  options.showFilter) {
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }, style: { width: $parent.columns()[{2}].width() + \'px\'},">', col.field, !col.allowSort, col.index);
+            b.append('<div title="Toggle Filter" class="kgFilterBtn" data-bind="css:{\'closeBtn\' : $data.filterVisible() == true, \'openBtn\' : $data.filterVisible() == false }, click: $parent.showFilter_Click"></div>');
+            b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
             b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort);
             b.append('</div>');
         }
     });
-    b.append('</div>');
+    if (hasHeaderGroups) {
+        b.append('</div>');
+    }
     return b.toString();
 };
 
@@ -1916,7 +1917,7 @@ kg.KoGrid = function (options, gridWidth) {
     this.config = $.extend(defaults, options);
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
-
+    this.isMultiSelect = ko.observable(self.config.isMultiSelect);
 
     // Set new default footer height if not overridden, and multi select is disabled
     if (this.config.footerRowHeight === defaults.footerRowHeight
@@ -2368,8 +2369,9 @@ kg.KoGrid = function (options, gridWidth) {
     };
 
     this.showFilter_Click = function () {
-        self.headerRow.filterVisible(!filterIsOpen());
-        filterIsOpen(!filterIsOpen());
+        var isOpen = (filterIsOpen() ? false : true);
+        self.headerRow.filterVisible(isOpen);
+        filterIsOpen(isOpen);
     };
 
     this.clearFilter_Click = function () {
@@ -2911,9 +2913,9 @@ ko.bindingHandlers['kgCell'] = (function () {
         var func;
 
         if (cell.column.field === 'rowIndex') {
-            return function () { return cell.row.rowDisplayIndex; }
+            return function() { return cell.row.rowDisplayIndex; };
         } else {
-            return function () { return cell.data; }
+            return function() { return cell.data; };
         }
     };
 
@@ -3014,7 +3016,7 @@ ko.bindingHandlers['kgHeader'] = (function () {
                     }
                 }
             }
-            return { 'controlsDescendantBindings': true };
+            return null;
         },
         'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = bindingContext.$data,

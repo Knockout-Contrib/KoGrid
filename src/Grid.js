@@ -64,7 +64,8 @@ kg.KoGrid = function (options, gridWidth) {
     this.width = ko.observable(gridWidth);
     this.selectionManager;
     this.selectedItemCount;
-    
+    this.isMultiSelect = ko.observable(self.config.isMultiSelect);
+
     //If column Defs are not observable, make them so. Will not update dynamically this way.
     if (options.columnDefs && !ko.isObservable(options.columnDefs)){
         var observableColumnDefs = ko.observableArray(options.columnDefs);
