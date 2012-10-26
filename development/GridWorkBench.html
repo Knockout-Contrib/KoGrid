@@ -17,21 +17,7 @@
                     <input type="text" data-bind="value: $cellValue" style="width: 80px"/>
                 </div>
             </script>
-            <div id="myGrid" style="height: 50%; width: 50%;" data-bind="koGrid:{ data: testData, 
-                                    isMultiSelect: true,
-                                    selectedItem: mySelectedItem,
-                                    autogenerateColumns: false,
-                                    columnDefs: [{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
-                                                 { field: 'Vendor', displayName: 'Supplier', width: 120, headerGroup: 'test' },
-                                                 { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
-                                                 { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
-                                                 { field: 'UPC', displayName: 'Bar Code', width: 140}],
-                                    enablePaging: true,
-                                    totalServerItems: maxServerItems,
-                                    currentPage: currentPage,
-                                    footerVisible: footerVisible,
-                                    pageSize: pageSize,
-									headerRowHeight: 60}">
+            <div id="myGrid" style="height: 50%; width: 50%;" data-bind="koGrid: gridOptions">
             </div>
         </div>
 
@@ -45,6 +31,7 @@
             </div>
             <input type="button" value="Destroy Item" data-bind="click: destroyItem" />
             <input type="button" value="Change Visibility" data-bind="click: changeVisibility" />
+            <input type="button" value="Change Columns" data-bind="click: changeColumns" />
         </div>        
     </div>
 
@@ -71,9 +58,32 @@
             isVisible: ko.observable(true),
             changeVisibility: function () {
                 vm.isVisible(!vm.isVisible());
-            }
+            },
         };
-
+        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
+        { field: 'Vendor', displayName: 'Supplier', width: 120, headerGroup: 'test' },
+        { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
+        { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
+        { field: 'UPC', displayName: 'Bar Code', width: 140}]);
+        vm.gridOptions = { 
+            data: vm.testData, 
+            isMultiSelect: true,
+            selectedItem: vm.mySelectedItem,
+            autogenerateColumns: false,
+            columnDefs: vm.colDefs,
+            enablePaging: true,
+            totalServerItems: vm.maxServerItems,
+            currentPage: vm.currentPage,
+            footerVisible: vm.footerVisible,
+            pageSize: vm.pageSize,
+            headerRowHeight: 60
+        };
+        vm.changeColumns = function(){
+            vm.colDefs([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
+            { field: 'Vendor', displayName: 'Supplier', width: 120, headerGroup: 'test' },
+            { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }]);
+        }
+        
         ko.applyBindings(vm, $('#sandbox1')[0]);
 
         vm.testData(getTestData()());

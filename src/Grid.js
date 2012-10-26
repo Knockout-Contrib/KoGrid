@@ -64,7 +64,6 @@ kg.KoGrid = function (options, gridWidth) {
     this.width = ko.observable(gridWidth);
     this.selectionManager;
     this.selectedItemCount;
-    this.isMultiSelect = ko.observable(self.config.isMultiSelect);
 
     //If column Defs are not observable, make them so. Will not update dynamically this way.
     if (options.columnDefs && !ko.isObservable(options.columnDefs)){
@@ -74,6 +73,7 @@ kg.KoGrid = function (options, gridWidth) {
     this.config = $.extend(defaults, options);
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
+    this.isMultiSelect = ko.observable(self.config.isMultiSelect);
 
 
     // Set new default footer height if not overridden, and multi select is disabled
@@ -428,18 +428,23 @@ kg.KoGrid = function (options, gridWidth) {
     };
 
     this.buildColumns = function () {
-        var columnDefs = self.config.columnDefs,
+        var columnDefs = self.config.columnDefs(),
             cols = [];
 
         if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
-        if (self.config.displaySelectionCheckbox) {
-            columnDefs().splice(0, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
-        }
         if (self.config.displayRowIndex) {
-            columnDefs().splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+            if (columnDefs[0].field != 'rowIndex') {
+                columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+            }
         }
-        
+
+        if (self.config.displaySelectionCheckbox) {
+            if (columnDefs[1].field != '__kg_selected__') {
+                columnDefs.splice(1, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
+            }
+        }
+                
         var createColumnSortClosure = function (col) {
             return function (dir) {
                 if (dir) {
@@ -448,9 +453,9 @@ kg.KoGrid = function (options, gridWidth) {
             }
         }
 
-        if (columnDefs().length > 0) {
+        if (columnDefs.length > 0) {
 
-            kg.utils.forEach(columnDefs(), function (colDef, i) {
+            kg.utils.forEach(columnDefs, function (colDef, i) {
                 var column = new kg.Column(colDef, i);
                 column.sortDirection.subscribe(createColumnSortClosure(column));                
                 column.filter.subscribe(filterManager.createFilterChangeCallback(column));
