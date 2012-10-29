@@ -58,13 +58,13 @@
             isVisible: ko.observable(true),
             changeVisibility: function () {
                 vm.isVisible(!vm.isVisible());
-            },
+            }
         };
         vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
         { field: 'Vendor', displayName: 'Supplier', width: 120, headerGroup: 'test' },
-        { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
-        { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
-        { field: 'UPC', displayName: 'Bar Code', width: 140}]);
+        { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate', headerGroup: 'test' }, 
+        { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180, headerGroup: 'test2' }, 
+        { field: 'UPC', displayName: 'Bar Code', width: 140, headerGroup: 'test2'}]);
         vm.gridOptions = { 
             data: vm.testData, 
             isMultiSelect: true,

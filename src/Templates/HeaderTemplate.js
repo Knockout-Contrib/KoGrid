@@ -23,14 +23,14 @@
     });
 
     if (hasHeaderGroups) {
-        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; background-color: rgb(105, 186, 224); ">');
+        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; ">');
         kg.utils.forIn(headerGroups, function (group) {
             if (group.columns.length > 0) {
-                b.append('<div style="position: absolute; border-left: 1px solid white; border-right: 1px solid white; color: white; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
+                b.append('<div class="kgHeaderGroupContainer" style="position: absolute; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width - 1, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
             }
         });
         b.append('</div>');
-        b.append('<div style="position: absolute; line-height: 30px; height 30px; top: 30px;">');
+        b.append('<div style="position: absolute; line-height: 30px; height 30px; top: 31px; ">');
     }
     
     kg.utils.forEach(cols, function (col) {
@@ -44,7 +44,7 @@
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort);
+            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
             b.append('</div>');
         }
     });
