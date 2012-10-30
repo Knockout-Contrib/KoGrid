@@ -10,7 +10,28 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         }
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
-        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i ? templateSource.i.innerHTML : templateSource.h.innerHTML;
+        var templateText;
+        if (templateSource['text']() == undefined){
+            if (templateSource.domElement == undefined){
+                if (templateSource.i == undefined){
+                    if (templateSource.h == undefined){
+                        if (templateSource['template']() == undefined){
+                            templateText = "";
+                        } else {
+                            templateText = templateSource['template']();
+                        }
+                    } else {
+                        templateText = templateSource.h.innerHTML;
+                    }
+                } else {
+                    templateText = templateSource.i.innerHTML;
+                }
+            } else {
+                templateText = templateSource.domElement.innerHTML;
+            }
+        } else{
+            templateText = templateSource['text']();
+        }
         return ko.utils.parseHtmlFragment(templateText);
     }
 };
