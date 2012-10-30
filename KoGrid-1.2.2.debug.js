@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/29/2012 20:46:06
+* Compiled At: 10/29/2012 21:41:56
 ***********************************************/
 
 
@@ -253,30 +253,30 @@ kg.templates.generateHeaderTemplate = function (options) {
     var leftMargin = 0;
     var prevHeaderGroup;
     kg.utils.forEach(cols, function (col, i) {
-        var widthComputed = ko.computed(function () {
-            if (!options.headerGroups() || !options.headerGroups()[col.headerGroup]) return 0;
-            var arr = options.headerGroups()[col.headerGroup].columns;
-            var width = 0;
-            kg.utils.forEach(arr, function (column) {
-                width += column.width();
-            });
-            return width - 1;
-        });
 	    if (col.headerGroup) {
 	        if (!headerGroups[col.headerGroup]) {
 	            var newGroup = {
-	                width: widthComputed,
+	                width: ko.computed(function () {
+	                    var hgs = options.headerGroups();
+	                    if (!hgs || !hgs[col.headerGroup]) return 0;
+	                    var arr = hgs[col.headerGroup].columns;
+	                    var width = 0;
+	                    kg.utils.forEach(arr, function (column) {
+	                        width += column.width();
+	                    });
+	                    return width - 1;
+	                }),
 	                columns: [],
 	                margin: ko.observable(leftMargin),
 	                rightHeaderGroup: "",
 	                parent: headerGroups
 	            };
-	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
-	            newGroup.columns.push(col);
 	            headerGroups[col.headerGroup] = newGroup;
-	            hasHeaderGroups = true;
+	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
 	            prevHeaderGroup = col.headerGroup;
+	            hasHeaderGroups = true;
 	        }
+	        headerGroups[col.headerGroup].columns.push(col);
 	    } else {
 	        if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
 	        if ((options.displayRowIndex && options.displaySelectionCheckbox && i > 1) || 
@@ -284,7 +284,16 @@ kg.templates.generateHeaderTemplate = function (options) {
 	           (options.displaySelectionCheckbox && !options.displayRowIndex && i > 0)) {
 	            if (!headerGroups[i]) {
 	                headerGroups[i] = {
-	                    width: widthComputed,
+	                    width: ko.computed(function () {
+	                        var hgs = options.headerGroups();
+	                        if (!hgs || !hgs[col.headerGroup]) return 0;
+	                        var arr = hgs[col.headerGroup].columns;
+	                        var width = 0;
+	                        kg.utils.forEach(arr, function (column) {
+	                            width += column.width();
+	                        });
+	                        return width - 1;
+	                    }),
 	                    columns: [],
 	                    margin: ko.observable(leftMargin),
 	                    rightHeaderGroup: "",
@@ -808,7 +817,6 @@ kg.HeaderCell = function (col, rightHeaderGroup) {
         };
         setMargins(self.rightHeaderGroup, diff),
         self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
-        
         return false;
     };
     this.gripOnMouseDown = function (event) {
@@ -2998,8 +3006,12 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
         headerRow.headerGroups = grid.headerGroups;
         
         kg.utils.forEach(cols, function (col, i) {
-            var hg = headerRow.headerGroups()[col.headerGroup || i];
-            cell = new kg.HeaderCell(col, hg ? headerRow.headerGroups()[hg.rightHeaderGroup]: undefined);
+            var hgs = headerRow.headerGroups(),
+                hg;
+            if (hgs) {
+                hg = hgs[col.headerGroup || i];
+            }
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);

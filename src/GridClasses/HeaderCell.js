@@ -81,7 +81,6 @@
         };
         setMargins(self.rightHeaderGroup, diff),
         self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
-        
         return false;
     };
     this.gripOnMouseDown = function (event) {

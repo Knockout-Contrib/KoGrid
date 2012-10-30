@@ -7,8 +7,12 @@
         headerRow.headerGroups = grid.headerGroups;
         
         kg.utils.forEach(cols, function (col, i) {
-            var hg = headerRow.headerGroups()[col.headerGroup || i];
-            cell = new kg.HeaderCell(col, hg ? headerRow.headerGroups()[hg.rightHeaderGroup]: undefined);
+            var hgs = headerRow.headerGroups(),
+                hg;
+            if (hgs) {
+                hg = hgs[col.headerGroup || i];
+            }
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);

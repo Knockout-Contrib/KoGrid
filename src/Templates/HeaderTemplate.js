@@ -7,30 +7,30 @@
     var leftMargin = 0;
     var prevHeaderGroup;
     kg.utils.forEach(cols, function (col, i) {
-        var widthComputed = ko.computed(function () {
-            if (!options.headerGroups() || !options.headerGroups()[col.headerGroup]) return 0;
-            var arr = options.headerGroups()[col.headerGroup].columns;
-            var width = 0;
-            kg.utils.forEach(arr, function (column) {
-                width += column.width();
-            });
-            return width - 1;
-        });
 	    if (col.headerGroup) {
 	        if (!headerGroups[col.headerGroup]) {
 	            var newGroup = {
-	                width: widthComputed,
+	                width: ko.computed(function () {
+	                    var hgs = options.headerGroups();
+	                    if (!hgs || !hgs[col.headerGroup]) return 0;
+	                    var arr = hgs[col.headerGroup].columns;
+	                    var width = 0;
+	                    kg.utils.forEach(arr, function (column) {
+	                        width += column.width();
+	                    });
+	                    return width - 1;
+	                }),
 	                columns: [],
 	                margin: ko.observable(leftMargin),
 	                rightHeaderGroup: "",
 	                parent: headerGroups
 	            };
-	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
-	            newGroup.columns.push(col);
 	            headerGroups[col.headerGroup] = newGroup;
-	            hasHeaderGroups = true;
+	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
 	            prevHeaderGroup = col.headerGroup;
+	            hasHeaderGroups = true;
 	        }
+	        headerGroups[col.headerGroup].columns.push(col);
 	    } else {
 	        if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
 	        if ((options.displayRowIndex && options.displaySelectionCheckbox && i > 1) || 
@@ -38,7 +38,16 @@
 	           (options.displaySelectionCheckbox && !options.displayRowIndex && i > 0)) {
 	            if (!headerGroups[i]) {
 	                headerGroups[i] = {
-	                    width: widthComputed,
+	                    width: ko.computed(function () {
+	                        var hgs = options.headerGroups();
+	                        if (!hgs || !hgs[col.headerGroup]) return 0;
+	                        var arr = hgs[col.headerGroup].columns;
+	                        var width = 0;
+	                        kg.utils.forEach(arr, function (column) {
+	                            width += column.width();
+	                        });
+	                        return width - 1;
+	                    }),
 	                    columns: [],
 	                    margin: ko.observable(leftMargin),
 	                    rightHeaderGroup: "",
