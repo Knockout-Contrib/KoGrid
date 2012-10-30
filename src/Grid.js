@@ -433,15 +433,18 @@ kg.KoGrid = function (options, gridWidth) {
 
         if (self.config.autogenerateColumns) { self.buildColumnDefsFromData(); }
 
+
+	var targetCol = 0;
         if (self.config.displayRowIndex) {
-            if (columnDefs[0].field != 'rowIndex') {
-                columnDefs.splice(0, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
+            if (!columnDefs[targetCol] || columnDefs[targetCol].field != 'rowIndex') {
+                columnDefs.splice(targetCol, 0, { field: 'rowIndex', width: self.elementDims.rowIndexCellW });
             }
+	    targetCol ++;
         }
 
         if (self.config.displaySelectionCheckbox) {
-            if (columnDefs[1].field != '__kg_selected__') {
-                columnDefs.splice(1, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
+            if (!columnDefs[targetCol] || columnDefs[targetCol].field != '__kg_selected__') {
+                columnDefs.splice(targetCol, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
             }
         }
                 
