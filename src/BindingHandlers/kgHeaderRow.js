@@ -4,17 +4,20 @@
         var cols = grid.columns(),
             cell,
             headerRow = new kg.HeaderRow();
-
+        headerRow.headerGroups = grid.headerGroups;
+        
         kg.utils.forEach(cols, function (col, i) {
-            cell = new kg.HeaderCell(col);
+            var hg = headerRow.headerGroups()[col.headerGroup || i];
+            cell = new kg.HeaderCell(col, hg ? headerRow.headerGroups()[hg.rightHeaderGroup]: undefined);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;
         });
-
         grid.headerRow = headerRow;
+        
         grid.headerRow.height = grid.config.headerRowHeight;
+        
     };
 
     var makeNewValueAccessor = function (grid) {

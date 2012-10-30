@@ -1,11 +1,11 @@
-﻿kg.HeaderCell = function (col) {
+﻿kg.HeaderCell = function (col, rightHeaderGroup) {
     var self = this;
 
     this.colIndex = col.colIndex;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
-
+    this.rightHeaderGroup = rightHeaderGroup;
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
@@ -62,6 +62,7 @@
     this.filterHasFocus = ko.observable(false);
     this.startMousePosition = 0;
     this.origWidth = 0;
+    this.origMargin = 0;
     this.gripOnMouseUp = function () {
         $(document).off('mousemove');
         $(document).off('mouseup');
@@ -71,12 +72,28 @@
     this.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
-        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
+        var setMargins = function(hg, nd) {
+            if (hg) {
+                var nm = nd + hg.origMargin;
+                hg.margin(nm);
+                if (hg.rightHeaderGroup) setMargins(hg.parent[hg.rightHeaderGroup], nd);
+            }
+        };
+        setMargins(self.rightHeaderGroup, diff),
+        self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        
         return false;
     };
     this.gripOnMouseDown = function (event) {
         self.startMousePosition = event.clientX;
         self.origWidth = self.width();
+        var setOrigMargins = function (hg) {
+            if (hg) {
+                hg.origMargin = hg.margin();
+                if (hg.rightHeaderGroup) setOrigMargins(hg.parent[hg.rightHeaderGroup]);
+            }
+        };
+        setOrigMargins(self.rightHeaderGroup);
         $(document).mousemove(self.onMouseMove);
         $(document).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';

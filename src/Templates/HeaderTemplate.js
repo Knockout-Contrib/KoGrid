@@ -4,29 +4,59 @@
 
     var hasHeaderGroups = false;
     var headerGroups = { };
-	var leftMargin = 0;
+    var leftMargin = 0;
+    var prevHeaderGroup;
     kg.utils.forEach(cols, function (col, i) {
-        if (col.headerGroup) {
-            if (!headerGroups[col.headerGroup]) {
-                headerGroups[col.headerGroup] = {width: 0, columns: [], margin: leftMargin};
-            }
-            headerGroups[col.headerGroup].width += col.width();
-            headerGroups[col.headerGroup].columns.push(col);
-            hasHeaderGroups = true;
-        } else {
-            if (!headerGroups["unassigned"]) {
-                headerGroups["unassigned"] = { width: 0, columns: [] };
-            }
-            headerGroups["unassigned"].columns.push(col);
-        }
-		leftMargin += cols[i].width();
-    });
+        var widthComputed = ko.computed(function () {
+            if (!options.headerGroups() || !options.headerGroups()[col.headerGroup]) return 0;
+            var arr = options.headerGroups()[col.headerGroup].columns;
+            var width = 0;
+            kg.utils.forEach(arr, function (column) {
+                width += column.width();
+            });
+            return width - 1;
+        });
+	    if (col.headerGroup) {
+	        if (!headerGroups[col.headerGroup]) {
+	            var newGroup = {
+	                width: widthComputed,
+	                columns: [],
+	                margin: ko.observable(leftMargin),
+	                rightHeaderGroup: "",
+	                parent: headerGroups
+	            };
+	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	            newGroup.columns.push(col);
+	            headerGroups[col.headerGroup] = newGroup;
+	            hasHeaderGroups = true;
+	            prevHeaderGroup = col.headerGroup;
+	        }
+	    } else {
+	        if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	        if ((options.displayRowIndex && options.displaySelectionCheckbox && i > 1) || 
+	           (options.displayRowIndex && !options.displaySelectionCheckbox && i > 0) ||
+	           (options.displaySelectionCheckbox && !options.displayRowIndex && i > 0)) {
+	            if (!headerGroups[i]) {
+	                headerGroups[i] = {
+	                    width: widthComputed,
+	                    columns: [],
+	                    margin: ko.observable(leftMargin),
+	                    rightHeaderGroup: "",
+	                    parent: headerGroups
+	                };
+	            }
+	            if (!prevHeaderGroup) prevHeaderGroup = i;
+	        }
+	    }
+	    leftMargin += col.width();
+	});
 
     if (hasHeaderGroups) {
+        options.headerGroups(headerGroups);
         b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; ">');
         kg.utils.forIn(headerGroups, function (group) {
             if (group.columns.length > 0) {
-                b.append('<div class="kgHeaderGroupContainer" style="position: absolute; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width - 1, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
+                b.append('<div class="kgHeaderGroupContainer" data-bind="style: { width: $parent.headerGroups()[\'{0}\'].width() + \'px\', left: $parent.headerGroups()[\'{0}\'].margin() + \'px\' }" style="position: absolute; text-align: center;">{0}</div>',group.columns[0].headerGroup ? group.columns[0].headerGroup : "");
             }
         });
         b.append('</div>');

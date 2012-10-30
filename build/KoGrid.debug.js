@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/29/2012 14:31:29
+* Compiled At: 10/29/2012 20:46:06
 ***********************************************/
 
 
@@ -250,29 +250,59 @@ kg.templates.generateHeaderTemplate = function (options) {
 
     var hasHeaderGroups = false;
     var headerGroups = { };
-	var leftMargin = 0;
+    var leftMargin = 0;
+    var prevHeaderGroup;
     kg.utils.forEach(cols, function (col, i) {
-        if (col.headerGroup) {
-            if (!headerGroups[col.headerGroup]) {
-                headerGroups[col.headerGroup] = {width: 0, columns: [], margin: leftMargin};
-            }
-            headerGroups[col.headerGroup].width += col.width();
-            headerGroups[col.headerGroup].columns.push(col);
-            hasHeaderGroups = true;
-        } else {
-            if (!headerGroups["unassigned"]) {
-                headerGroups["unassigned"] = { width: 0, columns: [] };
-            }
-            headerGroups["unassigned"].columns.push(col);
-        }
-		leftMargin += cols[i].width();
-    });
+        var widthComputed = ko.computed(function () {
+            if (!options.headerGroups() || !options.headerGroups()[col.headerGroup]) return 0;
+            var arr = options.headerGroups()[col.headerGroup].columns;
+            var width = 0;
+            kg.utils.forEach(arr, function (column) {
+                width += column.width();
+            });
+            return width - 1;
+        });
+	    if (col.headerGroup) {
+	        if (!headerGroups[col.headerGroup]) {
+	            var newGroup = {
+	                width: widthComputed,
+	                columns: [],
+	                margin: ko.observable(leftMargin),
+	                rightHeaderGroup: "",
+	                parent: headerGroups
+	            };
+	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	            newGroup.columns.push(col);
+	            headerGroups[col.headerGroup] = newGroup;
+	            hasHeaderGroups = true;
+	            prevHeaderGroup = col.headerGroup;
+	        }
+	    } else {
+	        if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	        if ((options.displayRowIndex && options.displaySelectionCheckbox && i > 1) || 
+	           (options.displayRowIndex && !options.displaySelectionCheckbox && i > 0) ||
+	           (options.displaySelectionCheckbox && !options.displayRowIndex && i > 0)) {
+	            if (!headerGroups[i]) {
+	                headerGroups[i] = {
+	                    width: widthComputed,
+	                    columns: [],
+	                    margin: ko.observable(leftMargin),
+	                    rightHeaderGroup: "",
+	                    parent: headerGroups
+	                };
+	            }
+	            if (!prevHeaderGroup) prevHeaderGroup = i;
+	        }
+	    }
+	    leftMargin += col.width();
+	});
 
     if (hasHeaderGroups) {
+        options.headerGroups(headerGroups);
         b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; ">');
         kg.utils.forIn(headerGroups, function (group) {
             if (group.columns.length > 0) {
-                b.append('<div class="kgHeaderGroupContainer" style="position: absolute; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width - 1, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
+                b.append('<div class="kgHeaderGroupContainer" data-bind="style: { width: $parent.headerGroups()[\'{0}\'].width() + \'px\', left: $parent.headerGroups()[\'{0}\'].margin() + \'px\' }" style="position: absolute; text-align: center;">{0}</div>',group.columns[0].headerGroup ? group.columns[0].headerGroup : "");
             }
         });
         b.append('</div>');
@@ -695,14 +725,14 @@ kg.CellFactory = function (cols) {
 /***********************************************
 * FILE: ..\Src\GridClasses\HeaderCell.js
 ***********************************************/
-kg.HeaderCell = function (col) {
+kg.HeaderCell = function (col, rightHeaderGroup) {
     var self = this;
 
     this.colIndex = col.colIndex;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
-
+    this.rightHeaderGroup = rightHeaderGroup;
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
@@ -759,6 +789,7 @@ kg.HeaderCell = function (col) {
     this.filterHasFocus = ko.observable(false);
     this.startMousePosition = 0;
     this.origWidth = 0;
+    this.origMargin = 0;
     this.gripOnMouseUp = function () {
         $(document).off('mousemove');
         $(document).off('mouseup');
@@ -768,12 +799,28 @@ kg.HeaderCell = function (col) {
     this.onMouseMove = function (event) {
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
-        self.width(newWidth < self.minWidth() ? self.minWidth() : ( newWidth > self.maxWidth() ? self.maxWidth() : newWidth) );
+        var setMargins = function(hg, nd) {
+            if (hg) {
+                var nm = nd + hg.origMargin;
+                hg.margin(nm);
+                if (hg.rightHeaderGroup) setMargins(hg.parent[hg.rightHeaderGroup], nd);
+            }
+        };
+        setMargins(self.rightHeaderGroup, diff),
+        self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        
         return false;
     };
     this.gripOnMouseDown = function (event) {
         self.startMousePosition = event.clientX;
         self.origWidth = self.width();
+        var setOrigMargins = function (hg) {
+            if (hg) {
+                hg.origMargin = hg.margin();
+                if (hg.rightHeaderGroup) setOrigMargins(hg.parent[hg.rightHeaderGroup]);
+            }
+        };
+        setOrigMargins(self.rightHeaderGroup);
         $(document).mousemove(self.onMouseMove);
         $(document).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';
@@ -790,6 +837,7 @@ kg.HeaderRow = function () {
     this.height;
     this.headerCellMap = {};
     this.filterVisible = ko.observable(false);
+    this.headerGroups = { };
 };
 
 /***********************************************
@@ -1907,7 +1955,7 @@ kg.KoGrid = function (options, gridWidth) {
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
     this.isMultiSelect = ko.observable(self.config.isMultiSelect);
-
+    this.headerGroups = ko.observable();
 
     // Set new default footer height if not overridden, and multi select is disabled
     if (this.config.footerRowHeight === defaults.footerRowHeight
@@ -2711,7 +2759,10 @@ ko.bindingHandlers['koGrid'] = (function () {
                 disableTextSelection: grid.config.disableTextSelection,
                 autogenerateColumns: grid.config.autogenerateColumns,
                 enableColumnResize: grid.config.enableColumnResize,
-                headerRowHeight: grid.config.headerRowHeight
+                headerRowHeight: grid.config.headerRowHeight,
+                headerGroups: grid.headerGroups,
+                displaySelectionCheckbox: grid.config.displaySelectionCheckbox, //toggles whether row selection check boxes appear
+                displayRowIndex: grid.config.displayRowIndex, //shows the rowIndex cell at the far left of each row
             });
 
             //subscribe to the columns and recrate the grid if they change
@@ -2944,17 +2995,20 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
         var cols = grid.columns(),
             cell,
             headerRow = new kg.HeaderRow();
-
+        headerRow.headerGroups = grid.headerGroups;
+        
         kg.utils.forEach(cols, function (col, i) {
-            cell = new kg.HeaderCell(col);
+            var hg = headerRow.headerGroups()[col.headerGroup || i];
+            cell = new kg.HeaderCell(col, hg ? headerRow.headerGroups()[hg.rightHeaderGroup]: undefined);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
             headerRow.headerCellMap[col.field] = cell;
         });
-
         grid.headerRow = headerRow;
+        
         grid.headerRow.height = grid.config.headerRowHeight;
+        
     };
 
     var makeNewValueAccessor = function (grid) {
