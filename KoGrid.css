@@ -51,6 +51,32 @@
 	margin-left: 5px;
 }
 
+.kgHeaderGrip { 
+    cursor: col-resize; 
+    width: 4px; 
+	right: 0px;
+	margin-right: -2px;
+	margin-left: 3px;
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
+}
+.kgHeaderGrip:hover { 
+    border-right-color: gray;
+    border-right-style: dotted;
+	border-right-width: 4px;
+    cursor: col-resize; 
+    width: 4px; 
+    right: 0px;
+    margin-right: -2px;
+    margin-left: 3px;
+    top: 0; 
+    height: 100%; 
+    position: absolute; 
+    z-index: 1000; 
+}
+
 /******** Viewport ********/
 .kgViewport{
     position: relative;
@@ -109,6 +135,36 @@
 
 .kgNoSort {
     cursor:default;
+}
+
+.kgSortButtonUp {
+    position: absolute;
+    top: 3px;
+	left: 44%;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 0px 5px 5px 5px;
+	height: 0px;
+	width: 0px;
+}
+.kgSortButtonDown {
+    position: absolute;
+    top: 3px;
+	left: 44%;
+	border-color: gray transparent;
+	border-style: solid;
+	border-width: 5px 5px 0px 5px;
+    height: 0px;
+	width: 0px;
+}
+
+.kgNoSelect{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /******** Header Filtering ********/
@@ -335,57 +391,4 @@
 
 .kgHeaderDisplayName{
     
-}
-.kgSortButtonUp {
-    position: absolute;
-    top: 3px;
-	left: 44%;
-	border-color: gray transparent;
-	border-style: solid;
-	border-width: 0px 5px 5px 5px;
-	height: 0px;
-	width: 0px;
-}
-.kgSortButtonDown {
-    position: absolute;
-    top: 3px;
-	left: 44%;
-	border-color: gray transparent;
-	border-style: solid;
-	border-width: 5px 5px 0px 5px;
-    height: 0px;
-	width: 0px;
-}
-.kgHeaderGrip { 
-    cursor: col-resize; 
-    width: 1px; 
-	right: 5px;
-	margin-right: 2px;
-	margin-left: 5px;
-    top: 0; 
-    height: 100%; 
-    position: absolute; 
-    z-index: 1000; 
-}
-.kgHeaderGrip:hover { 
-    border-right-color: gray;
-    border-right-style: dotted;
-    cursor: col-resize; 
-    width: 10px; 
-    right: -3px;
-    margin-right: 3px;
-    margin-left: 3px;
-    top: 0; 
-    height: 100%; 
-    position: absolute; 
-    z-index: 1000; 
-}
-
-.kgNoSelect{
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
