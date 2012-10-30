@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/29/2012 21:41:56
+* Compiled At: 10/29/2012 21:55:29
 ***********************************************/
 
 
@@ -3217,7 +3217,7 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         }
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
-        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i.innerHTML;
+        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i ? templateSource.i.innerHTML : templateSource.h.innerHTML;
         return ko.utils.parseHtmlFragment(templateText);
     }
 };
