@@ -76,7 +76,8 @@
             currentPage: vm.currentPage,
             footerVisible: vm.footerVisible,
             pageSize: vm.pageSize,
-            headerRowHeight: 30
+            headerRowHeight: 30,
+            displayRowIndex: false,
         };
         vm.changeColumns = function(){
             vm.colDefs([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
