@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/30/2012 15:13:26
+* Compiled At: 10/30/2012 16:41:33
 ***********************************************/
 
 
@@ -233,7 +233,7 @@ kg.templates.defaultGridInnerTemplate = function (options) {
     b.append(    '</div>');
     b.append('</div>');
     b.append('<div class="kgViewport {0}" data-bind="kgSize: $data.viewportDim">', options.disableTextSelection ? "kgNoSelect": "");
-    b.append(    '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight }" style="position: relative">');
+    b.append(    '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight, width: $data.totalRowWidth }" style="position: relative">');
     b.append(    '</div>');
     b.append('</div>');
     b.append('<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">');
@@ -2071,6 +2071,11 @@ kg.KoGrid = function (options, gridWidth) {
         return newDim;
     });
 
+    this.getScrollerOffset = function (n) {
+        //if (self.viewportDim().outerHeight < self.maxCanvasHeight) return n - 17;
+        return n -17;
+    };
+
     this.totalRowWidth = ko.computed(function () {
         var totalWidth = 0,
             cols = self.columns(),
@@ -2090,8 +2095,8 @@ kg.KoGrid = function (options, gridWidth) {
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
                 } else if (t.indexOf("*") != -1){
                     // if it is the last of the columns just configure it to use the remaining space
-                    if (i + 1 == numOfCols && asteriskNum == 0){
-                        col.width(self.width() - totalWidth);
+                    if (i + 1 == numOfCols && asteriskNum == 0) {
+                        col.width(self.getScrollerOffset(self.width() - totalWidth));
                     } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         asterisksArray.push(col);
@@ -2118,7 +2123,11 @@ kg.KoGrid = function (options, gridWidth) {
             // set the width of each column based on the number of stars
             kg.utils.forEach(asterisksArray, function (col, i) {
                 var t = col.width().length;
-                col.width(asteriskVal * t);
+                if (i+1 == asterisksArray.length) {
+                    col.width(self.getScrollerOffset(asteriskVal * t));
+                } else {
+                    col.width(asteriskVal * t);
+                }
                 totalWidth += col.width();
             });
         }
@@ -2151,17 +2160,10 @@ kg.KoGrid = function (options, gridWidth) {
         var viewportH = self.viewportDim().outerHeight,
             filterOpen = filterIsOpen(), //register this observable
             maxHeight = self.maxCanvasHeight(),
-            vScrollBarIsOpen = (maxHeight > viewportH),
-            hScrollBarIsOpen = (self.viewportDim().outerWidth < self.totalRowWidth()),
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth();
-
-        if (vScrollBarIsOpen) { newDim.outerWidth += self.elementDims.scrollW; }
-        else if ((maxHeight - viewportH) <= self.elementDims.scrollH) { //if the horizontal scroll is open it forces the viewport to be smaller
-            newDim.outerWidth += self.elementDims.scrollW;
-        }
         return newDim;
     });
 
