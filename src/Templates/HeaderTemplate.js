@@ -4,33 +4,72 @@
 
     var hasHeaderGroups = false;
     var headerGroups = { };
-	var leftMargin = 0;
+    var leftMargin = 0;
+    var prevHeaderGroup;
     kg.utils.forEach(cols, function (col, i) {
-        if (col.headerGroup) {
-            if (!headerGroups[col.headerGroup]) {
-                headerGroups[col.headerGroup] = {width: 0, columns: [], margin: leftMargin};
-            }
-            headerGroups[col.headerGroup].width += col.width();
-            headerGroups[col.headerGroup].columns.push(col);
-            hasHeaderGroups = true;
-        } else {
-            if (!headerGroups["unassigned"]) {
-                headerGroups["unassigned"] = { width: 0, columns: [] };
-            }
-            headerGroups["unassigned"].columns.push(col);
-        }
-		leftMargin += cols[i].width();
-    });
+	    if (col.headerGroup) {
+	        if (!headerGroups[col.headerGroup]) {
+	            var newGroup = {
+	                width: ko.computed(function () {
+	                    var hgs = options.headerGroups();
+	                    if (!hgs || !hgs[col.headerGroup]) return 0;
+	                    var arr = hgs[col.headerGroup].columns;
+	                    var width = 0;
+	                    kg.utils.forEach(arr, function (column) {
+	                        width += column.width();
+	                    });
+	                    return width - 1;
+	                }),
+	                columns: [],
+	                margin: ko.observable(leftMargin),
+	                rightHeaderGroup: "",
+	                parent: headerGroups
+	            };
+	            headerGroups[col.headerGroup] = newGroup;
+	            if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	            prevHeaderGroup = col.headerGroup;
+	            hasHeaderGroups = true;
+	        }
+	        headerGroups[col.headerGroup].columns.push(col);
+	    } else {
+	        if (prevHeaderGroup) headerGroups[prevHeaderGroup].rightHeaderGroup = col.headerGroup;
+	        if ((options.displayRowIndex && options.displaySelectionCheckbox && i > 1) || 
+	           (options.displayRowIndex && !options.displaySelectionCheckbox && i > 0) ||
+	           (options.displaySelectionCheckbox && !options.displayRowIndex && i > 0)) {
+	            if (!headerGroups[i]) {
+	                headerGroups[i] = {
+	                    width: ko.computed(function () {
+	                        var hgs = options.headerGroups();
+	                        if (!hgs || !hgs[col.headerGroup]) return 0;
+	                        var arr = hgs[col.headerGroup].columns;
+	                        var width = 0;
+	                        kg.utils.forEach(arr, function (column) {
+	                            width += column.width();
+	                        });
+	                        return width - 1;
+	                    }),
+	                    columns: [],
+	                    margin: ko.observable(leftMargin),
+	                    rightHeaderGroup: "",
+	                    parent: headerGroups
+	                };
+	            }
+	            if (!prevHeaderGroup) prevHeaderGroup = i;
+	        }
+	    }
+	    leftMargin += col.width();
+	});
 
     if (hasHeaderGroups) {
-        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; background-color: rgb(105, 186, 224); ">');
+        options.headerGroups(headerGroups);
+        b.append('<div style="position: absolute; line-height: 30px; height: 30px; top: 0px; left:0px; right: 17px; ">');
         kg.utils.forIn(headerGroups, function (group) {
             if (group.columns.length > 0) {
-                b.append('<div style="position: absolute; border-left: 1px solid white; border-right: 1px solid white; color: white; width:{0}px; text-align: center; left: {1}px;">{2}</div>', group.width, group.margin, group.columns[0].headerGroup ? group.columns[0].headerGroup: '');
+                b.append('<div class="kgHeaderGroupContainer" data-bind="style: { width: $parent.headerGroups()[\'{0}\'].width() + \'px\', left: $parent.headerGroups()[\'{0}\'].margin() + \'px\' }" style="position: absolute; text-align: center;">{0}</div>',group.columns[0].headerGroup ? group.columns[0].headerGroup : "");
             }
         });
         b.append('</div>');
-        b.append('<div style="position: absolute; line-height: 30px; height 30px; top: 30px;">');
+        b.append('<div style="position: absolute; line-height: 30px; height 30px; top: 31px; ">');
     }
     
     kg.utils.forEach(cols, function (col) {
@@ -44,7 +83,7 @@
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort);
+            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
             b.append('</div>');
         }
     });
