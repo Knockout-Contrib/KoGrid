@@ -53,7 +53,7 @@
 
 .kgHeaderGrip { 
     cursor: col-resize; 
-    width: 4px; 
+    width: 1px; 
 	right: 0px;
 	margin-right: -2px;
 	margin-left: 3px;
@@ -65,9 +65,9 @@
 .kgHeaderGrip:hover { 
     border-right-color: gray;
     border-right-style: dotted;
-	border-right-width: 4px;
+	border-right-width: 3px;
     cursor: col-resize; 
-    width: 4px; 
+    width: 1px; 
     right: 0px;
     margin-right: -2px;
     margin-left: 3px;
