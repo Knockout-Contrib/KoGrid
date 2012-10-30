@@ -10,7 +10,7 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         }
         return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
     } else {
-        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i.innerHTML;
+        var templateText = templateSource['text']() || templateSource.domElement ? templateSource.domElement.innerHTML : templateSource.i ? templateSource.i.innerHTML : templateSource.h.innerHTML;
         return ko.utils.parseHtmlFragment(templateText);
     }
 };

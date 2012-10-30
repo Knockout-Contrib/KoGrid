@@ -30,8 +30,27 @@
     background-color: rgb(241, 241, 241); 
     padding: 0;
     cursor: pointer;
-    border-right: 1px solid rgb(241, 241, 241);
 }
+
+.kgHeaderTitleRow: last-child {
+	border-right: 1px solid black;
+}
+
+.kgHeaderGroupContainer{
+	border-bottom: 1px solid black; 
+	border-left: 1px solid black; 
+	border-right: 1px solid black; 
+	color: black;
+}
+
+.kgHeaderCellGroup{
+	border-left: 1px solid black;
+}
+
+.kgHeaderText {
+	margin-left: 5px;
+}
+
 /******** Viewport ********/
 .kgViewport{
     position: relative;
@@ -339,10 +358,10 @@
 }
 .kgHeaderGrip { 
     cursor: col-resize; 
-    width: 10px; 
-    right: 5px;
-    margin-right: 10px;
-    margin-left: 3px;
+    width: 1px; 
+	right: 5px;
+	margin-right: 2px;
+	margin-left: 5px;
     top: 0; 
     height: 100%; 
     position: absolute; 
@@ -353,8 +372,8 @@
     border-right-style: dotted;
     cursor: col-resize; 
     width: 10px; 
-    right: 5px;
-    margin-right: 10px;
+    right: -3px;
+    margin-right: 3px;
     margin-left: 3px;
     top: 0; 
     height: 100%; 

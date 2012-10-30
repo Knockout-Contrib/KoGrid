@@ -36,7 +36,10 @@ ko.bindingHandlers['koGrid'] = (function () {
                 disableTextSelection: grid.config.disableTextSelection,
                 autogenerateColumns: grid.config.autogenerateColumns,
                 enableColumnResize: grid.config.enableColumnResize,
-                headerRowHeight: grid.config.headerRowHeight
+                headerRowHeight: grid.config.headerRowHeight,
+                headerGroups: grid.headerGroups,
+                displaySelectionCheckbox: grid.config.displaySelectionCheckbox, //toggles whether row selection check boxes appear
+                displayRowIndex: grid.config.displayRowIndex, //shows the rowIndex cell at the far left of each row
             });
 
             //subscribe to the columns and recrate the grid if they change

@@ -74,7 +74,7 @@ kg.KoGrid = function (options, gridWidth) {
     this.gridId = "kg" + kg.utils.newId();
     this.initPhase = 0;
     this.isMultiSelect = ko.observable(self.config.isMultiSelect);
-
+    this.headerGroups = ko.observable();
 
     // Set new default footer height if not overridden, and multi select is disabled
     if (this.config.footerRowHeight === defaults.footerRowHeight
