@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 10/30/2012 16:41:33
+* Compiled At: 11/02/2012 11:40:54
 ***********************************************/
 
 
@@ -2072,7 +2072,6 @@ kg.KoGrid = function (options, gridWidth) {
     });
 
     this.getScrollerOffset = function (n) {
-        //if (self.viewportDim().outerHeight < self.maxCanvasHeight) return n - 17;
         return n -17;
     };
 
@@ -2109,10 +2108,10 @@ kg.KoGrid = function (options, gridWidth) {
                     throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" to use remaining width of grid";
                 }
             }
-            // add the caluclated or pre-defined width the total width
-            totalWidth += col.width();
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
+            // add the caluclated or pre-defined width the total width
+            totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later
         if (asterisksArray.length > 0){
@@ -2128,6 +2127,8 @@ kg.KoGrid = function (options, gridWidth) {
                 } else {
                     col.width(asteriskVal * t);
                 }
+                // set the flag as the width is configured so the subscribers can be added
+                col.widthIsConfigured = true;
                 totalWidth += col.width();
             });
         }
@@ -2138,6 +2139,8 @@ kg.KoGrid = function (options, gridWidth) {
                 var t = col.width();
                 col.width(Math.floor(self.width() * (parseInt(t.slice(0, - 1)) / 100)));
                 totalWidth += col.width();
+                // set the flag as the width is configured so the subscribers can be added
+                col.widthIsConfigured = true;
             });
         }
         return totalWidth;
