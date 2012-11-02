@@ -1,4 +1,4 @@
-﻿kg.HeaderCell = function (col, rightHeaderGroup) {
+﻿kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
     var self = this;
 
     this.colIndex = col.colIndex;
@@ -9,7 +9,7 @@
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
-    
+
     this.allowSort = ko.observable(col.allowSort);
     this.allowFilter = col.allowFilter;
     this.allowResize = ko.observable(col.allowResize);
@@ -63,6 +63,25 @@
     this.startMousePosition = 0;
     this.origWidth = 0;
     this.origMargin = 0;
+    
+    var DELAY = 500,
+    clicks = 0,
+    timer = null;
+
+    this.gripClick = function(event) {
+        clicks++;  //count clicks
+        if(clicks === 1) {
+            timer = setTimeout(function () {
+                //Here you can add a single click action.
+                clicks = 0;  //after action performed, reset counter
+            }, DELAY);
+        } else {
+            clearTimeout(timer);  //prevent single-click action
+            resizeOnDataCallback(self.column);  //perform double-click action
+            clicks = 0;  //after action performed, reset counter
+        }
+    };
+
     this.gripOnMouseUp = function () {
         $(document).off('mousemove');
         $(document).off('mouseup');

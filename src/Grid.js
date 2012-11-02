@@ -318,11 +318,9 @@ kg.KoGrid = function (options, gridWidth) {
     var scrollIntoView = function (entity) {
         var itemIndex,
             viewableRange = self.rowManager.viewableRange();
-
         if (entity) {
             itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
         }
-
         if (itemIndex > -1) {
             //check and see if its already in view!
             if (itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5) {
@@ -336,7 +334,16 @@ kg.KoGrid = function (options, gridWidth) {
             }
         };
     };
-
+    this.resizeOnData = function (col) {
+        var longest = col.minWidth();
+        kg.utils.forEach(self.finalData(), function (data) {
+            var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
+            if (i > longest) {
+                longest = i;
+            }
+        });
+        col.width(longest > col.maxWidth() ? col.maxWidth() : longest);
+    };
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),
