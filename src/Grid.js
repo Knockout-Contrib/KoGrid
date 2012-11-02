@@ -39,7 +39,8 @@ kg.KoGrid = function (options, gridWidth) {
         tabIndex: -1,
         disableTextSelection: false,
         enableColumnResize: true,
-		allowFiltering: true
+        allowFiltering: true,
+        resizeOnAllData: false
     },
 
     self = this,
@@ -198,12 +199,21 @@ kg.KoGrid = function (options, gridWidth) {
             // get column width out of the observable
             var t = col.width();
             // check if it is a number
-            if (isNaN(t)){
+            if (isNaN(t)) {
+                //get it again?
+                t = col.width();
                 // figure out if the width is defined or if we need to calculate it
                 if (t == undefined) {
                     // set the width to the length of the header title +30 for sorting icons and padding
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
-                } else if (t.indexOf("*") != -1){
+                } else if (t == "auto") { // set it for now until we have data and subscribe when it changes so we can set the width.
+                    col.width(col.minWidth());
+                    col.autoWidthSubscription = self.finalData.subscribe(function (newArr) {
+                        if (newArr.length > 0) {
+                            self.resizeOnData(col, true);
+                        }
+                    });
+                } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
                     if (i + 1 == numOfCols && asteriskNum == 0) {
                         col.width(self.getScrollerOffset(self.width() - totalWidth));
@@ -304,6 +314,9 @@ kg.KoGrid = function (options, gridWidth) {
 
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {
+        kg.utils.forEach(self.columns(), function (col) {
+            col.longest = null;
+        });
          if (self.config.selectedItems()) {
             var lastItemIndex = self.config.selectedItems().length - 1;
             if (lastItemIndex <= 0) {
@@ -318,11 +331,9 @@ kg.KoGrid = function (options, gridWidth) {
     var scrollIntoView = function (entity) {
         var itemIndex,
             viewableRange = self.rowManager.viewableRange();
-
         if (entity) {
             itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
         }
-
         if (itemIndex > -1) {
             //check and see if its already in view!
             if (itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5) {
@@ -336,7 +347,27 @@ kg.KoGrid = function (options, gridWidth) {
             }
         };
     };
-
+    this.resizeOnData = function (col, override) {
+        if (col.longest) { // check for cache so we don't calculate again
+            col.width(col.longest);
+        } else {// we calculate the longest data.
+            var road = override || self.config.resizeOnAllData;
+            var longest = col.minWidth();
+            var arr = road ? self.finalData() : self.rows();
+            kg.utils.forEach(arr, function(data) {
+                var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
+                if (i > longest) {
+                    longest = i;
+                }
+            });
+            longest += 10; //add 10 px for decent padding if resizing on data.
+            col.longest = longest > col.maxWidth() ? col.maxWidth() : longest;
+            col.width(longest);
+        }
+        if (col.autoWidthSubscription) { // check for a subsciption and delete it.
+            col.autoWidthSubscription.dispose();
+        }
+    };
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),

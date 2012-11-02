@@ -12,7 +12,7 @@
             if (hgs) {
                 hg = hgs[col.headerGroup || i];
             }
-            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined);
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid.resizeOnData);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
@@ -34,17 +34,17 @@
     };
 
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             buildHeaders(grid);
 
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         }
-    }
+    };
 } ());
