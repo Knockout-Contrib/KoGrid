@@ -9,16 +9,17 @@ kg.Row = function (entity, config, selectionManager) {
     this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     this.selectionManager = selectionManager;
+    
     //selectify the entity
-    if (this.entity()['__kg_selected__'] === undefined) {
-        this.entity()['__kg_selected__'] = ko.observable(false);
+    if (this.entity()[KEY] === undefined) {
+        this.entity()[KEY] = ko.observable(false);
     }
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
                 return false;
             }
-            var val = self.entity()['__kg_selected__']();
+            var val = self.entity()[KEY]();
             return val;
         },
         write: function (val, evt) {
@@ -26,7 +27,7 @@ kg.Row = function (entity, config, selectionManager) {
                 return true;
             }
             self.beforeSelectionChange();
-            self.entity()['__kg_selected__'](val);
+            self.entity()[KEY](val);
             self.selectionManager.changeSelection(self, evt);
             self.afterSelectionChange();
             self.onSelectionChanged();
