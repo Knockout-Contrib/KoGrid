@@ -1,5 +1,15 @@
 ﻿kg.utils = {
-
+    visualLength: function (string) {
+        var elem = document.getElementById('testDataLength');
+        if (!elem) {
+            elem = document.createElement('SPAN');
+            elem.id = "testDataLength";
+            elem.style.visibility = "hidden";
+            document.body.appendChild(elem);
+        } 
+        elem.innerHTML = string;
+        return elem.offsetWidth;
+    },
     forEach: function (arr, action) {
         var len = arr.length,
             i = 0;

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/02/2012 11:40:54
+* Compiled At: 11/02/2012 16:53:22
 ***********************************************/
 
 
@@ -98,7 +98,17 @@ kg.labels = {
 * FILE: ..\Src\Utils.js
 ***********************************************/
 kg.utils = {
-
+    visualLength: function (string) {
+        var elem = document.getElementById('testDataLength');
+        if (!elem) {
+            elem = document.createElement('SPAN');
+            elem.id = "testDataLength";
+            elem.style.visibility = "hidden";
+            document.body.appendChild(elem);
+        } 
+        elem.innerHTML = string;
+        return elem.offsetWidth;
+    },
     forEach: function (arr, action) {
         var len = arr.length,
             i = 0;
@@ -351,7 +361,7 @@ kg.templates.defaultHeaderCellTemplate = function (options) {
     b.append('  <div class="kgSortButtonUp" data-bind="visible: $data.allowSort() ? $data.sortDescVisible() : $data.allowSort()"></div>');
     b.append('</div>');
     if (!options.autogenerateColumns && options.enableColumnResize){
-        b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
+        b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, click: $data.gripClick ,mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
     }
     b.append('<div data-bind="visible: $data._filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
@@ -542,11 +552,13 @@ kg.Column = function (colDef, index) {
 
     this.width = ko.observable(colDef.width);
     this.widthIsConfigured = false;
-
+    this.autoWidthSubscription = undefined;
+    
     this.headerGroup = colDef.headerGroup;
-
-    this.minWidth = minWisOb ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
-    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    // don't want the width to be smaller than this
+    this.minWidth = minWisOb ? colDef.minWidth : (!colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    // default max is OVER 9000!
+    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9001) : ko.observable(colDef.maxWidth));
     
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
@@ -622,16 +634,17 @@ kg.Row = function (entity, config, selectionManager) {
     this.selectedItems = config.selectedItems;
     this.entity = ko.isObservable(entity) ? entity : ko.observable(entity);
     this.selectionManager = selectionManager;
+    
     //selectify the entity
-    if (this.entity()['__kg_selected__'] === undefined) {
-        this.entity()['__kg_selected__'] = ko.observable(false);
+    if (this.entity()[KEY] === undefined) {
+        this.entity()[KEY] = ko.observable(false);
     }
     this.selected = ko.dependentObservable({
         read: function () {
             if (!canSelectRows) {
                 return false;
             }
-            var val = self.entity()['__kg_selected__']();
+            var val = self.entity()[KEY]();
             return val;
         },
         write: function (val, evt) {
@@ -639,7 +652,7 @@ kg.Row = function (entity, config, selectionManager) {
                 return true;
             }
             self.beforeSelectionChange();
-            self.entity()['__kg_selected__'](val);
+            self.entity()[KEY](val);
             self.selectionManager.changeSelection(self, evt);
             self.afterSelectionChange();
             self.onSelectionChanged();
@@ -734,7 +747,7 @@ kg.CellFactory = function (cols) {
 /***********************************************
 * FILE: ..\Src\GridClasses\HeaderCell.js
 ***********************************************/
-kg.HeaderCell = function (col, rightHeaderGroup) {
+kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
     var self = this;
 
     this.colIndex = col.colIndex;
@@ -745,7 +758,7 @@ kg.HeaderCell = function (col, rightHeaderGroup) {
     this.headerClass = col.headerClass;
     this.headerTemplate = col.headerTemplate;
     this.hasHeaderTemplate = col.hasHeaderTemplate;
-    
+
     this.allowSort = ko.observable(col.allowSort);
     this.allowFilter = col.allowFilter;
     this.allowResize = ko.observable(col.allowResize);
@@ -799,6 +812,25 @@ kg.HeaderCell = function (col, rightHeaderGroup) {
     this.startMousePosition = 0;
     this.origWidth = 0;
     this.origMargin = 0;
+    
+    var DELAY = 500,
+    clicks = 0,
+    timer = null;
+
+    this.gripClick = function(event) {
+        clicks++;  //count clicks
+        if(clicks === 1) {
+            timer = setTimeout(function () {
+                //Here you can add a single click action.
+                clicks = 0;  //after action performed, reset counter
+            }, DELAY);
+        } else {
+            clearTimeout(timer);  //prevent single-click action
+            resizeOnDataCallback(self.column);  //perform double-click action
+            clicks = 0;  //after action performed, reset counter
+        }
+    };
+
     this.gripOnMouseUp = function () {
         $(document).off('mousemove');
         $(document).off('mouseup');
@@ -1928,7 +1960,8 @@ kg.KoGrid = function (options, gridWidth) {
         tabIndex: -1,
         disableTextSelection: false,
         enableColumnResize: true,
-		allowFiltering: true
+        allowFiltering: true,
+        resizeOnAllData: false
     },
 
     self = this,
@@ -2087,12 +2120,21 @@ kg.KoGrid = function (options, gridWidth) {
             // get column width out of the observable
             var t = col.width();
             // check if it is a number
-            if (isNaN(t)){
+            if (isNaN(t)) {
+                //get it again?
+                t = col.width();
                 // figure out if the width is defined or if we need to calculate it
                 if (t == undefined) {
                     // set the width to the length of the header title +30 for sorting icons and padding
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
-                } else if (t.indexOf("*") != -1){
+                } else if (t == "auto") { // set it for now until we have data and subscribe when it changes so we can set the width.
+                    col.width(col.minWidth());
+                    col.autoWidthSubscription = self.finalData.subscribe(function (newArr) {
+                        if (newArr.length > 0) {
+                            self.resizeOnData(col, true);
+                        }
+                    });
+                } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
                     if (i + 1 == numOfCols && asteriskNum == 0) {
                         col.width(self.getScrollerOffset(self.width() - totalWidth));
@@ -2193,6 +2235,9 @@ kg.KoGrid = function (options, gridWidth) {
 
     //keep selected item scrolled into view
     this.finalData.subscribe(function () {
+        kg.utils.forEach(self.columns(), function (col) {
+            col.longest = null;
+        });
          if (self.config.selectedItems()) {
             var lastItemIndex = self.config.selectedItems().length - 1;
             if (lastItemIndex <= 0) {
@@ -2207,11 +2252,9 @@ kg.KoGrid = function (options, gridWidth) {
     var scrollIntoView = function (entity) {
         var itemIndex,
             viewableRange = self.rowManager.viewableRange();
-
         if (entity) {
             itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
         }
-
         if (itemIndex > -1) {
             //check and see if its already in view!
             if (itemIndex > viewableRange.topRow || itemIndex < viewableRange.bottomRow - 5) {
@@ -2225,7 +2268,27 @@ kg.KoGrid = function (options, gridWidth) {
             }
         };
     };
-
+    this.resizeOnData = function (col, override) {
+        if (col.longest) { // check for cache so we don't calculate again
+            col.width(col.longest);
+        } else {// we calculate the longest data.
+            var road = override || self.config.resizeOnAllData;
+            var longest = col.minWidth();
+            var arr = road ? self.finalData() : self.rows();
+            kg.utils.forEach(arr, function(data) {
+                var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
+                if (i > longest) {
+                    longest = i;
+                }
+            });
+            longest += 10; //add 10 px for decent padding if resizing on data.
+            col.longest = longest > col.maxWidth() ? col.maxWidth() : longest;
+            col.width(longest);
+        }
+        if (col.autoWidthSubscription) { // check for a subsciption and delete it.
+            col.autoWidthSubscription.dispose();
+        }
+    };
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),
@@ -3018,7 +3081,7 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
             if (hgs) {
                 hg = hgs[col.headerGroup || i];
             }
-            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined);
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid.resizeOnData);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
@@ -3040,19 +3103,19 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
     };
 
     return {
-        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             buildHeaders(grid);
 
             return ko.bindingHandlers.template.init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var grid = bindingContext.$data;
 
             return ko.bindingHandlers.template.update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
         }
-    }
+    };
 } ());
 
 /***********************************************

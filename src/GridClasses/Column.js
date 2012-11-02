@@ -5,11 +5,13 @@
 
     this.width = ko.observable(colDef.width);
     this.widthIsConfigured = false;
-
+    this.autoWidthSubscription = undefined;
+    
     this.headerGroup = colDef.headerGroup;
-
-    this.minWidth = minWisOb ? colDef.minWidth : ( !colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
-    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9000) : ko.observable(colDef.maxWidth));
+    // don't want the width to be smaller than this
+    this.minWidth = minWisOb ? colDef.minWidth : (!colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    // default max is OVER 9000!
+    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9001) : ko.observable(colDef.maxWidth));
     
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
