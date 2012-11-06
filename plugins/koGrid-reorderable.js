@@ -7,13 +7,23 @@
     self.config = $.extend(defaults, options);
     self.myGrid = null;
 
-    // The init method gets called during the ng-grid directive execution.
-    self.init = function (grid) {
+    // The init method gets called during the koGrid binding handler execution.
+    self.onGridInit = function (grid) {
+        /* logic */
+
+    };
+    self.onGridUpdate = function (grid) {
+        /* logic */
         // The directive passes in the grid scope and the grid object which we will want to save for manipulation later.
         self.myGrid = grid;
         // In this example we want to assign grid events.
         self.assignEvents();
     };
+    self.onRowsChanged = function (grid, rowCollection) {
+        /* logic */
+    };
+    
+    //internal funcs
     self.colToMove = undefined;
     self.rowToMove = undefined;
     self.assignEvents = function () {

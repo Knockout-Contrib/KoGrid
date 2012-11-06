@@ -64,7 +64,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-            
+
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -88,9 +88,6 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
-            kg.utils.forEach(grid.config.plugins, function(p) {
-                p.init(grid);
-            });
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 

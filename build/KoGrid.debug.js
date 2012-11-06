@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/05/2012 19:40:39
+* Compiled At: 11/05/2012 21:34:40
 ***********************************************/
 
 
@@ -667,7 +667,7 @@ kg.Row = function (entity, config, selectionManager) {
         var element = event.target;
 
         //check and make sure its not the bubbling up of our checked 'click' event 
-        if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
+        if (element.type == "checkbox" && $(element).parent().attr('class').indexOf("kgSelectionCell" !== -1)) {
             return true;
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
@@ -827,7 +827,8 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
             }, DELAY);
         } else {
             clearTimeout(timer);  //prevent single-click action
-            grid.resizeOnDataCallback(self.column);  //perform double-click action
+            grid.resizeOnData(self.column);  //perform double-click action
+            kg.cssBuilder.buildStyles(grid);
             clicks = 0;  //after action performed, reset counter
         }
     };
@@ -976,7 +977,9 @@ kg.RowManager = function (grid) {
             //null the row pointer for next iteration
             row = null;
         });
-
+        kg.utils.forEach(grid.config.plugins, function (p) {
+            p.onRowsChanged(grid, rowArr);
+        });
         self.rows(rowArr);
     });
 
@@ -2406,14 +2409,14 @@ kg.KoGrid = function (options, gridWidth) {
                 columnDefs.splice(targetCol, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
             }
         }
-                
-        var createColumnSortClosure = function (col) {
-            return function (dir) {
+
+        var createColumnSortClosure = function(col) {
+            return function(dir) {
                 if (dir) {
                     self.sortData(col, dir);
                 }
-            }
-        }
+            };
+        };
 
         if (columnDefs.length > 0) {
 
@@ -2467,7 +2470,9 @@ kg.KoGrid = function (options, gridWidth) {
         self.rows = self.rowManager.rows; // dependent observable
 
         kg.cssBuilder.buildStyles(self);
-
+        kg.utils.forEach(self.config.plugins, function (p) {
+            p.onGridInit(self);
+        });
         self.initPhase = 1;
     };
 
@@ -2490,6 +2495,9 @@ kg.KoGrid = function (options, gridWidth) {
         } else {
             h_updateTimeout = setTimeout(updater, 0);
         }
+        kg.utils.forEach(self.config.plugins, function(p) {
+            p.onGridUpdate(self);
+        });
     };
 
     this.showFilter_Click = function () {
@@ -2868,7 +2876,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-            
+
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -2892,9 +2900,6 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
-            kg.utils.forEach(grid.config.plugins, function(p) {
-                p.init(grid);
-            });
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 

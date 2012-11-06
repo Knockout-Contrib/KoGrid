@@ -60,7 +60,8 @@ kg.getTestGrid = function () {
         config: {
             rowHeight: 30,
             currentPage: ko.observable(1),
-            pageSize: ko.observable(100)
+            pageSize: ko.observable(100),
+            plugins: []
         },
         changeSelectedItem: function (handler) {
 

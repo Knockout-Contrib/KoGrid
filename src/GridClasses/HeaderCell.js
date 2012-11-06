@@ -77,7 +77,8 @@
             }, DELAY);
         } else {
             clearTimeout(timer);  //prevent single-click action
-            grid.resizeOnDataCallback(self.column);  //perform double-click action
+            grid.resizeOnData(self.column);  //perform double-click action
+            kg.cssBuilder.buildStyles(grid);
             clicks = 0;  //after action performed, reset counter
         }
     };
