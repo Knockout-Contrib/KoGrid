@@ -41,17 +41,18 @@ ko.bindingHandlers['koGrid'] = (function () {
                 displaySelectionCheckbox: grid.config.displaySelectionCheckbox, //toggles whether row selection check boxes appear
                 displayRowIndex: grid.config.displayRowIndex, //shows the rowIndex cell at the far left of each row
             });
-
             //subscribe to the columns and recrate the grid if they change
-            grid.config.columnDefs.subscribe(function (){
+            kg.gridManager.columnDefSubs[grid.gridId] = grid.config.columnDefs.subscribe(function () {
                 var oldgrid = kg.gridManager.getGrid(element);
                 var oldgridId = oldgrid.gridId.toString();
+                oldgrid.$styleSheet.remove();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")
                           .removeClass(oldgridId);
                 kg.gridManager.removeGrid(oldgridId);
                 ko.applyBindings(bindingContext, element);
+                kg.cssBuilder.buildStyles(kg.gridManager.getGrid(element));
             });
             
             //get the container sizes
@@ -63,7 +64,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-            
+
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 

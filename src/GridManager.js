@@ -4,7 +4,7 @@
 
     //#region Public Properties
     this.gridCache = {};
-
+    this.columnDefSubs = { };
     //#endregion
 
     //#region Public Methods
@@ -13,7 +13,8 @@
         element[elementGridKey] = grid.gridId;
     };
     
-    this.removeGrid = function(gridId) {
+    this.removeGrid = function (gridId) {
+        self.columnDefSubs[gridId].dispose();
         delete self.gridCache[gridId];
     };
 

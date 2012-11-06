@@ -2,7 +2,7 @@
 $CurrentDir = (Get-Location).Path;
 $OutPutFile = $CurrentDir + "\KoGrid.debug.js";
 $TempFile = $OutPutFile + ".temp";
-$FinalFile = "..\KoGrid-1.2.4.debug.js";
+$FinalFile = "..\KoGrid-1.3.0.debug.js";
 $BuildOrder = $CurrentDir + "\build-order.txt";
 
 Write-Host "JSBuild Starting...";

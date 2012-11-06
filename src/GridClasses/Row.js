@@ -41,7 +41,7 @@ kg.Row = function (entity, config, selectionManager) {
         var element = event.target;
 
         //check and make sure its not the bubbling up of our checked 'click' event 
-        if (element.type == "checkbox" && element.parentElement.className.indexOf("kgSelectionCell" !== -1)) {
+        if (element.type == "checkbox" && $(element).parent().attr('class').indexOf("kgSelectionCell" !== -1)) {
             return true;
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
