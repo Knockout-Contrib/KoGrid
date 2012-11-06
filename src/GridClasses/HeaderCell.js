@@ -1,4 +1,4 @@
-﻿kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
+﻿kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     var self = this;
 
     this.colIndex = col.colIndex;
@@ -77,7 +77,7 @@
             }, DELAY);
         } else {
             clearTimeout(timer);  //prevent single-click action
-            resizeOnDataCallback(self.column);  //perform double-click action
+            grid.resizeOnDataCallback(self.column);  //perform double-click action
             clicks = 0;  //after action performed, reset counter
         }
     };
@@ -100,6 +100,7 @@
         };
         setMargins(self.rightHeaderGroup, diff),
         self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        kg.cssBuilder.buildStyles(grid);
         return false;
     };
     this.gripOnMouseDown = function (event) {
