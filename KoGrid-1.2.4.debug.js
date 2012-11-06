@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/05/2012 21:51:06
+* Compiled At: 11/05/2012 22:10:15
 ***********************************************/
 
 
@@ -1810,7 +1810,7 @@ kg.gridManager = (new function () {
 
     //#region Public Properties
     this.gridCache = {};
-
+    this.columnDefSubs = { };
     //#endregion
 
     //#region Public Methods
@@ -1819,7 +1819,8 @@ kg.gridManager = (new function () {
         element[elementGridKey] = grid.gridId;
     };
     
-    this.removeGrid = function(gridId) {
+    this.removeGrid = function (gridId) {
+        self.columnDefSubs[gridId].dispose();
         delete self.gridCache[gridId];
     };
 
@@ -2853,11 +2854,11 @@ ko.bindingHandlers['koGrid'] = (function () {
                 displaySelectionCheckbox: grid.config.displaySelectionCheckbox, //toggles whether row selection check boxes appear
                 displayRowIndex: grid.config.displayRowIndex, //shows the rowIndex cell at the far left of each row
             });
-
             //subscribe to the columns and recrate the grid if they change
-            grid.config.columnDefs.subscribe(function (){
+            kg.gridManager.columnDefSubs[grid.gridId] = grid.config.columnDefs.subscribe(function () {
                 var oldgrid = kg.gridManager.getGrid(element);
                 var oldgridId = oldgrid.gridId.toString();
+                oldgrid.$styleSheet.remove();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")

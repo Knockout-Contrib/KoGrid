@@ -41,11 +41,11 @@ ko.bindingHandlers['koGrid'] = (function () {
                 displaySelectionCheckbox: grid.config.displaySelectionCheckbox, //toggles whether row selection check boxes appear
                 displayRowIndex: grid.config.displayRowIndex, //shows the rowIndex cell at the far left of each row
             });
-
             //subscribe to the columns and recrate the grid if they change
-            grid.config.columnDefs.subscribe(function (){
+            kg.gridManager.columnDefSubs[grid.gridId] = grid.config.columnDefs.subscribe(function () {
                 var oldgrid = kg.gridManager.getGrid(element);
                 var oldgridId = oldgrid.gridId.toString();
+                oldgrid.$styleSheet.remove();
                 $(element).empty(); 
                 $(element).removeClass("kgGrid")
                           .removeClass("ui-widget")

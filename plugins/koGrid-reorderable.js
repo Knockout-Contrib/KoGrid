@@ -42,7 +42,7 @@
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
         var headerContainer = $(event.srcElement).closest('.kgHeaderCell');
-        var bindingContext = headerContainer[0]["bindingContext"];
+        var bindingContext = headerContainer[0] ? headerContainer[0]["bindingContext"] : undefined;
         // Get the scope from the header container
         if (bindingContext) {
             // set draggable events
@@ -71,8 +71,8 @@
         self.onHeaderDragStop();
         // Get the closest header to where we dropped
         var headerContainer = $(event.srcElement).closest('.kgHeaderCell');
-        var bindingContext = headerContainer[0]["bindingContext"];
-        if (bindingContext) {
+        var bindingContext = headerContainer[0] ? headerContainer[0]["bindingContext"] : undefined;
+        if (bindingContext && self.colToMove) {
             // If we have the same column, do nothing.
             if (self.colToMove.column == bindingContext.column) return;
             // Splice the columns
@@ -95,7 +95,7 @@
         // Get the closest row element from where we clicked.
         var targetRow = $(event.srcElement).closest('.kgRow');
         // Get the data context from the row element
-        var bindingContext = targetRow[0]['bindingContext'];
+        var bindingContext = targetRow[0] ? targetRow[0]['bindingContext'] : undefined;;
         if (bindingContext) {
             // set draggable events
             targetRow.attr('draggable', 'true');
@@ -108,8 +108,8 @@
         // Get the closest row to where we dropped
         var targetRow = $(event.srcElement).closest('.kgRow');
         // Get the scope from the row element.        
-        var bindingContext = targetRow[0]['bindingContext'];
-        if (bindingContext) {
+        var bindingContext = targetRow[0] ? targetRow[0]['bindingContext'] : undefined;
+        if (bindingContext && self.rowToMove) {
             // If we have the same Row, do nothing.
             if (self.rowToMove.row == bindingContext) return;
             // Splice the Rows via the actual datasource
