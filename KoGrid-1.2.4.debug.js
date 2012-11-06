@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/02/2012 16:53:22
+* Compiled At: 11/05/2012 19:40:39
 ***********************************************/
 
 
@@ -550,6 +550,7 @@ kg.Column = function (colDef, index) {
     var minWisOb = ko.isObservable(colDef.minWidth);
     var maxWisOb = ko.isObservable(colDef.maxWidth);
 
+    this.def = colDef;
     this.width = ko.observable(colDef.width);
     this.widthIsConfigured = false;
     this.autoWidthSubscription = undefined;
@@ -747,7 +748,7 @@ kg.CellFactory = function (cols) {
 /***********************************************
 * FILE: ..\Src\GridClasses\HeaderCell.js
 ***********************************************/
-kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
+kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     var self = this;
 
     this.colIndex = col.colIndex;
@@ -826,7 +827,7 @@ kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
             }, DELAY);
         } else {
             clearTimeout(timer);  //prevent single-click action
-            resizeOnDataCallback(self.column);  //perform double-click action
+            grid.resizeOnDataCallback(self.column);  //perform double-click action
             clicks = 0;  //after action performed, reset counter
         }
     };
@@ -849,6 +850,7 @@ kg.HeaderCell = function (col, rightHeaderGroup, resizeOnDataCallback) {
         };
         setMargins(self.rightHeaderGroup, diff),
         self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        kg.cssBuilder.buildStyles(grid);
         return false;
     };
     this.gripOnMouseDown = function (event) {
@@ -1961,7 +1963,8 @@ kg.KoGrid = function (options, gridWidth) {
         disableTextSelection: false,
         enableColumnResize: true,
         allowFiltering: true,
-        resizeOnAllData: false
+        resizeOnAllData: false,
+        plugins: []
     },
 
     self = this,
@@ -2208,7 +2211,7 @@ kg.KoGrid = function (options, gridWidth) {
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
-        newDim.outerWidth = self.totalRowWidth();
+        newDim.outerWidth = self.totalRowWidth() + 17;
         return newDim;
     });
 
@@ -2458,7 +2461,7 @@ kg.KoGrid = function (options, gridWidth) {
                 });
             }
         });
-        
+
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
@@ -2853,6 +2856,7 @@ ko.bindingHandlers['koGrid'] = (function () {
                           .removeClass(oldgridId);
                 kg.gridManager.removeGrid(oldgridId);
                 ko.applyBindings(bindingContext, element);
+                kg.cssBuilder.buildStyles(kg.gridManager.getGrid(element));
             });
             
             //get the container sizes
@@ -2888,6 +2892,9 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
+            kg.utils.forEach(grid.config.plugins, function(p) {
+                p.init(grid);
+            });
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 
@@ -3081,7 +3088,7 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
             if (hgs) {
                 hg = hgs[col.headerGroup || i];
             }
-            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid.resizeOnData);
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
@@ -3162,7 +3169,7 @@ ko.bindingHandlers['kgHeader'] = (function () {
                     
                     //format the header cell
                     element.className += " kgHeaderCell col" + cell.colIndex + " ";
-                    
+                    element["bindingContext"] = cell;
                     //add the custom class in case it has been provided
                     if (cell.headerClass) {
                         element.className += " " + cell.headerClass;

@@ -52,6 +52,7 @@ ko.bindingHandlers['koGrid'] = (function () {
                           .removeClass(oldgridId);
                 kg.gridManager.removeGrid(oldgridId);
                 ko.applyBindings(bindingContext, element);
+                kg.cssBuilder.buildStyles(kg.gridManager.getGrid(element));
             });
             
             //get the container sizes
@@ -87,6 +88,9 @@ ko.bindingHandlers['koGrid'] = (function () {
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
 
+            kg.utils.forEach(grid.config.plugins, function(p) {
+                p.init(grid);
+            });
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
 

@@ -40,7 +40,8 @@ kg.KoGrid = function (options, gridWidth) {
         disableTextSelection: false,
         enableColumnResize: true,
         allowFiltering: true,
-        resizeOnAllData: false
+        resizeOnAllData: false,
+        plugins: []
     },
 
     self = this,
@@ -287,7 +288,7 @@ kg.KoGrid = function (options, gridWidth) {
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
-        newDim.outerWidth = self.totalRowWidth();
+        newDim.outerWidth = self.totalRowWidth() + 17;
         return newDim;
     });
 
@@ -537,7 +538,7 @@ kg.KoGrid = function (options, gridWidth) {
                 });
             }
         });
-        
+
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
