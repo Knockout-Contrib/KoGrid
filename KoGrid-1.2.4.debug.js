@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/05/2012 21:34:40
+* Compiled At: 11/05/2012 21:51:06
 ***********************************************/
 
 
@@ -3028,7 +3028,7 @@ ko.bindingHandlers['kgRow'] = (function () {
             element['__kg_rowIndex__'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
-
+            element['bindingContext'] = row;
             //ensure we know the node to dispose later!
 
             rowSubscription = rowManager.rowSubscriptions[row.rowIndex];

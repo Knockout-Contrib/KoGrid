@@ -18,7 +18,7 @@ ko.bindingHandlers['kgRow'] = (function () {
             element['__kg_rowIndex__'] = row.rowIndex;
             element.style.top = row.offsetTop + 'px';
             element.className = classes;
-
+            element['bindingContext'] = row;
             //ensure we know the node to dispose later!
 
             rowSubscription = rowManager.rowSubscriptions[row.rowIndex];

@@ -31,9 +31,9 @@
         if (self.config.enableHeader) {
             self.myGrid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
         }
-        //if (self.config.enableRow) {
-        //    self.myGrid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
-        //}
+        if (self.config.enableRow) {
+            self.myGrid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
+        }
     };
     self.dragOver = function(evt) {
         evt.preventDefault();
@@ -91,36 +91,37 @@
     };
     
     //// Row functions
-    //self.onRowMouseDown = function (event) {
-    //    // Get the closest row element from where we clicked.
-    //    var targetRow = $(event.srcElement).closest('.ngRow');
-    //    // Get the scope from the row element
-    //    var rowScope = angular.element(targetRow).scope();
-    //    if (rowScope) {
-    //        // set draggable events
-    //        targetRow.attr('draggable', 'true');
-    //        // Save the row for later.
-    //        self.rowToMove = { targetRow: targetRow, scope: rowScope };
-    //    }
-    //};
+    self.onRowMouseDown = function (event) {
+        // Get the closest row element from where we clicked.
+        var targetRow = $(event.srcElement).closest('.kgRow');
+        // Get the data context from the row element
+        var bindingContext = targetRow[0]['bindingContext'];
+        if (bindingContext) {
+            // set draggable events
+            targetRow.attr('draggable', 'true');
+            // Save the row for later.
+            self.rowToMove = { targetRow: targetRow, row: bindingContext };
+        }
+    };
 
-    //self.onRowDrop = function (event) {
-    //    // Get the closest row to where we dropped
-    //    var targetRow = $(event.srcElement).closest('.ngRow');
-    //    // Get the scope from the row element.
-    //    var rowScope = angular.element(targetRow).scope();
-    //    if (rowScope) {
-    //        // If we have the same Row, do nothing.
-    //        if (self.rowToMove.scope.row == rowScope.row) return;
-    //        // Splice the Rows via the actual datasource
-    //        var i = self.$scope.dataSource.indexOf(self.rowToMove.scope.row.entity);
-    //        var j = self.$scope.dataSource.indexOf(rowScope.row.entity);
-    //        self.$scope.dataSource.splice(i, 1);
-    //        self.$scope.dataSource.splice(j, 0, self.rowToMove.scope.row.entity);
-    //        // clear out the rowToMove object
-    //        self.rowToMove = undefined;
-    //        // if there isn't an apply already in progress lets start one
-    //        if (!self.$scope.$$phase) self.$scope.$apply();
-    //    }
-    //};
+    self.onRowDrop = function (event) {
+        // Get the closest row to where we dropped
+        var targetRow = $(event.srcElement).closest('.kgRow');
+        // Get the scope from the row element.        
+        var bindingContext = targetRow[0]['bindingContext'];
+        if (bindingContext) {
+            // If we have the same Row, do nothing.
+            if (self.rowToMove.row == bindingContext) return;
+            // Splice the Rows via the actual datasource
+            var data = self.myGrid.data();
+            var i = data.indexOf(self.rowToMove.row.entity());
+            var j = data.indexOf(bindingContext.entity());
+            data.splice(i, 1);
+            data.splice(j, 0, self.rowToMove.row.entity());
+            // clear out the rowToMove object
+            self.rowToMove = undefined;
+            self.myGrid.data(data);
+            // if there isn't an apply already in progress lets start one
+        }
+    };
 };
