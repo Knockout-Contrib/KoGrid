@@ -40,7 +40,8 @@ kg.KoGrid = function (options, gridWidth) {
         disableTextSelection: false,
         enableColumnResize: true,
         allowFiltering: true,
-        resizeOnAllData: false
+        resizeOnAllData: false,
+        plugins: []
     },
 
     self = this,
@@ -287,7 +288,7 @@ kg.KoGrid = function (options, gridWidth) {
             newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
-        newDim.outerWidth = self.totalRowWidth();
+        newDim.outerWidth = self.totalRowWidth() + 17;
         return newDim;
     });
 
@@ -482,14 +483,14 @@ kg.KoGrid = function (options, gridWidth) {
                 columnDefs.splice(targetCol, 0, { field: '__kg_selected__', width: self.elementDims.rowSelectedCellW });
             }
         }
-                
-        var createColumnSortClosure = function (col) {
-            return function (dir) {
+
+        var createColumnSortClosure = function(col) {
+            return function(dir) {
                 if (dir) {
                     self.sortData(col, dir);
                 }
-            }
-        }
+            };
+        };
 
         if (columnDefs.length > 0) {
 
@@ -537,13 +538,15 @@ kg.KoGrid = function (options, gridWidth) {
                 });
             }
         });
-        
+
         self.selectedItemCount = self.selectionManager.selectedItemCount;
         self.toggleSelectAll = self.selectionManager.toggleSelectAll;
         self.rows = self.rowManager.rows; // dependent observable
 
         kg.cssBuilder.buildStyles(self);
-
+        kg.utils.forEach(self.config.plugins, function (p) {
+            p.onGridInit(self);
+        });
         self.initPhase = 1;
     };
 
@@ -566,6 +569,9 @@ kg.KoGrid = function (options, gridWidth) {
         } else {
             h_updateTimeout = setTimeout(updater, 0);
         }
+        kg.utils.forEach(self.config.plugins, function(p) {
+            p.onGridUpdate(self);
+        });
     };
 
     this.showFilter_Click = function () {

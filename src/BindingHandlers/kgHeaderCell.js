@@ -39,7 +39,7 @@
                     
                     //format the header cell
                     element.className += " kgHeaderCell col" + cell.colIndex + " ";
-                    
+                    element["bindingContext"] = cell;
                     //add the custom class in case it has been provided
                     if (cell.headerClass) {
                         element.className += " " + cell.headerClass;

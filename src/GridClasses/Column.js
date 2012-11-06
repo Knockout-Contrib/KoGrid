@@ -3,6 +3,7 @@
     var minWisOb = ko.isObservable(colDef.minWidth);
     var maxWisOb = ko.isObservable(colDef.maxWidth);
 
+    this.def = colDef;
     this.width = ko.observable(colDef.width);
     this.widthIsConfigured = false;
     this.autoWidthSubscription = undefined;

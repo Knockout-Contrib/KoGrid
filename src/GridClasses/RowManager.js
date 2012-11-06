@@ -89,7 +89,9 @@
             //null the row pointer for next iteration
             row = null;
         });
-
+        kg.utils.forEach(grid.config.plugins, function (p) {
+            p.onRowsChanged(grid, rowArr);
+        });
         self.rows(rowArr);
     });
 

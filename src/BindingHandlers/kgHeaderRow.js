@@ -12,7 +12,7 @@
             if (hgs) {
                 hg = hgs[col.headerGroup || i];
             }
-            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid.resizeOnData);
+            cell = new kg.HeaderCell(col, hg ? hgs[hg.rightHeaderGroup] : undefined, grid);
             cell.colIndex = i;
 
             headerRow.headerCells.push(cell);
