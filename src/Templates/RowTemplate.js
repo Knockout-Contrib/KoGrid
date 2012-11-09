@@ -26,7 +26,7 @@
 
             // run any changes on the template for re-usable templates
             tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || 'kgEmpty');
-            tmpl = tmpl.replace(/\$cellValue/g, "$data." + col.field);
+            tmpl = tmpl.replace(/\$cellValue/g, "$data['" + col.field + "']");
             tmpl = tmpl.replace(/\$cell/g, replacer);
 
             b.append(tmpl);
