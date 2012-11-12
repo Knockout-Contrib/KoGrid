@@ -9,7 +9,6 @@ kg.cssBuilder = {
             headerRowHeight = grid.config.headerRowHeight,
             $style = grid.$styleSheet,
             gridId = grid.gridId,
-            rules,
             i = 0,
             len = grid.columns().length,
             css = new kg.utils.StringBuilder(),
@@ -31,7 +30,7 @@ kg.cssBuilder = {
         for (; i < len; i++) {
             col = grid.columns()[i];
             colWidth = col.width() - grid.elementDims.cellWdiff;
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px;}", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
             sumWidth += col.width();
         }
 

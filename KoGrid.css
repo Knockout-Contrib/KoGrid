@@ -30,6 +30,7 @@
     background-color: rgb(241, 241, 241); 
     padding: 0;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .kgHeaderTitleRow: last-child {
@@ -49,6 +50,7 @@
 
 .kgHeaderText {
 	margin-left: 5px;
+    white-space: nowrap;
 }
 
 .kgHeaderGrip { 

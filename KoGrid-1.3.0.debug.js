@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/05/2012 22:15:48
+* Compiled At: 11/12/2012 14:01:37
 ***********************************************/
 
 
@@ -330,16 +330,16 @@ kg.templates.generateHeaderTemplate = function (options) {
     
     kg.utils.forEach(cols, function (col) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{2}].width() + \'px\'}, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort, col.index);
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort, col.index);
             b.append('  <input type="checkbox" data-bind="visible: $parent.isMultiSelect, checked: $parent.toggleSelectAll"/>');
             b.append('</div>');
         } else if (col.field === 'rowIndex' &&  options.showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }, style: { width: $parent.columns()[{2}].width() + \'px\'},">', col.field, !col.allowSort, col.index);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} },">', col.field, !col.allowSort, col.index);
             b.append('<div title="Toggle Filter" class="kgFilterBtn" data-bind="css:{\'closeBtn\' : $data.filterVisible() == true, \'openBtn\' : $data.filterVisible() == false }, click: $parent.showFilter_Click"></div>');
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
+            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
             b.append('</div>');
         }
     });
@@ -401,7 +401,7 @@ kg.templates.generateRowTemplate = function (options) {
 
             // run any changes on the template for re-usable templates
             tmpl = tmpl.replace(/\$cellClass/g, col.cellClass || 'kgEmpty');
-            tmpl = tmpl.replace(/\$cellValue/g, "$data." + col.field);
+            tmpl = tmpl.replace(/\$cellValue/g, "$data['" + col.field + "']");
             tmpl = tmpl.replace(/\$cell/g, replacer);
 
             b.append(tmpl);
@@ -547,8 +547,6 @@ kg.Cell = function (col) {
 ***********************************************/
 kg.Column = function (colDef, index) {
     var self = this;
-    var minWisOb = ko.isObservable(colDef.minWidth);
-    var maxWisOb = ko.isObservable(colDef.maxWidth);
 
     this.def = colDef;
     this.width = ko.observable(colDef.width);
@@ -557,9 +555,9 @@ kg.Column = function (colDef, index) {
     
     this.headerGroup = colDef.headerGroup;
     // don't want the width to be smaller than this
-    this.minWidth = minWisOb ? colDef.minWidth : (!colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.minWidth = colDef.minWidth || 50;
     // default max is OVER 9000!
-    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9001) : ko.observable(colDef.maxWidth));
+    this.maxWidth = colDef.maxWidth || 9001;
     
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
@@ -834,8 +832,8 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     };
 
     this.gripOnMouseUp = function () {
-        $(document).off('mousemove');
-        $(document).off('mouseup');
+        $(grid.$root).off('mousemove');
+        $(grid.$root).off('mouseup');
         document.body.style.cursor = 'default';
         return false;
     };
@@ -850,7 +848,7 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
             }
         };
         setMargins(self.rightHeaderGroup, diff),
-        self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        self.width(newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
         kg.cssBuilder.buildStyles(grid);
         return false;
     };
@@ -864,8 +862,8 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
             }
         };
         setOrigMargins(self.rightHeaderGroup);
-        $(document).mousemove(self.onMouseMove);
-        $(document).mouseup(self.gripOnMouseUp);
+        $(grid.$root).mousemove(self.onMouseMove);
+        $(grid.$root).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;
@@ -2135,7 +2133,7 @@ kg.KoGrid = function (options, gridWidth) {
                     // set the width to the length of the header title +30 for sorting icons and padding
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
                 } else if (t == "auto") { // set it for now until we have data and subscribe when it changes so we can set the width.
-                    col.width(col.minWidth());
+                    col.width(col.minWidth);
                     col.autoWidthSubscription = self.finalData.subscribe(function (newArr) {
                         if (newArr.length > 0) {
                             self.resizeOnData(col, true);
@@ -2280,7 +2278,7 @@ kg.KoGrid = function (options, gridWidth) {
             col.width(col.longest);
         } else {// we calculate the longest data.
             var road = override || self.config.resizeOnAllData;
-            var longest = col.minWidth();
+            var longest = col.minWidth;
             var arr = road ? self.finalData() : self.rows();
             kg.utils.forEach(arr, function(data) {
                 var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
@@ -2289,7 +2287,7 @@ kg.KoGrid = function (options, gridWidth) {
                 }
             });
             longest += 10; //add 10 px for decent padding if resizing on data.
-            col.longest = longest > col.maxWidth() ? col.maxWidth() : longest;
+            col.longest = Math.min(col.maxWidth, longest);
             col.width(longest);
         }
         if (col.autoWidthSubscription) { // check for a subsciption and delete it.
@@ -2545,7 +2543,6 @@ kg.cssBuilder = {
             headerRowHeight = grid.config.headerRowHeight,
             $style = grid.$styleSheet,
             gridId = grid.gridId,
-            rules,
             i = 0,
             len = grid.columns().length,
             css = new kg.utils.StringBuilder(),
@@ -2567,7 +2564,7 @@ kg.cssBuilder = {
         for (; i < len; i++) {
             col = grid.columns()[i];
             colWidth = col.width() - grid.elementDims.cellWdiff;
-            css.append(".{0} .col{1} { left: {2}px; right: {3}px; }", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()));
+            css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px;}", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
             sumWidth += col.width();
         }
 

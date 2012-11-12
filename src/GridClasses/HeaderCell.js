@@ -84,8 +84,8 @@
     };
 
     this.gripOnMouseUp = function () {
-        $(document).off('mousemove');
-        $(document).off('mouseup');
+        $(grid.$root).off('mousemove');
+        $(grid.$root).off('mouseup');
         document.body.style.cursor = 'default';
         return false;
     };
@@ -100,7 +100,7 @@
             }
         };
         setMargins(self.rightHeaderGroup, diff),
-        self.width(newWidth < self.minWidth() ? self.minWidth() : (newWidth > self.maxWidth() ? self.maxWidth() : newWidth));
+        self.width(newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
         kg.cssBuilder.buildStyles(grid);
         return false;
     };
@@ -114,8 +114,8 @@
             }
         };
         setOrigMargins(self.rightHeaderGroup);
-        $(document).mousemove(self.onMouseMove);
-        $(document).mouseup(self.gripOnMouseUp);
+        $(grid.$root).mousemove(self.onMouseMove);
+        $(grid.$root).mouseup(self.gripOnMouseUp);
         document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         return false;

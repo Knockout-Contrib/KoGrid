@@ -74,16 +74,16 @@
     
     kg.utils.forEach(cols, function (col) {
         if (col.field === '__kg_selected__') {
-            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{2}].width() + \'px\'}, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort, col.index);
+            b.append('<div class="kgSelectionCell" data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }">', col.field, !col.allowSort, col.index);
             b.append('  <input type="checkbox" data-bind="visible: $parent.isMultiSelect, checked: $parent.toggleSelectAll"/>');
             b.append('</div>');
         } else if (col.field === 'rowIndex' &&  options.showFilter) {
-            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} }, style: { width: $parent.columns()[{2}].width() + \'px\'},">', col.field, !col.allowSort, col.index);
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {1} },">', col.field, !col.allowSort, col.index);
             b.append('<div title="Toggle Filter" class="kgFilterBtn" data-bind="css:{\'closeBtn\' : $data.filterVisible() == true, \'openBtn\' : $data.filterVisible() == false }, click: $parent.showFilter_Click"></div>');
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, style: { width: $parent.columns()[{1}].width() + \'px\'}, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
+            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
             b.append('</div>');
         }
     });

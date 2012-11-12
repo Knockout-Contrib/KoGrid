@@ -208,7 +208,7 @@ kg.KoGrid = function (options, gridWidth) {
                     // set the width to the length of the header title +30 for sorting icons and padding
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
                 } else if (t == "auto") { // set it for now until we have data and subscribe when it changes so we can set the width.
-                    col.width(col.minWidth());
+                    col.width(col.minWidth);
                     col.autoWidthSubscription = self.finalData.subscribe(function (newArr) {
                         if (newArr.length > 0) {
                             self.resizeOnData(col, true);
@@ -353,7 +353,7 @@ kg.KoGrid = function (options, gridWidth) {
             col.width(col.longest);
         } else {// we calculate the longest data.
             var road = override || self.config.resizeOnAllData;
-            var longest = col.minWidth();
+            var longest = col.minWidth;
             var arr = road ? self.finalData() : self.rows();
             kg.utils.forEach(arr, function(data) {
                 var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
@@ -362,7 +362,7 @@ kg.KoGrid = function (options, gridWidth) {
                 }
             });
             longest += 10; //add 10 px for decent padding if resizing on data.
-            col.longest = longest > col.maxWidth() ? col.maxWidth() : longest;
+            col.longest = Math.min(col.maxWidth, longest);
             col.width(longest);
         }
         if (col.autoWidthSubscription) { // check for a subsciption and delete it.

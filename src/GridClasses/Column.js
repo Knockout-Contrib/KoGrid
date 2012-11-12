@@ -1,7 +1,5 @@
 ﻿kg.Column = function (colDef, index) {
     var self = this;
-    var minWisOb = ko.isObservable(colDef.minWidth);
-    var maxWisOb = ko.isObservable(colDef.maxWidth);
 
     this.def = colDef;
     this.width = ko.observable(colDef.width);
@@ -10,9 +8,9 @@
     
     this.headerGroup = colDef.headerGroup;
     // don't want the width to be smaller than this
-    this.minWidth = minWisOb ? colDef.minWidth : (!colDef.minWidth ? ko.observable(50) : ko.observable(colDef.minWidth));
+    this.minWidth = colDef.minWidth || 50;
     // default max is OVER 9000!
-    this.maxWidth = maxWisOb ? colDef.maxWidth : ( !colDef.maxWidth ? ko.observable(9001) : ko.observable(colDef.maxWidth));
+    this.maxWidth = colDef.maxWidth || 9001;
     
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
