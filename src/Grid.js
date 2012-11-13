@@ -198,7 +198,7 @@ kg.KoGrid = function (options, gridWidth) {
             
         kg.utils.forEach(cols, function (col, i) {
             // get column width out of the observable
-            var t = col.width();
+            var t = parseInt(col.width());
             // check if it is a number
             if (isNaN(t)) {
                 //get it again?
@@ -233,6 +233,7 @@ kg.KoGrid = function (options, gridWidth) {
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
             // add the caluclated or pre-defined width the total width
+            col.width(t);
             totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later

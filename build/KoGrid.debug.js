@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/12/2012 14:01:37
+* Compiled At: 11/13/2012 13:34:58
 ***********************************************/
 
 
@@ -2123,7 +2123,7 @@ kg.KoGrid = function (options, gridWidth) {
             
         kg.utils.forEach(cols, function (col, i) {
             // get column width out of the observable
-            var t = col.width();
+            var t = parseInt(col.width());
             // check if it is a number
             if (isNaN(t)) {
                 //get it again?
@@ -2158,6 +2158,7 @@ kg.KoGrid = function (options, gridWidth) {
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
             // add the caluclated or pre-defined width the total width
+            col.width(t);
             totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later
