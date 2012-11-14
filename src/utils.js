@@ -1,13 +1,15 @@
 ﻿kg.utils = {
-    visualLength: function (string) {
+    visualLength: function (node) {
         var elem = document.getElementById('testDataLength');
         if (!elem) {
             elem = document.createElement('SPAN');
             elem.id = "testDataLength";
             elem.style.visibility = "hidden";
             document.body.appendChild(elem);
-        } 
-        elem.innerHTML = string;
+        }
+        var font = $(node).css('font');
+        $(elem).css('font', font);
+        elem.innerHTML = $(node).text();
         return elem.offsetWidth;
     },
     forEach: function (arr, action) {

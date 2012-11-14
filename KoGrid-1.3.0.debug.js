@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/14/2012 14:53:19
+* Compiled At: 11/14/2012 15:37:44
 ***********************************************/
 
 
@@ -98,15 +98,17 @@ kg.labels = {
 * FILE: ..\Src\Utils.js
 ***********************************************/
 kg.utils = {
-    visualLength: function (string) {
+    visualLength: function (node) {
         var elem = document.getElementById('testDataLength');
         if (!elem) {
             elem = document.createElement('SPAN');
             elem.id = "testDataLength";
             elem.style.visibility = "hidden";
             document.body.appendChild(elem);
-        } 
-        elem.innerHTML = string;
+        }
+        var font = $(node).css('font');
+        $(elem).css('font', font);
+        elem.innerHTML = $(node).text();
         return elem.offsetWidth;
     },
     forEach: function (arr, action) {
@@ -2136,7 +2138,7 @@ kg.KoGrid = function (options, gridWidth) {
                     col.width(col.minWidth);
                     var temp = col;
                     $(document).ready(function () {
-                        self.resizeOnData(temp, true);
+                        self.resizeOnData(temp);
                     });
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
@@ -2278,8 +2280,14 @@ kg.KoGrid = function (options, gridWidth) {
         } else {// we calculate the longest data.
             var longest = col.minWidth;
             var arr = kg.utils.getElementsByClassName('col' + col.index);
-            kg.utils.forEach(arr, function(elem) {
-                var i = Math.min(elem.scrollWidth, kg.utils.visualLength(elem.textContent));
+            kg.utils.forEach(arr, function (elem, index) {
+                var i = 0;
+                if (index == 0) {
+                    var kgHeaderText = $(elem).find('.kgHeaderText');
+                    i = kg.utils.visualLength(kgHeaderText) + 10;
+                } else {
+                    i = kg.utils.visualLength(elem);
+                }
                 if (i > longest) {
                     longest = i;
                 }

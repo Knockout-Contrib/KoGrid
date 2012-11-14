@@ -19,7 +19,6 @@
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgb(229, 229, 229);
-    font-weight: bold;
 }
 .kgHeaderScroller {
     position: absolute;
@@ -51,6 +50,7 @@
 .kgHeaderText {
 	margin-left: 5px;
     white-space: nowrap;
+    font-weight: bold;
 }
 
 .kgHeaderGrip { 

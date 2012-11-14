@@ -212,7 +212,7 @@ kg.KoGrid = function (options, gridWidth) {
                     col.width(col.minWidth);
                     var temp = col;
                     $(document).ready(function () {
-                        self.resizeOnData(temp, true);
+                        self.resizeOnData(temp);
                     });
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
@@ -354,8 +354,14 @@ kg.KoGrid = function (options, gridWidth) {
         } else {// we calculate the longest data.
             var longest = col.minWidth;
             var arr = kg.utils.getElementsByClassName('col' + col.index);
-            kg.utils.forEach(arr, function(elem) {
-                var i = Math.min(elem.scrollWidth, kg.utils.visualLength(elem.textContent));
+            kg.utils.forEach(arr, function (elem, index) {
+                var i = 0;
+                if (index == 0) {
+                    var kgHeaderText = $(elem).find('.kgHeaderText');
+                    i = kg.utils.visualLength(kgHeaderText) + 10;
+                } else {
+                    i = kg.utils.visualLength(elem);
+                }
                 if (i > longest) {
                     longest = i;
                 }
