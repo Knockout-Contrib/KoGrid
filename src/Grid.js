@@ -1,4 +1,5 @@
-﻿/// <reference path="../lib/jquery-1.7.js" />
+﻿/// <reference path="utils.js" />
+/// <reference path="../lib/jquery-1.7.js" />
 /// <reference path="../lib/knockout-2.0.0.debug.js" />
 
 kg.KoGrid = function (options, gridWidth) {
@@ -209,10 +210,9 @@ kg.KoGrid = function (options, gridWidth) {
                     col.width((col.displayName.length * kg.domUtility.letterW) + 30); 
                 } else if (t == "auto") { // set it for now until we have data and subscribe when it changes so we can set the width.
                     col.width(col.minWidth);
-                    col.autoWidthSubscription = self.finalData.subscribe(function (newArr) {
-                        if (newArr.length > 0) {
-                            self.resizeOnData(col, true);
-                        }
+                    var temp = col;
+                    $(document).ready(function () {
+                        self.resizeOnData(temp, true);
                     });
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
@@ -233,7 +233,6 @@ kg.KoGrid = function (options, gridWidth) {
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
             // add the caluclated or pre-defined width the total width
-            col.width(t);
             totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later
@@ -349,26 +348,22 @@ kg.KoGrid = function (options, gridWidth) {
             }
         };
     };
-    this.resizeOnData = function (col, override) {
+    this.resizeOnData = function (col) {
         if (col.longest) { // check for cache so we don't calculate again
             col.width(col.longest);
         } else {// we calculate the longest data.
-            var road = override || self.config.resizeOnAllData;
             var longest = col.minWidth;
-            var arr = road ? self.finalData() : self.rows();
-            kg.utils.forEach(arr, function(data) {
-                var i = kg.utils.visualLength(ko.utils.unwrapObservable(data[col.field]));
+            var arr = kg.utils.getElementsByClassName('col' + col.index);
+            kg.utils.forEach(arr, function(elem) {
+                var i = Math.min(elem.scrollWidth, kg.utils.visualLength(elem.textContent));
                 if (i > longest) {
                     longest = i;
                 }
             });
-            longest += 10; //add 10 px for decent padding if resizing on data.
             col.longest = Math.min(col.maxWidth, longest);
             col.width(longest);
         }
-        if (col.autoWidthSubscription) { // check for a subsciption and delete it.
-            col.autoWidthSubscription.dispose();
-        }
+        kg.cssBuilder.buildStyles(self);
     };
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),

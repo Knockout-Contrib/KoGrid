@@ -1,6 +1,6 @@
 ﻿window.getTestData = function () {
     var arr = ko.observableArray([
-                { 'Sku': ko.observable('C-2820164'), 'Vendor': 'NEWB', 'SeasonCode': null, 'Mfg_Id': ko.observable('573-9880954'), 'UPC': '822860449228' },
+                { 'Sku': ko.observable('H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791'), 'Vendor': 'NEWB', 'SeasonCode': null, 'Mfg_Id': ko.observable('573-9880954'), 'UPC': '822860449228' },
     { 'Sku': ko.observable('J-8555462'), 'Vendor': 'NIKE', 'SeasonCode': '', 'Mfg_Id': ko.observable('780-8855467'), 'UPC': '043208523549' },
     { 'Sku': ko.observable('K-5312708'), 'Vendor': 'REEB', 'SeasonCode': '1293', 'Mfg_Id': ko.observable('355-6906843'), 'UPC': '229487568922' },
     { 'Sku': ko.observable('W-4295255'), 'Vendor': 'REEB', 'SeasonCode': '6283', 'Mfg_Id': ko.observable('861-4929378'), 'UPC': '644134774391' },
@@ -14,7 +14,7 @@
     { 'Sku': ko.observable('E-3907768'), 'Vendor': 'HARR', 'SeasonCode': '4259', 'Mfg_Id': ko.observable('756-901863'), 'UPC': '361864227909' },
     { 'Sku': ko.observable('W-7161135'), 'Vendor': 'NEWB', 'SeasonCode': '6438', 'Mfg_Id': ko.observable('846-8566633'), 'UPC': '722583768810' },
     { 'Sku': ko.observable('L-5970493'), 'Vendor': 'NIKE', 'SeasonCode': '2379', 'Mfg_Id': ko.observable('878-2477758'), 'UPC': '636305130410' },
-    { 'Sku': ko.observable('H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791'), 'Vendor': 'LEVI', 'SeasonCode': '8842', 'Mfg_Id': ko.observable('558-2974511'), 'UPC': '155189345441' },
+    { 'Sku': ko.observable('C-2820164'), 'Vendor': 'LEVI', 'SeasonCode': '8842', 'Mfg_Id': ko.observable('558-2974511'), 'UPC': '155189345441' },
     { 'Sku': ko.observable('I-5912919'), 'Vendor': 'SPIN', 'SeasonCode': '4774', 'Mfg_Id': ko.observable('856-9799338'), 'UPC': '479383499849' },
     { 'Sku': ko.observable('Q-6829455'), 'Vendor': 'LEVI', 'SeasonCode': '623', 'Mfg_Id': ko.observable('194-9593517'), 'UPC': '061707327161' },
     { 'Sku': ko.observable('W-2924765'), 'Vendor': 'NIKE', 'SeasonCode': '7113', 'Mfg_Id': ko.observable('171-8285192'), 'UPC': '427818830049' },

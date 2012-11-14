@@ -112,6 +112,7 @@
     position: absolute;
     padding: 0;
     display: inline;
+    white-space: nowrap;
 }
 .kgRowIndexCell{ 
     text-align: center;
