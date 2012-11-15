@@ -17,7 +17,8 @@ do
     echo "/***********************************************" >> $OutPutFile.temp
     echo "* FILE: $A" >> $OutPutFile.temp
     echo "***********************************************/" >> $OutPutFile.temp
-    cat "$CurrentDir/$A" >> $OutPutFile.temp
+    # eliminate unicode Byte Order Mark
+    sed '1 s/^\xef\xbb\xbf//' "$CurrentDir/$A" >> $OutPutFile.temp
     echo >>$OutPutFile.temp
 done
 
