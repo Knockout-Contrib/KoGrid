@@ -114,7 +114,7 @@
     })(),
     
     makeTemplate: function (templId, templText) {
-        var template = document.createElement('script');
+        var template = document.createElement('div');
         $(template).attr('type', 'text/html');
         $(template).attr('id', templId);
         $(template).html(templText);

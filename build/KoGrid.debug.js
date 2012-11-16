@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/15/2012 21:35:53
+* Compiled At: 11/15/2012 22:26:29
 ***********************************************/
 
 (function(window, undefined){
@@ -214,7 +214,7 @@ kg.utils = {
     })(),
     
     makeTemplate: function (templId, templText) {
-        var template = document.createElement('script');
+        var template = document.createElement('div');
         $(template).attr('type', 'text/html');
         $(template).attr('id', templId);
         $(template).html(templText);
