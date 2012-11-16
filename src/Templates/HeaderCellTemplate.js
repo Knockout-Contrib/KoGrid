@@ -2,7 +2,7 @@ kg.templates.defaultHeaderCellTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort, css: $data.colClass" class="kgHeaderCellGroup">');
-    b.append('  <span data-bind="text: $data.displayName" class="kgHeaderText"></span>');
+    b.append('  <span data-bind="text: $data.displayName, css: $data.headerTextClass" class="kgHeaderText"></span>');
     b.append('  <div class="kgSortButtonDown" data-bind="visible: $data.allowSort() ? $data.sortAscVisible() : $data.allowSort()"></div>');
     b.append('  <div class="kgSortButtonUp" data-bind="visible: $data.allowSort() ? $data.sortDescVisible() : $data.allowSort()"></div>');
     b.append('</div>');

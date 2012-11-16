@@ -30,9 +30,6 @@
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
 }
 .kgHeaderGroupContainer{
 	border-bottom: 1px solid black; 

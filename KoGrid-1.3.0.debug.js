@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/15/2012 19:15:38
+* Compiled At: 11/15/2012 21:35:53
 ***********************************************/
 
 (function(window, undefined){
@@ -359,7 +359,7 @@ kg.templates.defaultHeaderCellTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
 
     b.append('<div data-bind="click: $data.sort, css: $data.colClass" class="kgHeaderCellGroup">');
-    b.append('  <span data-bind="text: $data.displayName" class="kgHeaderText"></span>');
+    b.append('  <span data-bind="text: $data.displayName, css: $data.headerTextClass" class="kgHeaderText"></span>');
     b.append('  <div class="kgSortButtonDown" data-bind="visible: $data.allowSort() ? $data.sortAscVisible() : $data.allowSort()"></div>');
     b.append('  <div class="kgSortButtonUp" data-bind="visible: $data.allowSort() ? $data.sortDescVisible() : $data.allowSort()"></div>');
     b.append('</div>');
@@ -814,7 +814,9 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     this.startMousePosition = 0;
     this.origWidth = 0;
     this.origMargin = 0;
-    
+    this.headerTextClass = ko.computed(function() {
+        return 'colht' + self.index;
+    });
     var DELAY = 500,
     clicks = 0,
     timer = null;
@@ -2569,6 +2571,7 @@ kg.cssBuilder = {
             col = grid.columns()[i];
             colWidth = col.width() - grid.elementDims.cellWdiff;
             css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px;}", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .colht{1} { width: {2}px; text-overflow: ellipsis; display: block; overflow: hidden}", gridId, i, colWidth);
             sumWidth += col.width();
         }
 

@@ -31,6 +31,7 @@ kg.cssBuilder = {
             col = grid.columns()[i];
             colWidth = col.width() - grid.elementDims.cellWdiff;
             css.append(".{0} .col{1} { left: {2}px; right: {3}px; width: {4}px;}", gridId, i, sumWidth, (grid.totalRowWidth() - sumWidth - col.width()), colWidth);
+            css.append(".{0} .colht{1} { width: {2}px; text-overflow: ellipsis; display: block; overflow: hidden}", gridId, i, colWidth);
             sumWidth += col.width();
         }
 

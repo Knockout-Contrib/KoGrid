@@ -64,7 +64,9 @@
     this.startMousePosition = 0;
     this.origWidth = 0;
     this.origMargin = 0;
-    
+    this.headerTextClass = ko.computed(function() {
+        return 'colht' + self.index;
+    });
     var DELAY = 500,
     clicks = 0,
     timer = null;
