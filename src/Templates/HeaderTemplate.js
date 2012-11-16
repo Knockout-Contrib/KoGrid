@@ -83,7 +83,7 @@
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort);
             b.append('</div>');
         }
     });

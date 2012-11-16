@@ -33,7 +33,7 @@
         }
         // finally just use a basic template for the cell
         else {
-            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || 'kgEmpty',  col.field);
+            b.append('<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $data[\'{1}\']"></span></div>', col.cellClass || 'kgEmpty', col.field);
         }
     });
 

@@ -1,7 +1,7 @@
 ﻿kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     var self = this;
 
-    this.colIndex = col.colIndex;
+    this.index = col.index;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
@@ -18,6 +18,7 @@
     this.minWidth = col.minWidth;
     this.maxWidth = col.maxWidth;
 
+    this.colClass = 'col' + this.index;
     this.filter = ko.computed({
         read: function () {
             return self.column.filter();

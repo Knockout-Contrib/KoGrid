@@ -18,7 +18,7 @@
                     <input type="text" data-bind="value: $cellValue" style="width: 80px"/>
                 </div>
             </script>
-            <div id="myGrid" style="height: 50%; width: 50%;" data-bind="koGrid: gridOptions">
+            <div id="myGrid" style="height: 90%; width: 50%;" data-bind="koGrid: gridOptions">
             </div>
         </div>
 
@@ -61,9 +61,9 @@
                 vm.isVisible(!vm.isVisible());
             }
         };
-        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: 'auto'}, 
-        { field: 'Vendor', displayName: 'Supplier', width: 120 },
-        { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }, 
+        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: '50%'}, 
+        { field: 'Vendor', displayName: 'Supplier', width: 'auto' },
+        { field: 'SeasonCode', displayName: 'My SeasonCode', width: '140px', cellTemplate: 'myCellTemplate' }, 
         { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
         { field: 'UPC', displayName: 'Bar Code', width: "*" }]);
         vm.gridOptions = { 

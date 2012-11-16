@@ -24,53 +24,33 @@
     position: absolute;
 }
 .kgHeaderCell {
-    text-align: left;
+	border-right: 1px solid rgb(212,212,212);
+    border-right-style: solid;
     position: absolute;
-    background-color: rgb(241, 241, 241); 
-    padding: 0;
     cursor: pointer;
+    white-space: nowrap;
     overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
 }
-
-.kgHeaderTitleRow: last-child {
-	border-right: 1px solid black;
-}
-
 .kgHeaderGroupContainer{
 	border-bottom: 1px solid black; 
-	border-left: 1px solid black; 
-	border-right: 1px solid black; 
-	color: black;
 }
 
 .kgHeaderCellGroup{
-	border-left: 1px solid black;
 }
 
 .kgHeaderText {
-	margin-left: 5px;
+    margin-left: 5px;
     white-space: nowrap;
     font-weight: bold;
 }
 
 .kgHeaderGrip { 
     cursor: col-resize; 
-    width: 5px; 
-	right: -1px;
-	margin-right: -2px;
-	margin-left: 3px;
-    top: 0; 
-    height: 100%; 
-    position: absolute; 
-    z-index: 1000; 
-}
-.kgHeaderGrip:hover { 
-	background-color:darkgray;
-    cursor: col-resize; 
-    width: 5px; 
-    right: -1px;
-    margin-right: -2px;
-    margin-left: 3px;
+    width: 10px; 
+	right: -5px;
     top: 0; 
     height: 100%; 
     position: absolute; 
@@ -108,17 +88,19 @@
 
 /******** Cells ********/
 .kgCell {
-    overflow: hidden; 
+    overflow: hidden;
     position: absolute;
-    padding: 0;
     display: inline;
+    white-space: nowrap;
+    border-right: 1px ;
+    border-right-style: inset;
+}
+.kgCellText {
+    margin-left: 5px;
     white-space: nowrap;
 }
 .kgRowIndexCell{ 
     text-align: center;
-}
-.kgSelectionCell {
-    
 }
 .kgSelectionCell input[type="checkbox"] {
     margin-left: auto; 
@@ -392,10 +374,4 @@
     background: linear-gradient(top,  #838383 0%,#6b6b6b 100%);
     width: 25px;
     cursor: auto;
-}
-.kgHeaderDisplayNameContainer{
-}
-
-.kgHeaderDisplayName{
-    
 }

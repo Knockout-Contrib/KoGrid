@@ -2,9 +2,10 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/14/2012 15:37:44
+* Compiled At: 11/15/2012 19:15:38
 ***********************************************/
 
+(function(window, undefined){
 
 /***********************************************
 * FILE: ..\Src\Namespace.js
@@ -341,7 +342,7 @@ kg.templates.generateHeaderTemplate = function (options) {
             b.append('<div title="Clear Filters" class="kgFilterBtn clearBtn" data-bind="visible: $data.filterVisible, click: $parent.clearFilter_Click"></div>');
             b.append('</div>');
         } else {
-            b.append('<div style="height: 30px; border-right: {3}; " data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort, col.index === (cols.length - 1) ? '1px solid black': '0');
+            b.append('<div data-bind="kgHeader: { value: \'{0}\' }, css: { \'kgNoSort\': {2} }">', col.field, col.index, !col.allowSort);
             b.append('</div>');
         }
     });
@@ -357,18 +358,17 @@ kg.templates.generateHeaderTemplate = function (options) {
 kg.templates.defaultHeaderCellTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
 
-    b.append('<div data-bind="click: $data.sort, css: { \'kgSorted\': !$data.noSortVisible() }" class="kgHeaderCellGroup">');
+    b.append('<div data-bind="click: $data.sort, css: $data.colClass" class="kgHeaderCellGroup">');
     b.append('  <span data-bind="text: $data.displayName" class="kgHeaderText"></span>');
     b.append('  <div class="kgSortButtonDown" data-bind="visible: $data.allowSort() ? $data.sortAscVisible() : $data.allowSort()"></div>');
     b.append('  <div class="kgSortButtonUp" data-bind="visible: $data.allowSort() ? $data.sortDescVisible() : $data.allowSort()"></div>');
     b.append('</div>');
-    if (!options.autogenerateColumns && options.enableColumnResize){
-        b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, click: $data.gripClick ,mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
-    }
     b.append('<div data-bind="visible: $data._filterVisible">');
     b.append('  <input type="text" data-bind="value: $data.column.filter, valueUpdate: \'afterkeydown\'" style="width: 80%" tabindex="1" />');
     b.append('</div>');
-
+    if (!options.autogenerateColumns && options.enableColumnResize) {
+        b.append('<div class="kgHeaderGrip" data-bind="visible: $data.allowResize, click: $data.gripClick ,mouseEvents: { mouseDown:  $data.gripOnMouseDown }"></div>');
+    }
     return b.toString();
 };
 
@@ -410,7 +410,7 @@ kg.templates.generateRowTemplate = function (options) {
         }
         // finally just use a basic template for the cell
         else {
-            b.append('  <div class="{0}"  data-bind="kgCell: { value: \'{1}\' } "></div>', col.cellClass || 'kgEmpty',  col.field);
+            b.append('<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $data[\'{1}\']"></span></div>', col.cellClass || 'kgEmpty', col.field);
         }
     });
 
@@ -751,7 +751,7 @@ kg.CellFactory = function (cols) {
 kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     var self = this;
 
-    this.colIndex = col.colIndex;
+    this.index = col.index;
     this.displayName = col.displayName;
     this.field = col.field;
     this.column = col;
@@ -768,6 +768,7 @@ kg.HeaderCell = function (col, rightHeaderGroup, grid) {
     this.minWidth = col.minWidth;
     this.maxWidth = col.maxWidth;
 
+    this.colClass = 'col' + this.index;
     this.filter = ko.computed({
         read: function () {
             return self.column.filter();
@@ -2125,7 +2126,9 @@ kg.KoGrid = function (options, gridWidth) {
             
         kg.utils.forEach(cols, function (col, i) {
             // get column width out of the observable
-            var t = parseInt(col.width());
+            var t = col.width();
+            var isPercent = isNaN(t) ? kg.utils.endsWith(t, "%") : false;
+            t = isPercent ? t : parseInt(t);
             // check if it is a number
             if (isNaN(t)) {
                 //get it again?
@@ -2149,7 +2152,7 @@ kg.KoGrid = function (options, gridWidth) {
                         asterisksArray.push(col);
                         return;
                     }
-                } else if (kg.utils.endsWith(t, "%")){ // If the width is a percentage, save it until the very last.
+                } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     percentArray.push(col);
                     return;
                 } else { // we can't parse the width so lets throw an error.
@@ -2159,6 +2162,7 @@ kg.KoGrid = function (options, gridWidth) {
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
             // add the caluclated or pre-defined width the total width
+            col.width(parseInt(col.width()));
             totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later
@@ -2275,26 +2279,23 @@ kg.KoGrid = function (options, gridWidth) {
         };
     };
     this.resizeOnData = function (col) {
-        if (col.longest) { // check for cache so we don't calculate again
-            col.width(col.longest);
-        } else {// we calculate the longest data.
-            var longest = col.minWidth;
-            var arr = kg.utils.getElementsByClassName('col' + col.index);
-            kg.utils.forEach(arr, function (elem, index) {
-                var i = 0;
-                if (index == 0) {
-                    var kgHeaderText = $(elem).find('.kgHeaderText');
-                    i = kg.utils.visualLength(kgHeaderText) + 10;
-                } else {
-                    i = kg.utils.visualLength(elem);
-                }
-                if (i > longest) {
-                    longest = i;
-                }
-            });
-            col.longest = Math.min(col.maxWidth, longest);
-            col.width(longest);
-        }
+        // we calculate the longest data.
+        var longest = col.minWidth;
+        var arr = kg.utils.getElementsByClassName('col' + col.index);
+        kg.utils.forEach(arr, function (elem, index) {
+            var i = 0;
+            if (index == 0) {
+                var kgHeaderText = $(elem).find('.kgHeaderText');
+                i = kg.utils.visualLength(kgHeaderText) + 10;
+            } else {
+                i = kg.utils.visualLength(elem);
+            }
+            if (i > longest) {
+                longest = i;
+            }
+        });
+        col.longest = Math.min(col.maxWidth, longest);
+        col.width(longest);
         kg.cssBuilder.buildStyles(self);
     };
     this.refreshDomSizes = function () {
@@ -3046,15 +3047,12 @@ ko.bindingHandlers['kgRow'] = (function () {
 
 ko.bindingHandlers['kgCell'] = (function () {
     var makeValueAccessor = function (cell) {
-        var func;
-
         if (cell.column.field === 'rowIndex') {
             return function() { return cell.row.rowDisplayIndex; };
         } else {
             return function() { return cell.data; };
         }
     };
-
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
@@ -3069,10 +3067,6 @@ ko.bindingHandlers['kgCell'] = (function () {
             if (cell == undefined) return;
             //ensure the cell has the right class so it lines up correctly
             element.className += " kgCell " + "col" + cell.column.index + " ";
-
-            if (cell.column.field !== '__kg_selected__' && !cell.column.hasCellTemplate) {
-                ko.bindingHandlers.text.update(element, makeValueAccessor(cell));
-            }
         }
     };
 } ());
@@ -3325,3 +3319,4 @@ ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSo
         return ko.utils.parseHtmlFragment(templateText);
     }
 };
+}(window));

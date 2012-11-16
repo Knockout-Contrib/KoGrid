@@ -199,7 +199,9 @@ kg.KoGrid = function (options, gridWidth) {
             
         kg.utils.forEach(cols, function (col, i) {
             // get column width out of the observable
-            var t = parseInt(col.width());
+            var t = col.width();
+            var isPercent = isNaN(t) ? kg.utils.endsWith(t, "%") : false;
+            t = isPercent ? t : parseInt(t);
             // check if it is a number
             if (isNaN(t)) {
                 //get it again?
@@ -223,7 +225,7 @@ kg.KoGrid = function (options, gridWidth) {
                         asterisksArray.push(col);
                         return;
                     }
-                } else if (kg.utils.endsWith(t, "%")){ // If the width is a percentage, save it until the very last.
+                } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     percentArray.push(col);
                     return;
                 } else { // we can't parse the width so lets throw an error.
@@ -233,6 +235,7 @@ kg.KoGrid = function (options, gridWidth) {
             // set the flag as the width is configured so the subscribers can be added
             col.widthIsConfigured = true;
             // add the caluclated or pre-defined width the total width
+            col.width(parseInt(col.width()));
             totalWidth += col.width();
         });
         // check if we saved any asterisk columns for calculating later
@@ -349,26 +352,23 @@ kg.KoGrid = function (options, gridWidth) {
         };
     };
     this.resizeOnData = function (col) {
-        if (col.longest) { // check for cache so we don't calculate again
-            col.width(col.longest);
-        } else {// we calculate the longest data.
-            var longest = col.minWidth;
-            var arr = kg.utils.getElementsByClassName('col' + col.index);
-            kg.utils.forEach(arr, function (elem, index) {
-                var i = 0;
-                if (index == 0) {
-                    var kgHeaderText = $(elem).find('.kgHeaderText');
-                    i = kg.utils.visualLength(kgHeaderText) + 10;
-                } else {
-                    i = kg.utils.visualLength(elem);
-                }
-                if (i > longest) {
-                    longest = i;
-                }
-            });
-            col.longest = Math.min(col.maxWidth, longest);
-            col.width(longest);
-        }
+        // we calculate the longest data.
+        var longest = col.minWidth;
+        var arr = kg.utils.getElementsByClassName('col' + col.index);
+        kg.utils.forEach(arr, function (elem, index) {
+            var i = 0;
+            if (index == 0) {
+                var kgHeaderText = $(elem).find('.kgHeaderText');
+                i = kg.utils.visualLength(kgHeaderText) + 10;
+            } else {
+                i = kg.utils.visualLength(elem);
+            }
+            if (i > longest) {
+                longest = i;
+            }
+        });
+        col.longest = Math.min(col.maxWidth, longest);
+        col.width(longest);
         kg.cssBuilder.buildStyles(self);
     };
     this.refreshDomSizes = function () {
