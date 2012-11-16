@@ -11,7 +11,8 @@
     this.minWidth = colDef.minWidth || 50;
     // default max is OVER 9000!
     this.maxWidth = colDef.maxWidth || 9001;
-    
+
+    this.cellFilter = colDef.cellFilter;
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string

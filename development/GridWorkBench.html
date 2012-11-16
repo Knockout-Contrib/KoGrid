@@ -6,7 +6,6 @@
     <script src="../lib/json2.js" type="text/javascript"></script>
     <script src="../lib/knockout-2.2.0.js" type="text/javascript"></script>
     <script src="../build/koGrid.debug.js" type="text/javascript"></script>
-    <script src="../plugins/koGrid-reorderable.js" type="text/javascript"></script>
     <script src="LargeTestData.js" type="text/javascript"></script>
     <link href="../koGrid.css" rel="stylesheet" type="text/css" />
 </head>
@@ -61,7 +60,7 @@
                 vm.isVisible(!vm.isVisible());
             }
         };
-        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: '50%'}, 
+        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: 'auto'},
         { field: 'Vendor', displayName: 'Supplier', width: 'auto' },
         { field: 'SeasonCode', displayName: 'My SeasonCode', width: '140px', cellTemplate: 'myCellTemplate' }, 
         { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
@@ -79,13 +78,12 @@
             pageSize: vm.pageSize,
             headerRowHeight: 30,
             displayRowIndex: false,
-            plugins: [new kgGridReorderable()]
         };
-        vm.changeColumns = function(){
-            vm.colDefs([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass'}, 
-            { field: 'Vendor', displayName: 'Supplier', width: 120 },
-            { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }]);
-        }
+        vm.changeColumns = function() {
+            vm.colDefs([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass' },
+                { field: 'Vendor', displayName: 'Supplier', width: 120 },
+                { field: 'SeasonCode', displayName: 'My SeasonCode', width: 140, cellTemplate: 'myCellTemplate' }]);
+        };
         
         ko.applyBindings(vm, $('#sandbox1')[0]);
 

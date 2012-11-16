@@ -33,7 +33,14 @@
         }
         // finally just use a basic template for the cell
         else {
-            b.append('<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $data[\'{1}\']"></span></div>', col.cellClass || 'kgEmpty', col.field);
+            var rv;
+            if (col.cellFilter) {
+                rv = col.cellFilter + '($data[\'{1}\'])';
+            } else {
+                rv = '$data[\'{1}\']';
+            }
+            var cellTemplate = '<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $cellValue"></span></div>'.replace(/\$cellValue/g, rv);
+            b.append(cellTemplate, col.cellClass || 'kgEmpty', col.field);
         }
     });
 

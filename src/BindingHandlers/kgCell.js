@@ -2,13 +2,6 @@
 /// <reference path="../../lib/jquery-1.7.js" />
 
 ko.bindingHandlers['kgCell'] = (function () {
-    var makeValueAccessor = function (cell) {
-        if (cell.column.field === 'rowIndex') {
-            return function() { return cell.row.rowDisplayIndex; };
-        } else {
-            return function() { return cell.data; };
-        }
-    };
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 

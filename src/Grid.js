@@ -361,7 +361,8 @@ kg.KoGrid = function (options, gridWidth) {
                 var kgHeaderText = $(elem).find('.kgHeaderText');
                 i = kg.utils.visualLength(kgHeaderText) + 10;
             } else {
-                i = kg.utils.visualLength(elem);
+                var kgCellText = $(elem).find('.kgCellText');
+                i = kg.utils.visualLength(kgCellText) + 10;
             }
             if (i > longest) {
                 longest = i;

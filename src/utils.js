@@ -33,6 +33,7 @@
     },
         
     endsWith: function (str, suffix) {
+        if (!str || !suffix || typeof str != "string") return false;
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     },
     

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/15/2012 22:26:29
+* Compiled At: 11/16/2012 14:06:04
 ***********************************************/
 
 (function(window, undefined){
@@ -133,6 +133,7 @@ kg.utils = {
     },
         
     endsWith: function (str, suffix) {
+        if (!str || !suffix || typeof str != "string") return false;
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     },
     
@@ -410,7 +411,14 @@ kg.templates.generateRowTemplate = function (options) {
         }
         // finally just use a basic template for the cell
         else {
-            b.append('<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $data[\'{1}\']"></span></div>', col.cellClass || 'kgEmpty', col.field);
+            var rv;
+            if (col.cellFilter) {
+                rv = col.cellFilter + '($data[\'{1}\'])';
+            } else {
+                rv = '$data[\'{1}\']';
+            }
+            var cellTemplate = '<div class="{0}" data-bind="kgCell: { value: \'{1}\' }"><span class="kgCellText" data-bind="text: $cellValue"></span></div>'.replace(/\$cellValue/g, rv);
+            b.append(cellTemplate, col.cellClass || 'kgEmpty', col.field);
         }
     });
 
@@ -560,7 +568,8 @@ kg.Column = function (colDef, index) {
     this.minWidth = colDef.minWidth || 50;
     // default max is OVER 9000!
     this.maxWidth = colDef.maxWidth || 9001;
-    
+
+    this.cellFilter = colDef.cellFilter;
     this.field = colDef.field;
     if (colDef.displayName === undefined || colDef.displayName === null) {
         // Allow empty column names -- do not check for empty string
@@ -2290,7 +2299,8 @@ kg.KoGrid = function (options, gridWidth) {
                 var kgHeaderText = $(elem).find('.kgHeaderText');
                 i = kg.utils.visualLength(kgHeaderText) + 10;
             } else {
-                i = kg.utils.visualLength(elem);
+                var kgCellText = $(elem).find('.kgCellText');
+                i = kg.utils.visualLength(kgCellText) + 10;
             }
             if (i > longest) {
                 longest = i;
@@ -3049,13 +3059,6 @@ ko.bindingHandlers['kgRow'] = (function () {
 ***********************************************/
 
 ko.bindingHandlers['kgCell'] = (function () {
-    var makeValueAccessor = function (cell) {
-        if (cell.column.field === 'rowIndex') {
-            return function() { return cell.row.rowDisplayIndex; };
-        } else {
-            return function() { return cell.data; };
-        }
-    };
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
