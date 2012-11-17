@@ -3,6 +3,7 @@
 ..\src\Navigation.js
 ..\Src\Labels.js
 ..\Src\Utils.js
+..\Src\Templates\AggregateTemplate.js
 ..\Src\Templates\GridTemplate.js
 ..\Src\Templates\HeaderTemplate.js
 ..\Src\Templates\HeaderCellTemplate.js
@@ -10,6 +11,8 @@
 ..\Src\Templates\FooterTemplate.js
 ..\Src\Templates\TemplateManager.js
 ..\Src\GridClasses\Dimension.js
+..\Src\GridClasses\Aggregate.js
+..\Src\GridClasses\AggregateProvider.js
 ..\Src\GridClasses\Cell.js
 ..\Src\GridClasses\Column.js
 ..\Src\GridClasses\ColumnCollection.js

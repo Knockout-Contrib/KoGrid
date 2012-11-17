@@ -1,3 +1,4 @@
+/// <reference path="../../lib/knockout-2.2.0.js" />
 /// <reference path="../../lib/jquery-1.8.2.min" />
 /// <reference path="../../lib/angular.js" />
 /// <reference path="../constants.js"/>
@@ -5,23 +6,25 @@
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
 
-ng.Aggregate = function (aggEntity, rowFactory) {
+kg.Aggregate = function (aggEntity, rowFactory) {
     var self = this;
     self.index = 0;
     self.offsetTop = 0;
     self.entity = aggEntity;
-    self.label = ko.observable(aggEntity.gLabel);
+    self.label = ko.computed(function() {
+        return aggEntity.gLabel + "  (" + self.totalChildren() + " items)";
+    });
     self.field = aggEntity.gField;
     self.depth = aggEntity.gDepth;
     self.parent = aggEntity.parent;
     self.children = aggEntity.children;
     self.aggChildren = aggEntity.aggChildren;
     self.aggIndex = aggEntity.aggIndex;
-    self.collapsed = true;
+    self.collapsed = ko.observable(true);
     self.isAggRow = true;
     self.offsetleft = aggEntity.gDepth * 25;
     self.toggleExpand = function() {
-        self.collapsed = self.collapsed ? false : true;
+        self.collapsed(!self.collapsed());
         self.notifyChildren();
     };
     self.setExpand = function (state) {
@@ -40,7 +43,7 @@ ng.Aggregate = function (aggEntity, rowFactory) {
         });
         rowFactory.rowCache = [];
         var foundMyself = false;
-        angular.forEach(rowFactory.aggCache, function(agg, i) {
+        kg.utils.forEach(rowFactory.aggCache, function(agg, i) {
             if (foundMyself) {
                 var offset = (30 * self.children.length);
                 agg.offsetTop = self.collapsed ? agg.offsetTop - offset : agg.offsetTop + offset;
@@ -52,15 +55,15 @@ ng.Aggregate = function (aggEntity, rowFactory) {
         });
         rowFactory.renderedChange();
     };
-    self.aggClass = function() {
-        return self.collapsed ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
-    };
+    self.aggClass = ko.computed(function() {
+        return self.collapsed() ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
+    });
     self.totalChildren = ko.computed(function() {
         if (self.aggChildren.length > 0) {
             var i = 0;
             var recurse = function (cur) {
                 if (cur.aggChildren.length > 0) {
-                    angular.forEach(cur.aggChildren, function (a) {
+                    kg.utils.forEach(cur.aggChildren, function (a) {
                         recurse(a);
                     });
                 } else {

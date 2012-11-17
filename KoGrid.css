@@ -11,6 +11,77 @@
 }
 
 /******** Header ********/
+
+.kgGroupPanel{
+    background-color: rgb(234, 234, 234);
+    overflow: hidden;
+	border-bottom: 1px solid rgb(212,212,212);
+}
+
+.kgGroupPanelDescription{
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+.kgGroupList {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.kgGroupItem {
+	float: left; 
+}
+
+.kgGroupElement {
+	float: left;
+	height: 100%; 
+	width: 100%;
+}
+
+.kgGroupName {
+    background-color: rgb(247,247,247);
+    border: 1px solid rgb(212,212,212);
+    padding: 3px 10px;
+    float: left;
+    margin-left: 0;
+    margin-top: 2px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.kgGroupItem:first-child{
+	margin-left: 2px;
+}
+
+.kgRemoveGroup {
+    width: 5px;
+    float: right;
+    -moz-opacity: 0.4;
+    opacity: 0.4;
+    margin-top: -1px;
+    margin-left: 5px;
+}
+.kgRemoveGroup:hover {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+    -moz-opacity: 0.7;
+    opacity: 0.7;
+}
+.kgGroupArrow {
+	width: 0; 
+	height: 0; 
+	border-top: 6px solid transparent;
+	border-bottom: 6px solid transparent;
+	border-left: 6px solid black;
+	margin-top: 10px;
+	margin-left: 5px;
+	margin-right: 5px;
+	float: right;
+}
 .kgTopPanel {
     background-color: rgb(241, 241, 241);
     overflow: hidden;
@@ -371,4 +442,45 @@
     background: linear-gradient(top,  #838383 0%,#6b6b6b 100%);
     width: 25px;
     cursor: auto;
+}
+
+/* Aggregates */
+.kgAggHeader {
+    position: absolute;
+    border: none;
+}
+.kgAggregate {
+    position: absolute;
+    background-color: rgb(179, 191, 188);
+    border-bottom: 1px solid beige;
+    top: 0;
+    bottom: 0;
+    right: -1px;
+	left: 0;
+}
+.kgAggregateText {
+    position: absolute;
+    left: 27px;
+	top: 5px;
+    line-height: 20px;
+}
+.kgAggArrowExpanded {
+    position: absolute;
+    left: 8px;
+    bottom: 10px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 9px 9px;
+    border-color: transparent transparent #000000 transparent;
+}
+.kgAggArrowCollapsed {
+    position: absolute;
+    left: 8px;
+    bottom: 10px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 8.7px;
+    border-color: transparent transparent transparent #000000;
 }

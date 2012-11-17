@@ -60,7 +60,8 @@
                 vm.isVisible(!vm.isVisible());
             }
         };
-        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: 'auto'},
+        vm.testData(getTestData());
+        vm.colDefs = ko.observable([{ field: 'Sku', displayName: 'My Sku', cellClass: 'myCellClass', headerClass: 'myHeaderClass', width: '100px'},
         { field: 'Vendor', displayName: 'Supplier', width: 'auto' },
         { field: 'SeasonCode', displayName: 'My SeasonCode', width: '140px', cellTemplate: 'myCellTemplate' }, 
         { field: 'Mfg_Id', displayName: 'Manufacturer ID', width: 180 }, 
@@ -86,8 +87,6 @@
         };
         
         ko.applyBindings(vm, $('#sandbox1')[0]);
-
-        vm.testData(getTestData()());
     });
 
 

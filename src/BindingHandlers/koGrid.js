@@ -1,5 +1,9 @@
-﻿/// <reference path="../../lib/knockout-2.0.0.debug.js" />
-/// <reference path="../../lib/jquery-1.7.js" />
+﻿/// <reference path="../GridClasses/AggregateProvider.js" />
+/// <reference path="../../lib/knockout-2.2.0.js" />
+/// <reference path="../../lib/jquery-1.8.2.js" />
+/// <reference path="../utils.js" />
+/// <reference path="../namespace.js" />
+/// <reference path="../constants.js" />
 
 ko.bindingHandlers['koGrid'] = (function () {
     var makeNewValueAccessor = function (grid) {
@@ -18,14 +22,13 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            var grid = kg.gridManager.getGrid(element);
+            grid = kg.gridManager.getGrid(element);
             if (!grid){
                 grid = new kg.KoGrid(options, $(element).width());
                 kg.gridManager.storeGrid(element, grid);
             } else {
                 return false;
             }
-            
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,
                 headerTemplate: grid.config.headerTemplate,
@@ -54,17 +57,13 @@ ko.bindingHandlers['koGrid'] = (function () {
                 ko.applyBindings(bindingContext, element);
                 kg.cssBuilder.buildStyles(kg.gridManager.getGrid(element));
             });
-            
             //get the container sizes
             kg.domUtility.measureGrid($element, grid, true);
-
             $element.hide(); //first hide the grid so that its not freaking the screen out
-
             //set the right styling on the container
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -74,23 +73,19 @@ ko.bindingHandlers['koGrid'] = (function () {
                 returnVal;
 
             grid = kg.gridManager.getGrid(element);
-
             //kind a big problem if this isn't here...
             if (!grid) {
                 return { 'controlsDescendantBindings': true };
             }
             //fire the with "update" bindingHandler
             returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
-
             //walk the element's graph and the correct properties on the grid
             kg.domUtility.assignGridContainers(element, grid);
-
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
-
+            grid.aggregateProvider = new kg.AggregateProvider(grid);
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
-
             return returnVal;
         }
     };

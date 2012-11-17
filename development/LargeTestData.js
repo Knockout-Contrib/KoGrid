@@ -1,6 +1,6 @@
 ﻿window.getTestData = function () {
-    var arr = ko.observableArray([
-                { 'Sku': ko.observable('H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791'), 'Vendor': 'NEWB', 'SeasonCode': null, 'Mfg_Id': ko.observable('573-9880954'), 'UPC': '822860449228' },
+    var arr = [
+    { 'Sku': ko.observable('H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791H-8096791'), 'Vendor': 'NEWB', 'SeasonCode': null, 'Mfg_Id': ko.observable('573-9880954'), 'UPC': '822860449228' },
     { 'Sku': ko.observable('J-8555462'), 'Vendor': 'NIKE', 'SeasonCode': '', 'Mfg_Id': ko.observable('780-8855467'), 'UPC': '043208523549' },
     { 'Sku': ko.observable('K-5312708'), 'Vendor': 'REEB', 'SeasonCode': '1293', 'Mfg_Id': ko.observable('355-6906843'), 'UPC': '229487568922' },
     { 'Sku': ko.observable('W-4295255'), 'Vendor': 'REEB', 'SeasonCode': '6283', 'Mfg_Id': ko.observable('861-4929378'), 'UPC': '644134774391' },
@@ -998,6 +998,6 @@
     { 'Sku': ko.observable('E-4163172'), 'Vendor': 'MERR', 'SeasonCode': '7072', 'Mfg_Id': ko.observable('787-1890531'), 'UPC': '561793245240' },
     { 'Sku': ko.observable('V-6726398'), 'Vendor': 'REEB', 'SeasonCode': '4917', 'Mfg_Id': ko.observable('273-2946377'), 'UPC': '783687564222' },
     { 'Sku': ko.observable('J-9595537'), 'Vendor': 'NEWB', 'SeasonCode': '5181', 'Mfg_Id': ko.observable('984-6564740'), 'UPC': '660963520854' },
-    { 'Sku': ko.observable('R-2184336'), 'Vendor': 'MERR', 'SeasonCode': '5155', 'Mfg_Id': ko.observable('915-1579626'), 'UPC': '726501693219'}]);
+    { 'Sku': ko.observable('R-2184336'), 'Vendor': 'MERR', 'SeasonCode': '5155', 'Mfg_Id': ko.observable('915-1579626'), 'UPC': '726501693219'}];
     return arr;
 };

@@ -5,6 +5,6 @@
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
 
-ng.aggregateTemplate = function () {
-    return '<div ng-click="row.toggleExpand()" ng-style="{ \'left\': row.offsetleft}" class="ngAggregate"><span class="ngAggregateText">{{row.label}}  ({{row.totalChildren()}} items)</span><div class="{{row.aggClass()}}"></div></div>';
+kg.aggregateTemplate = function () {
+    return '<div data-bind="click: row.toggleExpand(), style: { \'left\': row.offsetleft}, class="kgAggregate"><span class="kgAggregateText" data-bind="text: $data.label"></span><div data-bind="css: row.aggClass"></div></div>';
 };

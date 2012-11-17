@@ -1,3 +1,11 @@
-﻿
-var SELECTED_PROP = '__kg_selected__';
+﻿var SELECTED_PROP = '__kg_selected__';
 var GRID_TEMPLATE = 'koGridTmpl';
+var GRID_KEY = '__koGrid__';
+var ROW_KEY = '__ng_rowIndex__';
+var EXCESS_ROWS = 8;
+var ASC = "asc"; // constant for sorting direction
+var DESC = "desc"; // constant for sorting direction
+var NG_FIELD = '_kg_field_';
+var NG_DEPTH = '_kg_depth_';
+var NG_HIDDEN = '_kg_hidden_';
+var NG_COLUMN = '_kg_column_';

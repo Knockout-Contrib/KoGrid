@@ -1,14 +1,18 @@
 kg.templates.defaultGridInnerTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
     b.append('<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">');
-    b.append(    '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
-    b.append(        '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">');
-    b.append(        '</div>');
-    b.append(    '</div>');
+    //b.append('  <div class="kgGroupPanel" ng-show="showGroupPanel()" ng-style="headerStyle()">');
+    //b.append('    <div class="kgGroupPanelDescription" ng-show="configGroups.length == 0">Drag a column header here and drop it to group by that column</div>');
+    //b.append('    <ul ng-show="configGroups.length > 0" class="kgGroupList">');
+    //b.append('      <li class="kgGroupItem" ng-repeat="group in configGroups"><span class="kgGroupElement"><span class="kgGroupName">{{group.displayName}}<span ng-click="removeGroup($index)" class="kgRemoveGroup">x</span></span><span ng-hide="$last" class="kgGroupArrow"></span></span></li>');
+    //b.append('    </ul>');  
+    //b.append('  </div>');
+    b.append('  <div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
+    b.append('    <div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim"></div>');
+    b.append('  </div>');
     b.append('</div>');
     b.append('<div class="kgViewport {0}" data-bind="kgSize: $data.viewportDim">', options.disableTextSelection ? "kgNoSelect": "");
-    b.append(    '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight, width: $data.totalRowWidth }" style="position: relative">');
-    b.append(    '</div>');
+    b.append('  <div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight, width: $data.totalRowWidth }" style="position: relative"></div>');
     b.append('</div>');
     b.append('<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">');
     b.append('</div>');

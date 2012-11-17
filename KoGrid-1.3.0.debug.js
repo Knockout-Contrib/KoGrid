@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/KoGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 11/16/2012 14:06:04
+* Compiled At: 11/16/2012 22:56:18
 ***********************************************/
 
 (function(window, undefined){
@@ -17,9 +17,17 @@ kg.templates = {};
 /***********************************************
 * FILE: ..\Src\Constants.js
 ***********************************************/
-
 var SELECTED_PROP = '__kg_selected__';
 var GRID_TEMPLATE = 'koGridTmpl';
+var GRID_KEY = '__koGrid__';
+var ROW_KEY = '__ng_rowIndex__';
+var EXCESS_ROWS = 8;
+var ASC = "asc"; // constant for sorting direction
+var DESC = "desc"; // constant for sorting direction
+var NG_FIELD = '_kg_field_';
+var NG_DEPTH = '_kg_depth_';
+var NG_HIDDEN = '_kg_hidden_';
+var NG_COLUMN = '_kg_column_';
 
 /***********************************************
 * FILE: ..\src\Navigation.js
@@ -236,19 +244,31 @@ $.extend(kg.utils, {
 }); 
 
 /***********************************************
+* FILE: ..\Src\Templates\AggregateTemplate.js
+***********************************************/
+
+kg.aggregateTemplate = function () {
+    return '<div data-bind="click: row.toggleExpand(), style: { \'left\': row.offsetleft}, class="kgAggregate"><span class="kgAggregateText" data-bind="text: $data.label"></span><div data-bind="css: row.aggClass"></div></div>';
+};
+
+/***********************************************
 * FILE: ..\Src\Templates\GridTemplate.js
 ***********************************************/
 kg.templates.defaultGridInnerTemplate = function (options) {
     var b = new kg.utils.StringBuilder();
     b.append('<div class="kgTopPanel" data-bind="kgSize: $data.headerDim">');
-    b.append(    '<div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
-    b.append(        '<div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim">');
-    b.append(        '</div>');
-    b.append(    '</div>');
+    //b.append('  <div class="kgGroupPanel" ng-show="showGroupPanel()" ng-style="headerStyle()">');
+    //b.append('    <div class="kgGroupPanelDescription" ng-show="configGroups.length == 0">Drag a column header here and drop it to group by that column</div>');
+    //b.append('    <ul ng-show="configGroups.length > 0" class="kgGroupList">');
+    //b.append('      <li class="kgGroupItem" ng-repeat="group in configGroups"><span class="kgGroupElement"><span class="kgGroupName">{{group.displayName}}<span ng-click="removeGroup($index)" class="kgRemoveGroup">x</span></span><span ng-hide="$last" class="kgGroupArrow"></span></span></li>');
+    //b.append('    </ul>');  
+    //b.append('  </div>');
+    b.append('  <div class="kgHeaderContainer" data-bind="kgSize: $data.headerDim">');
+    b.append('    <div class="kgHeaderScroller" data-bind="kgHeaderRow: $data, kgSize: $data.headerScrollerDim"></div>');
+    b.append('  </div>');
     b.append('</div>');
     b.append('<div class="kgViewport {0}" data-bind="kgSize: $data.viewportDim">', options.disableTextSelection ? "kgNoSelect": "");
-    b.append(    '<div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight, width: $data.totalRowWidth }" style="position: relative">');
-    b.append(    '</div>');
+    b.append('  <div class="kgCanvas" data-bind="kgRows: $data.rows, style: { height: $data.canvasHeight, width: $data.totalRowWidth }" style="position: relative"></div>');
     b.append('</div>');
     b.append('<div class="kgFooterPanel" data-bind="kgFooter: $data, kgSize: $data.footerDim">');
     b.append('</div>');
@@ -541,6 +561,299 @@ kg.Dimension = function (options) {
     this.autoFitWidth = false;
 
     $.extend(this, options);
+};
+
+/***********************************************
+* FILE: ..\Src\GridClasses\Aggregate.js
+***********************************************/
+
+kg.Aggregate = function (aggEntity, rowFactory) {
+    var self = this;
+    self.index = 0;
+    self.offsetTop = 0;
+    self.entity = aggEntity;
+    self.label = ko.computed(function() {
+        return aggEntity.gLabel + "  (" + self.totalChildren() + " items)";
+    });
+    self.field = aggEntity.gField;
+    self.depth = aggEntity.gDepth;
+    self.parent = aggEntity.parent;
+    self.children = aggEntity.children;
+    self.aggChildren = aggEntity.aggChildren;
+    self.aggIndex = aggEntity.aggIndex;
+    self.collapsed = ko.observable(true);
+    self.isAggRow = true;
+    self.offsetleft = aggEntity.gDepth * 25;
+    self.toggleExpand = function() {
+        self.collapsed(!self.collapsed());
+        self.notifyChildren();
+    };
+    self.setExpand = function (state) {
+        self.collapsed = state;
+        self.notifyChildren();
+    };
+    self.notifyChildren = function() {
+        ko.utils.forEach(self.aggChildren, function(child) {
+            child.entity[NG_HIDDEN] = self.collapsed;
+            if (self.collapsed) {
+                child.setExpand(self.collapsed);
+            }
+        });
+        ko.utils.forEach(self.children, function (child) {
+            child[NG_HIDDEN] = self.collapsed;
+        });
+        rowFactory.rowCache = [];
+        var foundMyself = false;
+        kg.utils.forEach(rowFactory.aggCache, function(agg, i) {
+            if (foundMyself) {
+                var offset = (30 * self.children.length);
+                agg.offsetTop = self.collapsed ? agg.offsetTop - offset : agg.offsetTop + offset;
+            } else {
+                if (i == self.aggIndex) {
+                    foundMyself = true;
+                }
+            }
+        });
+        rowFactory.renderedChange();
+    };
+    self.aggClass = ko.computed(function() {
+        return self.collapsed() ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
+    });
+    self.totalChildren = ko.computed(function() {
+        if (self.aggChildren.length > 0) {
+            var i = 0;
+            var recurse = function (cur) {
+                if (cur.aggChildren.length > 0) {
+                    kg.utils.forEach(cur.aggChildren, function (a) {
+                        recurse(a);
+                    });
+                } else {
+                    i += cur.children.length;
+                }
+            };
+            recurse(self);
+            return i;
+        } else {
+            return self.children.length;
+        }
+    });
+}; 
+
+/***********************************************
+* FILE: ..\Src\GridClasses\AggregateProvider.js
+***********************************************/
+kg.AggregateProvider = function (grid) {
+
+    var self = this;
+    // The init method gets called during the ng-grid directive execution.
+
+    self.colToMove = undefined;
+	self.groupToMove = undefined;
+    self.assignEvents = function () {
+        // Here we set the onmousedown event handler to the header container.
+		if(grid.config.jqueryUIDraggable){
+			grid.$groupPanel.droppable({
+				addClasses: false,
+				drop: function(event) {
+					self.onGroupDrop(event);
+				}
+			});
+			$(document).ready(self.setDraggables);	
+		} else {
+			grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
+			grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
+			if (grid.config.enableRowRerodering) {
+				grid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
+			}
+		}
+		grid.columns.subscribe(self.setDraggables);	
+		
+    };
+    self.dragOver = function(evt) {
+        evt.preventDefault();
+    };	
+	
+	//For JQueryUI
+	self.setDraggables = function(){
+		if(!grid.config.jqueryUIDraggable){	
+			$('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+		} else {
+			$('.kgHeaderSortColumn').draggable({
+				helper: "clone",
+				appendTo: 'body',
+				addClasses: false,
+				start: function(event){
+					self.onHeaderMouseDown(event);
+				}
+			}).droppable({
+				drop: function(event) {
+					self.onHeaderDrop(event);
+				}
+			});
+		}
+	};
+    
+    self.onGroupDragStart = function () {
+        // color the header so we know what we are moving
+        if (self.groupToMove) {
+            self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
+        }
+    };	
+    
+    self.onGroupDragStop = function () {
+        // Set the column to move header color back to normal
+        if (self.groupToMove) {
+            self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
+        }
+    };
+
+    self.onGroupMouseDown = function(event) {
+        var groupItem = $(event.target);
+        // Get the scope from the header container
+		if(groupItem[0].className != 'kgRemoveGroup'){
+		    var groupItemContext = ko.contextFor(groupItem);
+		    if (groupItemContext) {
+				// set draggable events
+				if(!grid.config.jqueryUIDraggable){
+					groupItem.attr('draggable', 'true');
+					groupItem.on('dragstart', self.onGroupDragStart).on('dragend', self.onGroupDragStop);
+				}
+				// Save the column for later.
+				self.groupToMove = { header: groupItem, groupName: groupItemContext.group, index: groupItemContext.$index };
+			}
+		} else {
+			self.groupToMove = undefined;
+		}
+    };
+
+    self.onGroupDrop = function (event) {
+        var groupContainer;
+        // clear out the colToMove object
+        if (self.groupToMove) {
+			self.onGroupDragStop();
+            // Get the closest header to where we dropped
+            groupContainer = $(event.target).closest('.kgGroupElement');
+            // Get the scope from the header.
+            if (groupContainer.context.className == 'kgGroupPanel') {
+                grid.configGroups.splice(self.groupToMove.index, 1);
+                grid.configGroups.push(self.groupToMove.groupName);
+            } else {
+                groupScope = ko.contextFor(groupContainer);
+                if (groupScope) {
+                    // If we have the same column, do nothing.
+                    if (self.groupToMove.index != groupScope.$index){
+						// Splice the columns
+                        grid.configGroups.splice(self.groupToMove.index, 1);
+                        grid.configGroups.splice(groupScope.$index, 0, self.groupToMove.groupName);
+					}
+                }
+            }			
+			self.groupToMove = undefined;
+        } else {	
+			self.onHeaderDragStop();
+			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
+				groupContainer = $(event.target).closest('.kgGroupElement');
+				// Get the scope from the header.
+				if (groupContainer.context.className == 'ngGroupPanel' || groupContainer.context.className == 'ngGroupPanelDescription') {
+				    grid.configGroups.push(self.colToMove.col);
+				} else {
+				    var groupScope = ko.contextFor(groupContainer);
+					if (groupScope) {
+						// Splice the columns
+					    grid.configGroups.splice(groupScope.$index + 1, 0, self.colToMove.col);
+					}
+				}	
+            }			
+			self.colToMove = undefined;
+        }
+    };
+	
+    //Header functions
+    self.onHeaderMouseDown = function (event) {
+        // Get the closest header container from where we clicked.
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        // Get the scope from the header container
+        var headerScope = ko.contextFor(headerContainer);
+        if (headerScope) {
+            // Save the column for later.
+            self.colToMove = { header: headerContainer, col: headerScope.col };
+        }
+    };
+    
+    self.onHeaderDragStart = function () {
+        // color the header so we know what we are moving
+        if (self.colToMove) {
+            self.colToMove.header.css('background-color', 'rgb(255, 255, 204)');
+        }
+    };
+    
+    self.onHeaderDragStop = function () {
+        // Set the column to move header color back to normal
+        if (self.colToMove) {
+            self.colToMove.header.css('background-color', 'rgb(234, 234, 234)');
+        }
+    };
+
+    self.onHeaderDrop = function (event) {
+        if (!self.colToMove) return;
+        self.onHeaderDragStop();
+        // Get the closest header to where we dropped
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        // Get the scope from the header.
+        var headerScope = ko.contextFor(headerContainer);
+        if (headerScope) {
+            // If we have the same column, do nothing.
+            if (self.colToMove.col == headerScope.col) return;
+            // Splice the columns
+            grid.columns.splice(self.colToMove.col.index, 1);
+            grid.columns.splice(headerScope.col.index, 0, self.colToMove.col);
+            // Fix all the indexes on the columns so if we reorder again the columns will line up correctly.
+            kg.utils.forEach(grid.columns, function(col, i) {
+                col.index = i;
+            });
+            // Finally, rebuild the CSS styles.
+            kg.cssBuilder.buildStyles(grid);
+            // clear out the colToMove object
+            self.colToMove = undefined;
+        }
+    };
+    
+    // Row functions
+    self.onRowMouseDown = function (event) {
+        // Get the closest row element from where we clicked.
+        var targetRow = $(event.target).closest('.kgRow');
+        // Get the scope from the row element
+        var rowScope = ko.contextFor(targetRow);
+        if (rowScope) {
+            // set draggable events
+            targetRow.attr('draggable', 'true');
+            // Save the row for later.
+            kg.gridManager.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
+        }
+    };
+
+    self.onRowDrop = function (event) {
+        // Get the closest row to where we dropped
+        var targetRow = $(event.target).closest('.kgRow');
+        // Get the scope from the row element.
+        var rowScope = ko.contextFor(targetRow);
+        if (rowScope) {
+            // If we have the same Row, do nothing.
+            var prevRow = kg.gridManager.eventStorage.rowToMove;
+            if (prevRow.scope.row == rowScope.row) return;
+            // Splice the Rows via the actual datasource
+            var i = grid.sortedData.indexOf(prevRow.scope.row.entity);
+            var j = grid.sortedData.indexOf(rowScope.row.entity);
+            grid.sortedData.splice(i, 1);
+            grid.sortedData.splice(j, 0, prevRow.scope.row.entity);
+            grid.rowFactory.sortedDataChanged(grid.sortedData);
+            // clear out the rowToMove object
+            kg.gridManager.eventStorage.rowToMove = undefined;
+            // if there isn't an apply already in progress lets start one
+        }
+    };
+    // In this example we want to assign grid events.
+    self.assignEvents();
 };
 
 /***********************************************
@@ -904,108 +1217,82 @@ kg.RowManager = function (grid) {
         prevMinRows = 0, // for comparison purposes when scrolling
         currentPage = grid.config.currentPage,
         pageSize = grid.config.pageSize,
-        ROW_KEY = '__kg_rowIndex__', // constant for the entity's rowCache rowIndex
         prevRenderedRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
         prevViewableRange = new kg.Range(0, 1), // for comparison purposes to help throttle re-calcs when scrolling
-        internalRenderedRange = ko.observable(prevRenderedRange); // for comparison purposes to help throttle re-calcs when scrolling
-        
+        parents = []; // Used for grouping and is cleared each time groups are calulated.
+
     this.dataChanged = true;
      // we cache rows when they are built, and then blow the cache away when sorting/filtering
     this.rowCache = [];
+    this.aggCache = {};
     // short cut to sorted and filtered data
     this.dataSource = grid.finalData; //observableArray
-
     // change subscription to clear out our cache
     this.dataSource.subscribe(function () {
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
     });
-
     // shortcut to the calculated minimum viewport rows
     this.minViewportRows = grid.minRowsToRender; //observable
-
-    // the # of rows we want to add to the top and bottom of the rendered grid rows 
-    this.excessRows = 8;
-
     // height of each row
     this.rowHeight = grid.config.rowHeight;
-
     // the logic that builds cell objects
     this.cellFactory = new kg.CellFactory(grid.columns());
-
     // the actual range the user can see in the viewport
     this.viewableRange = ko.observable(prevViewableRange);
-
     // the range of rows that we actually render on the canvas ... essentially 'viewableRange' + 'excessRows' on top and bottom
     this.renderedRange = ko.observable(prevRenderedRange);
-
     // the array of rows that we've rendered
     this.rows = ko.observableArray([]);
-
     // change handler subscriptions for disposal purposes (used heavily by the 'rows' binding)
     this.rowSubscriptions = {};
-
     // Builds rows for each data item in the 'dataSource'
     // @entity - the data item
     // @rowIndex - the index of the row
     // @pagingOffset - the # of rows to add the the rowIndex in case server-side paging is happening
     this.buildRowFromEntity = function (entity, rowIndex, pagingOffset) {
         var row = self.rowCache[rowIndex]; // first check to see if we've already built it
-
         if (!row) {
-
             // build the row
             row = new kg.Row(entity, grid.config, grid.selectionManager);
             row.rowIndex = rowIndex + 1; //not a zero-based rowIndex
             row.rowDisplayIndex = row.rowIndex + pagingOffset;
             row.offsetTop = self.rowHeight * rowIndex;
-
             //build out the cells
             self.cellFactory.buildRowCells(row);
-
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
         }
-
         // store the row's index on the entity for future ref
         entity[ROW_KEY] = rowIndex;
-
         return row;
     };
 
-    // core logic here - anytime we updated the renderedRange, we need to update the 'rows' array 
-    this.renderedRange.subscribe(function (rg) {
-        var rowArr = [],
-            row,
-            pagingOffset = (pageSize() * (currentPage() - 1)),
-            dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
-
-        kg.utils.forEach(dataArr, function (item, i) {
-            row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
-
-            //add the row to our return array
-            rowArr.push(row);
-
-            //null the row pointer for next iteration
-            row = null;
-        });
-        kg.utils.forEach(grid.config.plugins, function (p) {
-            p.onRowsChanged(grid, rowArr);
-        });
-        self.rows(rowArr);
-    });
-
+    self.buildAggregateRow = function (aggEntity, rowIndex) {
+        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
+        if (!agg) {
+            // build the row
+            agg = new kg.Aggregate(aggEntity, self);
+            self.aggCache[aggEntity.aggIndex] = agg;
+        }
+        agg.index = rowIndex + 1; //not a zero-based rowIndex
+        agg.offsetTop = self.rowHeight * rowIndex;
+        // finally cache it for the next round
+        // store the row's index on the entity for future ref
+        aggEntity[ROW_KEY] = rowIndex;
+        return agg;
+    };
     // core logic that intelligently figures out the rendered range given all the contraints that we have
     this.calcRenderedRange = function () {
         var rg = self.viewableRange(),
             minRows = self.minViewportRows(),
             maxRows = self.dataSource().length,
-            isDif = false, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
+            isDif, // flag to help us see if the viewableRange or data has changed "enough" to warrant re-building our rows
             newRg; // variable to hold our newly-calc'd rendered range 
 
         if (rg) {
 
-            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || self.dataChanged)
+            isDif = (rg.bottomRow !== prevViewableRange.bottomRow || rg.topRow !== prevViewableRange.topRow || self.dataChanged);
             if (!isDif && prevMaxRows !== maxRows) {
                 isDif = true;
                 rg = new kg.Range(prevViewableRange.bottomRow, prevViewableRange.topRow);
@@ -1019,26 +1306,20 @@ kg.RowManager = function (grid) {
             if (isDif) {
                 //Now build out the new rendered range
                 rg.topRow = rg.bottomRow + minRows;
-
                 //store it for next rev
                 prevViewableRange = rg;
-
                 // now build the new rendered range
                 newRg = new kg.Range(rg.bottomRow, rg.topRow);
-
                 // make sure we are within our data constraints (can't render negative rows or rows greater than the # of data items we have)
-                newRg.bottomRow = Math.max(0, rg.bottomRow - self.excessRows);
-                newRg.topRow = Math.min(maxRows, rg.topRow + self.excessRows);
-
+                newRg.bottomRow = Math.max(0, rg.bottomRow - EXCESS_ROWS);
+                newRg.topRow = Math.min(maxRows, rg.topRow + EXCESS_ROWS);
                 // store them for later comparison purposes
                 prevMaxRows = maxRows;
                 prevMinRows = minRows;
-
                 //one last equality check
                 if (prevRenderedRange.topRow !== newRg.topRow || prevRenderedRange.bottomRow !== newRg.bottomRow || self.dataChanged) {
                     self.dataChanged = false;
                     prevRenderedRange = newRg;
-
                     // now kickoff row building
                     self.renderedRange(newRg);
                 }
@@ -1048,6 +1329,157 @@ kg.RowManager = function (grid) {
         }
     };
 
+   
+    self.getGrouping = function (groups) {
+        self.aggCache = [];
+        self.rowCache = [];
+        self.numberOfAggregates = 0;
+        self.groupedData = {};
+        // Here we set the onmousedown event handler to the header container.
+        var data = grid.sortedData;
+        var maxDepth = groups.length;
+        var cols = grid.columns;
+
+        kg.utils.forEach(data, function (item) {
+            var ptr = self.groupedData;
+            kg.utils.forEach(groups, function (group, depth) {
+                if (!cols[depth].isAggCol && depth <= maxDepth) {
+                    cols.splice(item.gDepth, 0, new kg.Column({
+                        colDef: {
+                            field: '',
+                            width: 25,
+                            sortable: false,
+                            resizable: false,
+                            headerCellTemplate: '<div class="kgAggHeader"></div>',
+                        },
+                        isAggCol: true,
+                        index: item.gDepth,
+                        headerRowHeight: grid.config.headerRowHeight
+                    }));
+                }
+                var col = cols.filter(function (c) {
+                    return c.field == group;
+                })[0];
+                var val = item[group].toString();
+                if (!ptr[val]) {
+                    ptr[val] = {};
+                }
+                if (!ptr[NG_FIELD]) {
+                    ptr[NG_FIELD] = group;
+                }
+                if (!ptr[NG_DEPTH]) {
+                    ptr[NG_DEPTH] = depth;
+                }
+                if (!ptr[NG_COLUMN]) {
+                    ptr[NG_COLUMN] = col;
+                }
+                ptr = ptr[val];
+            });
+            if (!ptr.values) {
+                ptr.values = [];
+            }
+            item[NG_HIDDEN] = true;
+            ptr.values.push(item);
+        });
+        grid.fixColumnIndexes();
+        grid.cssBuilder.buildStyles();
+    };
+
+    self.parsedData = { needsUpdate: true, values: [] };
+
+    // core logic here - anytime we updated the renderedRange, we need to update the 'rows' array 
+    this.renderedChangeNoGroups = function (rg) {
+        var rowArr = [],
+            row,
+            pagingOffset = (pageSize() * (currentPage() - 1)),
+            dataArr = self.dataSource().slice(rg.bottomRow, rg.topRow);
+
+        kg.utils.forEach(dataArr, function (item, i) {
+            row = self.buildRowFromEntity(item, rg.bottomRow + i, pagingOffset);
+            //add the row to our return array
+            rowArr.push(row);
+            //null the row pointer for next iteration
+            row = null;
+        });
+        kg.utils.forEach(grid.config.plugins, function (p) {
+            p.onRowsChanged(grid, rowArr);
+        });
+        self.rows(rowArr);
+    };
+    
+    self.renderedRange.subscribe(function (rg) {
+        if (grid.config.groups.length < 1) {
+            self.renderedChangeNoGroups(rg);
+            return;
+        }
+        var rowArr = [];
+        parents = [];
+        if (self.parsedData.needsUpdate) {
+            self.parsedData.values.length = 0;
+            self.parseGroupData(self.groupedData);
+            self.parsedData.needsUpdate = false;
+        }
+        var dataArray = self.parsedData.values.filter(function (e) {
+            return e[NG_HIDDEN] === false;
+        }).slice(self.renderedRange.bottomRow, self.renderedRange.topRow);
+        kg.utils.forEach(dataArray, function (item, indx) {
+            var row;
+            if (item.isAggRow) {
+                row = self.buildAggregateRow(item, self.renderedRange.bottomRow + indx);
+            } else {
+                row = self.buildEntityRow(item, self.renderedRange.bottomRow + indx);
+            }
+            //add the row to our return array
+            rowArr.push(row);
+        });
+        grid.setRenderedRows(rowArr);
+        grid.refreshDomSizes();
+    });
+
+    //magical recursion. it works. I swear it.
+    self.parseGroupData = function (g) {
+        if (g.values) {
+            kg.utils.forEach(g.values, function (item) {
+                // get the last parent in the array because that's where our children want to be
+                parents[parents.length - 1].children.push(item);
+                //add the row to our return array
+                self.parsedData.values.push(item);
+            });
+        } else {
+            for (var prop in g) {
+                // exclude the meta properties.
+                if (prop == NG_FIELD || prop == NG_DEPTH || prop == NG_COLUMN) {
+                    continue;
+                } else if (g.hasOwnProperty(prop)) {
+                    //build the aggregate row
+                    var agg = self.buildAggregateRow({
+                        gField: g[NG_FIELD],
+                        gLabel: prop,
+                        gDepth: g[NG_DEPTH],
+                        isAggRow: true,
+                        '_ng_hidden_': false,
+                        children: [],
+                        aggChildren: [],
+                        aggIndex: self.numberOfAggregates++,
+                        aggLabelFilter: g[NG_COLUMN].aggLabelFilter
+                    }, 0);
+                    //set the aggregate parent to the parent in the array that is one less deep.
+                    agg.parent = parents[agg.depth - 1];
+                    // if we have a parent, set the parent to not be collapsed and append the current agg to its children
+                    if (agg.parent) {
+                        agg.parent.collapsed = false;
+                        agg.parent.aggChildren.push(agg);
+                    }
+                    // add the aggregate row to the parsed data.
+                    self.parsedData.values.push(agg.entity);
+                    // the current aggregate now the parent of the current depth
+                    parents[agg.depth] = agg;
+                    // dig deeper for more aggregates or children.
+                    self.parseGroupData(g[prop]);
+                }
+            }
+        }
+    };
     // make sure that if any of these change, we re-fire the calc logic
     self.viewableRange.subscribe(self.calcRenderedRange);
     self.minViewportRows.subscribe(self.calcRenderedRange);
@@ -1817,18 +2249,18 @@ kg.SelectionManager = function (options, rowManager) {
 * FILE: ..\Src\GridManager.js
 ***********************************************/
 kg.gridManager = (new function () {
-    var self = this,
-        elementGridKey = '__koGrid__';
+    var self = this;
 
     //#region Public Properties
     this.gridCache = {};
-    this.columnDefSubs = { };
+    this.columnDefSubs = {};
+    this.eventStorage = {};
     //#endregion
 
     //#region Public Methods
     this.storeGrid = function (element, grid) {
         self.gridCache[grid.gridId] = grid;
-        element[elementGridKey] = grid.gridId;
+        element[GRID_KEY] = grid.gridId;
     };
     
     this.removeGrid = function (gridId) {
@@ -1837,9 +2269,9 @@ kg.gridManager = (new function () {
     };
 
     this.getGrid = function (element) {
-        var grid;
-        if (element[elementGridKey]) {
-            grid = self.gridCache[element[elementGridKey]];
+        var grid = undefined;
+        if (element[GRID_KEY]) {
+            grid = self.gridCache[element[GRID_KEY]];
         }
         return grid;
     };
@@ -1849,30 +2281,28 @@ kg.gridManager = (new function () {
     };
     
     this.getIndexOfCache = function(gridId) {
-        var indx = -1;   
+        var indx = 0;   
         for (var grid in self.gridCache) {
-            indx++;
-            if (!self.gridCache.hasOwnProperty(grid)) continue;
+            if (gridId != grid.gridId) {
+                indx++;
+                continue;
+            } 
             return indx;
         }
-        return indx;
+        return -1;
     };
 
     this.assignGridEventHandlers = function (grid) {
-
         grid.$viewport.scroll(function (e) {
             var scrollLeft = e.target.scrollLeft,
                 scrollTop = e.target.scrollTop;
-
             grid.adjustScrollLeft(scrollLeft);
             grid.adjustScrollTop(scrollTop);
         });
-
         grid.$viewport.off('keydown');
         grid.$viewport.on('keydown', function (e) {
             return kg.moveSelectionHandler(grid, e);
         });
-        
         //Chrome and firefox both need a tab index so the grid can recieve focus.
         //need to give the grid a tabindex if it doesn't already have one so
         //we'll just give it a tab index of the corresponding gridcache index 
@@ -1883,54 +2313,31 @@ kg.gridManager = (new function () {
         } else {
             grid.$viewport.attr('tabIndex', grid.config.tabIndex);
         }
-        
-        //resize the grid on parent re-size events
-        var $parent = grid.$root.parent();
-
-        if ($parent.length == 0) {
-            $parent = grid.$root;
-        }
-
         $(window).resize(function () {
             var prevSizes = {
-                rootMaxH: grid.elementDims.rootMaxH,
-                rootMaxW: grid.elementDims.rootMaxW,
-                rootMinH: grid.elementDims.rootMinH,
-                rootMinW: grid.elementDims.rootMinW
-            },
-            scrollTop = 0,
-            isDifferent = false;
-            
+                    rootMaxH: grid.elementDims.rootMaxH,
+                    rootMaxW: grid.elementDims.rootMaxW,
+                    rootMinH: grid.elementDims.rootMinH,
+                    rootMinW: grid.elementDims.rootMinW
+                },
+                scrollTop;
             // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
-            var $hiddens = grid.$root.parents(":hidden");
-            if ($hiddens.length > 0) {
+            if (grid.$root.parents(":hidden").length > 0) {
                 return;
             }
-
             //catch this so we can return the viewer to their original scroll after the resize!
             scrollTop = grid.$viewport.scrollTop();
-
             kg.domUtility.measureGrid(grid.$root, grid);
-
             //check to see if anything has changed
-            if (prevSizes.rootMaxH !== grid.elementDims.rootMaxH && grid.elementDims.rootMaxH !== 0) { // if display: none is set, then these come back as zeros
-                isDifferent = true;
-            } else if (prevSizes.rootMaxW !== grid.elementDims.rootMaxW && grid.elementDims.rootMaxW !== 0) {
-                isDifferent = true;
-            } else if (prevSizes.rootMinH !== grid.elementDims.rootMinH) {
-                isDifferent = true;
-            } else if (prevSizes.rootMinW !== grid.elementDims.rootMinW) {
-                isDifferent = true;
-            } else {
+            // if display: none is set, then these come back as zeros
+            if (prevSizes.rootMaxH == grid.elementDims.rootMaxH && grid.elementDims.rootMaxH == 0 ||
+                prevSizes.rootMaxW == grid.elementDims.rootMaxW && grid.elementDims.rootMaxW == 0 ||
+                prevSizes.rootMinH == grid.elementDims.rootMinH ||
+                prevSizes.rootMinW == grid.elementDims.rootMinW ){
                 return;
             }
-
-            if (isDifferent) {
-
-                grid.refreshDomSizes();
-
-                grid.adjustScrollTop(scrollTop, true); //ensure that the user stays scrolled where they were
-            }
+            grid.refreshDomSizes();
+            grid.adjustScrollTop(scrollTop, true); //ensure that the user stays scrolled where they were
         });
     };
     //#endregion
@@ -1954,7 +2361,7 @@ kg.KoGrid = function (options, gridWidth) {
         footerVisible: ko.observable(true),
         canSelectRows: true,
         autogenerateColumns: true,
-        data: null, //ko.observableArray
+        data: ko.observableArray([]), //ko.observableArray
         columnDefs: ko.observableArray([]),
         pageSizes: [250, 500, 1000], //page Sizes
         enablePaging: false,
@@ -1980,7 +2387,8 @@ kg.KoGrid = function (options, gridWidth) {
         enableColumnResize: true,
         allowFiltering: true,
         resizeOnAllData: false,
-        plugins: []
+        plugins: [],
+        groups: []
     },
 
     self = this,
@@ -1989,22 +2397,22 @@ kg.KoGrid = function (options, gridWidth) {
     sortManager, //kg.SortManager
     isSorting = false,
     prevScrollTop,
-    prevScrollLeft,
     prevMinRowsToRender,
     maxCanvasHt = 0,
-    h_updateTimeout;
+    hUpdateTimeout;
 
-    this.$root; //this is the root element that is passed in with the binding handler
-    this.$topPanel;
-    this.$headerContainer;
-    this.$headerScroller;
-    this.$headers;
-    this.$viewport;
-    this.$canvas;
-    this.$footerPanel;
+    this.$root = null; //this is the root element that is passed in with the binding handler
+    this.$groupPanel = null;
+    this.$topPanel = null;
+    this.$headerContainer = null;
+    this.$headerScroller = null;
+    this.$headers = null;
+    this.$viewport = null;
+    this.$canvas = null;
+    this.$footerPanel = null;
     this.width = ko.observable(gridWidth);
-    this.selectionManager;
-    this.selectedItemCount;
+    this.selectionManager = null;
+    this.selectedItemCount = null;
 
     //If column Defs are not observable, make them so. Will not update dynamically this way.
     if (options.columnDefs && !ko.isObservable(options.columnDefs)){
@@ -2054,10 +2462,10 @@ kg.KoGrid = function (options, gridWidth) {
     this.columns = new kg.ColumnCollection();
 
     //initialized in the init method
-    this.rowManager;
-    this.rows;
-    this.headerRow;
-    this.footer;
+    this.rowManager = null;
+    this.rows = null;
+    this.headerRow = null;
+    this.footer = null;
 
     this.elementDims = {
         scrollW: 0,
@@ -2198,7 +2606,7 @@ kg.KoGrid = function (options, gridWidth) {
         // Now we check if we saved any percentage columns for calculating last
         if (percentArray.length > 0){
             // do the math
-            kg.utils.forEach(percentArray, function (col, i) {
+            kg.utils.forEach(percentArray, function (col) {
                 var t = col.width();
                 col.width(Math.floor(self.width() * (parseInt(t.slice(0, - 1)) / 100)));
                 totalWidth += col.width();
@@ -2223,10 +2631,7 @@ kg.KoGrid = function (options, gridWidth) {
 
 
     this.headerScrollerDim = ko.computed(function () {
-        var viewportH = self.viewportDim().outerHeight,
-            filterOpen = filterIsOpen(), //register this observable
-            maxHeight = self.maxCanvasHeight(),
-            newDim = new kg.Dimension();
+        var newDim = new kg.Dimension();
 
         newDim.autoFitHeight = true;
         newDim.outerWidth = self.totalRowWidth() + 17;
@@ -2236,7 +2641,7 @@ kg.KoGrid = function (options, gridWidth) {
     //#endregion
 
     //#region Events
-    this.toggleSelectAll;
+    this.toggleSelectAll = false;
 
     this.sortData = function (col, dir) {
         isSorting = true;
@@ -2271,7 +2676,7 @@ kg.KoGrid = function (options, gridWidth) {
     });
 
     var scrollIntoView = function (entity) {
-        var itemIndex,
+        var itemIndex = -1,
             viewableRange = self.rowManager.viewableRange();
         if (entity) {
             itemIndex = ko.utils.arrayIndexOf(self.finalData(), entity);
@@ -2294,7 +2699,7 @@ kg.KoGrid = function (options, gridWidth) {
         var longest = col.minWidth;
         var arr = kg.utils.getElementsByClassName('col' + col.index);
         kg.utils.forEach(arr, function (elem, index) {
-            var i = 0;
+            var i;
             if (index == 0) {
                 var kgHeaderText = $(elem).find('.kgHeaderText');
                 i = kg.utils.visualLength(kgHeaderText) + 10;
@@ -2313,9 +2718,9 @@ kg.KoGrid = function (options, gridWidth) {
     this.refreshDomSizes = function () {
         var dim = new kg.Dimension(),
             oldDim = self.rootDim(),
-            rootH = 0,
-            rootW = 0,
-            canvasH = 0;
+            rootH,
+            rootW,
+            canvasH;
 
         self.elementsNeedMeasuring = true;
 
@@ -2354,32 +2759,23 @@ kg.KoGrid = function (options, gridWidth) {
     };
 
     this.refreshDomSizesTrigger = ko.computed(function () {
-        //register dependencies
-        var data = self.data();
-
-        if (h_updateTimeout) {
+        if (hUpdateTimeout) {
             if (window.setImmediate) {
-                window.clearImmediate(h_updateTimeout);
+                window.clearImmediate(hUpdateTimeout);
             } else {
-                window.clearTimeout(h_updateTimeout);
+                window.clearTimeout(hUpdateTimeout);
             }
         }
-
         if (self.initPhase > 0) {
-
             //don't shrink the grid if we sorting or filtering
             if (!filterIsOpen() && !isSorting) {
-
                 self.refreshDomSizes();
-
                 kg.cssBuilder.buildStyles(self);
-
                 if (self.initPhase > 0 && self.$root) {
                     self.$root.show();
                 }
             }
         }
-
     });
 
     this.buildColumnDefsFromData = function () {
@@ -2506,9 +2902,9 @@ kg.KoGrid = function (options, gridWidth) {
         };
 
         if (window.setImmediate) {
-            h_updateTimeout = setImmediate(updater);
+            hUpdateTimeout = setImmediate(updater);
         } else {
-            h_updateTimeout = setTimeout(updater, 0);
+            hUpdateTimeout = setTimeout(updater, 0);
         }
         kg.utils.forEach(self.config.plugins, function(p) {
             p.onGridUpdate(self);
@@ -2521,20 +2917,16 @@ kg.KoGrid = function (options, gridWidth) {
     };
 
     this.clearFilter_Click = function () {
-        kg.utils.forEach(self.columns(), function (col, i) {
+        kg.utils.forEach(self.columns(), function (col) {
             col.filter(null);
         });
     };
 
     this.adjustScrollTop = function (scrollTop, force) {
         var rowIndex;
-
         if (prevScrollTop === scrollTop && !force) { return; }
-
         rowIndex = Math.floor(scrollTop / self.config.rowHeight);
-
         prevScrollTop = scrollTop;
-
         self.rowManager.viewableRange(new kg.Range(rowIndex, rowIndex + self.minRowsToRender()));
     };
 
@@ -2609,55 +3001,43 @@ kg.domUtility = (new function () {
         if(!pixelStr){
             return 0;
         }
-
         var numStr = pixelStr.replace("/px/gi", "");
-
         var num = parseInt(numStr, 10);
-
         return isNaN(num) ? 0 : num;
     };
 
     this.assignGridContainers = function (rootEl, grid) {
 
         grid.$root = $(rootEl);
-
         //Headers
-        grid.$topPanel = $(".kgTopPanel", grid.$root[0]);
-        grid.$headerContainer = $(".kgHeaderContainer", grid.$topPanel[0]);
-        grid.$headerScroller = $(".kgHeaderScroller", grid.$headerContainer[0]);
+        grid.$groupPanel = grid.$root.find(".kgGroupPanel");
+        grid.$topPanel = grid.$root.find(".kgTopPanel");
+        grid.$headerContainer = grid.$root.find(".kgHeaderContainer");
+        grid.$headerScroller = grid.$root.find(".kgHeaderScroller");
         grid.$headers = grid.$headerContainer.children();
-
         //Viewport
-        grid.$viewport = $(".kgViewport", grid.$root[0]);
-
+        grid.$viewport = grid.$root.find(".kgViewport");
         //Canvas
-        grid.$canvas = $(".kgCanvas", grid.$viewport[0]);
-
+        grid.$canvas = grid.$root.find(".kgCanvas");
         //Footers
-        grid.$footerPanel = $(".kgFooterPanel", grid.$root[0]);
+        grid.$footerPanel = grid.$root.find(".kgFooterPanel");
     };
 
     this.measureElementMaxDims = function ($container) {
         var dims = {};
-
         var $test = $("<div style='height: 20000px; width: 20000px;'></div>");
-
         $container.append($test);
-
         dims.maxWidth = $container.width();
         dims.maxHeight = $container.height();
-
-
+        var pixelStr;
         if (!dims.maxWidth) {
-            var pixelStr = $container.css("max-width");
+            pixelStr = $container.css("max-width");
             dims.maxWidth = parsePixelString(pixelStr);
         }
-
         if (!dims.maxHeight) {
-            var pixelStr = $container.css("max-height");
+            pixelStr = $container.css("max-height");
             dims.maxHeight = parsePixelString(pixelStr);
         }
-
         //if they are zero, see what the parent's size is
         if (dims.maxWidth === 0) {
             dims.maxWidth = $container.parent().width();
@@ -2674,55 +3054,41 @@ kg.domUtility = (new function () {
     this.measureElementMinDims = function ($container) {
         var dims = {},
             $testContainer = $container.clone();
-
         $testContainer.appendTo($container.parent().first());
 
         dims.minWidth = 0;
         dims.minHeight = 0;
-
         //since its cloned... empty it out
         $testContainer.empty();
-
         var $test = $("<div style='height: 0x; width: 0px;'></div>");
         $testContainer.append($test);
-
         //$testContainer.wrap("<div style='width: 1px; height: 1px;'></div>");
-
         dims.minWidth = $testContainer.width();
         dims.minHeight = $testContainer.height();
-
+        var pixelStr;
         if (!dims.minWidth) {
-            var pixelStr = $testContainer.css("min-width");            
+            pixelStr = $testContainer.css("min-width");
             dims.minWidth = parsePixelString(pixelStr);
         }
-
         if (!dims.minHeight) {
-            var pixelStr = $testContainer.css("min-height");
+            pixelStr = $testContainer.css("min-height");
             dims.minHeight = parsePixelString(pixelStr);
         }
-
         $testContainer.remove();
-
         return dims;
     };
 
     this.measureGrid = function ($container, grid, measureMins) {
-
         //find max sizes
         var dims = self.measureElementMaxDims($container);
-
         grid.elementDims.rootMaxW = dims.maxWidth;
         grid.elementDims.rootMaxH = dims.maxHeight;
-
         //set scroll measurements
         grid.elementDims.scrollW = kg.domUtility.scrollW;
         grid.elementDims.scrollH = kg.domUtility.scrollH;
-
         //find min sizes
         dims = self.measureElementMinDims($container);
-
         grid.elementDims.rootMinW = dims.minWidth;
-
         // do a little magic here to ensure we always have a decent viewport
         dims.minHeight = Math.max(dims.minHeight, (grid.config.headerRowHeight + grid.config.footerRowHeight + (3 * grid.config.rowHeight)));
         dims.minHeight = Math.min(grid.elementDims.rootMaxH, dims.minHeight);
@@ -2743,7 +3109,6 @@ kg.domUtility = (new function () {
             $row = $canvas.children().first();
             isDummyRow = true;
         }
-
         $cell = $row.children().first();
         if ($cell.length === 0) {
             //add a dummy cell
@@ -2751,15 +3116,11 @@ kg.domUtility = (new function () {
             $cell = $row.children().first();
             isDummyCell = true;
         }
-
         grid.elementDims.rowWdiff = $row.outerWidth() - $row.width();
         grid.elementDims.rowHdiff = $row.outerHeight() - $row.height();
-
         grid.elementDims.cellWdiff = $cell.outerWidth() - $cell.width();
         grid.elementDims.cellHdiff = $cell.outerHeight() - $cell.height();
-
         grid.elementsNeedMeasuring = false;
-
         if (isDummyRow) {
             $row.remove();
         } else if (isDummyCell) {
@@ -2774,24 +3135,17 @@ kg.domUtility = (new function () {
     $(function () {
         $testContainer.appendTo('body');
         // 1. Run all the following measurements on startup!
-
         //measure Scroll Bars
         $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
         $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
-
         self.scrollH = ($testContainer.height() - $testContainer[0].clientHeight);
         self.scrollW = ($testContainer.width() - $testContainer[0].clientWidth);
-
         $testContainer.empty();
-
         //clear styles
         $testContainer.attr('style', '');
-
         //measure letter sizes using a pretty typical font size and fat font-family
         $testContainer.append('<span style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 14px;"><strong>M</strong></span>');
-
         self.letterW = $testContainer.children().first().width();
-
         $testContainer.remove();
     });
 
@@ -2845,14 +3199,13 @@ ko.bindingHandlers['koGrid'] = (function () {
                 $element = $(element);
 
             //create the Grid
-            var grid = kg.gridManager.getGrid(element);
+            grid = kg.gridManager.getGrid(element);
             if (!grid){
                 grid = new kg.KoGrid(options, $(element).width());
                 kg.gridManager.storeGrid(element, grid);
             } else {
                 return false;
             }
-            
             kg.templateManager.ensureGridTemplates({
                 rowTemplate: grid.config.rowTemplate,
                 headerTemplate: grid.config.headerTemplate,
@@ -2881,17 +3234,13 @@ ko.bindingHandlers['koGrid'] = (function () {
                 ko.applyBindings(bindingContext, element);
                 kg.cssBuilder.buildStyles(kg.gridManager.getGrid(element));
             });
-            
             //get the container sizes
             kg.domUtility.measureGrid($element, grid, true);
-
             $element.hide(); //first hide the grid so that its not freaking the screen out
-
             //set the right styling on the container
             $element.addClass("kgGrid")
                     .addClass("ui-widget")
                     .addClass(grid.gridId.toString());
-
             //make sure the templates are generated for the Grid
             return ko.bindingHandlers['template'].init(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
 
@@ -2901,23 +3250,19 @@ ko.bindingHandlers['koGrid'] = (function () {
                 returnVal;
 
             grid = kg.gridManager.getGrid(element);
-
             //kind a big problem if this isn't here...
             if (!grid) {
                 return { 'controlsDescendantBindings': true };
             }
             //fire the with "update" bindingHandler
             returnVal = ko.bindingHandlers['template'].update(element, makeNewValueAccessor(grid), allBindingsAccessor, grid, bindingContext);
-
             //walk the element's graph and the correct properties on the grid
             kg.domUtility.assignGridContainers(element, grid);
-
             //now use the manager to assign the event handlers
             kg.gridManager.assignGridEventHandlers(grid);
-
+            grid.aggregateProvider = new kg.AggregateProvider(grid);
             //call update on the grid, which will refresh the dome measurements asynchronously
             grid.update();
-
             return returnVal;
         }
     };
