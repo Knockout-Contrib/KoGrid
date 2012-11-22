@@ -58,6 +58,12 @@
     this.cellClass = colDef.cellClass;
     this.headerClass = colDef.headerClass;
 
+    //header Template
     this.headerTemplate = colDef.headerTemplate;
     this.hasHeaderTemplate = (this.headerTemplate ? true : false);
+    if (self.hasHeaderTemplate){
+        var elem = document.getElementById(self.headerTemplate);
+        var templText = elem ? elem.innerHTML : undefined;
+        kg.templateManager.addTemplateSafe(self.headerTemplate, templText);
+    }
 };
