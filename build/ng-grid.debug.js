@@ -1,8 +1,8 @@
 /***********************************************
 * ng-grid JavaScript Library
-* Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
+* Authors: https://github.com/Crash8308/ng-grid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/03/2012 14:46:05
+* Compiled At: 12/03/2012 13:42:35
 ***********************************************/
 
 (function(window, undefined){
@@ -195,7 +195,7 @@ kg.defaultHeaderRowTemplate = function(){ return '<div data-bind="foreach: visib
 /***********************************************
 * FILE: ..\src\templates\headerCellTemplate.html
 ***********************************************/
-kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
+kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, css: { \'ngSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' ngHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
 
 /***********************************************
 * FILE: ..\src\bindingHandlers\ko-grid.js
@@ -388,7 +388,7 @@ kg.Aggregate = function (aggEntity, rowFactory) {
         rowFactory.renderedChange();
     };
     self.aggClass = ko.computed(function() {
-        return self.collapsed() ? "kgAggArrowCollapsed" : "kgAggArrowExpanded";
+        return self.collapsed() ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
     });
     self.totalChildren = ko.computed(function() {
         if (self.aggChildren.length > 0) {
@@ -448,9 +448,9 @@ kg.AggregateProvider = function (grid) {
 	//For JQueryUI
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
-			$('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+			$('.ngHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
 		} else {
-			$('.kgHeaderSortColumn').draggable({
+			$('.ngHeaderSortColumn').draggable({
 				helper: "clone",
 				appendTo: 'body',
 				addClasses: false,
@@ -505,7 +505,7 @@ kg.AggregateProvider = function (grid) {
         if (self.groupToMove) {
 			self.onGroupDragStop();
             // Get the closest header to where we dropped
-            groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+            groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
             if (groupContainer.context.className =='kgGroupPanel') {
                 grid.configGroups.splice(self.groupToMove.index, 1);
                 grid.configGroups.push(self.groupToMove.groupName);
@@ -524,7 +524,7 @@ kg.AggregateProvider = function (grid) {
         } else {	
 			self.onHeaderDragStop();
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
-                groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+                groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
 				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
 				    grid.configGroups.push(self.colToMove.col);
 				} else {
@@ -542,7 +542,7 @@ kg.AggregateProvider = function (grid) {
     //Header functions
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
-        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header container
         
@@ -571,7 +571,7 @@ kg.AggregateProvider = function (grid) {
         if (!self.colToMove) return;
         self.onHeaderDragStop();
         // Get the closest header to where we dropped
-        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header.
         var headerScope = ko.dataFor(headerContainer[0]);
@@ -592,7 +592,7 @@ kg.AggregateProvider = function (grid) {
     // Row functions
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
-        var targetRow = $(event.target).closest('.kgRow');
+        var targetRow = $(event.target).closest('.ngRow');
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {
@@ -605,7 +605,7 @@ kg.AggregateProvider = function (grid) {
 
     self.onRowDrop = function (event) {
         // Get the closest row to where we dropped
-        var targetRow = $(event.target).closest('.kgRow');
+        var targetRow = $(event.target).closest('.ngRow');
         // Get the scope from the row element.
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {
@@ -915,7 +915,7 @@ kg.RowFactory = function(grid) {
         self.numberOfAggregates = 0;
         self.groupedData = {};
         // Here we set the onmousedown event handler to the header container.
-        var data = grid.filteredData();
+        var data = grid.filteredData;
         var maxDepth = groups.length;
         var cols = grid.columns();
 

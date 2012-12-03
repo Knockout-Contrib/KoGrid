@@ -1,0 +1,7 @@
+<!--kg.defaultHeaderCellTemplate-->
+<div data-bind="click: sort, css: {'kgSorted': !noSortVisible }, attr: {'class': 'kgHeaderSortColumn ' + headerClass()}">
+    <div data-bind="attr: { 'class': 'colt' + $index() + ' kgHeaderText' }, html: displayName"></div>
+    <div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div>
+    <div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div>
+    <div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div>
+</div>

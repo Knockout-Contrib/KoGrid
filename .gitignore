@@ -40,7 +40,12 @@ local.properties
 *.suo
 *.user
 *.sln.docstates
-
+*.sln
+*.
+*.*roj
+workbench/jquery*
+workbench/bootstrap*
+web.config
 # Build results
 [Dd]ebug/
 [Rr]elease/
