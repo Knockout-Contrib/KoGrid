@@ -1,11 +1,13 @@
-﻿var SELECTED_PROP = '__kg_selected__';
-var GRID_TEMPLATE = 'koGridTmpl';
+﻿var SELECTED_PROP = '__kg_selected__'; 
 var GRID_KEY = '__koGrid__';
-var ROW_KEY = '__ng_rowIndex__';
+// the # of rows we want to add to the top and bottom of the rendered grid rows 
 var EXCESS_ROWS = 8;
+var SCROLL_THRESHOLD = 6;
 var ASC = "asc"; // constant for sorting direction
 var DESC = "desc"; // constant for sorting direction
-var NG_FIELD = '_kg_field_';
-var NG_DEPTH = '_kg_depth_';
-var NG_HIDDEN = '_kg_hidden_';
-var NG_COLUMN = '_kg_column_';
+var KG_FIELD = '_kg_field_';
+var KG_DEPTH = '_kg_depth_';
+var KG_HIDDEN = '_kg_hidden_';
+var KG_COLUMN = '_kg_column_';
+var CUSTOM_FILTERS = /CUSTOM_FILTERS/g;
+var TEMPLATE_REGEXP = /^<.+>/;
