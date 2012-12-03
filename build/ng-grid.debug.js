@@ -482,7 +482,7 @@ kg.AggregateProvider = function (grid) {
     self.onGroupMouseDown = function(event) {
         var groupItem = $(event.target);
         // Get the scope from the header container
-		if(groupItem[0].className != 'ngRemoveGroup'){
+		if(groupItem[0].className !='kgRemoveGroup'){
 		    var groupItemScope = ko.dataFor(groupItem[0]);
 			if (groupItemScope) {
 				// set draggable events
@@ -506,7 +506,7 @@ kg.AggregateProvider = function (grid) {
 			self.onGroupDragStop();
             // Get the closest header to where we dropped
             groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-            if (groupContainer.context.className == 'ngGroupPanel') {
+            if (groupContainer.context.className =='kgGroupPanel') {
                 grid.configGroups.splice(self.groupToMove.index, 1);
                 grid.configGroups.push(self.groupToMove.groupName);
             } else {
@@ -525,7 +525,7 @@ kg.AggregateProvider = function (grid) {
 			self.onHeaderDragStop();
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
                 groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-				if (groupContainer.context.className == 'ngGroupPanel' || groupContainer.context.className == 'ngGroupPanelDescription') {
+				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
 				    grid.configGroups.push(self.colToMove.col);
 				} else {
 				    groupScope = ko.dataFor(groupContainer[0]);

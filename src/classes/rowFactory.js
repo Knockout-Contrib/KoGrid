@@ -163,7 +163,7 @@ kg.RowFactory = function(grid) {
         self.numberOfAggregates = 0;
         self.groupedData = {};
         // Here we set the onmousedown event handler to the header container.
-        var data = grid.filteredData;
+        var data = grid.filteredData();
         var maxDepth = groups.length;
         var cols = grid.columns();
 

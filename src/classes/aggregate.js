@@ -57,7 +57,7 @@ kg.Aggregate = function (aggEntity, rowFactory) {
         rowFactory.renderedChange();
     };
     self.aggClass = ko.computed(function() {
-        return self.collapsed() ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
+        return self.collapsed() ? "kgAggArrowCollapsed" : "kgAggArrowExpanded";
     });
     self.totalChildren = ko.computed(function() {
         if (self.aggChildren.length > 0) {

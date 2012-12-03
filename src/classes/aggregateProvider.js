@@ -31,9 +31,9 @@ kg.AggregateProvider = function (grid) {
 	//For JQueryUI
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
-			$('.ngHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+			$('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
 		} else {
-			$('.ngHeaderSortColumn').draggable({
+			$('.kgHeaderSortColumn').draggable({
 				helper: "clone",
 				appendTo: 'body',
 				addClasses: false,
@@ -65,7 +65,7 @@ kg.AggregateProvider = function (grid) {
     self.onGroupMouseDown = function(event) {
         var groupItem = $(event.target);
         // Get the scope from the header container
-		if(groupItem[0].className != 'ngRemoveGroup'){
+		if(groupItem[0].className !='kgRemoveGroup'){
 		    var groupItemScope = ko.dataFor(groupItem[0]);
 			if (groupItemScope) {
 				// set draggable events
@@ -88,8 +88,8 @@ kg.AggregateProvider = function (grid) {
         if (self.groupToMove) {
 			self.onGroupDragStop();
             // Get the closest header to where we dropped
-            groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-            if (groupContainer.context.className == 'ngGroupPanel') {
+            groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+            if (groupContainer.context.className =='kgGroupPanel') {
                 grid.configGroups.splice(self.groupToMove.index, 1);
                 grid.configGroups.push(self.groupToMove.groupName);
             } else {
@@ -107,8 +107,8 @@ kg.AggregateProvider = function (grid) {
         } else {	
 			self.onHeaderDragStop();
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
-                groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-				if (groupContainer.context.className == 'ngGroupPanel' || groupContainer.context.className == 'ngGroupPanelDescription') {
+                groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
 				    grid.configGroups.push(self.colToMove.col);
 				} else {
 				    groupScope = ko.dataFor(groupContainer[0]);
@@ -125,7 +125,7 @@ kg.AggregateProvider = function (grid) {
     //Header functions
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
-        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header container
         
@@ -154,7 +154,7 @@ kg.AggregateProvider = function (grid) {
         if (!self.colToMove) return;
         self.onHeaderDragStop();
         // Get the closest header to where we dropped
-        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header.
         var headerScope = ko.dataFor(headerContainer[0]);
@@ -175,7 +175,7 @@ kg.AggregateProvider = function (grid) {
     // Row functions
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
-        var targetRow = $(event.target).closest('.ngRow');
+        var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {
@@ -188,7 +188,7 @@ kg.AggregateProvider = function (grid) {
 
     self.onRowDrop = function (event) {
         // Get the closest row to where we dropped
-        var targetRow = $(event.target).closest('.ngRow');
+        var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element.
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {

@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/03/2012 13:46:26
+* Compiled At: 12/03/2012 14:27:41
 ***********************************************/
 
 (function(window, undefined){
@@ -195,7 +195,7 @@ kg.defaultHeaderRowTemplate = function(){ return '<div data-bind="foreach: visib
 /***********************************************
 * FILE: ..\src\templates\headerCellTemplate.html
 ***********************************************/
-kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, css: { \'ngSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' ngHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
+kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
 
 /***********************************************
 * FILE: ..\src\bindingHandlers\ko-grid.js
@@ -388,7 +388,7 @@ kg.Aggregate = function (aggEntity, rowFactory) {
         rowFactory.renderedChange();
     };
     self.aggClass = ko.computed(function() {
-        return self.collapsed() ? "ngAggArrowCollapsed" : "ngAggArrowExpanded";
+        return self.collapsed() ? "kgAggArrowCollapsed" : "kgAggArrowExpanded";
     });
     self.totalChildren = ko.computed(function() {
         if (self.aggChildren.length > 0) {
@@ -448,9 +448,9 @@ kg.AggregateProvider = function (grid) {
 	//For JQueryUI
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
-			$('.ngHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+			$('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
 		} else {
-			$('.ngHeaderSortColumn').draggable({
+			$('.kgHeaderSortColumn').draggable({
 				helper: "clone",
 				appendTo: 'body',
 				addClasses: false,
@@ -482,7 +482,7 @@ kg.AggregateProvider = function (grid) {
     self.onGroupMouseDown = function(event) {
         var groupItem = $(event.target);
         // Get the scope from the header container
-		if(groupItem[0].className != 'ngRemoveGroup'){
+		if(groupItem[0].className !='kgRemoveGroup'){
 		    var groupItemScope = ko.dataFor(groupItem[0]);
 			if (groupItemScope) {
 				// set draggable events
@@ -505,8 +505,8 @@ kg.AggregateProvider = function (grid) {
         if (self.groupToMove) {
 			self.onGroupDragStop();
             // Get the closest header to where we dropped
-            groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-            if (groupContainer.context.className == 'ngGroupPanel') {
+            groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+            if (groupContainer.context.className =='kgGroupPanel') {
                 grid.configGroups.splice(self.groupToMove.index, 1);
                 grid.configGroups.push(self.groupToMove.groupName);
             } else {
@@ -524,8 +524,8 @@ kg.AggregateProvider = function (grid) {
         } else {	
 			self.onHeaderDragStop();
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
-                groupContainer = $(event.target).closest('.ngGroupElement'); // Get the scope from the header.
-				if (groupContainer.context.className == 'ngGroupPanel' || groupContainer.context.className == 'ngGroupPanelDescription') {
+                groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
 				    grid.configGroups.push(self.colToMove.col);
 				} else {
 				    groupScope = ko.dataFor(groupContainer[0]);
@@ -542,7 +542,7 @@ kg.AggregateProvider = function (grid) {
     //Header functions
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
-        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header container
         
@@ -571,7 +571,7 @@ kg.AggregateProvider = function (grid) {
         if (!self.colToMove) return;
         self.onHeaderDragStop();
         // Get the closest header to where we dropped
-        var headerContainer = $(event.target).closest('.ngHeaderSortColumn');
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer) return true;
         // Get the scope from the header.
         var headerScope = ko.dataFor(headerContainer[0]);
@@ -592,7 +592,7 @@ kg.AggregateProvider = function (grid) {
     // Row functions
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
-        var targetRow = $(event.target).closest('.ngRow');
+        var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {
@@ -605,7 +605,7 @@ kg.AggregateProvider = function (grid) {
 
     self.onRowDrop = function (event) {
         // Get the closest row to where we dropped
-        var targetRow = $(event.target).closest('.ngRow');
+        var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element.
         var rowScope = ko.dataFor(targetRow);
         if (rowScope) {
@@ -915,7 +915,7 @@ kg.RowFactory = function(grid) {
         self.numberOfAggregates = 0;
         self.groupedData = {};
         // Here we set the onmousedown event handler to the header container.
-        var data = grid.filteredData;
+        var data = grid.filteredData();
         var maxDepth = groups.length;
         var cols = grid.columns();
 
