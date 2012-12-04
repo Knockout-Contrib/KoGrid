@@ -27,8 +27,8 @@
             </div>
             <div data-bind="visible: showColumnMenu">
                 <span class="kgMenuText">Choose Columns:</span>
-                <ul class="kgColList">
-                    <li class="kgColListItem" data-bind="foreach: nonAggColumns">
+                <ul class="kgColList" data-bind="foreach: nonAggColumns">
+                    <li class="kgColListItem">
                         <label style="position: relative;">
                             <input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"/>
                             <span data-bind="text: displayName, click: toggleVisible"></span>
