@@ -1,7 +1,7 @@
 <!--kg.defaultGridTemplate-->
 <div data-bind="css: {'ui-widget': jqueryUITheme}">
     <div class="kgTopPanel" data-bind="css: {'ui-widget-header':jqueryUITheme, 'ui-corner-top': jqueryUITheme}, style: $data.topPanelStyle">
-        <div class="kgGroupPanel" data-bind="visible: showGroupPanel, style: headerStyle()">
+        <div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle">
             <div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div>
             <ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList">
                 <li class="kgGroupItem">

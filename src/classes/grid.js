@@ -25,7 +25,7 @@ kg.Grid = function (options) {
             multiSelect: ko.observable(true),
             tabIndex: -1,
             disableTextSelection: false,
-            enableColumnResize: ko.observable(true),
+            enableColumnResize: true,
             maintainColumnRatios: undefined,
             enableSorting:ko.observable(true),
             beforeSelectionChange: function () { return true;},
@@ -37,10 +37,10 @@ kg.Grid = function (options) {
             plugins: [],
             keepLastSelected: true,
             groups: [],
-            showGroupPanel: ko.observable(false),
-            enableRowReordering: ko.observable(false),
-            showColumnMenu: ko.observable(true),
-            showFilter: ko.observable(true),
+            showGroupPanel: false,
+            enableRowReordering: false,
+            showColumnMenu: true,
+            showFilter: true,
             filterOptions: {
                 filterText: ko.observable(""),
                 useExternalFilter: false,
@@ -265,6 +265,8 @@ kg.Grid = function (options) {
             kg.domUtilityService.BuildStyles(self);
         });
         self.maxCanvasHt(self.calcMaxCanvasHeight());
+        self.searchProvider.evalFilter();
+        self.refreshDomSizes();
     };
     self.prevScrollTop = 0;
     self.prevScrollIndex = 0;
@@ -377,9 +379,7 @@ kg.Grid = function (options) {
 	self.showGroupPanel = ko.computed(function(){
 		return self.config.showGroupPanel;
 	});
-	self.topPanelHeight = ko.computed(function(){
-	    return self.config.showGroupPanel == true ? self.config.headerRowHeight * 2 : self.config.headerRowHeight;
-	});
+	self.topPanelHeight = ko.observable(self.config.showGroupPanel == true ? (self.config.headerRowHeight * 2) : self.config.headerRowHeight);
 	self.viewportDimHeight = ko.computed(function () {
         return Math.max(0, self.rootDim.outerHeight - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
