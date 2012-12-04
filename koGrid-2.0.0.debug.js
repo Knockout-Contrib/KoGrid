@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/03/2012 18:11:13
+* Compiled At: 12/03/2012 18:16:24
 ***********************************************/
 
 (function(window, undefined){
@@ -1026,7 +1026,7 @@ kg.Grid = function (options) {
     self.$canvas = null;
     self.rootDim = self.config.gridDim;
     self.sortInfo = self.config.sortInfo;
-    self.sortedData = ko.observableArray([]);
+    self.sortedData = ko.observableArray(ko.utils.unwrapObservable(self.config.data));
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
     self.lastSortedColumn = undefined;
