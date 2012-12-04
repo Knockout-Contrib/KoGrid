@@ -2,7 +2,7 @@
 $CurrentDir = (Get-Location).Path;
 $OutPutFile = $CurrentDir + "\koGrid.debug.js";
 $TempFile = $OutPutFile + ".temp";
-$FinalFile = "..\koGrid-2.0.0.debug.js";
+$FinalFile = "..\koGrid-2.0.2.debug.js";
 $BuildOrder = $CurrentDir + "\build-order.txt";
 $commentStart = "<!--";
 $commentEnd = "-->";
@@ -12,7 +12,7 @@ $files = Get-Content $BuildOrder;
 $compileTime = Get-Date;
 
 Set-Content $TempFile "/***********************************************";
-Add-Content $TempFile "* ng-grid JavaScript Library";
+Add-Content $TempFile "* koGrid JavaScript Library";
 Add-Content $TempFile "* Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md";
 Add-Content $TempFile "* License: MIT (http://www.opensource.org/licenses/mit-license.php)";
 Add-Content $TempFile "* Compiled At: $compileTime";

@@ -3,7 +3,7 @@
         'init': function (element, valueAccessor) {
             var options = valueAccessor();
             var elem = $(element);
-            options.gridDim = new kg.Dimension({ outerHeight: elem.height(), outerWidth: elem.width() });
+            options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
             kg.gridService.StoreGrid(element, grid);

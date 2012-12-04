@@ -12,9 +12,9 @@
     self.index = config.index;
     self.isAggCol = config.isAggCol;
     self.cellClass = ko.observable(colDef.cellClass);
-    self.cellFilter = colDef.cellFilter;
+    self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
     self.field = colDef.field;
-    self.aggLabelFilter = colDef.cellFilter || colDef.aggLabelFilter;
+    self.aggLabelFilter = colDef.cellFilter || colDef.cellFormatter || colDef.aggLabelFilter || colDef.aggLabelFormatter;
     self._visible = ko.observable(kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
     self.visible = ko.computed({
         read: function() {

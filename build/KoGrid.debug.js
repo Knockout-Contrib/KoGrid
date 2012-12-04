@@ -1,8 +1,8 @@
 /***********************************************
-* ng-grid JavaScript Library
+* koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/04/2012 10:47:46
+* Compiled At: 12/04/2012 13:22:59
 ***********************************************/
 
 (function(window, undefined){
@@ -205,7 +205,7 @@ ko.bindingHandlers['koGrid'] = (function () {
         'init': function (element, valueAccessor) {
             var options = valueAccessor();
             var elem = $(element);
-            options.gridDim = new kg.Dimension({ outerHeight: elem.height(), outerWidth: elem.width() });
+            options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
             kg.gridService.StoreGrid(element, grid);
@@ -647,9 +647,9 @@ kg.Column = function (config, grid) {
     self.index = config.index;
     self.isAggCol = config.isAggCol;
     self.cellClass = ko.observable(colDef.cellClass);
-    self.cellFilter = colDef.cellFilter;
+    self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
     self.field = colDef.field;
-    self.aggLabelFilter = colDef.cellFilter || colDef.aggLabelFilter;
+    self.aggLabelFilter = colDef.cellFilter || colDef.cellFormatter || colDef.aggLabelFilter || colDef.aggLabelFormatter;
     self._visible = ko.observable(kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
     self.visible = ko.computed({
         read: function() {
@@ -1065,10 +1065,8 @@ kg.Grid = function (options) {
         return Math.floor(viewportH / self.config.rowHeight);
     };
     self.refreshDomSizes = function () {
-        var dim = new kg.Dimension();
-        dim.outerWidth = self.elementDims.rootMaxW;
-        dim.outerHeight = self.elementDims.rootMaxH;
-        self.rootDim = dim;		
+        self.rootDim.outerWidth(self.elementDims.rootMaxW);
+        self.rootDim.outerHeight(self.elementDims.rootMaxH);
         self.maxCanvasHt(self.calcMaxCanvasHeight());
     };
     self.buildColumnDefsFromData = function () {
@@ -1157,7 +1155,7 @@ kg.Grid = function (options) {
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
                     if (i + 1 == numOfCols && asteriskNum == 0) {
-                        columns[i].width = (self.rootDim.outerWidth - kg.domUtilityService.scrollW) - totalWidth;
+                        columns[i].width = (self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth;
                     } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         col.index = i;
@@ -1179,7 +1177,7 @@ kg.Grid = function (options) {
         if (asterisksArray.length > 0) {
             self.config.maintainColumnRatios === false ? $.noop() : self.config.maintainColumnRatios = true;
             // get the remaining width
-            var remainigWidth = self.rootDim.outerWidth - totalWidth;
+            var remainigWidth = self.rootDim.outerWidth() - totalWidth;
             // calculate the weight of each asterisk rounded down
             var asteriskVal = Math.floor(remainigWidth / asteriskNum);
             // set the width of each column based on the number of stars
@@ -1195,7 +1193,7 @@ kg.Grid = function (options) {
             // do the math
             $.each(percentArray, function (i, col) {
                 var t = col.width;
-                columns[col.index].width = Math.floor(self.rootDim.outerWidth * (parseInt(t.slice(0, -1)) / 100));
+                columns[col.index].width = Math.floor(self.rootDim.outerWidth() * (parseInt(t.slice(0, -1)) / 100));
             });
         }
         self.columns(columns);
@@ -1340,7 +1338,7 @@ kg.Grid = function (options) {
 	});
 	self.topPanelHeight = ko.observable(self.config.showGroupPanel == true ? (self.config.headerRowHeight * 2) : self.config.headerRowHeight);
 	self.viewportDimHeight = ko.computed(function () {
-        return Math.max(0, self.rootDim.outerHeight - self.topPanelHeight() - self.config.footerRowHeight - 2);
+        return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
     self.groupBy = function(col) {
         var indx = self.configGroups().indexOf(col);
@@ -1419,7 +1417,7 @@ kg.Grid = function (options) {
         return !(curPage > 1);
     });
     self.footerStyle = ko.computed(function () {
-        return { "width": self.rootDim.outerWidth + "px", "height": self.config.footerRowHeight + "px" };
+        return { "width": self.rootDim.outerWidth() + "px", "height": self.config.footerRowHeight + "px" };
     });
     //call init
     self.init();
@@ -1636,13 +1634,13 @@ kg.StyleProvider = function(grid) {
         return { "height": grid.config.headerRowHeight + "px" };
     });
     grid.topPanelStyle = ko.computed(function() {
-        return { "width": grid.rootDim.outerWidth + "px", "height": grid.topPanelHeight() + "px" };
+        return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": (grid.rootDim.outerWidth - kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
+        return { "width": (grid.rootDim.outerWidth() - kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
-        return { "width": grid.rootDim.outerWidth + "px", "height": grid.viewportDimHeight() + "px" };
+        return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };
     });
 };
 

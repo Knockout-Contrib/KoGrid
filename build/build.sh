@@ -1,7 +1,7 @@
 ﻿#!/bin/bash
 CurrentDir=$PWD
 OutPutFile=$CurrentDir/koGrid.debug.js
-FinalFile=../koGrid-2.0.0.debug.js
+FinalFile=../koGrid-2.0.2.debug.js
 BuildOrder=$CurrentDir/build-order.txt
 
 echo JSBuild Starting...
@@ -26,8 +26,8 @@ rm $OutPutFile
 
 # Wrap the final output in an IIFE
 echo "/***********************************************" >> $OutPutFile
-echo "* ng-grid JavaScript Library" >> $OutPutFile
-echo "* Authors: https://github.com/timothyswt/ng-grid/blob/master/README.md" >> $OutPutFile
+echo "* koGrid JavaScript Library" >> $OutPutFile
+echo "* Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md" >> $OutPutFile
 echo "* License: MIT (http://www.opensource.org/licenses/mit-license.php)" >> $OutPutFile
 echo "* Compiled At: $(date)" >> $OutPutFile
 echo "***********************************************/" >> $OutPutFile

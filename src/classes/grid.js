@@ -106,10 +106,8 @@ kg.Grid = function (options) {
         return Math.floor(viewportH / self.config.rowHeight);
     };
     self.refreshDomSizes = function () {
-        var dim = new kg.Dimension();
-        dim.outerWidth = self.elementDims.rootMaxW;
-        dim.outerHeight = self.elementDims.rootMaxH;
-        self.rootDim = dim;		
+        self.rootDim.outerWidth(self.elementDims.rootMaxW);
+        self.rootDim.outerHeight(self.elementDims.rootMaxH);
         self.maxCanvasHt(self.calcMaxCanvasHeight());
     };
     self.buildColumnDefsFromData = function () {
@@ -198,7 +196,7 @@ kg.Grid = function (options) {
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
                     if (i + 1 == numOfCols && asteriskNum == 0) {
-                        columns[i].width = (self.rootDim.outerWidth - kg.domUtilityService.scrollW) - totalWidth;
+                        columns[i].width = (self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth;
                     } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         col.index = i;
@@ -220,7 +218,7 @@ kg.Grid = function (options) {
         if (asterisksArray.length > 0) {
             self.config.maintainColumnRatios === false ? $.noop() : self.config.maintainColumnRatios = true;
             // get the remaining width
-            var remainigWidth = self.rootDim.outerWidth - totalWidth;
+            var remainigWidth = self.rootDim.outerWidth() - totalWidth;
             // calculate the weight of each asterisk rounded down
             var asteriskVal = Math.floor(remainigWidth / asteriskNum);
             // set the width of each column based on the number of stars
@@ -236,7 +234,7 @@ kg.Grid = function (options) {
             // do the math
             $.each(percentArray, function (i, col) {
                 var t = col.width;
-                columns[col.index].width = Math.floor(self.rootDim.outerWidth * (parseInt(t.slice(0, -1)) / 100));
+                columns[col.index].width = Math.floor(self.rootDim.outerWidth() * (parseInt(t.slice(0, -1)) / 100));
             });
         }
         self.columns(columns);
@@ -381,7 +379,7 @@ kg.Grid = function (options) {
 	});
 	self.topPanelHeight = ko.observable(self.config.showGroupPanel == true ? (self.config.headerRowHeight * 2) : self.config.headerRowHeight);
 	self.viewportDimHeight = ko.computed(function () {
-        return Math.max(0, self.rootDim.outerHeight - self.topPanelHeight() - self.config.footerRowHeight - 2);
+        return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
     self.groupBy = function(col) {
         var indx = self.configGroups().indexOf(col);
@@ -460,7 +458,7 @@ kg.Grid = function (options) {
         return !(curPage > 1);
     });
     self.footerStyle = ko.computed(function () {
-        return { "width": self.rootDim.outerWidth + "px", "height": self.config.footerRowHeight + "px" };
+        return { "width": self.rootDim.outerWidth() + "px", "height": self.config.footerRowHeight + "px" };
     });
     //call init
     self.init();
