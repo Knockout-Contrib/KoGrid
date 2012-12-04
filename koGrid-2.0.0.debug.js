@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/04/2012 09:23:04
+* Compiled At: 12/04/2012 09:30:01
 ***********************************************/
 
 (function(window, undefined){
@@ -1608,7 +1608,7 @@ kg.SelectionService = function (grid) {
         if (selectedlength > 0) {
             self.selectedItems.splice(0, selectedlength);
         }
-        $.each(grid.filteredData, function (i, item) {
+        $.each(grid.filteredData(), function (i, item) {
             item[SELECTED_PROP] = checkAll;
             if (checkAll) {
                 self.selectedItems.push(item);

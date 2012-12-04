@@ -66,7 +66,7 @@ kg.SelectionService = function (grid) {
         if (selectedlength > 0) {
             self.selectedItems.splice(0, selectedlength);
         }
-        $.each(grid.filteredData, function (i, item) {
+        $.each(grid.filteredData(), function (i, item) {
             item[SELECTED_PROP] = checkAll;
             if (checkAll) {
                 self.selectedItems.push(item);
