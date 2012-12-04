@@ -73,7 +73,9 @@ kg.SelectionService = function (grid) {
             }
         });
         $.each(self.rowFactory.rowCache, function (i, row) {
-            row.selected(checkAll);
+            if (row && row.selected) {
+                row.selected(checkAll);
+            }
         });
     };
 };

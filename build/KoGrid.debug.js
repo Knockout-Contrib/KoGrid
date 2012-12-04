@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/03/2012 19:01:04
+* Compiled At: 12/04/2012 09:23:04
 ***********************************************/
 
 (function(window, undefined){
@@ -541,14 +541,16 @@ kg.AggregateProvider = function (grid) {
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer) return true;
+        if (!headerContainer[0]) return true;
         // Get the scope from the header container
         
         var headerScope = ko.dataFor(headerContainer[0]);
         if (headerScope) {
             // Save the column for later.
             self.colToMove = { header: headerContainer, col: headerScope };
+            return false;
         }
+        return true;
     };
     
     self.onHeaderDragStart = function () {
@@ -566,16 +568,16 @@ kg.AggregateProvider = function (grid) {
     };
 
     self.onHeaderDrop = function (event) {
-        if (!self.colToMove) return;
+        if (!self.colToMove) return true;
         self.onHeaderDragStop();
         // Get the closest header to where we dropped
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer) return true;
+        if (!headerContainer[0]) return true;
         // Get the scope from the header.
         var headerScope = ko.dataFor(headerContainer[0]);
         if (headerScope) {
             // If we have the same column, do nothing.
-            if (self.colToMove.col == headerScope) return;
+            if (self.colToMove.col == headerScope) return true;
             // Splice the columns
             grid.columns.splice(self.colToMove.col.index, 1);
             grid.columns.splice(headerScope.index, 0, self.colToMove.col);
@@ -584,7 +586,9 @@ kg.AggregateProvider = function (grid) {
             kg.domUtilityService.BuildStyles(grid);
             // clear out the colToMove object
             self.colToMove = undefined;
+            return false;
         }
+        return true;
     };
     
     // Row functions
@@ -1457,7 +1461,7 @@ kg.Row = function (entity, config, selectionService) {
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
         } else {
-            if (self.beforeSelectionChange(self)) {
+            if (self.beforeSelectionChange(self, event)) {
                 self.selectionService.ChangeSelection(self, event);
                 return self.afterSelectionChange();
             }
@@ -1611,7 +1615,9 @@ kg.SelectionService = function (grid) {
             }
         });
         $.each(self.rowFactory.rowCache, function (i, row) {
-            row.selected(checkAll);
+            if (row && row.selected) {
+                row.selected(checkAll);
+            }
         });
     };
 };

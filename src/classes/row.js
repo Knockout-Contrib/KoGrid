@@ -29,7 +29,7 @@ kg.Row = function (entity, config, selectionService) {
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
         } else {
-            if (self.beforeSelectionChange(self)) {
+            if (self.beforeSelectionChange(self, event)) {
                 self.selectionService.ChangeSelection(self, event);
                 return self.afterSelectionChange();
             }
