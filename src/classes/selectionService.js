@@ -62,7 +62,7 @@ kg.SelectionService = function (grid) {
     // @return - boolean indicating if all items are selected or not
     // @val - boolean indicating whether to select all/de-select all
     self.toggleSelectAll = function (checkAll) {
-        var selectedlength = self.selectedItems.length;
+        var selectedlength = self.selectedItems().length;
         if (selectedlength > 0) {
             self.selectedItems.splice(0, selectedlength);
         }
