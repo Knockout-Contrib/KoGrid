@@ -2,7 +2,7 @@
 * ng-grid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/03/2012 14:46:05
+* Compiled At: 12/03/2012 16:01:32
 ***********************************************/
 
 (function(window, undefined){
@@ -175,7 +175,7 @@ kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-widget\'
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
 ***********************************************/
-kg.defaultRowTemplate = function(){ return '<div data-bind="foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': \'kgCell col\' + $index() + \' \' + cellClass() }, kgCell: $data"></div></div>';};
+kg.defaultRowTemplate = function(){ return '<div data-bind="foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\cellTemplate.html
@@ -211,10 +211,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
-                if (!a) return;
                 grid.sortedData(a);
                 grid.searchProvider.evalFilter();
-                grid.configureColumnWidths();
                 grid.refreshDomSizes();
             });
             // if columndefs are observable watch for changes and rebuild columns.
@@ -224,7 +222,6 @@ ko.bindingHandlers['koGrid'] = (function () {
                     grid.config.columnDefs = newDefs;
                     grid.buildColumns();
                     grid.configureColumnWidths();
-                    kg.domUtilityService.BuildStyles(grid);
                 });
             }
             //set the right styling on the container
@@ -237,6 +234,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             //walk the element's graph and the correct properties on the grid
             kg.domUtilityService.AssignGridContainers(elem, grid);
             grid.configureColumnWidths();
+            grid.refreshDomSizes();
             //now use the manager to assign the event handlers
             kg.gridService.AssignGridEventHandlers(grid);
             grid.aggregateProvider = new kg.AggregateProvider(grid);
@@ -972,9 +970,9 @@ kg.Grid = function (options) {
             footerRowHeight: 55,
             footerVisible: true,
             canSelectRows: true,
-            data: [],
+            data: ko.observableArray([]),
             columnDefs: undefined,
-            selectedItems: [], // array, if multi turned off will have only one item in array
+            selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
@@ -1197,6 +1195,7 @@ kg.Grid = function (options) {
             });
         }
         self.columns(columns);
+        kg.domUtilityService.BuildStyles(self);
     };
     self.init = function () {
         //factories and services

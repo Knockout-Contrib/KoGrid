@@ -9,10 +9,8 @@
             kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
-                if (!a) return;
                 grid.sortedData(a);
                 grid.searchProvider.evalFilter();
-                grid.configureColumnWidths();
                 grid.refreshDomSizes();
             });
             // if columndefs are observable watch for changes and rebuild columns.
@@ -22,7 +20,6 @@
                     grid.config.columnDefs = newDefs;
                     grid.buildColumns();
                     grid.configureColumnWidths();
-                    kg.domUtilityService.BuildStyles(grid);
                 });
             }
             //set the right styling on the container
@@ -35,6 +32,7 @@
             //walk the element's graph and the correct properties on the grid
             kg.domUtilityService.AssignGridContainers(elem, grid);
             grid.configureColumnWidths();
+            grid.refreshDomSizes();
             //now use the manager to assign the event handlers
             kg.gridService.AssignGridEventHandlers(grid);
             grid.aggregateProvider = new kg.AggregateProvider(grid);

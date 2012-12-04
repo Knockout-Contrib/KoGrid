@@ -15,9 +15,9 @@ kg.Grid = function (options) {
             footerRowHeight: 55,
             footerVisible: true,
             canSelectRows: true,
-            data: [],
+            data: ko.observableArray([]),
             columnDefs: undefined,
-            selectedItems: [], // array, if multi turned off will have only one item in array
+            selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
@@ -240,6 +240,7 @@ kg.Grid = function (options) {
             });
         }
         self.columns(columns);
+        kg.domUtilityService.BuildStyles(self);
     };
     self.init = function () {
         //factories and services
