@@ -21,6 +21,7 @@ kg.AggregateProvider = function (grid) {
 			if (grid.config.enableRowRerodering) {
 				grid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
 			}
+			self.setDraggables();
 		}
         grid.columns.subscribe(self.setDraggables);
     };
@@ -31,11 +32,12 @@ kg.AggregateProvider = function (grid) {
 	//For JQueryUI
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
-			$('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
 		} else {
-			$('.kgHeaderSortColumn').draggable({
-				helper: "clone",
+			grid.$root.find('.kgHeaderSortColumn').draggable({
+				helper: 'clone',
 				appendTo: 'body',
+				stack: 'div',
 				addClasses: false,
 				start: function(event){
 					self.onHeaderMouseDown(event);
@@ -74,7 +76,7 @@ kg.AggregateProvider = function (grid) {
 					groupItem.on('dragstart', self.onGroupDragStart).on('dragend', self.onGroupDragStop);
 				}
 				// Save the column for later.
-				self.groupToMove = { header: groupItem, groupName: groupItemScope.group, index: groupItemScope.$index };
+				self.groupToMove = { header: groupItem, groupName: groupItemScope, index: groupItemScope.groupIndex() - 1 };
 			}
 		} else {
 			self.groupToMove = undefined;
@@ -99,22 +101,23 @@ kg.AggregateProvider = function (grid) {
                     if (self.groupToMove.index != groupScope.$index){
 						// Splice the columns
                         grid.configGroups.splice(self.groupToMove.index, 1);
-                        grid.configGroups.splice(groupScope.$index, 0, self.groupToMove.groupName);
+                        grid.configGroups.splice(groupScope.$index(), 0, self.groupToMove.groupName);
 					}
                 }
             }			
 			self.groupToMove = undefined;
+			grid.fixGroupIndexes();
         } else {	
 			self.onHeaderDragStop();
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
                 groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
 				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
-				    grid.configGroups.push(self.colToMove.col);
+				    grid.groupBy(self.colToMove.col);
 				} else {
 				    groupScope = ko.dataFor(groupContainer[0]);
 				    if (groupScope) {
 						// Splice the columns
-				        grid.configGroups.splice(groupScope.$index + 1, 0, self.colToMove.col);
+				        grid.removeGroup(groupScope.$index());
 					}
 				}	
             }			
@@ -133,9 +136,7 @@ kg.AggregateProvider = function (grid) {
         if (headerScope) {
             // Save the column for later.
             self.colToMove = { header: headerContainer, col: headerScope };
-            return false;
         }
-        return true;
     };
     
     self.onHeaderDragStart = function () {
@@ -171,9 +172,7 @@ kg.AggregateProvider = function (grid) {
             kg.domUtilityService.BuildStyles(grid);
             // clear out the colToMove object
             self.colToMove = undefined;
-            return false;
         }
-        return true;
     };
     
     // Row functions

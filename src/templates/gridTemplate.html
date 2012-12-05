@@ -8,7 +8,7 @@
                     <span class="kgGroupElement">
                         <div class="kgGroupName">
                             <span data-bind="text: displayName"></span>
-                            <span data-bind="click: $root.removeGroup" class="kgRemoveGroup">x</span>
+                            <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span>
                         </div>
                         <span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span>
                     </span>
@@ -32,7 +32,8 @@
                         <label style="position: relative;">
                             <input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"/>
                             <span data-bind="text: displayName, click: toggleVisible"></span>
-                            <a title="Group By" class="kgGroupIcon" data-bind="visible: (field != '\u2714'), click: $parent.groupBy"></a>
+                            <a title="Group By" data-bind="attr: {'class': groupedByClass }, visible: (field != '\u2714'), click: $parent.groupBy"></a>
+							<span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span>
                         </label>
                     </li>
                 </ul>

@@ -5,6 +5,9 @@
         clicks = 0,
         timer = null;
     self.width = colDef.width;
+	self.groupIndex = ko.observable(0);
+	self.isGroupedBy = ko.observable(false);
+	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;

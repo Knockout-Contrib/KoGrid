@@ -13,7 +13,8 @@ kg.Grid = function (options) {
             columnWidth: 100,
             headerRowHeight: 30,
             footerRowHeight: 55,
-            footerVisible: true,
+            footerVisible: true,			
+            displayFooter: undefined,
             canSelectRows: true,
             data: ko.observableArray([]),
             columnDefs: undefined,
@@ -253,7 +254,9 @@ kg.Grid = function (options) {
             if (!a) return;
             var tempArr = [];
             $.each(a, function (i, item) {
-                tempArr.push(item.field || item);
+				if(item){
+					tempArr.push(item.field || item);
+				}
             });
             self.config.groups = tempArr;
             self.rowFactory.filteredDataChanged();
@@ -339,8 +342,9 @@ kg.Grid = function (options) {
     self.footer = null;
     self.selectedItems = self.config.selectedItems;
     self.multiSelect = self.config.multiSelect;
-    self.footerVisible = self.config.footerVisible;
-    self.showColumnMenu = self.config.showColumnMenu;
+    self.footerVisible = kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
+    self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
+	self.showColumnMenu = self.config.showColumnMenu;
     self.showMenu = ko.observable(false);
     self.configGroups = ko.observableArray([]);
 
@@ -384,19 +388,31 @@ kg.Grid = function (options) {
     self.groupBy = function(col) {
         var indx = self.configGroups().indexOf(col);
         if (indx == -1) {
+			col.isGroupedBy(true);
             self.configGroups.push(col);
+			col.groupIndex(self.configGroups().length);
         } else {
-            self.configGroups.splice(indx, 1);
-            self.columns.splice(indx, 1);
+			self.removeGroup(indx);
         }
     };
     self.removeGroup = function(index) {
+		var col = self.columns().filter(function(item){ 
+			return item.groupIndex() == (index + 1);
+		})[0];
+		col.isGroupedBy(false);
+		col.groupIndex(0);
         self.columns.splice(index, 1);
         self.configGroups.splice(index, 1);
-        if (self.configGroups.length == 0) {
+		self.fixGroupIndexes();
+        if (self.configGroups().length == 0) {
             self.fixColumnIndexes();
         }
     };
+	self.fixGroupIndexes = function(){		
+		$.each(self.configGroups(), function(i,item){
+			item.groupIndex(i + 1);
+		});
+	};
     self.totalRowWidth = function () {
         var totalWidth = 0,
             cols = self.visibleColumns();
@@ -456,9 +472,6 @@ kg.Grid = function (options) {
     self.cantPageBackward = ko.computed(function () {
         var curPage = self.config.pagingOptions.currentPage();
         return !(curPage > 1);
-    });
-    self.footerStyle = ko.computed(function () {
-        return { "width": self.rootDim.outerWidth() + "px", "height": self.config.footerRowHeight + "px" };
     });
     //call init
     self.init();

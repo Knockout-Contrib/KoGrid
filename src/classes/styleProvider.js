@@ -1,7 +1,4 @@
 ﻿kg.StyleProvider = function(grid) {
-    grid.topPanelStyle = ko.computed(function() {
-        return { "height": grid.topPanelHeight() + "px" };
-    });
     grid.canvasStyle = ko.computed(function() {
         return { "height": grid.maxCanvasHt().toString() + "px" };
     });
@@ -16,5 +13,8 @@
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };
+    });
+	grid.footerStyle = ko.computed(function () {
+        return { "width": grid.rootDim.outerWidth() + "px", "height": grid.config.footerRowHeight + "px" };
     });
 };
