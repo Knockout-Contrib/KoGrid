@@ -1,6 +1,11 @@
 ﻿/// <reference path="namespace.js" />
 /// <reference path="constants.js" />
 /// <reference path="../lib/knockout-2.2.0.js" />
+if (!String.prototype.trim) {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+    };
+}
 if (!Array.prototype.indexOf)
 {
 	Array.prototype.indexOf = function(elt /*, from*/){

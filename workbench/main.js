@@ -55,7 +55,6 @@ function mainViewModel() {
         showColumnMenu: true,
         showFilter: true,
 		jqueryUIDraggable: true,
-		displayFooter: false,
         maintainColumnRatios: true,
         columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo' },
                      { field: 'allowance' },
