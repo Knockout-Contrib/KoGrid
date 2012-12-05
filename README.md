@@ -14,7 +14,7 @@ Dependencies: jQuery & Knockout
 ##About##
 __koGrid__ is a direct knockout port of [ng-grid](http://angular-ui.github.com/ng-grid/) which was originally inspired by koGrid, which was inspired by SlickGrid. I know, right?
 
-koGrid is in 2.0.2 release currently. 
+koGrid is in 2.0.3 release currently. 
 
 ***
 _The sizzle_:

@@ -79,7 +79,7 @@ kg.Grid = function (options) {
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
     self.calcMaxCanvasHeight = function() {
-        return (self.config.groups.length > 0) ? (self.rowFactory.parsedData.filter(function (e) {
+        return (self.configGroups().length > 0) ? (self.rowFactory.parsedData.filter(function (e) {
             return e[KG_HIDDEN] === false;
         }).length * self.config.rowHeight) : (self.filteredData().length * self.config.rowHeight);
     };
@@ -197,7 +197,7 @@ kg.Grid = function (options) {
                 } else if (t.indexOf("*") != -1) {
                     // if it is the last of the columns just configure it to use the remaining space
                     if (i + 1 == numOfCols && asteriskNum == 0) {
-                        columns[i].width = (self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth;
+                        columns[i].width = ((self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth) - 2;
                     } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         col.index = i;
@@ -219,14 +219,23 @@ kg.Grid = function (options) {
         if (asterisksArray.length > 0) {
             self.config.maintainColumnRatios === false ? $.noop() : self.config.maintainColumnRatios = true;
             // get the remaining width
-            var remainigWidth = self.rootDim.outerWidth() - totalWidth;
+            var remainingWidth = self.rootDim.outerWidth() - totalWidth;
             // calculate the weight of each asterisk rounded down
-            var asteriskVal = Math.floor(remainigWidth / asteriskNum);
+            var asteriskVal = Math.floor(remainingWidth / asteriskNum);
             // set the width of each column based on the number of stars
-            $.each(asterisksArray, function (i, col) {
-                var t = col.width.length;
+            $.each(asterisksArray, function (i, col) {				
+				var t = col.width.length;
                 columns[col.index].width = asteriskVal * t;
-                if (col.index + 1 == numOfCols && self.maxCanvasHt() > self.viewportDimHeight()) columns[col.index].width -= (kg.domUtilityService.ScrollW + 2);
+                //check if we are on the last column
+                if (col.index + 1 == numOfCols) {
+                    var offset = 2; //We're going to remove 2 px so we won't overlflow the viwport by default
+                    // are we overflowing?
+                    if (self.maxCanvasHt() > self.viewportDimHeight()) {
+                        //compensate for scrollbar
+                        offset += kg.domUtilityService.ScrollW;
+                    }
+                    columns[col.index].width -= offset;
+                }
                 totalWidth += columns[col.index].width;
             });
         }
@@ -265,6 +274,10 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
+		self.filteredData.subscribe(function(){	
+			self.maxCanvasHt(self.calcMaxCanvasHeight());
+			self.configureColumnWidths();
+		});
         self.maxCanvasHt(self.calcMaxCanvasHeight());
         self.searchProvider.evalFilter();
         self.refreshDomSizes();
@@ -376,7 +389,7 @@ kg.Grid = function (options) {
         return true;
     };
     self.totalFilteredItemsLength = ko.computed(function () {
-        return Math.max(self.filteredData().length);
+        return self.filteredData().length;
     });
 	self.showGroupPanel = ko.computed(function(){
 		return self.config.showGroupPanel;
