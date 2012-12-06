@@ -22,7 +22,7 @@ kg.Grid = function (options) {
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
-            sortInfo: undefined, // similar to filterInfo
+            sortInfo: ko.observable(undefined), // similar to filterInfo
             multiSelect: ko.observable(true),
             tabIndex: -1,
             disableTextSelection: false,
@@ -71,7 +71,7 @@ kg.Grid = function (options) {
     self.$viewport = null;
     self.$canvas = null;
     self.rootDim = self.config.gridDim;
-    self.sortInfo = self.config.sortInfo;
+    self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
     self.sortedData = ko.observableArray(ko.utils.unwrapObservable(self.config.data));
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
@@ -274,9 +274,9 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(){	
+		self.filteredData.subscribe(function(newVal){	
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
-			self.configureColumnWidths();
+			if (!self.isSorting) self.configureColumnWidths();
 		});
         self.maxCanvasHt(self.calcMaxCanvasHeight());
         self.searchProvider.evalFilter();
@@ -320,7 +320,10 @@ kg.Grid = function (options) {
         col.width = col.longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
         kg.domUtilityService.BuildStyles(self);
     };
-    self.sortData = function(col, direction) {
+    self.sortData = function (col, direction) {
+        // if external sorting is being used, do nothing.
+        if (self.config.useExternalSorting) return;
+        self.isSorting = true;
         sortInfo = {
             column: col,
             direction: direction
@@ -329,6 +332,7 @@ kg.Grid = function (options) {
         kg.sortService.Sort(sortInfo, self.sortedData);
         self.lastSortedColumn = col;
         self.searchProvider.evalFilter();
+        self.isSorting = false;
     };
     self.clearSortingData = function (col) {
         if (!col) {

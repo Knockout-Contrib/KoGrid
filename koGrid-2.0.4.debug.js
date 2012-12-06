@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/04/2012 20:54:09
+* Compiled At: 12/05/2012 16:18:18
 ***********************************************/
 
 (function(window, undefined){
@@ -716,7 +716,8 @@ kg.Column = function (config, grid) {
         config.sortCallback(self, dir);
         return false;
     };   
-    self.gripClick = function () {
+    self.gripClick = function (data, event) {
+        event.stopPropagation();
         clicks++;  //count clicks
         if (clicks === 1) {
             timer = setTimeout(function () {
@@ -730,6 +731,7 @@ kg.Column = function (config, grid) {
         }
     };
     self.gripOnMouseDown = function (event) {
+        event.stopPropagation();
         if (event.ctrlKey) {
             self.toggleVisible();
             kg.domUtilityService.BuildStyles(grid);
@@ -744,13 +746,15 @@ kg.Column = function (config, grid) {
         return false;
     };
     self.onMouseMove = function (event) {
+        event.stopPropagation();
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
         self.width = (newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
         kg.domUtilityService.BuildStyles(grid);
         return false;
     };
-    self.gripOnMouseUp = function () {
+    self.gripOnMouseUp = function (event) {
+        event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
         document.body.style.cursor = 'default';
@@ -993,7 +997,7 @@ kg.Grid = function (options) {
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
-            sortInfo: undefined, // similar to filterInfo
+            sortInfo: ko.observable(undefined), // similar to filterInfo
             multiSelect: ko.observable(true),
             tabIndex: -1,
             disableTextSelection: false,
@@ -1042,7 +1046,7 @@ kg.Grid = function (options) {
     self.$viewport = null;
     self.$canvas = null;
     self.rootDim = self.config.gridDim;
-    self.sortInfo = self.config.sortInfo;
+    self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
     self.sortedData = ko.observableArray(ko.utils.unwrapObservable(self.config.data));
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
@@ -1245,9 +1249,9 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(){	
+		self.filteredData.subscribe(function(newVal){	
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
-			self.configureColumnWidths();
+			if (!self.isSorting) self.configureColumnWidths();
 		});
         self.maxCanvasHt(self.calcMaxCanvasHeight());
         self.searchProvider.evalFilter();
@@ -1291,7 +1295,10 @@ kg.Grid = function (options) {
         col.width = col.longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
         kg.domUtilityService.BuildStyles(self);
     };
-    self.sortData = function(col, direction) {
+    self.sortData = function (col, direction) {
+        // if external sorting is being used, do nothing.
+        if (self.config.useExternalSorting) return;
+        self.isSorting = true;
         sortInfo = {
             column: col,
             direction: direction
@@ -1300,6 +1307,7 @@ kg.Grid = function (options) {
         kg.sortService.Sort(sortInfo, self.sortedData);
         self.lastSortedColumn = col;
         self.searchProvider.evalFilter();
+        self.isSorting = false;
     };
     self.clearSortingData = function (col) {
         if (!col) {
@@ -1491,8 +1499,8 @@ kg.Row = function (entity, config, selectionService) {
         }
         var element = event.target || event;
         //check and make sure its not the bubbling up of our checked 'click' event 
-        if (element.type == "checkbox" && element.parentElement.className != "ngSelectionCell ng-scope") {
-            return true;
+        if (element.type == "checkbox") {
+            self.selected(!self.selected());
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
@@ -1896,6 +1904,7 @@ kg.sortService = {
             kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
         } else { // try and guess what sort function to use
             item = unwrappedData[0];
+            if (!item) return;
             sortFn = kg.sortService.guessSortFn(item[col.field]);
             //cache it
             if (sortFn) {
@@ -2004,7 +2013,7 @@ kg.domUtilityService = {
               "." + gridId + " .kgCell { height: " + rowHeight + "px; }"+
               "." + gridId + " .kgCanvas { width: " + trw + "px; }" +
               "." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" + 
-              "." + gridId + " .kgHeaderScroller { line-height: " + headerRowHeight + "px; width: " + (trw + kg.domUtilityService.scrollH + 2) + "px}";
+              "." + gridId + " .kgHeaderScroller { width: " + (trw + kg.domUtilityService.scrollH + 2) + "px}";
         $.each(cols, function (i, col) {
             css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px }" +
                    "." + gridId + " .colt" + i + " { width: " + col.width + "px; }";

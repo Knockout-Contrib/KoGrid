@@ -72,7 +72,8 @@
         config.sortCallback(self, dir);
         return false;
     };   
-    self.gripClick = function () {
+    self.gripClick = function (data, event) {
+        event.stopPropagation();
         clicks++;  //count clicks
         if (clicks === 1) {
             timer = setTimeout(function () {
@@ -86,6 +87,7 @@
         }
     };
     self.gripOnMouseDown = function (event) {
+        event.stopPropagation();
         if (event.ctrlKey) {
             self.toggleVisible();
             kg.domUtilityService.BuildStyles(grid);
@@ -100,13 +102,15 @@
         return false;
     };
     self.onMouseMove = function (event) {
+        event.stopPropagation();
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
         self.width = (newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
         kg.domUtilityService.BuildStyles(grid);
         return false;
     };
-    self.gripOnMouseUp = function () {
+    self.gripOnMouseUp = function (event) {
+        event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
         document.body.style.cursor = 'default';

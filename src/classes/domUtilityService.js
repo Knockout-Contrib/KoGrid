@@ -69,7 +69,7 @@ kg.domUtilityService = {
               "." + gridId + " .kgCell { height: " + rowHeight + "px; }"+
               "." + gridId + " .kgCanvas { width: " + trw + "px; }" +
               "." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" + 
-              "." + gridId + " .kgHeaderScroller { line-height: " + headerRowHeight + "px; width: " + (trw + kg.domUtilityService.scrollH + 2) + "px}";
+              "." + gridId + " .kgHeaderScroller { width: " + (trw + kg.domUtilityService.scrollH + 2) + "px}";
         $.each(cols, function (i, col) {
             css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px }" +
                    "." + gridId + " .colt" + i + " { width: " + col.width + "px; }";

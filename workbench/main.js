@@ -54,8 +54,12 @@ function mainViewModel() {
         showGroupPanel: true,
         showColumnMenu: true,
         showFilter: true,
-		jqueryUIDraggable: true,
+        jqueryUIDraggable: true,
         maintainColumnRatios: true,
+        sortInfo: ko.observable({
+            field: 'allowance',
+            direction: 'asc'
+        }),
         columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo' },
                      { field: 'allowance' },
                      { field: 'birthday', cellFilter: dateFilter },

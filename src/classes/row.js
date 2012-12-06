@@ -23,8 +23,8 @@ kg.Row = function (entity, config, selectionService) {
         }
         var element = event.target || event;
         //check and make sure its not the bubbling up of our checked 'click' event 
-        if (element.type == "checkbox" && element.parentElement.className != "ngSelectionCell ng-scope") {
-            return true;
+        if (element.type == "checkbox") {
+            self.selected(!self.selected());
         } 
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;

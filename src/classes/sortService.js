@@ -153,6 +153,7 @@ kg.sortService = {
             kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
         } else { // try and guess what sort function to use
             item = unwrappedData[0];
+            if (!item) return;
             sortFn = kg.sortService.guessSortFn(item[col.field]);
             //cache it
             if (sortFn) {

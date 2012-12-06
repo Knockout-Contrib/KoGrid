@@ -170,7 +170,8 @@
     z-index: 5; 
 }
 .kgHeaderText {
-    margin-left: 5px;
+    padding: 5px;
+    box-sizing: border-box;
     white-space: nowrap;
     -ms-text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
@@ -225,8 +226,8 @@
 }
 
 .kgCellText {
-    margin-left: 5px;
-    margin-top: 5px;
+    padding: 5px;
+    box-sizing: border-box;
     white-space: nowrap;
     -ms-text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
