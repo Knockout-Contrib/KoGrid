@@ -1296,15 +1296,19 @@ kg.Grid = function (options) {
         kg.domUtilityService.BuildStyles(self);
     };
     self.sortData = function (col, direction) {
-        // if external sorting is being used, do nothing.
-        if (self.config.useExternalSorting) return;
         self.isSorting = true;
         sortInfo = {
             column: col,
             direction: direction
         };
         self.clearSortingData(col);
-        kg.sortService.Sort(sortInfo, self.sortedData);
+
+        if(!self.config.useExternalSorting){
+            kg.sortService.Sort(sortInfo, self.sortedData);
+        }
+        else{
+            self.config.sortInfo(sortInfo);
+        }
         self.lastSortedColumn = col;
         self.searchProvider.evalFilter();
         self.isSorting = false;
