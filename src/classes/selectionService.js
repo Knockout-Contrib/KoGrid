@@ -13,6 +13,7 @@ kg.SelectionService = function (grid) {
 		
 	// function to manage the selection action of a data item (entity)
 	self.ChangeSelection = function (rowItem, evt) {
+	    grid.$$selectionPhase = true;
 	    if (!self.multi) {
 	        if (self.lastClickedRow && self.lastClickedRow.selected) {
 	            self.setSelection(self.lastClickedRow, false);
@@ -42,6 +43,7 @@ kg.SelectionService = function (grid) {
 	    }
 	    
 	    self.lastClickedRow = rowItem;
+	    grid.$$selectionPhase = false;
         return true;
     };
 

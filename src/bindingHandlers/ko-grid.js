@@ -9,6 +9,7 @@
             kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
+                if (grid.$$selectionPhase) return;
                 grid.sortedData(a);
                 grid.searchProvider.evalFilter();
                 grid.refreshDomSizes();

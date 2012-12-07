@@ -17,6 +17,9 @@ kg.Row = function (entity, config, selectionService) {
         self.entity[SELECTED_PROP] = false;
     }
     self.selected = ko.observable(false);
+    self.continueSelection = function(event) {
+        self.selectionService.ChangeSelection(self, event);
+    };
     self.toggleSelected = function (row, event) {
         if (!canSelectRows) {
             return true;
@@ -30,7 +33,7 @@ kg.Row = function (entity, config, selectionService) {
             return true;
         } else {
             if (self.beforeSelectionChange(self, event)) {
-                self.selectionService.ChangeSelection(self, event);
+                self.continueSelection(event);
                 return self.afterSelectionChange();
             }
         }

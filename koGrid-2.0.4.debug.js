@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/05/2012 16:18:18
+* Compiled At: 12/06/2012 16:48:32
 ***********************************************/
 
 (function(window, undefined){
@@ -221,6 +221,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
+                if (grid.$$selectionPhase) return;
                 grid.sortedData(a);
                 grid.searchProvider.evalFilter();
                 grid.refreshDomSizes();
@@ -1170,15 +1171,10 @@ kg.Grid = function (options) {
                     $(document).ready(function() { self.resizeOnData(temp, true); });
                     return;
                 } else if (t.indexOf("*") != -1) {
-                    // if it is the last of the columns just configure it to use the remaining space
-                    if (i + 1 == numOfCols && asteriskNum == 0) {
-                        columns[i].width = ((self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth) - 2;
-                    } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         col.index = i;
                         asterisksArray.push(col);
                         return;
-                    }
                 } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     col.index = i;
                     percentArray.push(col);
@@ -1249,7 +1245,7 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(newVal){	
+		self.filteredData.subscribe(function(){	
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) self.configureColumnWidths();
 		});
@@ -1493,6 +1489,9 @@ kg.Row = function (entity, config, selectionService) {
         self.entity[SELECTED_PROP] = false;
     }
     self.selected = ko.observable(false);
+    self.continueSelection = function(event) {
+        self.selectionService.ChangeSelection(self, event);
+    };
     self.toggleSelected = function (row, event) {
         if (!canSelectRows) {
             return true;
@@ -1506,7 +1505,7 @@ kg.Row = function (entity, config, selectionService) {
             return true;
         } else {
             if (self.beforeSelectionChange(self, event)) {
-                self.selectionService.ChangeSelection(self, event);
+                self.continueSelection(event);
                 return self.afterSelectionChange();
             }
         }
@@ -1599,6 +1598,7 @@ kg.SelectionService = function (grid) {
 		
 	// function to manage the selection action of a data item (entity)
 	self.ChangeSelection = function (rowItem, evt) {
+	    grid.$$selectionPhase = true;
 	    if (!self.multi) {
 	        if (self.lastClickedRow && self.lastClickedRow.selected) {
 	            self.setSelection(self.lastClickedRow, false);
@@ -1628,6 +1628,7 @@ kg.SelectionService = function (grid) {
 	    }
 	    
 	    self.lastClickedRow = rowItem;
+	    grid.$$selectionPhase = false;
         return true;
     };
 

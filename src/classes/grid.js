@@ -195,15 +195,10 @@ kg.Grid = function (options) {
                     $(document).ready(function() { self.resizeOnData(temp, true); });
                     return;
                 } else if (t.indexOf("*") != -1) {
-                    // if it is the last of the columns just configure it to use the remaining space
-                    if (i + 1 == numOfCols && asteriskNum == 0) {
-                        columns[i].width = ((self.rootDim.outerWidth() - kg.domUtilityService.ScrollW) - totalWidth) - 2;
-                    } else { // otherwise we need to save it until the end to do the calulations on the remaining width.
                         asteriskNum += t.length;
                         col.index = i;
                         asterisksArray.push(col);
                         return;
-                    }
                 } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     col.index = i;
                     percentArray.push(col);
@@ -274,7 +269,7 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(newVal){	
+		self.filteredData.subscribe(function(){	
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) self.configureColumnWidths();
 		});
