@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 12:17:39
+* Compiled At: 12/07/2012 12:27:54
 ***********************************************/
 
 (function(window, undefined){
@@ -591,9 +591,10 @@ kg.AggregateProvider = function (grid) {
             // If we have the same column, do nothing.
             if (self.colToMove.col == headerScope) return true;
             // Splice the columns
-            grid.columns.splice(self.colToMove.col.index, 1);
-            grid.columns.splice(headerScope.index, 0, self.colToMove.col);
-            grid.fixColumnIndexes();
+            var cols = grid.columns();
+            cols.splice(self.colToMove.col.index, 1);
+            cols.splice(headerScope.index, 0, self.colToMove.col);
+            grid.columns(cols);
             // Finally, rebuild the CSS styles.
             kg.domUtilityService.BuildStyles(grid);
             // clear out the colToMove object

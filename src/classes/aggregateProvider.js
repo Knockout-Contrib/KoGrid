@@ -165,9 +165,10 @@ kg.AggregateProvider = function (grid) {
             // If we have the same column, do nothing.
             if (self.colToMove.col == headerScope) return true;
             // Splice the columns
-            grid.columns.splice(self.colToMove.col.index, 1);
-            grid.columns.splice(headerScope.index, 0, self.colToMove.col);
-            grid.fixColumnIndexes();
+            var cols = grid.columns();
+            cols.splice(self.colToMove.col.index, 1);
+            cols.splice(headerScope.index, 0, self.colToMove.col);
+            grid.columns(cols);
             // Finally, rebuild the CSS styles.
             kg.domUtilityService.BuildStyles(grid);
             // clear out the colToMove object
