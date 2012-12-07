@@ -18,7 +18,7 @@ kg.AggregateProvider = function (grid) {
 		} else {
 			grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
 			grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
-			if (grid.config.enableRowRerodering) {
+			if (grid.config.enableRowReordering) {
 				grid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
 			}
 			self.setDraggables();
@@ -180,7 +180,7 @@ kg.AggregateProvider = function (grid) {
         // Get the closest row element from where we clicked.
         var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element
-        var rowScope = ko.dataFor(targetRow);
+        var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // set draggable events
             targetRow.attr('draggable', 'true');
@@ -193,17 +193,17 @@ kg.AggregateProvider = function (grid) {
         // Get the closest row to where we dropped
         var targetRow = $(event.target).closest('.kgRow');
         // Get the scope from the row element.
-        var rowScope = ko.dataFor(targetRow);
+        var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // If we have the same Row, do nothing.
             var prevRow = kg.gridService.eventStorage.rowToMove;
-            if (prevRow.scope.row == rowScope.row) return;
+            if (prevRow.scope == rowScope) return;
             // Splice the Rows via the actual datasource
             var sd = grid.sortedData();
-            var i = sd.indexOf(prevRow.scope.row.entity);
-            var j = sd.indexOf(rowScope.row.entity);
+            var i = sd.indexOf(prevRow.scope.entity);
+            var j = sd.indexOf(rowScope.entity);
             grid.sortedData.splice(i, 1);
-            grid.sortedData.splice(j, 0, prevRow.scope.row.entity);
+            grid.sortedData.splice(j, 0, prevRow.scope.entity);
             grid.searchProvider.evalFilter();
             // clear out the rowToMove object
             kg.gridService.eventStorage.rowToMove = undefined;

@@ -54,8 +54,8 @@ function mainViewModel() {
         showGroupPanel: true,
         showColumnMenu: true,
         showFilter: true,
-        jqueryUIDraggable: true,
         maintainColumnRatios: true,
+        enableRowReordering: true,
         sortInfo: ko.observable({
             field: 'allowance',
             direction: 'asc'

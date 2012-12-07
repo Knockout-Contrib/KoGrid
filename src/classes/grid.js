@@ -25,7 +25,6 @@ kg.Grid = function (options) {
             sortInfo: ko.observable(undefined), // similar to filterInfo
             multiSelect: ko.observable(true),
             tabIndex: -1,
-            disableTextSelection: false,
             enableColumnResize: true,
             maintainColumnRatios: undefined,
             enableSorting:ko.observable(true),

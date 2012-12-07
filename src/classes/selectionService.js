@@ -19,22 +19,33 @@ kg.SelectionService = function (grid) {
 	            self.setSelection(self.lastClickedRow, false);
 	        }
 	    } else if (evt && evt.shiftKey) {
-            if (self.lastClickedRow) {
-                var thisIndx = grid.filteredData.indexOf(rowItem.entity);
-                var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
-                if (thisIndx == prevIndx) return false;
-                prevIndx++;
-                if (thisIndx < prevIndx) {
-                    thisIndx = thisIndx ^ prevIndx;
-                    prevIndx = thisIndx ^ prevIndx;
-                    thisIndx = thisIndx ^ prevIndx;
-                }
-                for (; prevIndx <= thisIndx; prevIndx++) {
-                    self.setSelection(self.rowFactory.rowCache[prevIndx], self.lastClickedRow.selected);
-                }
-                self.lastClickedRow = rowItem;
-                return true;
-            }
+	        if (self.lastClickedRow) {
+	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
+	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+	            if (thisIndx == prevIndx) return false;
+	            prevIndx++;
+	            if (thisIndx < prevIndx) {
+	                thisIndx = thisIndx ^ prevIndx;
+	                prevIndx = thisIndx ^ prevIndx;
+	                thisIndx = thisIndx ^ prevIndx;
+	            }
+	            var rows = [];
+	            for (; prevIndx <= thisIndx; prevIndx++) {
+	                rows.push(self.rowFactory.rowCache[prevIndx]);
+	            }
+	            if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
+	                $.each(rows, function(i, ri) {
+	                    ri.selected(true);
+	                    ri.entity[SELECTED_PROP] = true;
+	                    if (self.selectedItems.indexOf(ri.entity) === -1) {
+	                        self.selectedItems.push(ri.entity);
+	                    }
+	                });
+	                rows[rows.length - 1].afterSelectionChange(rows, evt);
+	            }
+	            self.lastClickedRow = rows[rows.length - 1];
+	            return true;
+	        }
 	    }
 	    if (grid.config.keepLastSelected && !self.multi) {
 	        self.setSelection(rowItem, true);
