@@ -265,6 +265,7 @@ kg.Grid = function (options) {
             self.rowFactory.filteredDataChanged();
         });
         self.columns.subscribe(function () {
+            if (self.$$indexPhase) return;
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
@@ -337,11 +338,15 @@ kg.Grid = function (options) {
             self.lastSortedColumn.sortDirection("");
         }
     };
-    self.fixColumnIndexes = function() {
+    self.fixColumnIndexes = function () {
+        self.$$indexPhase = true;
         //fix column indexes
-        $.each(self.columns(), function (i, col) {
+        var cols = self.columns();
+        $.each(cols, function (i, col) {
             col.index = i;
         });
+        self.columns(cols);
+        self.$$indexPhase = false;
     };
     //self vars
     self.elementsNeedMeasuring = true;

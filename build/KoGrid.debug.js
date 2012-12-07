@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 11:30:41
+* Compiled At: 12/07/2012 12:17:39
 ***********************************************/
 
 (function(window, undefined){
@@ -1001,7 +1001,6 @@ kg.Grid = function (options) {
             sortInfo: ko.observable(undefined), // similar to filterInfo
             multiSelect: ko.observable(true),
             tabIndex: -1,
-            disableTextSelection: false,
             enableColumnResize: true,
             maintainColumnRatios: undefined,
             enableSorting:ko.observable(true),
@@ -1242,6 +1241,7 @@ kg.Grid = function (options) {
             self.rowFactory.filteredDataChanged();
         });
         self.columns.subscribe(function () {
+            if (self.$$indexPhase) return;
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
@@ -1314,11 +1314,15 @@ kg.Grid = function (options) {
             self.lastSortedColumn.sortDirection("");
         }
     };
-    self.fixColumnIndexes = function() {
+    self.fixColumnIndexes = function () {
+        self.$$indexPhase = true;
         //fix column indexes
-        $.each(self.columns(), function (i, col) {
+        var cols = self.columns();
+        $.each(cols, function (i, col) {
             col.index = i;
         });
+        self.columns(cols);
+        self.$$indexPhase = false;
     };
     //self vars
     self.elementsNeedMeasuring = true;
