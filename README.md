@@ -14,7 +14,7 @@ Dependencies: jQuery & Knockout
 ##About##
 __koGrid__ is a direct knockout port of [ng-grid](http://angular-ui.github.com/ng-grid/) which was originally inspired by koGrid, which was inspired by SlickGrid. I know, right?
 
-koGrid is in 2.0.3 release currently. 
+koGrid is in 2.0.5 release currently. 
 
 ***
 _The sizzle_:
@@ -45,6 +45,7 @@ Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Gett
 
 also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
+* __2012-12-13__ - various improvements and fixes to searching, bindings, resizing, and reordering.
 * __2012-12-13__ - Version 2.0 BREAKING CHANGES. numerous enhancements, bugfixes and architectural changes. reduced code footprint by ~40%.
 * __2012-08-30__ - Version 1.2 merging changes from skoGrid branch
 * __2012-08-18__ - Adding new features, up/down arrows now control the selected item when multiselect is disabled. columnDefs are now observable so you can change the columns on the fly.
