@@ -9,15 +9,23 @@
     self.evalFilter = function() {
         var ft = self.filterText().toLowerCase();
         var v = self.value;
-        grid.filteredData(grid.sortedData().filter(function(item) {
+        grid.filteredData(grid.sortedData().filter(function (item) {
+            var field = ko.utils.unwrapObservable(item[self.field]);
+            var fieldMap = ko.utils.unwrapObservable(item[self.fieldMap[self.field]]);
             if (!self.filterText) {
                 return true;
             } else if (!self.field) {
-                return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-            } else if (item[self.field] && self.value) {
-                return item[self.field].toString().toLowerCase().indexOf(v) != -1;
-            } else if (item[self.fieldMap[self.field]] && self.value) {
-                return item[self.fieldMap[self.field]].toString().toLowerCase().indexOf(v) != -1;
+                var obj = {};
+                for (var prop in item) {
+                    if (item.hasOwnProperty(prop)) {
+                        obj[prop] = ko.utils.unwrapObservable(item[prop]);
+                    } 
+                }
+                return JSON.stringify(obj).toLowerCase().indexOf(ft) != -1;
+            } else if (field && self.value) {
+                return field.toString().toLowerCase().indexOf(v) != -1;
+            } else if (fieldMap && self.value) {
+                return fieldMap.toString().toLowerCase().indexOf(v) != -1;
             }
             return true;
         }));
