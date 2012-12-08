@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 16:03:25
+* Compiled At: 12/07/2012 16:21:33
 ***********************************************/
 
 (function(window, undefined){
@@ -1293,17 +1293,16 @@ kg.Grid = function (options) {
         kg.domUtilityService.BuildStyles(self);
     };
     self.sortData = function (col, direction) {
+        // if external sorting is being used, do nothing.
         self.isSorting = true;
         sortInfo = {
             column: col,
             direction: direction
         };
         self.clearSortingData(col);
-
         if(!self.config.useExternalSorting){
             kg.sortService.Sort(sortInfo, self.sortedData);
-        }
-        else{
+        } else {
             self.config.sortInfo(sortInfo);
         }
         self.lastSortedColumn = col;
