@@ -19,6 +19,7 @@ ko.bindingHandlers['kgRow'] = (function () {
                 html = grid.rowTemplate;
             }
             var rowElem = $(html);
+            row.$userViewModel = bindingContext.$parent.$userViewModel;
             ko.applyBindings(row, rowElem[0]);
             $(element).append(rowElem);
             return { controlsDescendantBindings: true };

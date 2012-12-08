@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 16:21:33
+* Compiled At: 12/07/2012 16:38:08
 ***********************************************/
 
 (function(window, undefined){
@@ -212,7 +212,7 @@ kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, 
 ***********************************************/
 ko.bindingHandlers['koGrid'] = (function () {
     return {
-        'init': function (element, valueAccessor) {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var options = valueAccessor();
             var elem = $(element);
             options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
@@ -241,6 +241,7 @@ ko.bindingHandlers['koGrid'] = (function () {
                 .addClass(grid.gridId.toString());
             //call update on the grid, which will refresh the dome measurements asynchronously
             elem.append(gridElem);// make sure that if any of these change, we re-fire the calc logic
+            grid.$userViewModel = bindingContext.$data;
             ko.applyBindings(grid, gridElem[0]);
             //walk the element's graph and the correct properties on the grid
             kg.domUtilityService.AssignGridContainers(elem, grid);
@@ -278,6 +279,7 @@ ko.bindingHandlers['kgRow'] = (function () {
                 html = grid.rowTemplate;
             }
             var rowElem = $(html);
+            row.$userViewModel = bindingContext.$parent.$userViewModel;
             ko.applyBindings(row, rowElem[0]);
             $(element).append(rowElem);
             return { controlsDescendantBindings: true };
@@ -306,6 +308,7 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var headerRow = $(viewModel.headerRowTemplate);
+            bindingContext.$userViewModel = bindingContext.$data.$userViewModel;
             ko.applyBindings(bindingContext, headerRow[0]);
             $(element).append(headerRow);
             return { controlsDescendantBindings: true };
@@ -319,7 +322,7 @@ ko.bindingHandlers['kgHeaderRow'] = (function () {
 ko.bindingHandlers['kgHeaderCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var newContext = bindingContext.extend({ $grid: bindingContext.$parent });
+            var newContext = bindingContext.extend({ $grid: bindingContext.$parent, $userViewModel: bindingContext.$parent.$userViewModel });
             var headerCell = $(viewModel.headerCellTemplate);
             ko.applyBindings(newContext, headerCell[0]);
             $(element).append(headerCell);

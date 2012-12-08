@@ -1,6 +1,6 @@
 ﻿ko.bindingHandlers['koGrid'] = (function () {
     return {
-        'init': function (element, valueAccessor) {
+        'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var options = valueAccessor();
             var elem = $(element);
             options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
@@ -29,6 +29,7 @@
                 .addClass(grid.gridId.toString());
             //call update on the grid, which will refresh the dome measurements asynchronously
             elem.append(gridElem);// make sure that if any of these change, we re-fire the calc logic
+            grid.$userViewModel = bindingContext.$data;
             ko.applyBindings(grid, gridElem[0]);
             //walk the element's graph and the correct properties on the grid
             kg.domUtilityService.AssignGridContainers(elem, grid);
