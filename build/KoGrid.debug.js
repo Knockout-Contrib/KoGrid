@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 12:27:54
+* Compiled At: 12/07/2012 16:21:33
 ***********************************************/
 
 (function(window, undefined){
@@ -479,14 +479,14 @@ kg.AggregateProvider = function (grid) {
     self.onGroupDragStart = function () {
         // color the header so we know what we are moving
         if (self.groupToMove) {
-            self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
+            //self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
         }
     };	
     
     self.onGroupDragStop = function () {
         // Set the column to move header color back to normal
         if (self.groupToMove) {
-            self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
+            //self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
         }
     };
 
@@ -1294,14 +1294,17 @@ kg.Grid = function (options) {
     };
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
-        if (self.config.useExternalSorting) return;
         self.isSorting = true;
         sortInfo = {
             column: col,
             direction: direction
         };
         self.clearSortingData(col);
-        kg.sortService.Sort(sortInfo, self.sortedData);
+        if(!self.config.useExternalSorting){
+            kg.sortService.Sort(sortInfo, self.sortedData);
+        } else {
+            self.config.sortInfo(sortInfo);
+        }
         self.lastSortedColumn = col;
         self.searchProvider.evalFilter();
         self.isSorting = false;
@@ -1549,15 +1552,23 @@ kg.SearchProvider = function(grid) {
     self.evalFilter = function() {
         var ft = self.filterText().toLowerCase();
         var v = self.value;
-        grid.filteredData(grid.sortedData().filter(function(item) {
+        grid.filteredData(grid.sortedData().filter(function (item) {
+            var field = ko.utils.unwrapObservable(item[self.field]);
+            var fieldMap = ko.utils.unwrapObservable(item[self.fieldMap[self.field]]);
             if (!self.filterText) {
                 return true;
             } else if (!self.field) {
-                return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-            } else if (item[self.field] && self.value) {
-                return item[self.field].toString().toLowerCase().indexOf(v) != -1;
-            } else if (item[self.fieldMap[self.field]] && self.value) {
-                return item[self.fieldMap[self.field]].toString().toLowerCase().indexOf(v) != -1;
+                var obj = {};
+                for (var prop in item) {
+                    if (item.hasOwnProperty(prop)) {
+                        obj[prop] = ko.utils.unwrapObservable(item[prop]);
+                    } 
+                }
+                return JSON.stringify(obj).toLowerCase().indexOf(ft) != -1;
+            } else if (field && self.value) {
+                return field.toString().toLowerCase().indexOf(v) != -1;
+            } else if (fieldMap && self.value) {
+                return fieldMap.toString().toLowerCase().indexOf(v) != -1;
             }
             return true;
         }));
