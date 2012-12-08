@@ -33,7 +33,13 @@
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate().replace(CUSTOM_FILTERS, self.cellFilter);
+    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate();
+    if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
+        self.cellTemplate = kg.utils.getTemplatePromise(colDef.cellTemplate);
+    }
+    if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
+        self.headerCellTemplate = kg.utils.getTemplatePromise(colDef.headerCellTemplate);
+    }
     self.getProperty = function (row) {
         var ret;
         if (self.cellFilter) {

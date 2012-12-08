@@ -7,21 +7,25 @@ ko.bindingHandlers['kgRow'] = (function () {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var row = valueAccessor();
             var grid = row.$grid = bindingContext.$parent;
-            var html;
+            var source;
             if (row.isAggRow) {
-                html = kg.aggregateTemplate();
-                if (row.aggLabelFilter) {
-                    html = html.replace(CUSTOM_FILTERS, '| ' + row.aggLabelFilter);
-                } else {
-                    html = html.replace(CUSTOM_FILTERS, "");
-                }
+                source = kg.aggregateTemplate();
             } else {
-                html = grid.rowTemplate;
+                source = grid.rowTemplate;
             }
-            var rowElem = $(html);
-            row.$userViewModel = bindingContext.$parent.$userViewModel;
-            ko.applyBindings(row, rowElem[0]);
-            $(element).append(rowElem);
+            var compile = function (html) {
+                var rowElem = $(html);
+                row.$userViewModel = bindingContext.$parent.$userViewModel;
+                ko.applyBindings(row, rowElem[0]);
+                $(element).html(rowElem);
+            }
+            if (source.then) {
+                source.then(function (p) {
+                    compile(p);
+                });
+            } else {
+                compile(source);
+            }
             return { controlsDescendantBindings: true };
         }
     };

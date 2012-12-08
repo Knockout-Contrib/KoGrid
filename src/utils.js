@@ -88,6 +88,9 @@ kg.utils = {
         }
         return retnode;
     },
+    getTemplatePromise: function(path) {
+        return $.ajax(path);
+    },
     newId: (function () {
         var seedId = new Date().getTime();
         return function () {

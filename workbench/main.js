@@ -61,7 +61,7 @@ function mainViewModel() {
             direction: 'asc'
         }),
         columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo' },
-                     { field: 'allowance' },
+                     { field: 'allowance', cellTemplate: 'partials/cellTemplate.html' },
                      { field: 'birthday', cellFilter: dateFilter },
                      { field: 'paid', cellFilter: checkmarkFilter }])
     };

@@ -1,10 +1,19 @@
 ﻿ko.bindingHandlers['kgHeaderRow'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var headerRow = $(viewModel.headerRowTemplate);
             bindingContext.$userViewModel = bindingContext.$data.$userViewModel;
-            ko.applyBindings(bindingContext, headerRow[0]);
-            $(element).append(headerRow);
+            var compile = function(html) {
+                var headerRow = $(html);
+                ko.applyBindings(bindingContext, headerRow[0]);
+                $(element).html(headerRow);
+            };
+            if (viewModel.headerRowTemplate.then) {
+                viewModel.headerRowTemplate.then(function (p) {
+                    compile(p);
+                });
+            } else {
+                compile(viewModel.headerRowTemplate);
+            }
             return { controlsDescendantBindings: true };
         }
     };

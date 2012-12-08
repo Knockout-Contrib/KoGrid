@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 16:38:08
+* Compiled At: 12/07/2012 17:45:22
 ***********************************************/
 
 (function(window, undefined){
@@ -28,7 +28,6 @@ var KG_FIELD = '_kg_field_';
 var KG_DEPTH = '_kg_depth_';
 var KG_HIDDEN = '_kg_hidden_';
 var KG_COLUMN = '_kg_column_';
-var CUSTOM_FILTERS = /CUSTOM_FILTERS/g;
 var TEMPLATE_REGEXP = /^<.+>/;
 
 /***********************************************
@@ -144,6 +143,9 @@ kg.utils = {
             if (myclass.test(classes)) retnode.push(elem[i]);
         }
         return retnode;
+    },
+    getTemplatePromise: function(path) {
+        return $.ajax(path);
     },
     newId: (function () {
         var seedId = new Date().getTime();
@@ -267,21 +269,25 @@ ko.bindingHandlers['kgRow'] = (function () {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var row = valueAccessor();
             var grid = row.$grid = bindingContext.$parent;
-            var html;
+            var source;
             if (row.isAggRow) {
-                html = kg.aggregateTemplate();
-                if (row.aggLabelFilter) {
-                    html = html.replace(CUSTOM_FILTERS, '| ' + row.aggLabelFilter);
-                } else {
-                    html = html.replace(CUSTOM_FILTERS, "");
-                }
+                source = kg.aggregateTemplate();
             } else {
-                html = grid.rowTemplate;
+                source = grid.rowTemplate;
             }
-            var rowElem = $(html);
-            row.$userViewModel = bindingContext.$parent.$userViewModel;
-            ko.applyBindings(row, rowElem[0]);
-            $(element).append(rowElem);
+            var compile = function (html) {
+                var rowElem = $(html);
+                row.$userViewModel = bindingContext.$parent.$userViewModel;
+                ko.applyBindings(row, rowElem[0]);
+                $(element).html(rowElem);
+            }
+            if (source.then) {
+                source.then(function (p) {
+                    compile(p);
+                });
+            } else {
+                compile(source);
+            }
             return { controlsDescendantBindings: true };
         }
     };
@@ -293,9 +299,18 @@ ko.bindingHandlers['kgRow'] = (function () {
 ko.bindingHandlers['kgCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var cell = $(viewModel.cellTemplate);
-            ko.applyBindings(bindingContext, cell[0]);
-            $(element).append(cell);
+            var compile = function (html) {
+                var cell = $(html);
+                ko.applyBindings(bindingContext, cell[0]);
+                $(element).html(cell);
+            };
+            if (viewModel.cellTemplate.then) {
+                viewModel.cellTemplate.then(function(p) {
+                    compile(p);
+                });
+            } else {
+                compile(viewModel.cellTemplate);
+            }
             return { controlsDescendantBindings: true };
         }
     };
@@ -307,10 +322,19 @@ ko.bindingHandlers['kgCell'] = (function () {
 ko.bindingHandlers['kgHeaderRow'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var headerRow = $(viewModel.headerRowTemplate);
             bindingContext.$userViewModel = bindingContext.$data.$userViewModel;
-            ko.applyBindings(bindingContext, headerRow[0]);
-            $(element).append(headerRow);
+            var compile = function(html) {
+                var headerRow = $(html);
+                ko.applyBindings(bindingContext, headerRow[0]);
+                $(element).html(headerRow);
+            };
+            if (viewModel.headerRowTemplate.then) {
+                viewModel.headerRowTemplate.then(function (p) {
+                    compile(p);
+                });
+            } else {
+                compile(viewModel.headerRowTemplate);
+            }
             return { controlsDescendantBindings: true };
         }
     };
@@ -323,9 +347,18 @@ ko.bindingHandlers['kgHeaderCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var newContext = bindingContext.extend({ $grid: bindingContext.$parent, $userViewModel: bindingContext.$parent.$userViewModel });
-            var headerCell = $(viewModel.headerCellTemplate);
-            ko.applyBindings(newContext, headerCell[0]);
-            $(element).append(headerCell);
+            var compile = function (html) {
+                var headerCell = $(html);
+                ko.applyBindings(newContext, headerCell[0]);
+                $(element).html(headerCell);
+            };
+            if (viewModel.headerCellTemplate.then) {
+                viewModel.headerCellTemplate.then(function (p) {
+                    compile(p);
+                });
+            } else {
+                compile(viewModel.headerCellTemplate);
+            }
             return { controlsDescendantBindings: true };
         }
     };
@@ -682,7 +715,13 @@ kg.Column = function (config, grid) {
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate().replace(CUSTOM_FILTERS, self.cellFilter);
+    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate();
+    if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
+        self.cellTemplate = kg.utils.getTemplatePromise(colDef.cellTemplate);
+    }
+    if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
+        self.headerCellTemplate = kg.utils.getTemplatePromise(colDef.headerCellTemplate);
+    }
     self.getProperty = function (row) {
         var ret;
         if (self.cellFilter) {
@@ -1353,6 +1392,12 @@ kg.Grid = function (options) {
     //Templates
     self.rowTemplate = self.config.rowTemplate || kg.defaultRowTemplate();
     self.headerRowTemplate = self.config.headerRowTemplate || kg.defaultHeaderRowTemplate();
+    if (self.config.rowTemplate && !TEMPLATE_REGEXP.test(self.config.rowTemplate)) {
+        self.rowTemplate = kg.utils.getTemplatePromise(self.config.rowTemplate);
+    }
+    if (self.config.headerRowTemplate && !TEMPLATE_REGEXP.test(self.config.headerRowTemplate)) {
+        self.headerRowTemplate = kg.utils.getTemplatePromise(self.config.headerRowTemplate);
+    }
     //scope funcs
     self.visibleColumns = ko.computed(function () {
         var cols = self.columns();

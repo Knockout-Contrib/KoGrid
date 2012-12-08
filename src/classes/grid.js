@@ -373,6 +373,12 @@ kg.Grid = function (options) {
     //Templates
     self.rowTemplate = self.config.rowTemplate || kg.defaultRowTemplate();
     self.headerRowTemplate = self.config.headerRowTemplate || kg.defaultHeaderRowTemplate();
+    if (self.config.rowTemplate && !TEMPLATE_REGEXP.test(self.config.rowTemplate)) {
+        self.rowTemplate = kg.utils.getTemplatePromise(self.config.rowTemplate);
+    }
+    if (self.config.headerRowTemplate && !TEMPLATE_REGEXP.test(self.config.headerRowTemplate)) {
+        self.headerRowTemplate = kg.utils.getTemplatePromise(self.config.headerRowTemplate);
+    }
     //scope funcs
     self.visibleColumns = ko.computed(function () {
         var cols = self.columns();

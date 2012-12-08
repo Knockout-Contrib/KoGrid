@@ -2,9 +2,18 @@
 ko.bindingHandlers['kgCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            var cell = $(viewModel.cellTemplate);
-            ko.applyBindings(bindingContext, cell[0]);
-            $(element).append(cell);
+            var compile = function (html) {
+                var cell = $(html);
+                ko.applyBindings(bindingContext, cell[0]);
+                $(element).html(cell);
+            };
+            if (viewModel.cellTemplate.then) {
+                viewModel.cellTemplate.then(function(p) {
+                    compile(p);
+                });
+            } else {
+                compile(viewModel.cellTemplate);
+            }
             return { controlsDescendantBindings: true };
         }
     };
