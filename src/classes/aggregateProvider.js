@@ -53,14 +53,14 @@ kg.AggregateProvider = function (grid) {
     self.onGroupDragStart = function () {
         // color the header so we know what we are moving
         if (self.groupToMove) {
-            self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
+            //self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
         }
     };	
     
     self.onGroupDragStop = function () {
         // Set the column to move header color back to normal
         if (self.groupToMove) {
-            self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
+            //self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
         }
     };
 
