@@ -28,7 +28,7 @@ var KG_FIELD = '_kg_field_';
 var KG_DEPTH = '_kg_depth_';
 var KG_HIDDEN = '_kg_hidden_';
 var KG_COLUMN = '_kg_column_';
-var TEMPLATE_REGEXP = /^<.+>/;
+var TEMPLATE_REGEXP = /<.+>/;
 
 /***********************************************
 * FILE: ..\src\navigation.js
