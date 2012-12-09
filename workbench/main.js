@@ -60,10 +60,10 @@ function mainViewModel() {
             field: 'allowance',
             direction: 'asc'
         }),
-        columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo' },
-                     { field: 'allowance', cellTemplate: 'partials/cellTemplate.html' },
-                     { field: 'birthday', cellFilter: dateFilter },
-                     { field: 'paid', cellFilter: checkmarkFilter }])
+        columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
+                     { field: 'allowance', cellTemplate: 'partials/cellTemplate.html', width: 'auto' },
+                     { field: 'birthday', cellFilter: dateFilter, width: 'auto' },
+                     { field: 'paid', cellFilter: checkmarkFilter, width: 'auto' }])
     };
     self.btnClick = function () {
         alert(self.mySelections().length);

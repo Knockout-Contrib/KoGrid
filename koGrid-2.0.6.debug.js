@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2012 17:45:22
+* Compiled At: 12/08/2012 21:09:00
 ***********************************************/
 
 (function(window, undefined){
@@ -1208,8 +1208,8 @@ kg.Grid = function (options) {
                 t = col.width;
                 // figure out if the width is defined or if we need to calculate it
                 if (t == 'auto') { // set it for now until we have data and subscribe when it changes so we can set the width.
-                    columns[i].width = col.minWidth;
-                    var temp = col;
+                    columns[i].width = columns[i].minWidth;
+                    var temp = columns[i];
                     $(document).ready(function() { self.resizeOnData(temp, true); });
                     return;
                 } else if (t.indexOf("*") != -1) {
@@ -1321,17 +1321,17 @@ kg.Grid = function (options) {
         $.each(arr, function (index, elem) {
             var i;
             if (index == 0) {
-                var kgHeaderText = $(elem).find('.ngHeaderText');
+                var kgHeaderText = $(elem).find('.kgHeaderText');
                 i = kg.utils.visualLength(kgHeaderText) + 10;// +10 some margin
             } else {
-                var ngCellText = $(elem).find('.ngCellText');
+                var ngCellText = $(elem).find('.kgCellText');
                 i = kg.utils.visualLength(ngCellText) + 10; // +10 some margin
             }
             if (i > longest) {
                 longest = i;
             }
         });
-        col.width = col.longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
+        col.width = longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
         kg.domUtilityService.BuildStyles(self);
     };
     self.sortData = function (col, direction) {
