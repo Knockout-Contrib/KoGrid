@@ -15,11 +15,11 @@
     height: 300px
 }</pre></li>
 					<li>In your javascript file within the controller where you plan to use<br />ng-grid, lets add data that our grid will use:<br /> </li>
-					<pre style="margin-top:10px" class="prettyprint">this.myData = [{name: "Moroni", age: 50},
+					<pre style="margin-top:10px" class="prettyprint">this.myData = ko.observableArray([{name: "Moroni", age: 50},
                  {name: "Tiancum", age: 43},
                  {name: "Jacob", age: 27},
                  {name: "Nephi", age: 29},
-                 {name: "Enos", age: 34}];</pre></li>
+                 {name: "Enos", age: 34}]);</pre></li>
 					<li>Now initialize your grid options under the same controller as data:<br /><code>this.gridOptions = { data: self.myData };</code></li>	
 					<li style="margin-top: 20px"><p>View the plunker <a target="blank" href="http://plnkr.co/edit/Sz2xVh">here</a>.</p><br /> 				
 				</ol>
