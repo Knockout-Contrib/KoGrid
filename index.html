@@ -9,8 +9,31 @@
 	<link rel="stylesheet" href="css/prettify.css"/>
 	<link rel="stylesheet" href="css/KoGrid.css"/>
 	<link rel="stylesheet" href="css/app.css"/>
-
-	<script type="text/javascript" src="lib/prettify.js"></script>
+</head>
+    <body ng-controller="PageNavigationCtrl">
+        <div id="header" class="navbar navbar-inverse navbar-fixed-top headerstyles rowstyles"> 
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#"  ng-click="switchPage('applications')">koGrid</a>
+                    <ul class="nav">
+                        <li class="nav" ng-repeat="page in pageTabs" ng-class="{active: selectedPage == page}">
+                            <a ng-click="switchPage(page.index)" ng-href="#/{{page.id}}"><i ng-class="page.icon" class="icon-white"></i> {{page.title}}</a>
+                        </li>
+                    </ul>
+                    <div style="float: right;">
+                        <a href="https://github.com/ericmbarnard/KoGrid" class="btn primary"><i style="margin-right: 5px; margin-top: 3px" class="icon-white icon-github"></i> View on Github</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-view></div>
+        <div class="footerstyles rowstyles portal-footer-content">
+            <div class="portal-footer-info">
+                <p>KoGrid</p>    		
+            </div>
+        </div> 
+    </body>
+    <script type="text/javascript" src="lib/prettify.js"></script>
 	<script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui/js/jquery-ui-1.9.1.custom.js"></script>
 	<script type="text/javascript" src="lib/angular.js"></script>
@@ -21,30 +44,6 @@
 	<script type="text/javascript" src="js/services.js"></script>
 	<script type="text/javascript" src="js/directives.js"></script>
 	<script type="text/javascript" src="js/controllers.js"></script>
+	<script type="text/javascript" src="js/viewModels.js"></script>
 	<script type="text/javascript" src="js/exampleControllers.js"></script>
-</head>
-
-<body ng-controller="PageNavigationCtrl">
-	<div id="header" class="navbar navbar-inverse navbar-fixed-top headerstyles rowstyles"> 
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="#"  ng-click="switchPage('applications')">KoGrid</a>
-				<ul class="nav">
-					<li class="nav" ng-repeat="page in pageTabs" ng-class="{active: selectedPage == page}">
-						<a ng-click="switchPage(page.index)" ng-href="#/{{page.id}}"><i ng-class="page.icon" class="icon-white"></i> {{page.title}}</a>
-					</li>
-				</ul>
-                <div style="float: right;">
-                    <a href="https://github.com/ericmbarnard/KoGrid" class="btn primary"><i style="margin-right: 5px; margin-top: 3px" class="icon-white icon-github"></i> View on Github</a>
-                </div>
-            </div>
-        </div>
-    </div>
-	<div ng-view></div>
-    <div class="footerstyles rowstyles portal-footer-content">
-        <div class="portal-footer-info">
-            <p>KoGrid</p>    		
-        </div>
-    </div> 
-</body>
 </html>

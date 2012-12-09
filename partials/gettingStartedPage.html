@@ -24,6 +24,7 @@
 					<li style="margin-top: 20px"><p>View the plunker <a target="blank" href="http://plnkr.co/edit/Sz2xVh">here</a>.</p><br /> 				
 				</ol>
 			</div>
+			<div id="gettingStartedGrid" style="border: 1px solid rgb(212,212,212); width: 400px; height: 300px; margin-left: 25px; margin-top: 20px;" data-bind="koGrid: gridOptions"></div>
 		</div>
 		
 		<div  style="width:580px; float:right">
@@ -67,3 +68,6 @@ ko.applyBindings(new mainVm());
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+    ko.applyBindings(new gettingStartedVM(), document.getElementById('gettingStartedGrid'));
+</script>
