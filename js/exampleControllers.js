@@ -26,8 +26,6 @@ angular.module('myApp.exampleControllers', [])
 			$scope.selectedBasicTab = $scope.basicTabs[tab];
 		};				
 		$scope.link = function(){ return "partials/exampleDefinitions/basic/basic" + $scope.selectedBasicTab.title + '.html';};
-		$scope.myData = gridData;
-		$scope.gridOptions = { data: 'myData' };
 	}])
 	
 .controller('ColumnDefsExampleCtrl', ['$scope', function($scope) {
@@ -37,11 +35,6 @@ angular.module('myApp.exampleControllers', [])
 			$scope.selectedBasicTab = $scope.basicTabs[tab];
 		};				
 		$scope.link = function(){ return "partials/exampleDefinitions/columnDefs/columnDefs" + $scope.selectedBasicTab.title + '.html';};
-		$scope.myData = gridData;
-		$scope.gridOptions = { 
-			data: 'myData',
-			columnDefs: [{field: 'name', displayName: 'Name'}, {field:'age', displayName:'Age'}]
-		};
 	}])
 	
 .controller('GroupingHTML5ExampleCtrl', ['$scope', function($scope) {
@@ -51,11 +44,6 @@ angular.module('myApp.exampleControllers', [])
 			$scope.selectedBasicTab = $scope.basicTabs[tab];
 		};				
 		$scope.link = function(){ return "partials/exampleDefinitions/grouping/groupByHTML5/groupByHTML5" + $scope.selectedBasicTab.title + '.html';};		
-		$scope.myData = gridData;
-		$scope.gridOptions = { 
-			data: 'myData',	
-			showGroupPanel: true
-		};
 	}])
 	
 .controller('GroupingJQueryExampleCtrl', ['$scope', function($scope) {
@@ -65,12 +53,6 @@ angular.module('myApp.exampleControllers', [])
 			$scope.selectedBasicTab = $scope.basicTabs[tab];
 		};				
 		$scope.link = function(){ return "partials/exampleDefinitions/grouping/groupByJQueryUI/groupByJQueryUI" + $scope.selectedBasicTab.title + '.html';};		
-		$scope.myData = gridData;
-		$scope.gridOptions = { 
-			data: 'myData',	
-			showGroupPanel: true,
-			jqueryUIDraggable: true
-		};
 	}])
 	
 .controller('StringCellTemplateCtrl', ['$scope', function($scope) {
