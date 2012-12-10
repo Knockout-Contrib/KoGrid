@@ -65,3 +65,72 @@ function masterDetailsVm(){
       multiSelect: false
     };
 }
+
+function pagingVm(){
+    var self = this;
+  
+    this.myData = ko.observableArray([]);
+  
+    this.filterOptions = {
+		filterText: ko.observable(""),
+		useExternalFilter: true
+	};
+  
+	this.pagingOptions = {
+		pageSizes: ko.observableArray([250, 500, 1000]),
+		pageSize: ko.observable(250),
+		totalServerItems: ko.observable(0),
+		currentPage: ko.observable(1)     
+	};
+  
+	this.setPagingData = function(data, page, pageSize){	
+		var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+		self.myData(pagedData);
+		self.pagingOptions.totalServerItems(data.length);
+	};
+  
+	this.getPagedDataAsync = function (pageSize, page, searchText) {
+		setTimeout(function () {
+			var data;
+			if (searchText) {
+				var ft = searchText.toLowerCase();
+				$.getJSON('jsonFiles/largeLoad.json', function (largeLoad) {		
+					data = largeLoad.filter(function(item) {
+						return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
+					});
+					self.setPagingData(data,page,pageSize);
+				});            
+			} else {
+				$.getJSON('jsonFiles/largeLoad.json', function (largeLoad) {
+					self.setPagingData(largeLoad,page,pageSize);
+				});
+			}
+		}, 100);
+	};
+  
+	self.filterOptions.filterText.subscribe(function (data) {
+		self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+	});   
+
+	self.pagingOptions.pageSizes.subscribe(function (data) {
+		self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+	});
+	self.pagingOptions.pageSize.subscribe(function (data) {
+		self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+	});
+	self.pagingOptions.totalServerItems.subscribe(function (data) {
+		self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+	});
+	self.pagingOptions.currentPage.subscribe(function (data) {
+		self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+	});
+  
+	self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage());
+
+	this.gridOptions = {
+	    data: self.myData,
+        enablePaging: true,
+        pagingOptions: self.pagingOptions,
+        filterOptions: self.filterOptions
+	};	
+};

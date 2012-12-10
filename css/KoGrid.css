@@ -382,6 +382,7 @@ input {
 .kgPagerButton{
 	height: 25px;
 	min-width: 26px;
+	margin-bottom: 10px;
 }
 
 .kgPagerFirstTriangle{

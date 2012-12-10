@@ -1,57 +1,70 @@
 <pre style="background-color: white; height: 325px; border-radius: 0 0 4px 4px; border-top:0px;  white-space: pre; word-wrap: normal; overflow: auto" class="prettyprint">
-var app = angular.module('myApp', ['ngGrid']);
-app.controller('MyCtrl', function($scope, $http) {
-    $scope.filterOptions = {
-        filterText: "",
+function pagingVm(){
+    var self = this; 
+    this.myData = ko.observableArray([]);
+  
+    this.filterOptions = {
+        filterText: ko.observable(""),
         useExternalFilter: true
     };
-    $scope.pagingOptions = {
-        pageSizes: [250, 500, 1000],
-        pageSize: 250,
-        totalServerItems: 0,
-        currentPage: 1
-    };	
-    $scope.setPagingData = function(data, page, pageSize){	
-        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
-        $scope.myData = pagedData;
-        $scope.pagingOptions.totalServerItems = data.length;
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
+  
+    this.pagingOptions = {
+        pageSizes: ko.observableArray([250, 500, 1000]),
+        pageSize: ko.observable(250),
+        totalServerItems: ko.observable(0),
+        currentPage: ko.observable(1)     
     };
-    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
+  
+    this.setPagingData = function(data, page, pageSize){	
+        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+        self.myData(pagedData);
+        self.pagingOptions.totalServerItems(data.length);
+    };
+  
+    this.getPagedDataAsync = function (pageSize, page, searchText) {
         setTimeout(function () {
             var data;
             if (searchText) {
                 var ft = searchText.toLowerCase();
-                $http.get('jsonFiles/largeLoad.json').success(function (largeLoad) {		
+                $.getJSON('largeLoad.json', function (largeLoad) {		
                     data = largeLoad.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
-                    $scope.setPagingData(data,page,pageSize);
+                    self.setPagingData(data,page,pageSize);
                 });            
             } else {
-                $http.get('jsonFiles/largeLoad.json').success(function (largeLoad) {
-                    $scope.setPagingData(largeLoad,page,pageSize);
+                $.getJSON('largeLoad.json', function (largeLoad) {
+	                self.setPagingData(largeLoad,page,pageSize);
                 });
             }
         }, 100);
     };
-	
-    $scope.myData = $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-	
-    $scope.$watch('pagingOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);
-    $scope.$watch('filterOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);   
-	
-    $scope.gridOptions = {
-        data: 'myData',
+  
+    self.filterOptions.filterText.subscribe(function (data) {
+        self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+    });   
+
+    self.pagingOptions.pageSizes.subscribe(function (data) {
+        self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+    });
+    self.pagingOptions.pageSize.subscribe(function (data) {
+        self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+    });
+    self.pagingOptions.totalServerItems.subscribe(function (data) {
+        self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+    });
+    self.pagingOptions.currentPage.subscribe(function (data) {
+        self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), self.filterOptions.filterText());
+    });
+  
+    self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage());
+
+    this.gridOptions = {
+        data: self.myData,
         enablePaging: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: $scope.filterOptions
-    };
-});
+        pagingOptions: self.pagingOptions,
+        filterOptions: self.filterOptions
+    };	
+};
+ko.applyBindings(new pagingVm());
 </pre>
