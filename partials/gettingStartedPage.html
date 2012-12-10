@@ -14,14 +14,14 @@
     width: 400px; 
     height: 300px
 }</pre></li>
-					<li>In your javascript file within the controller where you plan to use<br />ng-grid, lets add data that our grid will use:<br /> </li>
+					<li>In your javascript file within the view model where you plan to use<br />koGrid, lets add data that our grid will use:<br /> </li>
 					<pre style="margin-top:10px" class="prettyprint">this.myData = ko.observableArray([{name: "Moroni", age: 50},
                  {name: "Tiancum", age: 43},
                  {name: "Jacob", age: 27},
                  {name: "Nephi", age: 29},
                  {name: "Enos", age: 34}]);</pre></li>
-					<li>Now initialize your grid options under the same controller as data:<br /><code>this.gridOptions = { data: self.myData };</code></li>	
-					<li style="margin-top: 20px"><p>View the plunker <a target="blank" href="http://plnkr.co/edit/Sz2xVh">here</a>.</p><br /> 				
+					<li>Now initialize your grid options under the same view model as data:<br /><code>this.gridOptions = { data: self.myData };</code></li>	
+					<li style="margin-top: 20px"><strong>Below is the outcome of the grid using the example on the right:</strong><br />		
 				</ol>
 			</div>
 			<div id="gettingStartedGrid" style="border: 1px solid rgb(212,212,212); width: 400px; height: 300px; margin-left: 25px; margin-top: 20px;" data-bind="koGrid: gridOptions"></div>
@@ -65,6 +65,7 @@ function mainVm(){
 };
 ko.applyBindings(new mainVm());
 </pre>	
+		<p>View the plunker <a target="blank" href="http://plnkr.co/edit/Sz2xVh">here</a>.</p>
 		</div>
 	</div>
 </div>
