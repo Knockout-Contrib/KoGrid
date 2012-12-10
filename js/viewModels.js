@@ -51,18 +51,48 @@ function groupingJQueryUIVM() {
     };
 }
 
-function masterDetailsVm(){
+function stringCellTemplateVM() {
     var self = this;
-    this.mySelections = ko.observableArray([]);
-    this.myData = ko.observableArray([{name: "Moroni", age: 50},
-                                      {name: "Tiancum", age: 43},
-                                      {name: "Jacob", age: 27},
-                                      {name: "Nephi", age: 29},
-                                      {name: "Enos", age: 34}]);
+    this.myData = ko.observableArray([{ name: "Moroni", age: 50 },
+                     { name: "Tiancum", age: 43 },
+                     { name: "Jacob", age: 27 },
+                     { name: "Nephi", age: 29 },
+                     { name: "Enos", age: 34 }]);
     this.gridOptions = { 
-      data: self.myData,
-      selectedItems: self.mySelections,
-      multiSelect: false
+        data: self.myData,
+        columnDefs: [{field: 'name', displayName: 'Name'},
+                    {field: 'age', displayName: 'Age', cellTemplate:'<div data-bind=" attr: { \'class\': \'kgCellText colt\' + $index()}, css: { green: $data.getProperty($parent) > 30 }, html: $data.getProperty($parent)"></div>'}]
+    };
+}
+
+function fileReferencedCellTemplateVM() {
+    var self = this;
+    this.myData = ko.observableArray([{ name: "Moroni", age: 50 },
+                     { name: "Tiancum", age: 43 },
+                     { name: "Jacob", age: 27 },
+                     { name: "Nephi", age: 29 },
+                     { name: "Enos", age: 34 }]);
+    this.gridOptions = { 
+        data: self.myData,
+        columnDefs: [{field: 'name', displayName: 'Name'},
+                    {field: 'age', displayName: 'Age', cellTemplate:'partials/exampleDefinitions/templates/cellTemplates/fileReferencedCellTemplate/cellTemplate.html'}]
+    };
+}
+
+function rowTemplateVM() {
+    var self = this;
+    this.myData = ko.observableArray([{ name: "Moroni", age: 50 },
+                     { name: "Tiancum", age: 43 },
+                     { name: "Jacob", age: 27 },
+                     { name: "Nephi", age: 29 },
+                     { name: "Enos", age: 34 }]);
+    this.gridOptions = { 
+        data: self.myData,
+        rowTemplate: '<div data-bind="foreach: $grid.visibleColumns, css: { green: getProperty(\'age\') > 30 }">' +
+                          '<div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div>'+
+                      '</div>',
+        columnDefs: [{field: 'name', displayName: 'Name'},
+                    {field: 'age', displayName: 'Age'}]
     };
 }
 
@@ -134,3 +164,18 @@ function pagingVm(){
         filterOptions: self.filterOptions
 	};	
 };
+
+function masterDetailsVm(){
+    var self = this;
+    this.mySelections = ko.observableArray([]);
+    this.myData = ko.observableArray([{name: "Moroni", age: 50},
+                                      {name: "Tiancum", age: 43},
+                                      {name: "Jacob", age: 27},
+                                      {name: "Nephi", age: 29},
+                                      {name: "Enos", age: 34}]);
+    this.gridOptions = { 
+      data: self.myData,
+      selectedItems: self.mySelections,
+      multiSelect: false
+    };
+}
