@@ -33,15 +33,8 @@ ko.applyBindings(vm);
 ##Want More?##
 Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Getting-Started) and other [Docs](https://github.com/ericmbarnard/KoGrid/wiki)
 
-##2.0 Examples##
+##Examples##
 http://ericmbarnard.github.com/KoGrid/#/examples
-
-##1.2 Examples##
-* [Simple Example](http://ericmbarnard.github.com/KoGrid/examples/SimpleExample.html) : Shows the absolute bare-minimum needed to get up and running
-* [Defined Columns Example](http://ericmbarnard.github.com/KoGrid/examples/DefinedColumns.html) : Shows a grid with columns defined
-* [Complex Example with Server Side Paging, Filtering, Sorting](http://ericmbarnard.github.com/KoGrid/examples/Complex-Server-Side-Paging.html) : Shows an example that easily allows server-side paging, sorting, and filtering
-* [Large Data Set](http://ericmbarnard.github.com/KoGrid/examples/LargeData.html) : 10000+ rows! Shows virtualized scrolling, sorting and filtering
-* [Master-Details](http://ericmbarnard.github.com/KoGrid/examples/MasterDetails.html) : Shows an example of Master-Detail display (click on row to display details)
 
 also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
