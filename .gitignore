@@ -40,7 +40,13 @@ local.properties
 *.suo
 *.user
 *.sln.docstates
-
+*.sln
+*.nupkg
+*.nuspec
+*.*roj
+workbench/jquery*
+workbench/bootstrap*
+web.config
 # Build results
 [Dd]ebug/
 [Rr]elease/

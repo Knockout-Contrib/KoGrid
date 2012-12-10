@@ -1,64 +1,83 @@
-﻿kg.utils = {
-
-    forEach: function (arr, action) {
-        var len = arr.length,
-            i = 0;
-        for (; i < len; i++) {
-            if (arr[i] !== undefined) {
-                action(arr[i], i);
-            }
+﻿/// <reference path="namespace.js" />
+/// <reference path="constants.js" />
+/// <reference path="../lib/knockout-2.2.0.js" />
+if (!String.prototype.trim) {
+    String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+    };
+}
+if (!Array.prototype.indexOf)
+{
+	Array.prototype.indexOf = function(elt /*, from*/){
+		var len = this.length >>> 0;
+		var from = Number(arguments[1]) || 0;
+		from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+		if (from < 0) from += len;
+		for (; from < len; from++){
+			if (from in this && this[from] === elt) return from;
+		}
+		return -1;
+	};
+}
+if (!Array.prototype.filter)
+{
+  Array.prototype.filter = function(fun /*, thisp */)
+  {
+    "use strict";
+    var t = Object(this);
+    var len = t.length >>> 0;
+    if (typeof fun !== "function")throw new TypeError();
+    var res = [];
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in t)
+      {
+        var val = t[i]; // in case fun mutates this
+        if (fun.call(thisp, val, i, t))
+          res.push(val);
+      }
+    }
+    return res;
+  };
+}
+kg.utils = {
+    visualLength: function (node) {
+        var elem = document.getElementById('testDataLength');
+        if (!elem) {
+            elem = document.createElement('SPAN');
+            elem.id = "testDataLength";
+            elem.style.visibility = "hidden";
+            document.body.appendChild(elem);
         }
+        $(elem).css('font', $(node).css('font'));
+        elem.innerHTML = $(node).text();
+        return elem.offsetWidth;
     },
-
     forIn: function (obj, action) {
-        var prop;
-
-        for (prop in obj) {
+         for (var prop in obj) {
             if(obj.hasOwnProperty(prop)){
                 action(obj[prop], prop);
             }
         }
     },
-        
+    evalProperty: function (entity, path) {
+        var e = ko.utils.unwrapObservable(entity);
+        var propPath = path.split('.'), i = 0;
+        var tempProp = ko.utils.unwrapObservable(e[propPath[i++]]), links = propPath.length;
+        while (tempProp && i < links) {
+            tempProp = ko.utils.unwrapObservable(tempProp[propPath[i++]]);
+        }
+        return tempProp;
+    },
     endsWith: function (str, suffix) {
+        if (!str || !suffix || typeof str != "string") return false;
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     },
-    
-    StringBuilder: function () {
-        var strArr = [];
-        
-        this.append = function (str, data) {
-            var len = arguments.length,
-                intMatch = 0,
-                strMatch = '{0}',
-                i = 1;
-
-            if (len > 1) { // they provided data
-                while (i < len) {
-
-                    //apparently string.replace only works on one match at a time
-                    //so, loop through the string and hit all matches
-                    while (str.indexOf(strMatch) !== -1) {
-                        str = str.replace(strMatch, arguments[i]);
-                    }
-                    i++;
-                    intMatch = i - 1;
-                    strMatch = "{" + intMatch.toString() + "}";
-                }
-            }
-            strArr.push(str);
-        };
-
-        this.toString = function () {
-            var separator = arguments[0];
-            if (separator !== null && separator !== undefined) {
-                return strArr.join(separator);
-            } else {
-                return strArr.join("");
-            }
-        };
+    isNullOrUndefined: function (obj) {
+        if (obj === undefined || obj === null) return true;
+        return false;
     },
-    
     getElementsByClassName: function(cl) {
         var retnode = [];
         var myclass = new RegExp('\\b'+cl+'\\b');
@@ -69,54 +88,36 @@
         }
         return retnode;
     },
-    
-    unwrapPropertyPath: function(path, entity){
-        var propPath = path.split('.');
-        var tempProp = entity[propPath[0]];
-
-        for (var j = 1; j < propPath.length; j++){
-            tempProp = ko.utils.unwrapObservable(tempProp)[propPath[j]];
-        }
-        return tempProp;
+    getTemplatePromise: function(path) {
+        return $.ajax(path);
     },
-    
     newId: (function () {
         var seedId = new Date().getTime();
-
         return function () {
             return seedId += 1;
         };
     })(),
     
     // we copy KO's ie detection here bc it isn't exported in the min versions of KO
-    // Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness) 
+    // Detect IE versions for workarounds (uses IE conditionals, not UA string, for robustness) 
     ieVersion: (function () {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
-
         // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
         while (
             div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
             iElems[0]
         );
         return version > 4 ? version : undefined;
-    })(),
-    
-    makeTemplate: function (templId, templText) {
-        var template = document.createElement('script');
-        template.setAttribute('type', 'text/html');
-        template.setAttribute('id', templId);
-        template.innerHTML = templText;
-        return template;
-    }
+    })()
 };
 
 $.extend(kg.utils, {
     isIe6: (function(){ 
-        return kg.utils.ieVersion === 6}
-    )(),
+        return kg.utils.ieVersion === 6;
+    })(),
     isIe7: (function(){ 
-        return kg.utils.ieVersion === 7}
-    )(),
+        return kg.utils.ieVersion === 7;
+    }    )(),
     isIe: (function () { 
         return kg.utils.ieVersion !== undefined; 
     })()
