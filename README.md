@@ -34,7 +34,7 @@ ko.applyBindings(vm);
 Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Getting-Started) and other [Docs](https://github.com/ericmbarnard/KoGrid/wiki)
 
 ##2.0 Examples##
-#Coming Soon...#
+http://ericmbarnard.github.com/KoGrid/#/examples
 
 ##1.2 Examples##
 * [Simple Example](http://ericmbarnard.github.com/KoGrid/examples/SimpleExample.html) : Shows the absolute bare-minimum needed to get up and running
