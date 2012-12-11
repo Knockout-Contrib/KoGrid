@@ -24,9 +24,7 @@
                 });
             }
             //set the right styling on the container
-            elem.addClass("ngGrid")
-                .addClass("ui-widget")
-                .addClass(grid.gridId.toString());
+            elem.addClass("koGrid").addClass(grid.gridId.toString());
             //call update on the grid, which will refresh the dome measurements asynchronously
             elem.append(gridElem);// make sure that if any of these change, we re-fire the calc logic
             grid.$userViewModel = bindingContext.$data;
