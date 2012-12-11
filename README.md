@@ -16,6 +16,8 @@ __koGrid__ is a direct knockout port of [ng-grid](http://angular-ui.github.com/n
 
 koGrid is in 2.0.6 release currently. 
 
+Questions, Comments, Complaints? feel free to email us at kogridteam@gmail.com
+
 ***
 _The sizzle_:
 
