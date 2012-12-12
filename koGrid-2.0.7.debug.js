@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/08/2012 21:09:00
+* Compiled At: 12/11/2012 17:07:05
 ***********************************************/
 
 (function(window, undefined){
@@ -44,7 +44,7 @@ kg.moveSelectionHandler = function (grid, evt) {
     if (!offset) return true;
     var items = grid.renderedRows();
     var index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
-    if (index < 0 || index > items.length) return true;
+    if (index < 0 || index >= items.length) return true;
     grid.selectionService.ChangeSelection(items[index], evt);
     if (index > items.length - EXCESS_ROWS) {
         grid.$viewport.scrollTop(grid.$viewport.scrollTop() + (grid.config.rowHeight * EXCESS_ROWS));
@@ -182,7 +182,7 @@ $.extend(kg.utils, {
 /***********************************************
 * FILE: ..\src\templates\gridTemplate.html
 ***********************************************/
-kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-widget\': jqueryUITheme}"><div class="kgTopPanel" data-bind="css: {\'ui-widget-header\':jqueryUITheme, \'ui-corner-top\': jqueryUITheme}, style: $data.topPanelStyle"><div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle"><div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div><ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList"><li class="kgGroupItem"><span class="kgGroupElement"><div class="kgGroupName"><span data-bind="text: displayName"></span><span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span></div><span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span></span></li></ul></div><div class="kgHeaderContainer" data-bind="style: headerStyle"><div class="kgHeaderScroller" data-bind="style: headerScrollerStyle, kgHeaderRow: $data" ></div></div><div class="kgHeaderButton" data-bind="visible: ($data.showColumnMenu || $data.showFilter), click: toggleShowMenu"><div class="kgHeaderButtonArrow"></div></div><div data-bind="visible: showMenu" class="kgColMenu"><div data-bind="visible: showFilter"><input placeholder="Seach Field:Value" type="text" data-bind="value: filterText, valueUpdate: \'afterkeydown\'"/></div><div data-bind="visible: showColumnMenu"><span class="kgMenuText">Choose Columns:</span><ul class="kgColList" data-bind="foreach: nonAggColumns"><li class="kgColListItem"><label style="position: relative;"><input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"/><span data-bind="text: displayName, click: toggleVisible"></span><a title="Group By" data-bind="attr: {\'class\': groupedByClass }, visible: (field != \'\u2714\'), click: $parent.groupBy"></a><span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span></label></li></ul></div></div></div><div class="kgViewport" data-bind="css: {\'ui-widget-content\': jqueryUITheme}, style: viewportStyle"><div class="kgCanvas" data-bind="style: canvasStyle"><div data-bind="foreach: renderedRows" style="position: absolute;"><div data-bind="style: { \'top\': offsetTop, \'height\': $parent.rowHeight + \'px\' }, click: toggleSelected, css: {\'selected\': selected, \'even\': isEven , \'odd\': isOdd }, kgRow: $data" class="kgRow"></div></div></div></div><div class="kgFooterPanel" data-bind="css: {\'ui-widget-content\': jqueryUITheme, \'ui-corner-bottom\': jqueryUITheme}, style: footerStyle"><div class="kgTotalSelectContainer" data-bind="visible: footerVisible"><div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !multiSelect}" ><span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span></div><div class="kgFooterSelectedItems" data-bind="visible: multiSelect"><span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span></div></div><div class="kgPagerContainer" style="float: right; margin-top: 10px;" data-bind="visible: (footerVisible && enablePaging), css: {\'kgNoMultiSelect\': !multiSelect}"><div style="float:left; margin-right: 10px;" class="kgRowCountPicker"><span style="float: left; margin-top: 3px;" class="kgLabel">Page Size:</span><select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select></div><div style="float:left; margin-right: 10px; line-height:25px;" class="kgPagerControl" style="float: left; min-width: 135px;"><button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button><button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button><input class="kgPagerCurrent" type="text" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px;" data-bind="value: pagingOptions.currentPage"/><button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button><button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button></div></div></div></div>';};
+kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-widget\': jqueryUITheme}"><div class="kgTopPanel" data-bind="css: {\'ui-widget-header\':jqueryUITheme, \'ui-corner-top\': jqueryUITheme}, style: $data.topPanelStyle"><div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle"><div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div><ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList"><li class="kgGroupItem"><span class="kgGroupElement"><div class="kgGroupName"><span data-bind="text: displayName"></span><span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span></div><span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span></span></li></ul></div><div class="kgHeaderContainer" data-bind="style: headerStyle"><div class="kgHeaderScroller" data-bind="style: headerScrollerStyle, kgHeaderRow: $data" ></div></div><div class="kgHeaderButton" data-bind="visible: ($data.showColumnMenu || $data.showFilter), click: toggleShowMenu"><div class="kgHeaderButtonArrow"></div></div><div data-bind="visible: showMenu" class="kgColMenu"><div data-bind="visible: showFilter"><input placeholder="Seach Field:Value" type="text" data-bind="value: filterText, valueUpdate: \'afterkeydown\'"/></div><div data-bind="visible: showColumnMenu"><span class="kgMenuText">Choose Columns:</span><ul class="kgColList" data-bind="foreach: nonAggColumns"><li class="kgColListItem"><label style="position: relative;"><input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"/><span data-bind="text: displayName, click: toggleVisible"></span><a title="Group By" data-bind="attr: {\'class\': groupedByClass }, visible: (field != \'\u2714\'), click: $parent.groupBy"></a><span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span></label></li></ul></div></div></div><div class="kgViewport" data-bind="css: {\'ui-widget-content\': jqueryUITheme}, style: viewportStyle"><div class="kgCanvas" data-bind="style: canvasStyle"><div data-bind="foreach: renderedRows" style="position: absolute;"><div data-bind="style: { \'top\': offsetTop, \'height\': $parent.rowHeight + \'px\' }, click: toggleSelected, css: {\'selected\': selected, \'even\': isEven , \'odd\': isOdd, \'ui-state-default\': $parent.jqueryUITheme && isOdd, \'ui-state-active\':$parent.jqueryUITheme && isEven}, kgRow: $data" class="kgRow"></div></div></div></div><div class="kgFooterPanel" data-bind="css: {\'ui-widget-content\': jqueryUITheme, \'ui-corner-bottom\': jqueryUITheme}, style: footerStyle"><div class="kgTotalSelectContainer" data-bind="visible: footerVisible"><div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !multiSelect}" ><span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span></div><div class="kgFooterSelectedItems" data-bind="visible: multiSelect"><span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span></div></div><div class="kgPagerContainer" style="float: right; margin-top: 10px;" data-bind="visible: (footerVisible && enablePaging), css: {\'kgNoMultiSelect\': !multiSelect}"><div style="float:left; margin-right: 10px;" class="kgRowCountPicker"><span style="float: left; margin-top: 3px;" class="kgLabel">Page Size:</span><select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select></div><div style="float:left; margin-right: 10px; line-height:25px;" class="kgPagerControl" style="float: left; min-width: 135px;"><button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button><button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button><input class="kgPagerCurrent" type="text" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px;" data-bind="value: pagingOptions.currentPage"/><button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button><button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button></div></div></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
@@ -238,9 +238,7 @@ ko.bindingHandlers['koGrid'] = (function () {
                 });
             }
             //set the right styling on the container
-            elem.addClass("ngGrid")
-                .addClass("ui-widget")
-                .addClass(grid.gridId.toString());
+            elem.addClass("koGrid").addClass(grid.gridId.toString());
             //call update on the grid, which will refresh the dome measurements asynchronously
             elem.append(gridElem);// make sure that if any of these change, we re-fire the calc logic
             grid.$userViewModel = bindingContext.$data;
@@ -250,8 +248,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             grid.configureColumnWidths();
             grid.refreshDomSizes();
             //now use the manager to assign the event handlers
-            kg.gridService.AssignGridEventHandlers(grid);
-            grid.aggregateProvider = new kg.AggregateProvider(grid);
+            grid.eventProvider = new kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
                 p.init(grid);
@@ -460,224 +457,6 @@ kg.Aggregate = function (aggEntity, rowFactory) {
 }; 
 
 /***********************************************
-* FILE: ..\src\classes\aggregateProvider.js
-***********************************************/
-kg.AggregateProvider = function (grid) {
-    var self = this;
-    // The init method gets called during the ng-grid directive execution.
-    self.colToMove = undefined;
-	self.groupToMove = undefined;
-    self.assignEvents = function () {
-        // Here we set the onmousedown event handler to the header container.
-		if(grid.config.jqueryUIDraggable){
-			grid.$groupPanel.droppable({
-				addClasses: false,
-				drop: function(event) {
-					self.onGroupDrop(event);
-				}
-			});
-			$(document).ready(self.setDraggables);	
-		} else {
-			grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
-			grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
-			if (grid.config.enableRowReordering) {
-				grid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
-			}
-			self.setDraggables();
-		}
-        grid.columns.subscribe(self.setDraggables);
-    };
-    self.dragOver = function(evt) {
-        evt.preventDefault();
-    };	
-	
-	//For JQueryUI
-	self.setDraggables = function(){
-		if(!grid.config.jqueryUIDraggable){	
-			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
-		} else {
-			grid.$root.find('.kgHeaderSortColumn').draggable({
-				helper: 'clone',
-				appendTo: 'body',
-				stack: 'div',
-				addClasses: false,
-				start: function(event){
-					self.onHeaderMouseDown(event);
-				}
-			}).droppable({
-				drop: function(event) {
-					self.onHeaderDrop(event);
-				}
-			});
-		}
-	};
-    
-    self.onGroupDragStart = function () {
-        // color the header so we know what we are moving
-        if (self.groupToMove) {
-            //self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
-        }
-    };	
-    
-    self.onGroupDragStop = function () {
-        // Set the column to move header color back to normal
-        if (self.groupToMove) {
-            //self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
-        }
-    };
-
-    self.onGroupMouseDown = function(event) {
-        var groupItem = $(event.target);
-        // Get the scope from the header container
-		if(groupItem[0].className !='kgRemoveGroup'){
-		    var groupItemScope = ko.dataFor(groupItem[0]);
-			if (groupItemScope) {
-				// set draggable events
-				if(!grid.config.jqueryUIDraggable){
-					groupItem.attr('draggable', 'true');
-					groupItem.on('dragstart', self.onGroupDragStart).on('dragend', self.onGroupDragStop);
-				}
-				// Save the column for later.
-				self.groupToMove = { header: groupItem, groupName: groupItemScope, index: groupItemScope.groupIndex() - 1 };
-			}
-		} else {
-			self.groupToMove = undefined;
-		}
-    };
-
-    self.onGroupDrop = function(event) {
-        // clear out the colToMove object
-        var groupContainer;
-        var groupScope;
-        if (self.groupToMove) {
-			self.onGroupDragStop();
-            // Get the closest header to where we dropped
-            groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
-            if (groupContainer.context.className =='kgGroupPanel') {
-                grid.configGroups.splice(self.groupToMove.index, 1);
-                grid.configGroups.push(self.groupToMove.groupName);
-            } else {
-                groupScope = ko.dataFor(groupContainer[0]);
-                if (groupScope) {
-                    // If we have the same column, do nothing.
-                    if (self.groupToMove.index != groupScope.$index){
-						// Splice the columns
-                        grid.configGroups.splice(self.groupToMove.index, 1);
-                        grid.configGroups.splice(groupScope.$index(), 0, self.groupToMove.groupName);
-					}
-                }
-            }			
-			self.groupToMove = undefined;
-			grid.fixGroupIndexes();
-        } else {	
-			self.onHeaderDragStop();
-			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
-                groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
-				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
-				    grid.groupBy(self.colToMove.col);
-				} else {
-				    groupScope = ko.dataFor(groupContainer[0]);
-				    if (groupScope) {
-						// Splice the columns
-				        grid.removeGroup(groupScope.$index());
-					}
-				}	
-            }			
-			self.colToMove = undefined;
-        }
-    };
-	
-    //Header functions
-    self.onHeaderMouseDown = function (event) {
-        // Get the closest header container from where we clicked.
-        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer[0]) return true;
-        // Get the scope from the header container
-        
-        var headerScope = ko.dataFor(headerContainer[0]);
-        if (headerScope) {
-            // Save the column for later.
-            self.colToMove = { header: headerContainer, col: headerScope };
-        }
-    };
-    
-    self.onHeaderDragStart = function () {
-        // color the header so we know what we are moving
-        if (self.colToMove) {
-            self.colToMove.header.css('background-color', 'rgb(255, 255, 204)');
-        }
-    };
-    
-    self.onHeaderDragStop = function () {
-        // Set the column to move header color back to normal
-        if (self.colToMove) {
-            self.colToMove.header.css('background-color', 'rgb(234, 234, 234)');
-        }
-    };
-
-    self.onHeaderDrop = function (event) {
-        if (!self.colToMove) return true;
-        self.onHeaderDragStop();
-        // Get the closest header to where we dropped
-        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer[0]) return true;
-        // Get the scope from the header.
-        var headerScope = ko.dataFor(headerContainer[0]);
-        if (headerScope) {
-            // If we have the same column, do nothing.
-            if (self.colToMove.col == headerScope) return true;
-            // Splice the columns
-            var cols = grid.columns();
-            cols.splice(self.colToMove.col.index, 1);
-            cols.splice(headerScope.index, 0, self.colToMove.col);
-            grid.columns(cols);
-            // Finally, rebuild the CSS styles.
-            kg.domUtilityService.BuildStyles(grid);
-            // clear out the colToMove object
-            self.colToMove = undefined;
-        }
-    };
-    
-    // Row functions
-    self.onRowMouseDown = function (event) {
-        // Get the closest row element from where we clicked.
-        var targetRow = $(event.target).closest('.kgRow');
-        // Get the scope from the row element
-        var rowScope = ko.dataFor(targetRow[0]);
-        if (rowScope) {
-            // set draggable events
-            targetRow.attr('draggable', 'true');
-            // Save the row for later.
-            kg.gridService.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
-        }
-    };
-
-    self.onRowDrop = function (event) {
-        // Get the closest row to where we dropped
-        var targetRow = $(event.target).closest('.kgRow');
-        // Get the scope from the row element.
-        var rowScope = ko.dataFor(targetRow[0]);
-        if (rowScope) {
-            // If we have the same Row, do nothing.
-            var prevRow = kg.gridService.eventStorage.rowToMove;
-            if (prevRow.scope == rowScope) return;
-            // Splice the Rows via the actual datasource
-            var sd = grid.sortedData();
-            var i = sd.indexOf(prevRow.scope.entity);
-            var j = sd.indexOf(rowScope.entity);
-            grid.sortedData.splice(i, 1);
-            grid.sortedData.splice(j, 0, prevRow.scope.entity);
-            grid.searchProvider.evalFilter();
-            // clear out the rowToMove object
-            kg.gridService.eventStorage.rowToMove = undefined;
-            // if there isn't an apply already in progress lets start one
-        }
-    };
-    // In this example we want to assign grid events.
-    self.assignEvents();
-};
-
-/***********************************************
 * FILE: ..\src\classes\column.js
 ***********************************************/
 kg.Column = function (config, grid) {
@@ -781,7 +560,6 @@ kg.Column = function (config, grid) {
             kg.domUtilityService.BuildStyles(grid);
             return true;
         }
-        document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
@@ -801,7 +579,7 @@ kg.Column = function (config, grid) {
         event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
-        document.body.style.cursor = 'default';
+        event.target.parentElement.style.cursor = 'default';
         return false;
     };
 };
@@ -813,6 +591,221 @@ kg.Dimension = function (options) {
     this.outerHeight = null;
     this.outerWidth = null;
     $.extend(this, options);
+};
+
+/***********************************************
+* FILE: ..\src\classes\eventProvider.js
+***********************************************/
+kg.EventProvider = function (grid) {
+    var self = this;
+    // The init method gets called during the ng-grid directive execution.
+    self.colToMove = undefined;
+	self.groupToMove = undefined;
+    self.assignEvents = function () {
+        // Here we set the onmousedown event handler to the header container.
+		if(grid.config.jqueryUIDraggable){
+			grid.$groupPanel.droppable({
+				addClasses: false,
+				drop: function(event) {
+					self.onGroupDrop(event);
+				}
+			});
+			$(document).ready(self.setDraggables);	
+		} else {
+			grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
+			grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
+			if (grid.config.enableRowReordering) {
+				grid.$viewport.on('mousedown', self.onRowMouseDown).on('dragover', self.dragOver).on('drop', self.onRowDrop);
+			}
+			self.setDraggables();
+		}
+        grid.columns.subscribe(self.setDraggables);
+    };
+    self.dragOver = function(evt) {
+        evt.preventDefault();
+    };	
+	
+	//For JQueryUI
+	self.setDraggables = function(){
+		if(!grid.config.jqueryUIDraggable){	
+			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true');
+		} else {
+			grid.$root.find('.kgHeaderSortColumn').draggable({
+				helper: 'clone',
+				appendTo: 'body',
+				stack: 'div',
+				addClasses: false,
+				start: function(event){
+					self.onHeaderMouseDown(event);
+				}
+			}).droppable({
+				drop: function(event) {
+					self.onHeaderDrop(event);
+				}
+			});
+		}
+	};
+
+    self.onGroupMouseDown = function(event) {
+        var groupItem = $(event.target);
+        // Get the scope from the header container
+		if(groupItem[0].className !='kgRemoveGroup'){
+		    var groupItemScope = ko.dataFor(groupItem[0]);
+			if (groupItemScope) {
+				// set draggable events
+				if(!grid.config.jqueryUIDraggable){
+					groupItem.attr('draggable', 'true');
+				}
+				// Save the column for later.
+				self.groupToMove = { header: groupItem, groupName: groupItemScope, index: groupItemScope.groupIndex() - 1 };
+			}
+		} else {
+			self.groupToMove = undefined;
+		}
+    };
+
+    self.onGroupDrop = function(event) {
+        // clear out the colToMove object
+        var groupContainer;
+        var groupScope;
+        if (self.groupToMove) {
+            // Get the closest header to where we dropped
+            groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+            if (groupContainer.context.className =='kgGroupPanel') {
+                grid.configGroups.splice(self.groupToMove.index, 1);
+                grid.configGroups.push(self.groupToMove.groupName);
+            } else {
+                groupScope = ko.dataFor(groupContainer[0]);
+                if (groupScope) {
+                    // If we have the same column, do nothing.
+                    if (self.groupToMove.index != groupScope.groupIndex()) {
+						// Splice the columns
+                        grid.configGroups.splice(self.groupToMove.index, 1);
+                        grid.configGroups.splice(groupScope.groupIndex(), 0, self.groupToMove.groupName);
+					}
+                }
+            }			
+			self.groupToMove = undefined;
+			grid.fixGroupIndexes();
+        } else {
+			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
+                groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
+				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
+				    grid.groupBy(self.colToMove.col);
+				} else {
+				    groupScope = ko.dataFor(groupContainer[0]);
+				    if (groupScope) {
+						// Splice the columns
+				        grid.removeGroup(groupScope.groupIndex());
+					}
+				}	
+            }			
+			self.colToMove = undefined;
+        }
+    };
+	
+    //Header functions
+    self.onHeaderMouseDown = function (event) {
+        // Get the closest header container from where we clicked.
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        if (!headerContainer[0]) return true;
+        // Get the scope from the header container
+        
+        var headerScope = ko.dataFor(headerContainer[0]);
+        if (headerScope) {
+            // Save the column for later.
+            self.colToMove = { header: headerContainer, col: headerScope };
+        }
+    };
+
+    self.onHeaderDrop = function (event) {
+        if (!self.colToMove) return true;
+        // Get the closest header to where we dropped
+        var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
+        if (!headerContainer[0]) return true;
+        // Get the scope from the header.
+        var headerScope = ko.dataFor(headerContainer[0]);
+        if (headerScope) {
+            // If we have the same column, do nothing.
+            if (self.colToMove.col == headerScope) return true;
+            // Splice the columns
+            var cols = grid.columns();
+            cols.splice(self.colToMove.col.index, 1);
+            cols.splice(headerScope.index, 0, self.colToMove.col);
+            grid.columns(cols);
+            // Finally, rebuild the CSS styles.
+            kg.domUtilityService.BuildStyles(grid);
+            // clear out the colToMove object
+            self.colToMove = undefined;
+        }
+    };
+    
+    // Row functions
+    self.onRowMouseDown = function (event) {
+        // Get the closest row element from where we clicked.
+        var targetRow = $(event.target).closest('.kgRow');
+        // Get the scope from the row element
+        var rowScope = ko.dataFor(targetRow[0]);
+        if (rowScope) {
+            // set draggable events
+            targetRow.attr('draggable', 'true');
+            // Save the row for later.
+            kg.gridService.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
+        }
+    };
+
+    self.onRowDrop = function (event) {
+        // Get the closest row to where we dropped
+        var targetRow = $(event.target).closest('.kgRow');
+        // Get the scope from the row element.
+        var rowScope = ko.dataFor(targetRow[0]);
+        if (rowScope) {
+            // If we have the same Row, do nothing.
+            var prevRow = kg.gridService.eventStorage.rowToMove;
+            if (prevRow.scope == rowScope) return;
+            // Splice the Rows via the actual datasource
+            var sd = grid.sortedData();
+            var i = sd.indexOf(prevRow.scope.entity);
+            var j = sd.indexOf(rowScope.entity);
+            grid.sortedData.splice(i, 1);
+            grid.sortedData.splice(j, 0, prevRow.scope.entity);
+            grid.searchProvider.evalFilter();
+            // clear out the rowToMove object
+            kg.gridService.eventStorage.rowToMove = undefined;
+            // if there isn't an apply already in progress lets start one
+        }
+    };
+    self.assignGridEventHandlers = function() {
+        grid.$viewport.scroll(function(e) {
+            var scrollLeft = e.target.scrollLeft,
+                scrollTop = e.target.scrollTop;
+            grid.adjustScrollLeft(scrollLeft);
+            grid.adjustScrollTop(scrollTop);
+        });
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function(e) {
+            return kg.moveSelectionHandler(grid, e);
+        });
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1) {
+            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        $(window).resize(function() {
+            kg.domUtilityService.UpdateGridLayout(grid);
+            if (grid.config.maintainColumnRatios) {
+                grid.configureColumnWidths();
+            }
+        });
+    };
+    self.assignGridEventHandlers();
+    // In this example we want to assign grid events.
+    self.assignEvents();
 };
 
 /***********************************************
@@ -901,15 +894,17 @@ kg.RowFactory = function(grid) {
         var dataArray = self.parsedData.filter(function(e) {
             return e[KG_HIDDEN] === false;
         }).slice(self.renderedRange.topRow, self.renderedRange.bottomRow);
-        $.each(dataArray, function(indx, item) {
-            var row;
-            if (item.isAggRow) {
-                row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
-            } else {
-                row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
+        $.each(dataArray, function (indx, item) {
+            if (!item._destroy) {
+                var row;
+                if (item.isAggRow) {
+                    row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
+                } else {
+                    row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
+                }
+                //add the row to our return array
+                rowArr.push(row);
             }
-            //add the row to our return array
-            rowArr.push(row);
         });
         grid.setRenderedRows(rowArr);
         grid.refreshDomSizes();
@@ -1348,7 +1343,6 @@ kg.Grid = function (options) {
             self.config.sortInfo(sortInfo);
         }
         self.lastSortedColumn = col;
-        self.searchProvider.evalFilter();
         self.isSorting = false;
     };
     self.clearSortingData = function (col) {
@@ -1601,11 +1595,12 @@ kg.SearchProvider = function(grid) {
         var ft = self.filterText().toLowerCase();
         var v = self.value;
         grid.filteredData(grid.sortedData().filter(function (item) {
+            if (!ft) {
+                return true;
+            }
             var field = ko.utils.unwrapObservable(item[self.field]);
             var fieldMap = ko.utils.unwrapObservable(item[self.fieldMap[self.field]]);
-            if (!self.filterText) {
-                return true;
-            } else if (!self.field) {
+            if (!self.field) {
                 var obj = {};
                 for (var prop in item) {
                     if (item.hasOwnProperty(prop)) {
@@ -1756,7 +1751,7 @@ kg.StyleProvider = function(grid) {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": (grid.rootDim.outerWidth() - kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
+        return { "width": Math.max(0, grid.rootDim.outerWidth() - kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };
@@ -1798,34 +1793,6 @@ kg.gridService = {
     },
     ClearGridCache : function () {
         kg.gridService.gridCache = {};
-    },
-    AssignGridEventHandlers: function (grid) {
-        grid.$viewport.scroll(function (e) {
-            var scrollLeft = e.target.scrollLeft,
-            scrollTop = e.target.scrollTop;
-            grid.adjustScrollLeft(scrollLeft);
-            grid.adjustScrollTop(scrollTop);
-        });
-        grid.$viewport.off('keydown');
-        grid.$viewport.on('keydown', function (e) {
-            return kg.moveSelectionHandler(grid, e);
-        });
-        //Chrome and firefox both need a tab index so the grid can recieve focus.
-        //need to give the grid a tabindex if it doesn't already have one so
-        //we'll just give it a tab index of the corresponding gridcache index 
-        //that way we'll get the same result every time it is run.
-        //configurable within the options.
-        if (grid.config.tabIndex === -1){
-            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
-        } else {
-            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
-        }
-        $(window).resize(function () {
-            kg.domUtilityService.UpdateGridLayout(grid);
-            if (grid.config.maintainColumnRatios) {
-                grid.configureColumnWidths();
-            }
-        });
     },
 };
 

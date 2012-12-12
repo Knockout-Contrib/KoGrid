@@ -10,11 +10,12 @@
         var ft = self.filterText().toLowerCase();
         var v = self.value;
         grid.filteredData(grid.sortedData().filter(function (item) {
+            if (!ft) {
+                return true;
+            }
             var field = ko.utils.unwrapObservable(item[self.field]);
             var fieldMap = ko.utils.unwrapObservable(item[self.fieldMap[self.field]]);
-            if (!self.filterText) {
-                return true;
-            } else if (!self.field) {
+            if (!self.field) {
                 var obj = {};
                 for (var prop in item) {
                     if (item.hasOwnProperty(prop)) {

@@ -1,6 +1,6 @@
 ﻿/// <reference path="../namespace.js" />
 /// <reference path="../../lib/knockout-2.2.0.js" />
-kg.AggregateProvider = function (grid) {
+kg.EventProvider = function (grid) {
     var self = this;
     // The init method gets called during the ng-grid directive execution.
     self.colToMove = undefined;
@@ -32,7 +32,7 @@ kg.AggregateProvider = function (grid) {
 	//For JQueryUI
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
-			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true').on('dragstart', self.onHeaderDragStart).on('dragend', self.onHeaderDragStop);
+			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true');
 		} else {
 			grid.$root.find('.kgHeaderSortColumn').draggable({
 				helper: 'clone',
@@ -49,20 +49,6 @@ kg.AggregateProvider = function (grid) {
 			});
 		}
 	};
-    
-    self.onGroupDragStart = function () {
-        // color the header so we know what we are moving
-        if (self.groupToMove) {
-            //self.groupToMove.header.css('background-color', 'rgb(255, 255, 204)');
-        }
-    };	
-    
-    self.onGroupDragStop = function () {
-        // Set the column to move header color back to normal
-        if (self.groupToMove) {
-            //self.groupToMove.header.css('background-color', 'rgb(247,247,247)');
-        }
-    };
 
     self.onGroupMouseDown = function(event) {
         var groupItem = $(event.target);
@@ -73,7 +59,6 @@ kg.AggregateProvider = function (grid) {
 				// set draggable events
 				if(!grid.config.jqueryUIDraggable){
 					groupItem.attr('draggable', 'true');
-					groupItem.on('dragstart', self.onGroupDragStart).on('dragend', self.onGroupDragStop);
 				}
 				// Save the column for later.
 				self.groupToMove = { header: groupItem, groupName: groupItemScope, index: groupItemScope.groupIndex() - 1 };
@@ -88,7 +73,6 @@ kg.AggregateProvider = function (grid) {
         var groupContainer;
         var groupScope;
         if (self.groupToMove) {
-			self.onGroupDragStop();
             // Get the closest header to where we dropped
             groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
             if (groupContainer.context.className =='kgGroupPanel') {
@@ -98,17 +82,16 @@ kg.AggregateProvider = function (grid) {
                 groupScope = ko.dataFor(groupContainer[0]);
                 if (groupScope) {
                     // If we have the same column, do nothing.
-                    if (self.groupToMove.index != groupScope.$index){
+                    if (self.groupToMove.index != groupScope.groupIndex()) {
 						// Splice the columns
                         grid.configGroups.splice(self.groupToMove.index, 1);
-                        grid.configGroups.splice(groupScope.$index(), 0, self.groupToMove.groupName);
+                        grid.configGroups.splice(groupScope.groupIndex(), 0, self.groupToMove.groupName);
 					}
                 }
             }			
 			self.groupToMove = undefined;
 			grid.fixGroupIndexes();
-        } else {	
-			self.onHeaderDragStop();
+        } else {
 			if (grid.configGroups.indexOf(self.colToMove.col) == -1) {
                 groupContainer = $(event.target).closest('.kgGroupElement'); // Get the scope from the header.
 				if (groupContainer.context.className =='kgGroupPanel' || groupContainer.context.className =='kgGroupPanelDescription') {
@@ -117,7 +100,7 @@ kg.AggregateProvider = function (grid) {
 				    groupScope = ko.dataFor(groupContainer[0]);
 				    if (groupScope) {
 						// Splice the columns
-				        grid.removeGroup(groupScope.$index());
+				        grid.removeGroup(groupScope.groupIndex());
 					}
 				}	
             }			
@@ -138,24 +121,9 @@ kg.AggregateProvider = function (grid) {
             self.colToMove = { header: headerContainer, col: headerScope };
         }
     };
-    
-    self.onHeaderDragStart = function () {
-        // color the header so we know what we are moving
-        if (self.colToMove) {
-            self.colToMove.header.css('background-color', 'rgb(255, 255, 204)');
-        }
-    };
-    
-    self.onHeaderDragStop = function () {
-        // Set the column to move header color back to normal
-        if (self.colToMove) {
-            self.colToMove.header.css('background-color', 'rgb(234, 234, 234)');
-        }
-    };
 
     self.onHeaderDrop = function (event) {
         if (!self.colToMove) return true;
-        self.onHeaderDragStop();
         // Get the closest header to where we dropped
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer[0]) return true;
@@ -211,6 +179,35 @@ kg.AggregateProvider = function (grid) {
             // if there isn't an apply already in progress lets start one
         }
     };
+    self.assignGridEventHandlers = function() {
+        grid.$viewport.scroll(function(e) {
+            var scrollLeft = e.target.scrollLeft,
+                scrollTop = e.target.scrollTop;
+            grid.adjustScrollLeft(scrollLeft);
+            grid.adjustScrollTop(scrollTop);
+        });
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function(e) {
+            return kg.moveSelectionHandler(grid, e);
+        });
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1) {
+            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        $(window).resize(function() {
+            kg.domUtilityService.UpdateGridLayout(grid);
+            if (grid.config.maintainColumnRatios) {
+                grid.configureColumnWidths();
+            }
+        });
+    };
+    self.assignGridEventHandlers();
     // In this example we want to assign grid events.
     self.assignEvents();
 };

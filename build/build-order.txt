@@ -15,9 +15,9 @@
 ..\src\bindingHandlers\kg-header-cell.js
 ..\src\bindingHandlers\kg-mouse-events.js
 ..\src\classes\aggregate.js
-..\src\classes\aggregateProvider.js
 ..\src\classes\column.js
 ..\src\classes\dimension.js
+..\src\classes\eventProvider.js
 ..\src\classes\rowFactory.js
 ..\src\classes\grid.js
 ..\src\classes\range.js
