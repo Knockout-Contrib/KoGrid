@@ -181,7 +181,6 @@
 
 /******** Viewport ********/
 .kgViewport{
-    background-color: rgb(255, 255, 255);
 	overflow: auto;
     min-height: 20px;
 }
@@ -382,7 +381,6 @@ input {
 .kgPagerButton{
 	height: 25px;
 	min-width: 26px;
-	margin-bottom: 10px;
 }
 
 .kgPagerFirstTriangle{
