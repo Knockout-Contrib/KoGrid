@@ -329,7 +329,6 @@ kg.Grid = function (options) {
             self.config.sortInfo(sortInfo);
         }
         self.lastSortedColumn = col;
-        self.searchProvider.evalFilter();
         self.isSorting = false;
     };
     self.clearSortingData = function (col) {

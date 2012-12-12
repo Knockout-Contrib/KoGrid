@@ -1,6 +1,6 @@
 ﻿/// <reference path="../namespace.js" />
 /// <reference path="../../lib/knockout-2.2.0.js" />
-kg.AggregateProvider = function (grid) {
+kg.EventProvider = function (grid) {
     var self = this;
     // The init method gets called during the ng-grid directive execution.
     self.colToMove = undefined;
@@ -211,6 +211,35 @@ kg.AggregateProvider = function (grid) {
             // if there isn't an apply already in progress lets start one
         }
     };
+    self.assignGridEventHandlers = function() {
+        grid.$viewport.scroll(function(e) {
+            var scrollLeft = e.target.scrollLeft,
+                scrollTop = e.target.scrollTop;
+            grid.adjustScrollLeft(scrollLeft);
+            grid.adjustScrollTop(scrollTop);
+        });
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function(e) {
+            return kg.moveSelectionHandler(grid, e);
+        });
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1) {
+            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        $(window).resize(function() {
+            kg.domUtilityService.UpdateGridLayout(grid);
+            if (grid.config.maintainColumnRatios) {
+                grid.configureColumnWidths();
+            }
+        });
+    };
+    self.assignGridEventHandlers();
     // In this example we want to assign grid events.
     self.assignEvents();
 };

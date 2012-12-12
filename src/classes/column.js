@@ -99,7 +99,6 @@
             kg.domUtilityService.BuildStyles(grid);
             return true;
         }
-        document.body.style.cursor = 'col-resize';
         event.target.parentElement.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
@@ -119,7 +118,7 @@
         event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
-        document.body.style.cursor = 'default';
+        event.target.parentElement.style.cursor = 'default';
         return false;
     };
 };

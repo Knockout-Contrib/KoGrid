@@ -34,8 +34,7 @@
             grid.configureColumnWidths();
             grid.refreshDomSizes();
             //now use the manager to assign the event handlers
-            kg.gridService.AssignGridEventHandlers(grid);
-            grid.aggregateProvider = new kg.AggregateProvider(grid);
+            grid.eventProvider = new kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
                 p.init(grid);

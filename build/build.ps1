@@ -2,7 +2,7 @@
 $CurrentDir = (Get-Location).Path;
 $OutPutFile = $CurrentDir + "\koGrid.debug.js";
 $TempFile = $OutPutFile + ".temp";
-$FinalFile = "..\koGrid-2.0.6.debug.js";
+$FinalFile = "..\koGrid-2.0.7.debug.js";
 $BuildOrder = $CurrentDir + "\build-order.txt";
 $commentStart = "<!--";
 $commentEnd = "-->";

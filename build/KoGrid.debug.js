@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/11/2012 15:06:00
+* Compiled At: 12/11/2012 16:27:52
 ***********************************************/
 
 (function(window, undefined){
@@ -44,7 +44,7 @@ kg.moveSelectionHandler = function (grid, evt) {
     if (!offset) return true;
     var items = grid.renderedRows();
     var index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
-    if (index < 0 || index > items.length) return true;
+    if (index < 0 || index >= items.length) return true;
     grid.selectionService.ChangeSelection(items[index], evt);
     if (index > items.length - EXCESS_ROWS) {
         grid.$viewport.scrollTop(grid.$viewport.scrollTop() + (grid.config.rowHeight * EXCESS_ROWS));
@@ -248,8 +248,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             grid.configureColumnWidths();
             grid.refreshDomSizes();
             //now use the manager to assign the event handlers
-            kg.gridService.AssignGridEventHandlers(grid);
-            grid.aggregateProvider = new kg.AggregateProvider(grid);
+            grid.eventProvider = new kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
                 p.init(grid);
@@ -458,9 +457,146 @@ kg.Aggregate = function (aggEntity, rowFactory) {
 }; 
 
 /***********************************************
-* FILE: ..\src\classes\aggregateProvider.js
+* FILE: ..\src\classes\column.js
 ***********************************************/
-kg.AggregateProvider = function (grid) {
+kg.Column = function (config, grid) {
+    var self = this,
+        colDef = config.colDef,
+		delay = 500,
+        clicks = 0,
+        timer = null;
+    self.width = colDef.width;
+	self.groupIndex = ko.observable(0);
+	self.isGroupedBy = ko.observable(false);
+	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
+    self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
+    self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
+    self.headerRowHeight = config.headerRowHeight;
+    self.displayName = ko.observable(colDef.displayName || colDef.field);
+    self.index = config.index;
+    self.isAggCol = config.isAggCol;
+    self.cellClass = ko.observable(colDef.cellClass || "");
+    self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
+    self.field = colDef.field;
+    self.aggLabelFilter = colDef.cellFilter || colDef.cellFormatter || colDef.aggLabelFilter || colDef.aggLabelFormatter;
+    self._visible = ko.observable(kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
+    self.visible = ko.computed({
+        read: function() {
+            return self._visible();
+        },
+        write: function(val) {
+            self.toggleVisible(val);
+        }
+    });
+    self.sortable = ko.observable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
+    self.resizable = ko.observable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    self.sortDirection = ko.observable(undefined);
+    self.sortingAlgorithm = colDef.sortFn;
+    self.headerClass = ko.observable(colDef.headerClass);
+    self.headerCellTemplate = colDef.headerCellTemplate || kg.defaultHeaderCellTemplate();
+    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate();
+    if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
+        self.cellTemplate = kg.utils.getTemplatePromise(colDef.cellTemplate);
+    }
+    if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
+        self.headerCellTemplate = kg.utils.getTemplatePromise(colDef.headerCellTemplate);
+    }
+    self.getProperty = function (row) {
+        var ret;
+        if (self.cellFilter) {
+            ret = self.cellFilter(row.getProperty(self.field));
+        } else {
+            ret = row.getProperty(self.field);
+        }
+        return ret;
+    };
+    self.toggleVisible = function (val) {
+        var v;
+        if (kg.utils.isNullOrUndefined(val) || typeof val == "object") {
+            v = !self._visible();
+        } else {
+            v = val;
+        }
+        self._visible(v);
+        kg.domUtilityService.BuildStyles(grid);
+    };
+
+    self.showSortButtonUp = ko.computed(function () {
+        return self.sortable ? self.sortDirection() === DESC : self.sortable;
+    });
+    self.showSortButtonDown = ko.computed(function () {
+        return self.sortable ? self.sortDirection() === ASC : self.sortable;
+    });     
+    self.noSortVisible = ko.computed(function () {
+        return !self.sortDirection();
+    });
+    self.sort = function () {
+        if (!self.sortable()) {
+            return true; // column sorting is disabled, do nothing
+        }
+        var dir = self.sortDirection() === ASC ? DESC : ASC;
+        self.sortDirection(dir);
+        config.sortCallback(self, dir);
+        return false;
+    };   
+    self.gripClick = function (data, event) {
+        event.stopPropagation();
+        clicks++;  //count clicks
+        if (clicks === 1) {
+            timer = setTimeout(function () {
+                //Here you can add a single click action.
+                clicks = 0;  //after action performed, reset counter
+            }, delay);
+        } else {
+            clearTimeout(timer);  //prevent single-click action
+            config.resizeOnDataCallback(self);  //perform double-click action
+            clicks = 0;  //after action performed, reset counter
+        }
+    };
+    self.gripOnMouseDown = function (event) {
+        event.stopPropagation();
+        if (event.ctrlKey) {
+            self.toggleVisible();
+            kg.domUtilityService.BuildStyles(grid);
+            return true;
+        }
+        event.target.parentElement.style.cursor = 'col-resize';
+        self.startMousePosition = event.clientX;
+        self.origWidth = self.width;
+        $(document).mousemove(self.onMouseMove);
+        $(document).mouseup(self.gripOnMouseUp);
+        return false;
+    };
+    self.onMouseMove = function (event) {
+        event.stopPropagation();
+        var diff = event.clientX - self.startMousePosition;
+        var newWidth = diff + self.origWidth;
+        self.width = (newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
+        kg.domUtilityService.BuildStyles(grid);
+        return false;
+    };
+    self.gripOnMouseUp = function (event) {
+        event.stopPropagation();
+        $(document).off('mousemove');
+        $(document).off('mouseup');
+        event.target.parentElement.style.cursor = 'default';
+        return false;
+    };
+};
+
+/***********************************************
+* FILE: ..\src\classes\dimension.js
+***********************************************/
+kg.Dimension = function (options) {
+    this.outerHeight = null;
+    this.outerWidth = null;
+    $.extend(this, options);
+};
+
+/***********************************************
+* FILE: ..\src\classes\eventProvider.js
+***********************************************/
+kg.EventProvider = function (grid) {
     var self = this;
     // The init method gets called during the ng-grid directive execution.
     self.colToMove = undefined;
@@ -671,146 +807,37 @@ kg.AggregateProvider = function (grid) {
             // if there isn't an apply already in progress lets start one
         }
     };
+    self.assignGridEventHandlers = function() {
+        grid.$viewport.scroll(function(e) {
+            var scrollLeft = e.target.scrollLeft,
+                scrollTop = e.target.scrollTop;
+            grid.adjustScrollLeft(scrollLeft);
+            grid.adjustScrollTop(scrollTop);
+        });
+        grid.$viewport.off('keydown');
+        grid.$viewport.on('keydown', function(e) {
+            return kg.moveSelectionHandler(grid, e);
+        });
+        //Chrome and firefox both need a tab index so the grid can recieve focus.
+        //need to give the grid a tabindex if it doesn't already have one so
+        //we'll just give it a tab index of the corresponding gridcache index 
+        //that way we'll get the same result every time it is run.
+        //configurable within the options.
+        if (grid.config.tabIndex === -1) {
+            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+        } else {
+            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
+        }
+        $(window).resize(function() {
+            kg.domUtilityService.UpdateGridLayout(grid);
+            if (grid.config.maintainColumnRatios) {
+                grid.configureColumnWidths();
+            }
+        });
+    };
+    self.assignGridEventHandlers();
     // In this example we want to assign grid events.
     self.assignEvents();
-};
-
-/***********************************************
-* FILE: ..\src\classes\column.js
-***********************************************/
-kg.Column = function (config, grid) {
-    var self = this,
-        colDef = config.colDef,
-		delay = 500,
-        clicks = 0,
-        timer = null;
-    self.width = colDef.width;
-	self.groupIndex = ko.observable(0);
-	self.isGroupedBy = ko.observable(false);
-	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
-    self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
-    self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
-    self.headerRowHeight = config.headerRowHeight;
-    self.displayName = ko.observable(colDef.displayName || colDef.field);
-    self.index = config.index;
-    self.isAggCol = config.isAggCol;
-    self.cellClass = ko.observable(colDef.cellClass || "");
-    self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
-    self.field = colDef.field;
-    self.aggLabelFilter = colDef.cellFilter || colDef.cellFormatter || colDef.aggLabelFilter || colDef.aggLabelFormatter;
-    self._visible = ko.observable(kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
-    self.visible = ko.computed({
-        read: function() {
-            return self._visible();
-        },
-        write: function(val) {
-            self.toggleVisible(val);
-        }
-    });
-    self.sortable = ko.observable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
-    self.resizable = ko.observable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
-    self.sortDirection = ko.observable(undefined);
-    self.sortingAlgorithm = colDef.sortFn;
-    self.headerClass = ko.observable(colDef.headerClass);
-    self.headerCellTemplate = colDef.headerCellTemplate || kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate();
-    if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
-        self.cellTemplate = kg.utils.getTemplatePromise(colDef.cellTemplate);
-    }
-    if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
-        self.headerCellTemplate = kg.utils.getTemplatePromise(colDef.headerCellTemplate);
-    }
-    self.getProperty = function (row) {
-        var ret;
-        if (self.cellFilter) {
-            ret = self.cellFilter(row.getProperty(self.field));
-        } else {
-            ret = row.getProperty(self.field);
-        }
-        return ret;
-    };
-    self.toggleVisible = function (val) {
-        var v;
-        if (kg.utils.isNullOrUndefined(val) || typeof val == "object") {
-            v = !self._visible();
-        } else {
-            v = val;
-        }
-        self._visible(v);
-        kg.domUtilityService.BuildStyles(grid);
-    };
-
-    self.showSortButtonUp = ko.computed(function () {
-        return self.sortable ? self.sortDirection() === DESC : self.sortable;
-    });
-    self.showSortButtonDown = ko.computed(function () {
-        return self.sortable ? self.sortDirection() === ASC : self.sortable;
-    });     
-    self.noSortVisible = ko.computed(function () {
-        return !self.sortDirection();
-    });
-    self.sort = function () {
-        if (!self.sortable()) {
-            return true; // column sorting is disabled, do nothing
-        }
-        var dir = self.sortDirection() === ASC ? DESC : ASC;
-        self.sortDirection(dir);
-        config.sortCallback(self, dir);
-        return false;
-    };   
-    self.gripClick = function (data, event) {
-        event.stopPropagation();
-        clicks++;  //count clicks
-        if (clicks === 1) {
-            timer = setTimeout(function () {
-                //Here you can add a single click action.
-                clicks = 0;  //after action performed, reset counter
-            }, delay);
-        } else {
-            clearTimeout(timer);  //prevent single-click action
-            config.resizeOnDataCallback(self);  //perform double-click action
-            clicks = 0;  //after action performed, reset counter
-        }
-    };
-    self.gripOnMouseDown = function (event) {
-        event.stopPropagation();
-        if (event.ctrlKey) {
-            self.toggleVisible();
-            kg.domUtilityService.BuildStyles(grid);
-            return true;
-        }
-        document.body.style.cursor = 'col-resize';
-        event.target.parentElement.style.cursor = 'col-resize';
-        self.startMousePosition = event.clientX;
-        self.origWidth = self.width;
-        $(document).mousemove(self.onMouseMove);
-        $(document).mouseup(self.gripOnMouseUp);
-        return false;
-    };
-    self.onMouseMove = function (event) {
-        event.stopPropagation();
-        var diff = event.clientX - self.startMousePosition;
-        var newWidth = diff + self.origWidth;
-        self.width = (newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
-        kg.domUtilityService.BuildStyles(grid);
-        return false;
-    };
-    self.gripOnMouseUp = function (event) {
-        event.stopPropagation();
-        $(document).off('mousemove');
-        $(document).off('mouseup');
-        document.body.style.cursor = 'default';
-        return false;
-    };
-};
-
-/***********************************************
-* FILE: ..\src\classes\dimension.js
-***********************************************/
-kg.Dimension = function (options) {
-    this.outerHeight = null;
-    this.outerWidth = null;
-    $.extend(this, options);
 };
 
 /***********************************************
@@ -899,15 +926,17 @@ kg.RowFactory = function(grid) {
         var dataArray = self.parsedData.filter(function(e) {
             return e[KG_HIDDEN] === false;
         }).slice(self.renderedRange.topRow, self.renderedRange.bottomRow);
-        $.each(dataArray, function(indx, item) {
-            var row;
-            if (item.isAggRow) {
-                row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
-            } else {
-                row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
+        $.each(dataArray, function (indx, item) {
+            if (!item._destroy) {
+                var row;
+                if (item.isAggRow) {
+                    row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
+                } else {
+                    row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
+                }
+                //add the row to our return array
+                rowArr.push(row);
             }
-            //add the row to our return array
-            rowArr.push(row);
         });
         grid.setRenderedRows(rowArr);
         grid.refreshDomSizes();
@@ -1346,7 +1375,6 @@ kg.Grid = function (options) {
             self.config.sortInfo(sortInfo);
         }
         self.lastSortedColumn = col;
-        self.searchProvider.evalFilter();
         self.isSorting = false;
     };
     self.clearSortingData = function (col) {
@@ -1599,11 +1627,12 @@ kg.SearchProvider = function(grid) {
         var ft = self.filterText().toLowerCase();
         var v = self.value;
         grid.filteredData(grid.sortedData().filter(function (item) {
+            if (!ft) {
+                return true;
+            }
             var field = ko.utils.unwrapObservable(item[self.field]);
             var fieldMap = ko.utils.unwrapObservable(item[self.fieldMap[self.field]]);
-            if (!self.filterText) {
-                return true;
-            } else if (!self.field) {
+            if (!self.field) {
                 var obj = {};
                 for (var prop in item) {
                     if (item.hasOwnProperty(prop)) {
@@ -1796,34 +1825,6 @@ kg.gridService = {
     },
     ClearGridCache : function () {
         kg.gridService.gridCache = {};
-    },
-    AssignGridEventHandlers: function (grid) {
-        grid.$viewport.scroll(function (e) {
-            var scrollLeft = e.target.scrollLeft,
-            scrollTop = e.target.scrollTop;
-            grid.adjustScrollLeft(scrollLeft);
-            grid.adjustScrollTop(scrollTop);
-        });
-        grid.$viewport.off('keydown');
-        grid.$viewport.on('keydown', function (e) {
-            return kg.moveSelectionHandler(grid, e);
-        });
-        //Chrome and firefox both need a tab index so the grid can recieve focus.
-        //need to give the grid a tabindex if it doesn't already have one so
-        //we'll just give it a tab index of the corresponding gridcache index 
-        //that way we'll get the same result every time it is run.
-        //configurable within the options.
-        if (grid.config.tabIndex === -1){
-            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
-        } else {
-            grid.$viewport.attr('tabIndex', grid.config.tabIndex);
-        }
-        $(window).resize(function () {
-            kg.domUtilityService.UpdateGridLayout(grid);
-            if (grid.config.maintainColumnRatios) {
-                grid.configureColumnWidths();
-            }
-        });
     },
 };
 
