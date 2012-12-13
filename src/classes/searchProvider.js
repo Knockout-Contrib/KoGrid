@@ -8,9 +8,9 @@
     self.fieldMap = {};
     self.evalFilter = function () {
         if (searchConditions.length === 0)
-            grid.filteredData(grid.sortedData());
+            grid.filteredData(grid.sortedData.peek());
         else {
-            grid.filteredData(grid.sortedData().filter(function (item) {
+            grid.filteredData(grid.sortedData.peek().filter(function (item) {
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
@@ -34,6 +34,15 @@
         }
         grid.rowFactory.filteredDataChanged();
     };
+    var getRegExp = function (str, modifiers) {
+        try {
+            return new RegExp(str, modifiers);
+        }
+        catch (err) {
+            //Escape all RegExp metacharacters.
+            return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
+        }
+    }
     var buildSearchConditions = function (a) {
         //reset.
         searchConditions = [];
@@ -51,7 +60,7 @@
                     searchConditions.push({
                         column: columnName,
                         columnDisplay: columnName.replace(/\s+/g, '').toLowerCase(),
-                        regex: new RegExp(columnValue, 'i')
+                        regex: getRegExp(columnValue, 'i')
                     });
                 }
             } else {
@@ -59,7 +68,7 @@
                 if (val) {
                     searchConditions.push({
                         column: '',
-                        regex: new RegExp(val, 'i')
+                        regex: getRegExp(val, 'i')
                     });
                 }
             }
@@ -68,11 +77,10 @@
 
     var filterTextComputed = ko.computed(function () {
         var a = self.filterText();
-        if (self.extFilter) return;
-
-        buildSearchConditions(a);
-
-        self.evalFilter();
+        if (!self.extFilter) {
+            buildSearchConditions(a);
+            self.evalFilter();
+        }
     });
     if (typeof self.throttle === 'number') {
         filterTextComputed.extend({ throttle: self.throttle });
