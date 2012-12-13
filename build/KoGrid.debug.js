@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/13/2012 14:37:55
+* Compiled At: 12/13/2012 15:11:25
 ***********************************************/
 
 (function(window, undefined){
@@ -297,6 +297,7 @@ ko.bindingHandlers['kgRow'] = (function () {
 ko.bindingHandlers['kgCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            bindingContext.$userViewModel = bindingContext.$parent.$userViewModel;
             var compile = function (html) {
                 var cell = $(html);
                 ko.applyBindings(bindingContext, cell[0]);

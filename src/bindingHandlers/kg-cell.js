@@ -2,6 +2,7 @@
 ko.bindingHandlers['kgCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            bindingContext.$userViewModel = bindingContext.$parent.$userViewModel;
             var compile = function (html) {
                 var cell = $(html);
                 ko.applyBindings(bindingContext, cell[0]);
