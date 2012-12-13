@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/13/2012 13:57:07
+* Compiled At: 12/13/2012 14:37:55
 ***********************************************/
 
 (function(window, undefined){
@@ -1703,11 +1703,7 @@ kg.SelectionService = function (grid) {
 	// function to manage the selection action of a data item (entity)
 	self.ChangeSelection = function (rowItem, evt) {
 	    grid.$$selectionPhase = true;
-	    if (!self.multi) {
-	        if (self.lastClickedRow && self.lastClickedRow.selected) {
-	            self.setSelection(self.lastClickedRow, false);
-	        }
-	    } else if (evt && evt.shiftKey) {
+	    if (evt && evt.shiftKey && self.multi) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
 	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
@@ -1735,13 +1731,14 @@ kg.SelectionService = function (grid) {
 	            self.lastClickedRow = rows[rows.length - 1];
 	            return true;
 	        }
-	    }
-	    if (grid.config.keepLastSelected && !self.multi) {
-	        self.setSelection(rowItem, true);
+	    } else if (!self.multi) {
+	        if (self.lastClickedRow && self.lastClickedRow != rowItem) {
+	            self.setSelection(self.lastClickedRow, false);
+	        }
+	        self.setSelection(rowItem, grid.config.keepLastSelected ? true : !rowItem.selected());
 	    } else {
-	        self.setSelection(rowItem, rowItem.selected() ? false : true);
+	        self.setSelection(rowItem, !rowItem.selected());
 	    }
-	    
 	    self.lastClickedRow = rowItem;
 	    grid.$$selectionPhase = false;
         return true;

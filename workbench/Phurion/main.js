@@ -48,10 +48,10 @@ function mainViewModel() {
         return true;
     };
     self.selectedItems = ko.observableArray([]);
-    self.currentMail = ko.computed(function(){
+    self.currentMail = ko.computed(function() {
         return self.selectedItems()[0];
-    })
-    self.createTestData()
+    });
+    self.createTestData();
     this.gridOptions = { 
         data: self.inboxData,
         multiSelect: false,
