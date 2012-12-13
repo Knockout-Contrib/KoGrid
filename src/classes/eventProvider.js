@@ -148,13 +148,14 @@ kg.EventProvider = function (grid) {
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
         var targetRow = $(event.target).closest('.kgRow');
+        if (!targetRow[0]) return;
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // set draggable events
             targetRow.attr('draggable', 'true');
             // Save the row for later.
-            kg.gridService.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
+            kg.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
         }
     };
 
@@ -165,7 +166,7 @@ kg.EventProvider = function (grid) {
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // If we have the same Row, do nothing.
-            var prevRow = kg.gridService.eventStorage.rowToMove;
+            var prevRow = kg.eventStorage.rowToMove;
             if (prevRow.scope == rowScope) return;
             // Splice the Rows via the actual datasource
             var sd = grid.sortedData();
@@ -175,7 +176,7 @@ kg.EventProvider = function (grid) {
             grid.sortedData.splice(j, 0, prevRow.scope.entity);
             grid.searchProvider.evalFilter();
             // clear out the rowToMove object
-            kg.gridService.eventStorage.rowToMove = undefined;
+            kg.eventStorage.rowToMove = undefined;
             // if there isn't an apply already in progress lets start one
         }
     };
@@ -196,7 +197,7 @@ kg.EventProvider = function (grid) {
         //that way we'll get the same result every time it is run.
         //configurable within the options.
         if (grid.config.tabIndex === -1) {
-            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+            grid.$viewport.attr('tabIndex', kg.numberOfGrids++);
         } else {
             grid.$viewport.attr('tabIndex', grid.config.tabIndex);
         }

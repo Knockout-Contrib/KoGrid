@@ -71,7 +71,7 @@ kg.Grid = function (options) {
     self.$canvas = null;
     self.rootDim = self.config.gridDim;
     self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
-    self.sortedData = ko.observableArray(ko.utils.unwrapObservable(self.config.data));
+    self.sortedData = self.config.data;
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
     self.lastSortedColumn = undefined;
@@ -90,12 +90,6 @@ kg.Grid = function (options) {
         rootMaxW: 0,
         rootMaxH: 0,
     };
-    // Set new default footer height if not overridden, and multi select is disabled
-    if (self.config.footerRowHeight === defaults.footerRowHeight
-        && !self.config.canSelectRows) {
-        defaults.footerRowHeight = 30;
-        self.config.footerRowHeight = 30;
-    }
     //self funcs
     self.setRenderedRows = function (newRows) {
         self.renderedRows(newRows);
@@ -269,7 +263,8 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(){	
+        self.filteredData.subscribe(function () {
+            if (self.$$selectionPhase) return;
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) self.configureColumnWidths();
 		});
@@ -409,7 +404,8 @@ kg.Grid = function (options) {
 	self.viewportDimHeight = ko.computed(function () {
         return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
-    self.groupBy = function(col) {
+	self.groupBy = function (col) {
+	    if (self.sortedData().length < 1) return;
         var indx = self.configGroups().indexOf(col);
         if (indx == -1) {
 			col.isGroupedBy(true);

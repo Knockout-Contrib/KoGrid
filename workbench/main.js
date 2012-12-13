@@ -56,10 +56,8 @@ function mainViewModel() {
         showFilter: true,
         maintainColumnRatios: true,
         enableRowReordering: true,
-        sortInfo: ko.observable({
-            field: 'allowance',
-            direction: 'asc'
-        }),
+        enablePaging: true,
+        pagingOptions: self.pagingOptions,
         columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
                      { field: 'allowance', cellTemplate: 'partials/cellTemplate.html', width: 'auto' },
                      { field: 'birthday', cellFilter: dateFilter, width: 'auto' },
