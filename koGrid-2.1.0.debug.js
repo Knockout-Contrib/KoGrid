@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/12/2012 22:19:13
+* Compiled At: 12/13/2012 13:31:36
 ***********************************************/
 
 (function(window, undefined){
@@ -250,7 +250,8 @@ ko.bindingHandlers['koGrid'] = (function () {
             grid.eventProvider = new kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
-                p.init(grid);
+                if (typeof p.onGridInit === 'function')
+                    p.onGridInit(grid);
             });
             kg.domUtilityService.BuildStyles(grid);
             return { controlsDescendantBindings: true };
@@ -1580,7 +1581,8 @@ kg.Row = function (entity, config, selectionService) {
 ***********************************************/
 kg.SearchProvider = function (grid) {
     var self = this,
-        searchConditions = [];
+        searchConditions = [],
+        lastSearchStr;
     self.extFilter = grid.config.filterOptions.useExternalFilter;
     self.showFilter = grid.config.showFilter;
     self.filterText = grid.config.filterOptions.filterText;
@@ -1594,6 +1596,7 @@ kg.SearchProvider = function (grid) {
                 if (item._destroy) {
                     return false;
                 }
+
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
@@ -1659,9 +1662,10 @@ kg.SearchProvider = function (grid) {
     };
 
     var filterTextComputed = ko.computed(function () {
-        if (grid.$$selectionPhase) return;
         var a = self.filterText();
-        if (!self.extFilter) {
+        if (!self.extFilter && a != lastSearchStr) {
+            //To prevent circular dependency when throttle is enabled.
+            lastSearchStr = a;
             buildSearchConditions(a);
             self.evalFilter();
         }
