@@ -25,6 +25,5 @@
 ..\src\classes\searchProvider.js
 ..\src\classes\selectionService.js
 ..\src\classes\styleProvider.js
-..\src\classes\GridService.js
 ..\src\classes\SortService.js
 ..\src\classes\DomUtilityService.js

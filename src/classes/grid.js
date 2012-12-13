@@ -90,12 +90,6 @@ kg.Grid = function (options) {
         rootMaxW: 0,
         rootMaxH: 0,
     };
-    // Set new default footer height if not overridden, and multi select is disabled
-    if (self.config.footerRowHeight === defaults.footerRowHeight
-        && !self.config.canSelectRows) {
-        defaults.footerRowHeight = 30;
-        self.config.footerRowHeight = 30;
-    }
     //self funcs
     self.setRenderedRows = function (newRows) {
         self.renderedRows(newRows);
@@ -409,7 +403,8 @@ kg.Grid = function (options) {
 	self.viewportDimHeight = ko.computed(function () {
         return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
-    self.groupBy = function(col) {
+	self.groupBy = function (col) {
+	    if (self.sortedData().length < 1) return;
         var indx = self.configGroups().indexOf(col);
         if (indx == -1) {
 			col.isGroupedBy(true);

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/11/2012 16:36:08
+* Compiled At: 12/12/2012 21:09:04
 ***********************************************/
 
 (function(window, undefined){
@@ -13,6 +13,8 @@
 if (!window.kg) {
     window.kg = {};
 }
+kg.numberOfGrids = 0;
+kg.eventStorage = {};
 
 /***********************************************
 * FILE: ..\src\constants.js
@@ -220,7 +222,6 @@ ko.bindingHandlers['koGrid'] = (function () {
             options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
-            kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
                 if (grid.$$selectionPhase) return;
@@ -253,6 +254,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             $.each(grid.config.plugins, function (i, p) {
                 p.init(grid);
             });
+            kg.domUtilityService.BuildStyles(grid);
             return { controlsDescendantBindings: true };
         }
     };
@@ -744,13 +746,14 @@ kg.EventProvider = function (grid) {
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
         var targetRow = $(event.target).closest('.kgRow');
+        if (!targetRow[0]) return;
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // set draggable events
             targetRow.attr('draggable', 'true');
             // Save the row for later.
-            kg.gridService.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
+            kg.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
         }
     };
 
@@ -761,7 +764,7 @@ kg.EventProvider = function (grid) {
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // If we have the same Row, do nothing.
-            var prevRow = kg.gridService.eventStorage.rowToMove;
+            var prevRow = kg.eventStorage.rowToMove;
             if (prevRow.scope == rowScope) return;
             // Splice the Rows via the actual datasource
             var sd = grid.sortedData();
@@ -771,7 +774,7 @@ kg.EventProvider = function (grid) {
             grid.sortedData.splice(j, 0, prevRow.scope.entity);
             grid.searchProvider.evalFilter();
             // clear out the rowToMove object
-            kg.gridService.eventStorage.rowToMove = undefined;
+            kg.eventStorage.rowToMove = undefined;
             // if there isn't an apply already in progress lets start one
         }
     };
@@ -792,7 +795,7 @@ kg.EventProvider = function (grid) {
         //that way we'll get the same result every time it is run.
         //configurable within the options.
         if (grid.config.tabIndex === -1) {
-            grid.$viewport.attr('tabIndex', kg.gridService.getIndexOfCache(grid.gridId));
+            grid.$viewport.attr('tabIndex', kg.numberOfGrids++);
         } else {
             grid.$viewport.attr('tabIndex', grid.config.tabIndex);
         }
@@ -1104,12 +1107,6 @@ kg.Grid = function (options) {
         rootMaxW: 0,
         rootMaxH: 0,
     };
-    // Set new default footer height if not overridden, and multi select is disabled
-    if (self.config.footerRowHeight === defaults.footerRowHeight
-        && !self.config.canSelectRows) {
-        defaults.footerRowHeight = 30;
-        self.config.footerRowHeight = 30;
-    }
     //self funcs
     self.setRenderedRows = function (newRows) {
         self.renderedRows(newRows);
@@ -1423,7 +1420,8 @@ kg.Grid = function (options) {
 	self.viewportDimHeight = ko.computed(function () {
         return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
     });
-    self.groupBy = function(col) {
+	self.groupBy = function (col) {
+	    if (self.sortedData().length < 1) return;
         var indx = self.configGroups().indexOf(col);
         if (indx == -1) {
 			col.isGroupedBy(true);
@@ -1762,41 +1760,6 @@ kg.StyleProvider = function(grid) {
 };
 
 /***********************************************
-* FILE: ..\src\classes\GridService.js
-***********************************************/
-kg.gridService = {
-    gridCache: {},
-    eventStorage: {},
-    getIndexOfCache: function() {
-        var indx = -1;   
-        for (var grid in kg.gridService.gridCache) {
-            indx++;
-            if (!kg.gridService.gridCache.hasOwnProperty(grid)) continue;
-            return indx;
-        }
-        return indx;
-    },
-    StoreGrid: function (element, grid) {
-        kg.gridService.gridCache[grid.gridId] = grid;
-        element[GRID_KEY] = grid.gridId;
-    },
-    RemoveGrid: function(gridId) {
-        delete kg.gridService.gridCache[gridId];
-    },
-    GetGrid: function (element) {
-        var grid;
-        if (element[GRID_KEY]) {
-            grid = kg.gridService.gridCache[element[GRID_KEY]];
-            return grid;
-        }
-        return false;
-    },
-    ClearGridCache : function () {
-        kg.gridService.gridCache = {};
-    },
-};
-
-/***********************************************
 * FILE: ..\src\classes\SortService.js
 ***********************************************/
 kg.sortService = {
@@ -2041,14 +2004,19 @@ kg.domUtilityService = {
     },
     BuildStyles: function(grid) {
         var rowHeight = grid.config.rowHeight,
-            headerRowHeight = grid.config.headerRowHeight,
             $style = grid.$styleSheet,
             gridId = grid.gridId,
             css,
             cols = grid.visibleColumns(),
             sumWidth = 0;
         
-        if (!$style) $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('html'));
+        if (!$style) {
+            $style = $('#' + gridId);
+            if (!$style[0]) {
+                $style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' />");
+                $style.appendTo('body');
+            }
+        }
         $style.empty();
         var trw = grid.totalRowWidth();
         css = "." + gridId + " .kgCanvas { width: " + trw + "px; }"+
@@ -2065,7 +2033,7 @@ kg.domUtilityService = {
         if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css;
         } else {
-            $style[0].appendChild(document.createTextNode(css));
+            $style.append(document.createTextNode(css));
         }
         grid.$styleSheet = $style;
     },

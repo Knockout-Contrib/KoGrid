@@ -54,14 +54,19 @@ kg.domUtilityService = {
     },
     BuildStyles: function(grid) {
         var rowHeight = grid.config.rowHeight,
-            headerRowHeight = grid.config.headerRowHeight,
             $style = grid.$styleSheet,
             gridId = grid.gridId,
             css,
             cols = grid.visibleColumns(),
             sumWidth = 0;
         
-        if (!$style) $style = $("<style type='text/css' rel='stylesheet' />").appendTo($('html'));
+        if (!$style) {
+            $style = $('#' + gridId);
+            if (!$style[0]) {
+                $style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' />");
+                $style.appendTo('body');
+            }
+        }
         $style.empty();
         var trw = grid.totalRowWidth();
         css = "." + gridId + " .kgCanvas { width: " + trw + "px; }"+
@@ -78,7 +83,7 @@ kg.domUtilityService = {
         if (kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css;
         } else {
-            $style[0].appendChild(document.createTextNode(css));
+            $style.append(document.createTextNode(css));
         }
         grid.$styleSheet = $style;
     },

@@ -6,7 +6,6 @@
             options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
-            kg.gridService.StoreGrid(element, grid);
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function (a) {
                 if (grid.$$selectionPhase) return;
@@ -39,6 +38,7 @@
             $.each(grid.config.plugins, function (i, p) {
                 p.init(grid);
             });
+            kg.domUtilityService.BuildStyles(grid);
             return { controlsDescendantBindings: true };
         }
     };
