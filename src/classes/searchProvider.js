@@ -1,6 +1,7 @@
 ﻿kg.SearchProvider = function (grid) {
     var self = this,
-        searchConditions = [];
+        searchConditions = [],
+        lastSearchStr;
     self.extFilter = grid.config.filterOptions.useExternalFilter;
     self.showFilter = grid.config.showFilter;
     self.filterText = grid.config.filterOptions.filterText;
@@ -14,6 +15,7 @@
                 if (item._destroy) {
                     return false;
                 }
+
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
@@ -79,9 +81,10 @@
     };
 
     var filterTextComputed = ko.computed(function () {
-        if (grid.$$selectionPhase) return;
         var a = self.filterText();
-        if (!self.extFilter) {
+        if (!self.extFilter && a != lastSearchStr) {
+            //To prevent circular dependency when throttle is enabled.
+            lastSearchStr = a;
             buildSearchConditions(a);
             self.evalFilter();
         }

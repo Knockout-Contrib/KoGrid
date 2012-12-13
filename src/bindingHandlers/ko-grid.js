@@ -34,7 +34,8 @@
             grid.eventProvider = new kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
-                p.init(grid);
+                if (typeof p.onGridInit === 'function')
+                    p.onGridInit(grid);
             });
             kg.domUtilityService.BuildStyles(grid);
             return { controlsDescendantBindings: true };
