@@ -40,10 +40,6 @@ kg.domUtilityService = {
         kg.domUtilityService.UpdateGridLayout(grid);
     },
     UpdateGridLayout: function(grid) {
-        // first check to see if the grid is hidden... if it is, we will screw a bunch of things up by re-sizing
-        if (grid.$root.parents(":hidden").length > 0) {
-            return;
-        }
         //catch this so we can return the viewer to their original scroll after the resize!
         var scrollTop = grid.$viewport.scrollTop();
         grid.elementDims.rootMaxW = grid.$root.width();

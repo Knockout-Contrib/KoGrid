@@ -41,6 +41,7 @@ kg.Grid = function (options) {
             enableRowReordering: false,
             showColumnMenu: true,
             showFilter: true,
+            disableTextSelection: true,
             filterOptions: {
                 filterText: ko.observable(""),
                 useExternalFilter: false,
@@ -77,6 +78,7 @@ kg.Grid = function (options) {
     self.lastSortedColumn = undefined;
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
+    self.disableTextSelection = ko.observable(self.config.disableTextSelection);
     self.calcMaxCanvasHeight = function() {
         return (self.configGroups().length > 0) ? (self.rowFactory.parsedData.filter(function (e) {
             return e[KG_HIDDEN] === false;
