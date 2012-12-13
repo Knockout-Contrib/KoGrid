@@ -79,6 +79,7 @@
     };
 
     var filterTextComputed = ko.computed(function () {
+        if (grid.$$selectionPhase) return;
         var a = self.filterText();
         if (!self.extFilter) {
             buildSearchConditions(a);

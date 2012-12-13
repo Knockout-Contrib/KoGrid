@@ -7,7 +7,7 @@
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
-            options.data.subscribe(function (a) {
+            options.data.subscribe(function () {
                 if (grid.$$selectionPhase) return;
                 grid.searchProvider.evalFilter();
                 grid.refreshDomSizes();

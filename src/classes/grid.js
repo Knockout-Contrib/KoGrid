@@ -263,7 +263,8 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(){	
+        self.filteredData.subscribe(function () {
+            if (self.$$selectionPhase) return;
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) self.configureColumnWidths();
 		});

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/12/2012 21:45:08
+* Compiled At: 12/12/2012 22:19:13
 ***********************************************/
 
 (function(window, undefined){
@@ -223,7 +223,7 @@ ko.bindingHandlers['koGrid'] = (function () {
             var grid = new kg.Grid(options);
             var gridElem = $(kg.defaultGridTemplate());
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
-            options.data.subscribe(function (a) {
+            options.data.subscribe(function () {
                 if (grid.$$selectionPhase) return;
                 grid.searchProvider.evalFilter();
                 grid.refreshDomSizes();
@@ -1276,7 +1276,8 @@ kg.Grid = function (options) {
             self.fixColumnIndexes();
             kg.domUtilityService.BuildStyles(self);
         });
-		self.filteredData.subscribe(function(){	
+        self.filteredData.subscribe(function () {
+            if (self.$$selectionPhase) return;
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) self.configureColumnWidths();
 		});
@@ -1658,6 +1659,7 @@ kg.SearchProvider = function (grid) {
     };
 
     var filterTextComputed = ko.computed(function () {
+        if (grid.$$selectionPhase) return;
         var a = self.filterText();
         if (!self.extFilter) {
             buildSearchConditions(a);
