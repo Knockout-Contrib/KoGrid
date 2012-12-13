@@ -11,6 +11,9 @@
             grid.filteredData(grid.sortedData.peek());
         else {
             grid.filteredData(grid.sortedData.peek().filter(function (item) {
+                if (item._destroy) {
+                    return false;
+                }
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
