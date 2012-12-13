@@ -88,16 +88,14 @@ kg.RowFactory = function(grid) {
             return e[KG_HIDDEN] === false;
         }).slice(self.renderedRange.topRow, self.renderedRange.bottomRow);
         $.each(dataArray, function (indx, item) {
-            if (!item._destroy) {
-                var row;
-                if (item.isAggRow) {
-                    row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
-                } else {
-                    row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
-                }
-                //add the row to our return array
-                rowArr.push(row);
+            var row;
+            if (item.isAggRow) {
+                row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
+            } else {
+                row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
             }
+            //add the row to our return array
+            rowArr.push(row);
         });
         grid.setRenderedRows(rowArr);
         grid.refreshDomSizes();
