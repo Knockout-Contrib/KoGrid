@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/13/2012 15:11:25
+* Compiled At: 12/13/2012 21:12:31
 ***********************************************/
 
 (function(window, undefined){
@@ -879,7 +879,6 @@ kg.RowFactory = function(grid) {
         }
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
-        self.selectionService.toggleSelectAll(false);
         if (grid.config.groups.length > 0) {
             self.getGrouping(grid.config.groups);
         }
