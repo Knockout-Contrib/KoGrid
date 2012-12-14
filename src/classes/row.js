@@ -12,10 +12,7 @@ kg.Row = function (entity, config, selectionService) {
     self.selectedItems = config.selectedItems;
     self.entity = entity;
     self.selectionService = selectionService;
-    //selectify the entity
-    if (self.entity[SELECTED_PROP] === undefined) {
-        self.entity[SELECTED_PROP] = false;
-    }
+
     self.selected = ko.observable(false);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
@@ -39,6 +36,13 @@ kg.Row = function (entity, config, selectionService) {
         }
         return false;
     };
+    //selectify the entity
+    if (self.entity[SELECTED_PROP] === undefined) {
+        self.entity[SELECTED_PROP] = false;
+    } else {
+        // or else maintain the selection set by the entity.
+        self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+    }
     self.rowIndex = ko.observable(0);
     self.offsetTop = ko.observable("0px");
     self.rowDisplayIndex = 0;
