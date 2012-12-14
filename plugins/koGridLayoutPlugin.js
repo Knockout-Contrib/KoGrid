@@ -6,19 +6,9 @@ koGridLayoutPlugin = function () {
         /* logic */
 		self.grid = grid;
     };
-    self.onGridUpdate = function (grid) {
-        /* logic */
-        // The directive passes in the grid scope and the grid object which we will want to save for manipulation later.
-        self.myGrid = grid;
-        // In this example we want to assign grid events.
-        self.assignEvents();
+    this.updateGridLayout = function(){
+        kg.domUtilityService.UpdateGridLayout(self.grid);
+        self.grid.configureColumnWidths();
+        kg.domUtilityService.BuildStyles(self.grid);
     };
-    self.onRowsChanged = function (grid, rowCollection) {
-        /* logic */
-    };	
-	this.updateGridLayout = function(){
-		kg.domUtilityService.UpdateGridLayout(self.grid);
-		self.grid.configureColumnWidths();
-		kg.domUtilityService.BuildStyles(self.grid);
-	};
 }
