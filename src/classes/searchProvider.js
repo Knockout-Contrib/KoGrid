@@ -22,16 +22,20 @@
                     if (!condition.column) {
                         for (var prop in item) {
                             if (item.hasOwnProperty(prop)) {
+                                var c = self.fieldMap[prop];
+                                if (!c) continue;
                                 var pVal = ko.utils.unwrapObservable(item[prop]);
-                                if (pVal && condition.regex.test(pVal.toString()))
+                                if (pVal && (condition.regex.test(pVal.toString()) || (typeof c.cellFilter === 'function' && condition.regex.test(c.cellFilter(pVal.toString)))))
                                     return true;
                             }
                         }
                         return false;
                     }
                     //Search by column.
-                    var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
-                    if (!field || !condition.regex.test(field.toString()))
+                    var col = self.fieldMap[condition.columnDisplay];
+                    if (!col) return false;
+                    var value = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[col.value]);
+                    if (!value || !condition.regex.test(value.toString()) && !(typeof col.cellFilter === 'function' && condition.regex.test(col.cellFilter(value.toString()))))
                         return false;
                 }
                 return true;
@@ -95,7 +99,8 @@
     if (!self.extFilter) {
         grid.columns.subscribe(function (a) {
             $.each(a, function (i, col) {
-                self.fieldMap[col.displayName().toLowerCase().replace(/\s+/g, '')] = col.field;
+                self.fieldMap[col.field] = col;
+                self.fieldMap[col.displayName().toLowerCase().replace(/\s+/g, '')] = col;
             });
         });
     }
