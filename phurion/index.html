@@ -6,13 +6,15 @@
     <body>
         <div style="position: absolute;  left: 0; right: 50%; top: 0; bottom: 0;" data-bind="koGrid: gridOptions"></div>
         <div style="position: absolute;  left: 50%; right: 0; top: 0; bottom: 0; background-color: lightblue;">
+        <div data-bind="foreach: selectedItems">
             <ul>
-                <li><span data-bind="text: currentMail.Date"></span></li>
-                <li><span  data-bind="text: currentMail.From"></span></li>
-                <li><span  data-bind="text: currentMail.Subject"></span></li>
-                <li><span  data-bind="text: currentMail.HasBeenRead"></span></li>
-                <li><span  data-bind="text: currentMail.MessageId"></span></li>
+                <li><span data-bind="text: Date"></span></li>
+                <li><span data-bind="text: From"></span></li>
+                <li><span data-bind="text: Subject"></span></li>
+                <li><span data-bind="text: HasBeenRead"></span></li>
+                <li><span data-bind="text: MessageId"></span></li>
             </ul>
+        </div>
         </div>
     </body>
     <link rel="stylesheet" type="text/css" href="../css/KoGrid.css" /> 
