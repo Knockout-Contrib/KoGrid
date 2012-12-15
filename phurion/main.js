@@ -52,10 +52,11 @@ function mainViewModel() {
         beforeSelectionChange: self.markEmailRead,
         rowTemplate: 'rowTemplate.html',
         selectedItems: self.selectedItems,
+        jqueryUITheme: true,
         showColumnMenu: false,
         columnDefs: [
             { field: '', width: 50, cellTemplate: 'imageCellTemplate.html', resizable: false, sortable: false },
-            { field: 'From', width: 691, resizable: false, cellTemplate: 'combinedCellTemplate.html', headerCellTemplate: 'combinedHeaderTemplate.html' },
+            { field: 'From', width: 690, resizable: false, cellTemplate: 'combinedCellTemplate.html', headerCellTemplate: 'combinedHeaderTemplate.html' },
             { field: 'Subject', width: 0, visible: false }, // fake column for sorting.
             { field: 'Date', width: 200, resizable: false }]
     };
