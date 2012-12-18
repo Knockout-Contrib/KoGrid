@@ -9,7 +9,9 @@
     self.fieldMap = {};
     self.evalFilter = function () {
         if (searchConditions.length === 0)
-            grid.filteredData(grid.sortedData.peek());
+            grid.filteredData(grid.sortedData.peek().filter(function(item) {
+                return !item._destroy;
+            }));
         else {
             grid.filteredData(grid.sortedData.peek().filter(function (item) {
                 if (item._destroy) {
