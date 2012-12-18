@@ -103,6 +103,7 @@
         if (event.ctrlKey) {
             self.toggleVisible();
             kg.domUtilityService.BuildStyles(grid);
+            grid.config.columnsChanged(grid.columns.peek());
             return true;
         }
         event.target.parentElement.style.cursor = 'col-resize';

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/18/2012 12:50:03
+* Compiled At: 12/18/2012 12:55:08
 ***********************************************/
 
 (function(window, undefined){
@@ -566,6 +566,7 @@ kg.Column = function (config, grid) {
         if (event.ctrlKey) {
             self.toggleVisible();
             kg.domUtilityService.BuildStyles(grid);
+            grid.config.columnsChanged(grid.columns.peek());
             return true;
         }
         event.target.parentElement.style.cursor = 'col-resize';
