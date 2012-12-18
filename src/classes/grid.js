@@ -16,6 +16,7 @@ kg.Grid = function (options) {
             footerVisible: true,			
             displayFooter: undefined,
             canSelectRows: true,
+            selectAllState: ko.observable(false),
             data: ko.observableArray([]),
             columnDefs: undefined,
             selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
@@ -23,7 +24,7 @@ kg.Grid = function (options) {
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
             sortInfo: ko.observable(undefined), // similar to filterInfo
-            multiSelect: ko.observable(true),
+            multiSelect: true,
             tabIndex: -1,
             enableColumnResize: true,
             enableSorting: true,
@@ -134,13 +135,13 @@ kg.Grid = function (options) {
             self.buildColumnDefsFromData();
             columnDefs = self.config.columnDefs;
         }
-        if (self.config.displaySelectionCheckbox) {
+        if (self.config.displaySelectionCheckbox && self.config.canSelectRows) {
             columnDefs.splice(0, 0, {
                 field: '\u2714',
                 width: self.elementDims.rowSelectedCellW,
                 sortable: false,
                 resizable: false,
-                headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected, click: $grid.toggleSelectAll"/>',
+                headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
                 cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
             });
         }
@@ -392,11 +393,13 @@ kg.Grid = function (options) {
     self.toggleShowMenu = function () {
         self.showMenu(!self.showMenu());
     };
-    self.allSelected = ko.observable(false);
-    self.toggleSelectAll = function () {
-        self.selectionService.toggleSelectAll(self.allSelected());
-        return true;
-    };
+    self.allSelected = self.config.selectAllState;
+    self.allSelected.subscribe(function (state) {
+        if (self.config.beforeSelectionChange(self.sortedData.peek(), this)) {
+            self.selectionService.toggleSelectAll(state);
+            self.config.afterSelectionChange(self.selectedItems.peek(), this);
+        }
+    });
     self.totalFilteredItemsLength = ko.computed(function () {
         return self.filteredData().length;
     });
