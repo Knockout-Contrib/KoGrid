@@ -46,6 +46,9 @@ function mainViewModel() {
         self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), a);
     });
     self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage());
+    self.columnsChanged = function(newCols) {
+        return true;
+    };
     self.gridOptions = {
         data: self.myData,
         selectedItems: self.mySelections,
@@ -54,6 +57,7 @@ function mainViewModel() {
         showGroupPanel: true,
         showColumnMenu: true,
         showFilter: true,
+        columnsChanged: self.columnsChanged,
         maintainColumnRatios: true,
         enablePaging: true,
         pagingOptions: self.pagingOptions,

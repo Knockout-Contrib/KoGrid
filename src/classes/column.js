@@ -125,6 +125,7 @@
         $(document).off('mousemove');
         $(document).off('mouseup');
         event.target.parentElement.style.cursor = 'default';
+        grid.config.columnsChanged(grid.columns.peek());
         return false;
     };
 };

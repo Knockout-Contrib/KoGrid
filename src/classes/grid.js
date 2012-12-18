@@ -31,6 +31,7 @@ kg.Grid = function (options) {
             maintainColumnRatios: undefined,
             beforeSelectionChange: function () { return true;},
             afterSelectionChange: function () { },
+            columnsChanged: function() { },
             rowTemplate: undefined,
             headerRowTemplate: undefined,
             jqueryUITheme: false,
@@ -352,6 +353,9 @@ kg.Grid = function (options) {
     //self vars
     self.elementsNeedMeasuring = true;
     self.columns = ko.observableArray([]);
+    self.columns.subscribe(function(newCols) {
+        self.config.columnsChanged(newCols);
+    });
     self.renderedRows = ko.observableArray([]);
     self.headerRow = null;
     self.rowHeight = self.config.rowHeight;
