@@ -26,10 +26,10 @@ kg.Grid = function (options) {
             multiSelect: ko.observable(true),
             tabIndex: -1,
             enableColumnResize: true,
+            enableSorting: true,
             maintainColumnRatios: undefined,
-            enableSorting:ko.observable(true),
             beforeSelectionChange: function () { return true;},
-            afterSelectionChange: function () { return true;},
+            afterSelectionChange: function () { },
             rowTemplate: undefined,
             headerRowTemplate: undefined,
             jqueryUITheme: false,
@@ -152,7 +152,8 @@ kg.Grid = function (options) {
                     headerRowHeight: self.config.headerRowHeight,
                     sortCallback: self.sortData, 
                     resizeOnDataCallback: self.resizeOnData,
-                    enableResize: self.config.enableColumnResize
+                    enableResize: self.config.enableColumnResize,
+                    enableSort: self.config.enableSorting
                 }, self);
                 cols.push(column);
                 var indx = self.config.groups.indexOf(colDef.field);

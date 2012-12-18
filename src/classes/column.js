@@ -8,6 +8,8 @@
 	self.groupIndex = ko.observable(0);
 	self.isGroupedBy = ko.observable(false);
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
+	self.sortable = ko.observable(false);
+	self.resizable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -27,8 +29,12 @@
             self.toggleVisible(val);
         }
     });
-    self.sortable = ko.observable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
-    self.resizable = ko.observable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    if (config.enableSort) {
+        self.sortable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
+    }
+    if (config.enableResize) {
+        self.resizable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    }
     self.sortDirection = ko.observable(undefined);
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);

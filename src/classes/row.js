@@ -5,8 +5,9 @@
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
 kg.Row = function (entity, config, selectionService) {
-    var self = this, // constant for the selection property that we add to each data item
-        canSelectRows = config.canSelectRows;
+    var self = this; // constant for the selection property that we add to each data item
+
+    self.canSelectRows = config.canSelectRows;
 
     self.rowClasses = config.rowClasses;
     self.selectedItems = config.selectedItems;
@@ -18,7 +19,7 @@ kg.Row = function (entity, config, selectionService) {
         self.selectionService.ChangeSelection(self, event);
     };
     self.toggleSelected = function (row, event) {
-        if (!canSelectRows) {
+        if (!self.canSelectRows) {
             return true;
         }
         var element = event.target || event;

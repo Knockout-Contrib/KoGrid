@@ -111,13 +111,11 @@
 .kgHeaderSortColumn{
 	position:absolute;
     overflow: hidden;
-	cursor: pointer;
 }
 
 .kgHeaderCell{
 	border-left: 1px solid rgb(212,212,212);
     position: absolute;
-    cursor: pointer;
 }
 
 .kgHeaderCell:first-child{
@@ -187,7 +185,6 @@
 .kgRow {
     position: absolute;
     border-bottom: 1px solid rgb(229, 229, 229);
-    cursor: pointer;
 }
 .kgRow.even {
     background-color: rgb(243, 243, 243);
@@ -197,9 +194,6 @@
 }
 .kgRow.selected {
     background-color: rgb(189, 208, 203);
-}
-.kgRow.canSelect {
-    cursor: pointer;
 }
 
 /******** Cells ********/
@@ -324,7 +318,6 @@ input {
     z-index: 5;
     background-color: rgb(179, 191, 188);
     cursor: pointer;
-    /* width and height can be anything, as long as they're equal */
 }
 .kgHeaderButtonArrow {
     position: absolute;
@@ -335,7 +328,6 @@ input {
     border-style: solid;
     border-width: 6.5px 4.5px 0 4.5px;
     border-color: #000 transparent transparent transparent;
-    /* width and height can be anything, as long as they're equal */
 }
 .kgColMenu {
     right: 2px;
