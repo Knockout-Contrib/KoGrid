@@ -2,18 +2,18 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/18/2012 15:27:17
+* Compiled At: 12/18/2012 15:37:41
 ***********************************************/
 (function(window){'use strict';if(!window.kg){window.kg={};}
 window.kg.numberOfGrids=0;window.kg.eventStorage={};var SELECTED_PROP='__kg_selected__',GRID_KEY='__koGrid__',EXCESS_ROWS=8,SCROLL_THRESHOLD=6,ASC="asc",DESC="desc",KG_FIELD='_kg_field_',KG_DEPTH='_kg_depth_',KG_HIDDEN='_kg_hidden_',KG_COLUMN='_kg_column_',TEMPLATE_REGEXP=/<.+>/;window.kg.moveSelectionHandler=function(grid,evt){if(window.kg.utils.isNullOrUndefined(grid)||window.kg.utils.isNullOrUndefined(grid.config.selectedItems)){return true;}
-var charCode=(evt.which)?evt.which:event.keyCode;var offset=(charCode==38?-1:(charCode==40?1:null));if(!offset){return true;}
-var items=grid.renderedRows();var index=items.indexOf(grid.selectionService.lastClickedRow)+offset;if(index<0||index>=items.length){return true;}
+var charCode=evt.which||evt.keyCode,offset=(charCode===38?-1:(charCode===40?1:null));if(!offset){return true;}
+var items=grid.renderedRows(),index=items.indexOf(grid.selectionService.lastClickedRow)+offset;if(index<0||index>=items.length){return true;}
 grid.selectionService.ChangeSelection(items[index],evt);if(index>items.length-EXCESS_ROWS){grid.$viewport.scrollTop(grid.$viewport.scrollTop()+(grid.config.rowHeight*EXCESS_ROWS));}else if(index<EXCESS_ROWS){grid.$viewport.scrollTop(grid.$viewport.scrollTop()-(grid.config.rowHeight*EXCESS_ROWS));}
 return false;};if(!String.prototype.trim){String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,'');};}
 if(!Array.prototype.indexOf){Array.prototype.indexOf=function(elt){var len=this.length>>>0;var from=Number(arguments[1])||0;from=(from<0)?Math.ceil(from):Math.floor(from);if(from<0){from+=len;}
 for(;from<len;from++){if(from in this&&this[from]===elt){return from;}}
 return-1;};}
-if(!Array.prototype.filter){Array.prototype.filter=function(fun){"use strict";var t=Object(this);var len=t.length>>>0;if(typeof fun!=="function"){throw new TypeError();}
+if(!Array.prototype.filter){Array.prototype.filter=function(fun){"use strict";var t=Object(this),len=t.length>>>0;if(typeof fun!=="function"){throw new TypeError();}
 var res=[];var thisp=arguments[1];for(var i=0;i<len;i++){if(i in t){var val=t[i];if(fun.call(thisp,val,i,t)){res.push(val);}}}
 return res;};}
 window.kg.utils={visualLength:function(node){var elem=document.getElementById('testDataLength');if(!elem){elem=document.createElement('SPAN');elem.id="testDataLength";elem.style.visibility="hidden";document.body.appendChild(elem);}

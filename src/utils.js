@@ -25,8 +25,8 @@ if (!Array.prototype.indexOf) {
 if (!Array.prototype.filter) {
     Array.prototype.filter = function(fun /*, thisp */) {
         "use strict";
-        var t = Object(this);
-        var len = t.length >>> 0;
+        var t = Object(this),
+            len = t.length >>> 0;
         if (typeof fun !== "function") {
             throw new TypeError();
         }

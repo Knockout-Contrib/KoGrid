@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/18/2012 15:27:17
+* Compiled At: 12/18/2012 15:37:41
 ***********************************************/
 
 (function (window) {
@@ -42,14 +42,14 @@ window.kg.moveSelectionHandler = function(grid, evt) {
     if (window.kg.utils.isNullOrUndefined(grid) || window.kg.utils.isNullOrUndefined(grid.config.selectedItems)) {
         return true;
     }
-    var charCode = (evt.which) ? evt.which : event.keyCode;
-    // detect which direction for arrow keys to navigate the grid
-    var offset = (charCode == 38 ? -1 : (charCode == 40 ? 1 : null));
+    var charCode = evt.which || evt.keyCode,
+        // detect which direction for arrow keys to navigate the grid
+        offset = (charCode === 38 ? -1 : (charCode === 40 ? 1 : null));
     if (!offset) {
         return true;
     }
-    var items = grid.renderedRows();
-    var index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
+    var items = grid.renderedRows(),
+        index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
     if (index < 0 || index >= items.length) {
         return true;
     }
@@ -89,8 +89,8 @@ if (!Array.prototype.indexOf) {
 if (!Array.prototype.filter) {
     Array.prototype.filter = function(fun /*, thisp */) {
         "use strict";
-        var t = Object(this);
-        var len = t.length >>> 0;
+        var t = Object(this),
+            len = t.length >>> 0;
         if (typeof fun !== "function") {
             throw new TypeError();
         }

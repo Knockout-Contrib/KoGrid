@@ -10,14 +10,14 @@ window.kg.moveSelectionHandler = function(grid, evt) {
     if (window.kg.utils.isNullOrUndefined(grid) || window.kg.utils.isNullOrUndefined(grid.config.selectedItems)) {
         return true;
     }
-    var charCode = (evt.which) ? evt.which : event.keyCode;
-    // detect which direction for arrow keys to navigate the grid
-    var offset = (charCode == 38 ? -1 : (charCode == 40 ? 1 : null));
+    var charCode = evt.which || evt.keyCode,
+        // detect which direction for arrow keys to navigate the grid
+        offset = (charCode === 38 ? -1 : (charCode === 40 ? 1 : null));
     if (!offset) {
         return true;
     }
-    var items = grid.renderedRows();
-    var index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
+    var items = grid.renderedRows(),
+        index = items.indexOf(grid.selectionService.lastClickedRow) + offset;
     if (index < 0 || index >= items.length) {
         return true;
     }
