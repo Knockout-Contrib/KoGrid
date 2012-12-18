@@ -4,7 +4,7 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../../lib/angular.js" />
 /// <reference path="../constants.js" />
-kg.RowFactory = function(grid) {
+window.kg.RowFactory = function (grid) {
     var self = this;
     // we cache rows when they are built, and then blow the cache away when sorting
     self.rowCache = [];
@@ -27,7 +27,7 @@ kg.RowFactory = function(grid) {
         afterSelectionChangeCallback: grid.config.afterSelectionChange
     };
 
-    self.renderedRange = new kg.Range(0, grid.minRowsToRender() + EXCESS_ROWS);
+    self.renderedRange = new window.kg.Range(0, grid.minRowsToRender() + EXCESS_ROWS);
     // Builds rows for each data item in the 'filteredData'
     // @entity - the data item
     // @rowIndex - the index of the row
@@ -35,7 +35,7 @@ kg.RowFactory = function(grid) {
         var row = self.rowCache[rowIndex]; // first check to see if we've already built it
         if (!row) {
             // build the row
-            row = new kg.Row(entity, self.rowConfig, self.selectionService);
+            row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
             row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
             row.selected(entity[SELECTED_PROP]);
@@ -49,7 +49,7 @@ kg.RowFactory = function(grid) {
         var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
             // build the row
-            agg = new kg.Aggregate(aggEntity, self);
+            agg = new window.kg.Aggregate(aggEntity, self);
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
@@ -135,9 +135,10 @@ kg.RowFactory = function(grid) {
                         '_kg_hidden_': false,
                         children: [],
                         aggChildren: [],
-                        aggIndex: self.numberOfAggregates++,
+                        aggIndex: self.numberOfAggregates,
                         aggLabelFilter: g[KG_COLUMN].aggLabelFilter
                     }, 0);
+                    self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
@@ -171,31 +172,43 @@ kg.RowFactory = function(grid) {
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
                 if (!cols[depth].isAggCol && depth <= maxDepth) {
-                    grid.columns.splice(item.gDepth, 0, new kg.Column({
+                    grid.columns.splice(item.gDepth, 0, new window.kg.Column({
                         colDef: {
                             field: '',
                             width: 25,
                             sortable: false,
                             resizable: false,
-                            headerCellTemplate: '<div class="kgAggHeader"></div>',
+                            headerCellTemplate: '<div class="kgAggHeader"></div>'
                         },
                         isAggCol: true,
                         index: item.gDepth,
                         headerRowHeight: grid.config.headerRowHeight
                     }));
-                    kg.domUtilityService.BuildStyles(grid);
+                    window.kg.domUtilityService.BuildStyles(grid);
                 }
                 var col = cols.filter(function (c) { return c.field == group; })[0];
-                var val = kg.utils.evalProperty(item, group);
-                if (col.cellFilter) val = col.cellFilter(val);
+                var val = window.kg.utils.evalProperty(item, group);
+                if (col.cellFilter) {
+                    val = col.cellFilter(val);
+                } 
                 val = val ? val.toString() : 'null';
-                if (!ptr[val]) ptr[val] = {};
-                if (!ptr[KG_FIELD]) ptr[KG_FIELD] = group;
-                if (!ptr[KG_DEPTH]) ptr[KG_DEPTH] = depth;
-                if (!ptr[KG_COLUMN]) ptr[KG_COLUMN] = col;
+                if (!ptr[val]) {
+                    ptr[val] = {};
+                }
+                if (!ptr[KG_FIELD]) {
+                    ptr[KG_FIELD] = group;
+                }
+                if (!ptr[KG_DEPTH]) {
+                    ptr[KG_DEPTH] = depth;
+                }
+                if (!ptr[KG_COLUMN]) {
+                    ptr[KG_COLUMN] = col;
+                } 
                 ptr = ptr[val];
             });
-            if (!ptr.values) ptr.values = [];
+            if (!ptr.values) {
+                ptr.values = [];
+            }
             ptr.values.push(item);
         });
         grid.fixColumnIndexes();

@@ -7,8 +7,8 @@ koGridLayoutPlugin = function () {
         self.grid = grid;
     };
     this.updateGridLayout = function(){
-        kg.domUtilityService.UpdateGridLayout(self.grid);
+        window.kg.domUtilityService.UpdateGridLayout(self.grid);
         self.grid.configureColumnWidths();
-        kg.domUtilityService.BuildStyles(self.grid);
+        window.kg.domUtilityService.BuildStyles(self.grid);
     };
 }

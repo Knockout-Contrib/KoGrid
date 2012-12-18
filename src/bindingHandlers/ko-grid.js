@@ -3,12 +3,14 @@
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             var options = valueAccessor();
             var elem = $(element);
-            options.gridDim = new kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
-            var grid = new kg.Grid(options);
-            var gridElem = $(kg.defaultGridTemplate());
+            options.gridDim = new window.kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
+            var grid = new window.kg.Grid(options);
+            var gridElem = $(window.kg.defaultGridTemplate());
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function () {
-                if (grid.$$selectionPhase) return;
+                if (grid.$$selectionPhase) {
+                    return;
+                }
                 grid.searchProvider.evalFilter();
                 grid.refreshDomSizes();
             });
@@ -27,17 +29,18 @@
             grid.$userViewModel = bindingContext.$data;
             ko.applyBindings(grid, gridElem[0]);
             //walk the element's graph and the correct properties on the grid
-            kg.domUtilityService.AssignGridContainers(elem, grid);
+            window.kg.domUtilityService.AssignGridContainers(elem, grid);
             grid.configureColumnWidths();
             grid.refreshDomSizes();
             //now use the manager to assign the event handlers
-            grid.eventProvider = new kg.EventProvider(grid);
+            grid.eventProvider = new window.kg.EventProvider(grid);
             //initialize plugins.
             $.each(grid.config.plugins, function (i, p) {
-                if (typeof p.onGridInit === 'function')
+                if (typeof p.onGridInit === 'function') {
                     p.onGridInit(grid);
+                }
             });
-            kg.domUtilityService.BuildStyles(grid);
+            window.kg.domUtilityService.BuildStyles(grid);
             return { controlsDescendantBindings: true };
         }
     };

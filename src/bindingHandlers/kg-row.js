@@ -9,16 +9,16 @@ ko.bindingHandlers['kgRow'] = (function () {
             var grid = row.$grid = bindingContext.$parent;
             var source;
             if (row.isAggRow) {
-                source = kg.aggregateTemplate();
+                source = window.kg.aggregateTemplate();
             } else {
                 source = grid.rowTemplate;
             }
-            var compile = function (html) {
+            var compile = function(html) {
                 var rowElem = $(html);
                 row.$userViewModel = bindingContext.$parent.$userViewModel;
                 ko.applyBindings(row, rowElem[0]);
                 $(element).html(rowElem);
-            }
+            };
             if (source.then) {
                 source.then(function (p) {
                     compile(p);

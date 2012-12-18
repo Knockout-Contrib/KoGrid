@@ -1,4 +1,4 @@
-kg.SelectionService = function (grid) {
+window.kg.SelectionService = function (grid) {
     var self = this;
     self.multi = grid.config.multiSelect;
     self.selectedItems = grid.config.selectedItems;
@@ -18,7 +18,9 @@ kg.SelectionService = function (grid) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
 	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
-	            if (thisIndx == prevIndx) return false;
+	            if (thisIndx == prevIndx) {
+	                return false;
+	            }
 	            prevIndx++;
 	            if (thisIndx < prevIndx) {
 	                thisIndx = thisIndx ^ prevIndx;

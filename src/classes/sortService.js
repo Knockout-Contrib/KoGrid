@@ -5,7 +5,7 @@
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
 /// <reference path="../classes/range.js"/>
-kg.sortService = {
+window.kg.sortService = {
     colSortFnCache: {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
     dateRE: /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
     guessSortFn: function(item) {
@@ -15,65 +15,95 @@ kg.sortService = {
             month, // for date parsing
             day; // for date parsing
 
-        if (item === undefined || item === null || item === '') return null;
+        if (item === undefined || item === null || item === '') {
+            return null;
+        } 
         itemType = typeof(item);
         //check for numbers and booleans
         switch (itemType) {
             case "number":
-                sortFn = kg.sortService.sortNumber;
+                sortFn = window.kg.sortService.sortNumber;
                 break;
             case "boolean":
-                sortFn = kg.sortService.sortBool;
+                sortFn = window.kg.sortService.sortBool;
+                break;
+            default:
+                sortFn = undefined;
                 break;
         }
         //if we found one, return it
-        if (sortFn) return sortFn;
+        if (sortFn) {
+            return sortFn;
+        } 
         //check if the item is a valid Date
-        if (Object.prototype.toString.call(item) === '[object Date]') return kg.sortService.sortDate;
+        if (Object.prototype.toString.call(item) === '[object Date]') {
+            return window.kg.sortService.sortDate;
+        } 
         // if we aren't left with a string, return a basic sorting function...
-        if (itemType !== "string") return kg.sortService.basicSort;
+        if (itemType !== "string") {
+            return window.kg.sortService.basicSort;
+        } 
         // now lets string check..
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) return kg.sortService.sortNumberStr;
+        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+            return window.kg.sortService.sortNumberStr;
+        } 
         // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
-        dateParts = item.match(kg.sortService.dateRE);
+        dateParts = item.match(window.kg.sortService.dateRE);
         if (dateParts) {
             // looks like a date
-            month = parseInt(dateParts[1]);
-            day = parseInt(dateParts[2]);
+            month = parseInt(dateParts[1], 10);
+            day = parseInt(dateParts[2], 10);
             if (month > 12) {
                 // definitely dd/mm
-                return kg.sortService.sortDDMMStr;
+                return window.kg.sortService.sortDDMMStr;
             } else if (day > 12) {
-                return kg.sortService.sortMMDDStr;
+                return window.kg.sortService.sortMMDDStr;
             } else {
                 // looks like a date, but we can't tell which, so assume that it's MM/DD
-                return kg.sortService.sortMMDDStr;
+                return window.kg.sortService.sortMMDDStr;
             }
         }
         //finally just sort the normal string...
-        return kg.sortService.sortAlpha;
+        return window.kg.sortService.sortAlpha;
     },
     basicSort: function(a, b) {
-        if (a == b) return 0;
-        if (a < b) return -1;
+        if (a == b) {
+            return 0;
+        }
+        if (a < b) {
+            return -1;
+        }
         return 1;
     },
     sortNumber: function(a, b) {
         return a - b;
     },
     sortNumberStr: function(a, b) {
-        var numA, numB, badA = false, badB = false;
+        var numA,
+            numB,
+            badA = false,
+            badB = false;
         numA = parseFloat(a.replace(/[^0-9.-]/g, ''));
-        if (isNaN(numA)) badA = true;
+        if (isNaN(numA)) {
+            badA = true;
+        }
         numB = parseFloat(b.replace(/[^0-9.-]/g, ''));
-        if (isNaN(numB)) badB = true;
+        if (isNaN(numB)) {
+            badB = true;
+        }
         // we want bad ones to get pushed to the bottom... which effectively is "greater than"
-        if (badA && badB) return 0;
-        if (badA) return 1;
-        if (badB) return -1;
+        if (badA && badB) {
+            return 0;
+        }
+        if (badA) {
+            return 1;
+        }
+        if (badB) {
+            return -1;
+        } 
         return numA - numB;
     },
     sortAlpha: function(a, b) {
@@ -82,7 +112,9 @@ kg.sortService = {
         return strA == strB ? 0 : (strA < strB ? -1 : 1);
     },
     sortBool: function(a, b) {
-        if (a && b) return 0;
+        if (a && b) {
+            return 0;
+        }
         if (!a && !b) {
             return 0;
         } else {
@@ -96,42 +128,66 @@ kg.sortService = {
     },
     sortDDMMStr: function(a, b) {
         var dateA, dateB, mtch, m, d, y;
-        mtch = a.match(kg.sortService.dateRE);
+        mtch = a.match(window.kg.sortService.dateRE);
         y = mtch[3];
         m = mtch[2];
         d = mtch[1];
-        if (m.length == 1) m = '0' + m;
-        if (d.length == 1) d = '0' + d;
+        if (m.length == 1) {
+            m = '0' + m;
+        } 
+        if (d.length == 1) {
+            d = '0' + d;
+        } 
         dateA = y + m + d;
-        mtch = b.match(kg.sortService.dateRE);
+        mtch = b.match(window.kg.sortService.dateRE);
         y = mtch[3];
         m = mtch[2];
         d = mtch[1];
-        if (m.length == 1) m = '0' + m;
-        if (d.length == 1) d = '0' + d;
+        if (m.length == 1) {
+            m = '0' + m;
+        }
+        if (d.length == 1) {
+            d = '0' + d;
+        }
         dateB = y + m + d;
-        if (dateA == dateB) return 0;
-        if (dateA < dateB) return -1;
+        if (dateA == dateB) {
+            return 0;
+        }
+        if (dateA < dateB) {
+            return -1;
+        }
         return 1;
     },
     sortMMDDStr: function(a, b) {
         var dateA, dateB, mtch, m, d, y;
-        mtch = a.match(kg.sortService.dateRE);
+        mtch = a.match(window.kg.sortService.dateRE);
         y = mtch[3];
         d = mtch[2];
         m = mtch[1];
-        if (m.length == 1) m = '0' + m;
-        if (d.length == 1) d = '0' + d;
+        if (m.length == 1) {
+            m = '0' + m;
+        }
+        if (d.length == 1) {
+            d = '0' + d;
+        }
         dateA = y + m + d;
         mtch = b.match(dateRE);
         y = mtch[3];
         d = mtch[2];
         m = mtch[1];
-        if (m.length == 1) m = '0' + m;
-        if (d.length == 1) d = '0' + d;
+        if (m.length == 1) {
+            m = '0' + m;
+        }
+        if (d.length == 1) {
+            d = '0' + d;
+        } 
         dateB = y + m + d;
-        if (dateA == dateB) return 0;
-        if (dateA < dateB) return -1;
+        if (dateA == dateB) {
+            return 0;
+        } 
+        if (dateA < dateB) {
+            return -1;
+        }
         return 1;
     },
     sortData: function (data /*datasource*/, sortInfo) {
@@ -146,29 +202,31 @@ kg.sortService = {
             sortFn,
             item;
         //see if we already figured out what to use to sort the column
-        if (kg.sortService.colSortFnCache[col.field]) {
-            sortFn = kg.sortService.colSortFnCache[col.field];
+        if (window.kg.sortService.colSortFnCache[col.field]) {
+            sortFn = window.kg.sortService.colSortFnCache[col.field];
         } else if (col.sortingAlgorithm != undefined) {
             sortFn = col.sortingAlgorithm;
-            kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
+            window.kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
         } else { // try and guess what sort function to use
             item = unwrappedData[0];
-            if (!item) return;
+            if (!item) {
+                return;
+            }
             sortFn = kg.sortService.guessSortFn(item[col.field]);
             //cache it
             if (sortFn) {
-                kg.sortService.colSortFnCache[col.field] = sortFn;
+                window.kg.sortService.colSortFnCache[col.field] = sortFn;
             } else {
                 // we assign the alpha sort because anything that is null/undefined will never get passed to
                 // the actual sorting function. It will get caught in our null check and returned to be sorted
                 // down to the bottom
-                sortFn = kg.sortService.sortAlpha;
+                sortFn = window.kg.sortService.sortAlpha;
             }
         }
         //now actually sort the data
         unwrappedData.sort(function (itemA, itemB) {
-            var propA = kg.utils.evalProperty(itemA, col.field);
-            var propB = kg.utils.evalProperty(itemB, col.field);
+            var propA = window.kg.utils.evalProperty(itemA, col.field);
+            var propB = window.kg.utils.evalProperty(itemB, col.field);
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (!propB && !propA) {
                 return 0;
@@ -188,9 +246,11 @@ kg.sortService = {
         return;
     },
     Sort: function (sortInfo, data) {
-        if (kg.sortService.isSorting) return;
-        kg.sortService.isSorting = true;
-        kg.sortService.sortData(data, sortInfo);
-        kg.sortService.isSorting = false;
-    },
+        if (window.kg.sortService.isSorting) {
+            return;
+        }
+        window.kg.sortService.isSorting = true;
+        window.kg.sortService.sortData(data, sortInfo);
+        window.kg.sortService.isSorting = false;
+    }
 };

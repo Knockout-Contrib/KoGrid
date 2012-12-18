@@ -4,7 +4,7 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
-kg.Row = function (entity, config, selectionService) {
+window.kg.Row = function (entity, config, selectionService) {
     var self = this; // constant for the selection property that we add to each data item
 
     self.canSelectRows = config.canSelectRows;
@@ -48,17 +48,21 @@ kg.Row = function (entity, config, selectionService) {
     self.offsetTop = ko.observable("0px");
     self.rowDisplayIndex = 0;
     self.isEven = ko.computed(function () {
-        if (self.rowIndex() % 2 == 0) return true;
+        if (self.rowIndex() % 2 === 0) {
+            return true;
+        }
         return false;
     });
     self.isOdd = ko.computed(function () {
-        if (self.rowIndex() % 2 != 0) return true;
+        if (self.rowIndex() % 2 !== 0) {
+            return true;
+        } 
         return false;
     });
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;
     self.propertyCache = {};
     self.getProperty = function (path) {
-        return self.propertyCache[path] || (self.propertyCache[path] = kg.utils.evalProperty(self.entity, path));
+        return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
 }; 

@@ -1,4 +1,4 @@
-﻿kg.StyleProvider = function(grid) {
+﻿window.kg.StyleProvider = function (grid) {
     grid.canvasStyle = ko.computed(function() {
         return { "height": grid.maxCanvasHt().toString() + "px" };
     });
@@ -9,7 +9,7 @@
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": Math.max(0, grid.rootDim.outerWidth() - kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
+        return { "width": Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };

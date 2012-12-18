@@ -1,6 +1,6 @@
 ﻿/// <reference path="../namespace.js" />
 /// <reference path="../../lib/knockout-2.2.0.js" />
-kg.EventProvider = function (grid) {
+window.kg.EventProvider = function (grid) {
     var self = this;
     // The init method gets called during the ng-grid directive execution.
     self.colToMove = undefined;
@@ -112,7 +112,9 @@ kg.EventProvider = function (grid) {
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer[0]) return true;
+        if (!headerContainer[0]) {
+            return true;
+        } 
         // Get the scope from the header container
         
         var headerScope = ko.dataFor(headerContainer[0]);
@@ -120,42 +122,53 @@ kg.EventProvider = function (grid) {
             // Save the column for later.
             self.colToMove = { header: headerContainer, col: headerScope };
         }
+        return true;
     };
 
     self.onHeaderDrop = function (event) {
-        if (!self.colToMove) return true;
+        if (!self.colToMove) {
+            return true;
+        } 
         // Get the closest header to where we dropped
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
-        if (!headerContainer[0]) return true;
+        if (!headerContainer[0]) {
+            return true;
+        }
         // Get the scope from the header.
         var headerScope = ko.dataFor(headerContainer[0]);
         if (headerScope) {
             // If we have the same column, do nothing.
-            if (self.colToMove.col == headerScope) return true;
+            if (self.colToMove.col == headerScope) {
+                return true;
+            } 
             // Splice the columns
-            var cols = grid.columns();
+            var cols = grid.columns.peek();
             cols.splice(self.colToMove.col.index, 1);
             cols.splice(headerScope.index, 0, self.colToMove.col);
+            grid.fixColumnIndexes();
             grid.columns(cols);
             // Finally, rebuild the CSS styles.
-            kg.domUtilityService.BuildStyles(grid);
+            window.kg.domUtilityService.BuildStyles(grid);
             // clear out the colToMove object
             self.colToMove = undefined;
         }
+        return true;
     };
     
     // Row functions
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
         var targetRow = $(event.target).closest('.kgRow');
-        if (!targetRow[0]) return;
+        if (!targetRow[0]) {
+            return;
+        }
         // Get the scope from the row element
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // set draggable events
             targetRow.attr('draggable', 'true');
             // Save the row for later.
-            kg.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
+            window.kg.eventStorage.rowToMove = { targetRow: targetRow, scope: rowScope };
         }
     };
 
@@ -166,8 +179,10 @@ kg.EventProvider = function (grid) {
         var rowScope = ko.dataFor(targetRow[0]);
         if (rowScope) {
             // If we have the same Row, do nothing.
-            var prevRow = kg.eventStorage.rowToMove;
-            if (prevRow.scope == rowScope) return;
+            var prevRow = window.kg.eventStorage.rowToMove;
+            if (prevRow.scope == rowScope) {
+                return;
+            } 
             // Splice the Rows via the actual datasource
             var sd = grid.sortedData();
             var i = sd.indexOf(prevRow.scope.entity);
@@ -176,7 +191,7 @@ kg.EventProvider = function (grid) {
             grid.sortedData.splice(j, 0, prevRow.scope.entity);
             grid.searchProvider.evalFilter();
             // clear out the rowToMove object
-            kg.eventStorage.rowToMove = undefined;
+            window.kg.eventStorage.rowToMove = undefined;
             // if there isn't an apply already in progress lets start one
         }
     };
@@ -189,7 +204,7 @@ kg.EventProvider = function (grid) {
         });
         grid.$viewport.off('keydown');
         grid.$viewport.on('keydown', function(e) {
-            return kg.moveSelectionHandler(grid, e);
+            return window.kg.moveSelectionHandler(grid, e);
         });
         //Chrome and firefox both need a tab index so the grid can recieve focus.
         //need to give the grid a tabindex if it doesn't already have one so
@@ -197,12 +212,13 @@ kg.EventProvider = function (grid) {
         //that way we'll get the same result every time it is run.
         //configurable within the options.
         if (grid.config.tabIndex === -1) {
-            grid.$viewport.attr('tabIndex', kg.numberOfGrids++);
+            grid.$viewport.attr('tabIndex', window.kg.numberOfGrids);
+            window.kg.numberOfGrids++;
         } else {
             grid.$viewport.attr('tabIndex', grid.config.tabIndex);
         }
         $(window).resize(function() {
-            kg.domUtilityService.UpdateGridLayout(grid);
+            window.kg.domUtilityService.UpdateGridLayout(grid);
             if (grid.config.maintainColumnRatios) {
                 grid.configureColumnWidths();
             }

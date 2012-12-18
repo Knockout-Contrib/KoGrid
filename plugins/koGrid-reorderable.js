@@ -71,7 +71,7 @@
             // Splice the columns
             var cols = self.myGrid.columns();
             var coldefs = self.myGrid.config.columnDefs();
-            kg.utils.forEach(cols, function(col, i) {
+            window.kg.utils.forEach(cols, function (col, i) {
                 coldefs[i].width = col.width();
             });
             coldefs.splice(self.colToMove.column.index, 1);

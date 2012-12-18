@@ -1,4 +1,4 @@
-﻿kg.SearchProvider = function (grid) {
+﻿window.kg.SearchProvider = function (grid) {
     var self = this,
         searchConditions = [],
         lastSearchStr;
@@ -8,12 +8,12 @@
     self.throttle = grid.config.filterOptions.filterThrottle;
     self.fieldMap = {};
     self.evalFilter = function () {
-        if (searchConditions.length === 0)
+        if (searchConditions.length === 0) {
             grid.filteredData(grid.sortedData.peek().filter(function(item) {
                 return !item._destroy;
             }));
-        else {
-            grid.filteredData(grid.sortedData.peek().filter(function (item) {
+        } else {
+            grid.filteredData(grid.sortedData.peek().filter(function(item) {
                 if (item._destroy) {
                     return false;
                 }
@@ -25,35 +25,36 @@
                         for (var prop in item) {
                             if (item.hasOwnProperty(prop)) {
                                 var pVal = ko.utils.unwrapObservable(item[prop]);
-                                if (pVal && condition.regex.test(pVal.toString()))
+                                if (pVal && condition.regex.test(pVal.toString())) {
                                     return true;
+                                }
                             }
                         }
                         return false;
                     }
                     //Search by column.
                     var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
-                    if (!field || !condition.regex.test(field.toString()))
+                    if (!field || !condition.regex.test(field.toString())) {
                         return false;
+                    }
                 }
                 return true;
             }));
         }
         grid.rowFactory.filteredDataChanged();
     };
-    var getRegExp = function (str, modifiers) {
+    var getRegExp = function(str, modifiers) {
         try {
             return new RegExp(str, modifiers);
-        }
-        catch (err) {
+        } catch(err) {
             //Escape all RegExp metacharacters.
             return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
         }
-    }
+    };
     var buildSearchConditions = function (a) {
         //reset.
         searchConditions = [];
-        var qStr = '';
+        var qStr;
         if (!(qStr = $.trim(a))) {
             return;
         }

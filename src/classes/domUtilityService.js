@@ -12,17 +12,17 @@ var getWidths = function () {
     //measure Scroll Bars
     $testContainer.height(100).width(100).css("position", "absolute").css("overflow", "scroll");
     $testContainer.append('<div style="height: 400px; width: 400px;"></div>');
-    kg.domUtilityService.ScrollH = ($testContainer.height() - $testContainer[0].clientHeight);
-    kg.domUtilityService.ScrollW = ($testContainer.width() - $testContainer[0].clientWidth);
+    window.kg.domUtilityService.ScrollH = ($testContainer.height() - $testContainer[0].clientHeight);
+    window.kg.domUtilityService.ScrollW = ($testContainer.width() - $testContainer[0].clientWidth);
     $testContainer.empty();
     //clear styles
     $testContainer.attr('style', '');
     //measure letter sizes using a pretty typical font size and fat font-family
     $testContainer.append('<span style="font-family: Verdana, Helvetica, Sans-Serif; font-size: 14px;"><strong>M</strong></span>');
-    kg.domUtilityService.LetterW = $testContainer.children().first().width();
+    window.kg.domUtilityService.LetterW = $testContainer.children().first().width();
     $testContainer.remove();
 };
-kg.domUtilityService = {
+window.kg.domUtilityService = {
     AssignGridContainers: function (rootEl, grid) {
         grid.$root = $(rootEl);
         //Headers
@@ -37,7 +37,7 @@ kg.domUtilityService = {
         grid.$canvas = grid.$viewport.find(".kgCanvas");
         //Footers
         grid.$footerPanel = grid.$root.find(".ngFooterPanel");
-        kg.domUtilityService.UpdateGridLayout(grid);
+        window.kg.domUtilityService.UpdateGridLayout(grid);
     },
     UpdateGridLayout: function(grid) {
         //catch this so we can return the viewer to their original scroll after the resize!
@@ -70,13 +70,13 @@ kg.domUtilityService = {
               "." + gridId + " .kgCell { height: " + rowHeight + "px; }"+
               "." + gridId + " .kgCanvas { width: " + trw + "px; }" +
               "." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" + 
-              "." + gridId + " .kgHeaderScroller { width: " + (trw + kg.domUtilityService.scrollH + 2) + "px}";
+              "." + gridId + " .kgHeaderScroller { width: " + (trw + window.kg.domUtilityService.scrollH + 2) + "px}";
         $.each(cols, function (i, col) {
             css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px }" +
                    "." + gridId + " .colt" + i + " { width: " + col.width + "px; }";
             sumWidth += col.width;
         });
-        if (kg.utils.isIe) { // IE
+        if (window.kg.utils.isIe) { // IE
             $style[0].styleSheet.cssText = css;
         } else {
             $style.append(document.createTextNode(css));

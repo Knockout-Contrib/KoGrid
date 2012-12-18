@@ -5,7 +5,7 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../navigation.js"/>
 /// <reference path="../utils.js"/>
-kg.Aggregate = function (aggEntity, rowFactory) {
+window.kg.Aggregate = function (aggEntity, rowFactory) {
     var self = this;
     self.index = 0;
     self.offsetTop = ko.observable(0);

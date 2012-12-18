@@ -12,7 +12,7 @@ function mainViewModel() {
     self.myData = ko.observableArray([]);
     self.filterOptions = {
         filterText: ko.observable(""),
-        useExternalFilter: false,
+        useExternalFilter: false
     };
     self.pagingOptions = {
         pageSizes: ko.observable([250, 500, 1000]), //page Sizes

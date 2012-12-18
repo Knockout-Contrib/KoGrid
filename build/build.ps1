@@ -17,7 +17,8 @@ Add-Content $TempFile "* Authors: https://github.com/ericmbarnard/koGrid/blob/ma
 Add-Content $TempFile "* License: MIT (http://www.opensource.org/licenses/mit-license.php)";
 Add-Content $TempFile "* Compiled At: $compileTime";
 Add-Content $TempFile "***********************************************/`n"
-Add-Content $TempFile "(function(window, undefined){";
+Add-Content $TempFile "(function (window) {";
+Add-Content $TempFile "'use strict';";
 Foreach ($file in $files){
 	# Wrap each file output in a new line
 	Write-Host "Building... $file";
