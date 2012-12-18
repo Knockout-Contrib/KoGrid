@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/13/2012 21:24:13
+* Compiled At: 12/18/2012 12:50:03
 ***********************************************/
 
 (function(window, undefined){
@@ -189,7 +189,7 @@ kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-widget\'
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
 ***********************************************/
-kg.defaultRowTemplate = function(){ return '<div data-bind="foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
+kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\cellTemplate.html
@@ -209,7 +209,7 @@ kg.defaultHeaderRowTemplate = function(){ return '<div data-bind="foreach: visib
 /***********************************************
 * FILE: ..\src\templates\headerCellTemplate.html
 ***********************************************/
-kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
+kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="style: { cursor : sortable() ? \'pointer\' : \'default\' }, click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
 
 /***********************************************
 * FILE: ..\src\bindingHandlers\ko-grid.js
@@ -471,6 +471,8 @@ kg.Column = function (config, grid) {
 	self.groupIndex = ko.observable(0);
 	self.isGroupedBy = ko.observable(false);
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
+	self.sortable = ko.observable(false);
+	self.resizable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -490,8 +492,12 @@ kg.Column = function (config, grid) {
             self.toggleVisible(val);
         }
     });
-    self.sortable = ko.observable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
-    self.resizable = ko.observable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    if (config.enableSort) {
+        self.sortable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
+    }
+    if (config.enableResize) {
+        self.resizable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    }
     self.sortDirection = ko.observable(undefined);
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
@@ -582,6 +588,7 @@ kg.Column = function (config, grid) {
         $(document).off('mousemove');
         $(document).off('mouseup');
         event.target.parentElement.style.cursor = 'default';
+        grid.config.columnsChanged(grid.columns.peek());
         return false;
     };
 };
@@ -1030,6 +1037,7 @@ kg.Grid = function (options) {
             footerVisible: true,			
             displayFooter: undefined,
             canSelectRows: true,
+            selectAllState: ko.observable(false),
             data: ko.observableArray([]),
             columnDefs: undefined,
             selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
@@ -1037,13 +1045,14 @@ kg.Grid = function (options) {
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
             sortInfo: ko.observable(undefined), // similar to filterInfo
-            multiSelect: ko.observable(true),
+            multiSelect: true,
             tabIndex: -1,
             enableColumnResize: true,
+            enableSorting: true,
             maintainColumnRatios: undefined,
-            enableSorting:ko.observable(true),
             beforeSelectionChange: function () { return true;},
-            afterSelectionChange: function () { return true;},
+            afterSelectionChange: function () { },
+            columnsChanged: function() { },
             rowTemplate: undefined,
             headerRowTemplate: undefined,
             jqueryUITheme: false,
@@ -1148,13 +1157,13 @@ kg.Grid = function (options) {
             self.buildColumnDefsFromData();
             columnDefs = self.config.columnDefs;
         }
-        if (self.config.displaySelectionCheckbox) {
+        if (self.config.displaySelectionCheckbox && self.config.canSelectRows) {
             columnDefs.splice(0, 0, {
                 field: '\u2714',
                 width: self.elementDims.rowSelectedCellW,
                 sortable: false,
                 resizable: false,
-                headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected, click: $grid.toggleSelectAll"/>',
+                headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
                 cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
             });
         }
@@ -1166,7 +1175,8 @@ kg.Grid = function (options) {
                     headerRowHeight: self.config.headerRowHeight,
                     sortCallback: self.sortData, 
                     resizeOnDataCallback: self.resizeOnData,
-                    enableResize: self.config.enableColumnResize
+                    enableResize: self.config.enableColumnResize,
+                    enableSort: self.config.enableSorting
                 }, self);
                 cols.push(column);
                 var indx = self.config.groups.indexOf(colDef.field);
@@ -1364,6 +1374,9 @@ kg.Grid = function (options) {
     //self vars
     self.elementsNeedMeasuring = true;
     self.columns = ko.observableArray([]);
+    self.columns.subscribe(function(newCols) {
+        self.config.columnsChanged(newCols);
+    });
     self.renderedRows = ko.observableArray([]);
     self.headerRow = null;
     self.rowHeight = self.config.rowHeight;
@@ -1405,11 +1418,13 @@ kg.Grid = function (options) {
     self.toggleShowMenu = function () {
         self.showMenu(!self.showMenu());
     };
-    self.allSelected = ko.observable(false);
-    self.toggleSelectAll = function () {
-        self.selectionService.toggleSelectAll(self.allSelected());
-        return true;
-    };
+    self.allSelected = self.config.selectAllState;
+    self.allSelected.subscribe(function (state) {
+        if (self.config.beforeSelectionChange(self.sortedData.peek(), this)) {
+            self.selectionService.toggleSelectAll(state);
+            self.config.afterSelectionChange(self.selectedItems.peek(), this);
+        }
+    });
     self.totalFilteredItemsLength = ko.computed(function () {
         return self.filteredData().length;
     });
@@ -1525,8 +1540,9 @@ kg.Range = function (top, bottom) {
 * FILE: ..\src\classes\row.js
 ***********************************************/
 kg.Row = function (entity, config, selectionService) {
-    var self = this, // constant for the selection property that we add to each data item
-        canSelectRows = config.canSelectRows;
+    var self = this; // constant for the selection property that we add to each data item
+
+    self.canSelectRows = config.canSelectRows;
 
     self.rowClasses = config.rowClasses;
     self.selectedItems = config.selectedItems;
@@ -1538,7 +1554,7 @@ kg.Row = function (entity, config, selectionService) {
         self.selectionService.ChangeSelection(self, event);
     };
     self.toggleSelected = function (row, event) {
-        if (!canSelectRows) {
+        if (!self.canSelectRows) {
             return true;
         }
         var element = event.target || event;
@@ -1596,7 +1612,9 @@ kg.SearchProvider = function (grid) {
     self.fieldMap = {};
     self.evalFilter = function () {
         if (searchConditions.length === 0)
-            grid.filteredData(grid.sortedData.peek());
+            grid.filteredData(grid.sortedData.peek().filter(function(item) {
+                return !item._destroy;
+            }));
         else {
             grid.filteredData(grid.sortedData.peek().filter(function (item) {
                 if (item._destroy) {

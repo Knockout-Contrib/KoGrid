@@ -1,7 +1,7 @@
 ﻿#!/bin/bash
 CurrentDir=$PWD
 OutPutFile=$CurrentDir/koGrid.debug.js
-FinalFile=../koGrid-2.1.0.debug.js
+FinalFile=../koGrid-2.1.1.debug.js
 BuildOrder=$CurrentDir/build-order.txt
 
 echo JSBuild Starting...
