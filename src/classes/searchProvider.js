@@ -9,13 +9,14 @@
     self.fieldMap = {};
     self.evalFilter = function () {
         if (searchConditions.length === 0)
-            grid.filteredData(grid.sortedData.peek());
+            grid.filteredData(grid.sortedData.peek().filter(function (item) {
+                return !item._destroy;
+            }));
         else {
             grid.filteredData(grid.sortedData.peek().filter(function (item) {
                 if (item._destroy) {
                     return false;
                 }
-
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
@@ -25,7 +26,7 @@
                                 var c = self.fieldMap[prop];
                                 if (!c) continue;
                                 var pVal = ko.utils.unwrapObservable(item[prop]);
-                                if (pVal && (typeof c.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(c.cellFilter(typeof pVal === 'number' ? pVal : pVal.toString()))) : condition.regex.test(typeof pVal === 'object' ? evalObject(pVal, c.field).toString() : pVal.toString())))
+                                if (pVal && (typeof c.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(c.cellFilter(pVal)).toString()) : condition.regex.test(typeof pVal === 'object' ? evalObject(pVal, c.field).toString() : pVal.toString())))
                                     return true;
                             }
                         }
@@ -35,7 +36,7 @@
                     var col = self.fieldMap[condition.column] || self.fieldMap[condition.columnDisplay];
                     if (!col) return false;
                     var value = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[col.field]);
-                    if (!value || !(typeof col.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(col.cellFilter(typeof value === 'number' ? value : value.toString()))) : condition.regex.test(typeof value === 'object' ? evalObject(value, col.field).toString() : value.toString())))
+                    if (!value || !(typeof col.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(col.cellFilter(value)).toString()) : condition.regex.test(typeof value === 'object' ? evalObject(value, col.field).toString() : value.toString())))
                         return false;
                 }
                 return true;
@@ -59,7 +60,6 @@
             return cObj;
         }
         return obj;
-
     };
     var getRegExp = function (str, modifiers) {
         try {
