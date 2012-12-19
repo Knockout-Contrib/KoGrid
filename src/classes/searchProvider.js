@@ -1,4 +1,4 @@
-﻿kg.SearchProvider = function (grid) {
+﻿window.kg.SearchProvider = function (grid) {
     var self = this,
         searchConditions = [],
         lastSearchStr;
@@ -8,10 +8,12 @@
     self.throttle = grid.config.filterOptions.filterThrottle;
     self.fieldMap = {};
     self.evalFilter = function () {
-        if (searchConditions.length === 0)
-            grid.filteredData(grid.sortedData.peek());
-        else {
-            grid.filteredData(grid.sortedData.peek().filter(function (item) {
+        if (searchConditions.length === 0) {
+            grid.filteredData(grid.sortedData.peek().filter(function(item) {
+                return !item._destroy;
+            }));
+        } else {
+            grid.filteredData(grid.sortedData.peek().filter(function(item) {
                 if (item._destroy) {
                     return false;
                 }
@@ -25,37 +27,47 @@
                                 var c = self.fieldMap[prop];
                                 if (!c) continue;
                                 var pVal = ko.utils.unwrapObservable(item[prop]);
+<<<<<<< HEAD
                                 if (pVal && (condition.regex.test(pVal.toString()) || (typeof c.cellFilter === 'function' && condition.regex.test(c.cellFilter(pVal.toString)))))
+=======
+                                if (pVal && condition.regex.test(pVal.toString())) {
+>>>>>>> 5fcb4c54bc80bf9082001c69f406d5fd1c3132f6
                                     return true;
+                                }
                             }
                         }
                         return false;
                     }
                     //Search by column.
+<<<<<<< HEAD
                     var col = self.fieldMap[condition.columnDisplay];
                     if (!col) return false;
                     var value = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[col.value]);
                     if (!value || !condition.regex.test(value.toString()) && !(typeof col.cellFilter === 'function' && condition.regex.test(col.cellFilter(value.toString()))))
+=======
+                    var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
+                    if (!field || !condition.regex.test(field.toString())) {
+>>>>>>> 5fcb4c54bc80bf9082001c69f406d5fd1c3132f6
                         return false;
+                    }
                 }
                 return true;
             }));
         }
         grid.rowFactory.filteredDataChanged();
     };
-    var getRegExp = function (str, modifiers) {
+    var getRegExp = function(str, modifiers) {
         try {
             return new RegExp(str, modifiers);
-        }
-        catch (err) {
+        } catch(err) {
             //Escape all RegExp metacharacters.
             return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
         }
-    }
+    };
     var buildSearchConditions = function (a) {
         //reset.
         searchConditions = [];
-        var qStr = '';
+        var qStr;
         if (!(qStr = $.trim(a))) {
             return;
         }

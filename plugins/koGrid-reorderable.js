@@ -1,3 +1,7 @@
+/* EXAMPLE PLGUIN, DO NOT USE! */
+/* EXAMPLE PLGUIN, DO NOT USE! */
+/* EXAMPLE PLGUIN, DO NOT USE! */
+/* EXAMPLE PLGUIN, DO NOT USE! */
 ﻿kgGridReorderable = function (options) {
     var defaults = {
         enableHeader: true,
@@ -6,26 +10,15 @@
     var self = this;
     self.config = $.extend(defaults, options);
     self.myGrid = null;
+    self.colToMove = undefined;
+    self.rowToMove = undefined;
 
     // The init method gets called during the koGrid binding handler execution.
     self.onGridInit = function (grid) {
-        /* logic */
-
-    };
-    self.onGridUpdate = function (grid) {
-        /* logic */
-        // The directive passes in the grid scope and the grid object which we will want to save for manipulation later.
-        self.myGrid = grid;
-        // In this example we want to assign grid events.
-        self.assignEvents();
-    };
-    self.onRowsChanged = function (grid, rowCollection) {
-        /* logic */
+        /* Init logic */
     };
     
     //internal funcs
-    self.colToMove = undefined;
-    self.rowToMove = undefined;
     self.assignEvents = function () {
         // Here we set the onmousedown event handler to the header container.
         if (self.config.enableHeader) {
@@ -78,7 +71,7 @@
             // Splice the columns
             var cols = self.myGrid.columns();
             var coldefs = self.myGrid.config.columnDefs();
-            kg.utils.forEach(cols, function(col, i) {
+            window.kg.utils.forEach(cols, function (col, i) {
                 coldefs[i].width = col.width();
             });
             coldefs.splice(self.colToMove.column.index, 1);

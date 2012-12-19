@@ -5,6 +5,6 @@ ko.bindingHandlers['mouseEvents'] = (function () {
             if (eFuncs.mouseDown) {
                 $(element).mousedown(eFuncs.mouseDown);
             }
-        },
+        }
     };
 }());

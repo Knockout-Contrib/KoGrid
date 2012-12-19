@@ -2,7 +2,7 @@
 $CurrentDir = (Get-Location).Path;
 $OutPutFile = $CurrentDir + "\koGrid.debug.js";
 $TempFile = $OutPutFile + ".temp";
-$FinalFile = "..\koGrid-2.1.0.debug.js";
+$FinalFile = "..\koGrid-2.1.1.debug.js";
 $BuildOrder = $CurrentDir + "\build-order.txt";
 $commentStart = "<!--";
 $commentEnd = "-->";
@@ -17,7 +17,8 @@ Add-Content $TempFile "* Authors: https://github.com/ericmbarnard/koGrid/blob/ma
 Add-Content $TempFile "* License: MIT (http://www.opensource.org/licenses/mit-license.php)";
 Add-Content $TempFile "* Compiled At: $compileTime";
 Add-Content $TempFile "***********************************************/`n"
-Add-Content $TempFile "(function(window, undefined){";
+Add-Content $TempFile "(function (window) {";
+Add-Content $TempFile "'use strict';";
 Foreach ($file in $files){
 	# Wrap each file output in a new line
 	Write-Host "Building... $file";

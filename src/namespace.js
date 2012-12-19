@@ -2,5 +2,5 @@
 if (!window.kg) {
     window.kg = {};
 }
-kg.numberOfGrids = 0;
-kg.eventStorage = {};
+window.kg.numberOfGrids = 0;
+window.kg.eventStorage = {};

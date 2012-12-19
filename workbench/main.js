@@ -12,7 +12,7 @@ function mainViewModel() {
     self.myData = ko.observableArray([]);
     self.filterOptions = {
         filterText: ko.observable(""),
-        useExternalFilter: false,
+        useExternalFilter: false
     };
     self.pagingOptions = {
         pageSizes: ko.observable([250, 500, 1000]), //page Sizes
@@ -46,6 +46,9 @@ function mainViewModel() {
         self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage(), a);
     });
     self.getPagedDataAsync(self.pagingOptions.pageSize(), self.pagingOptions.currentPage());
+    self.columnsChanged = function(newCols) {
+        return true;
+    };
     self.gridOptions = {
         data: self.myData,
         selectedItems: self.mySelections,
@@ -54,8 +57,8 @@ function mainViewModel() {
         showGroupPanel: true,
         showColumnMenu: true,
         showFilter: true,
+        columnsChanged: self.columnsChanged,
         maintainColumnRatios: true,
-        enableRowReordering: true,
         enablePaging: true,
         pagingOptions: self.pagingOptions,
         columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },

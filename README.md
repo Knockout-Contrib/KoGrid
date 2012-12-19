@@ -14,7 +14,7 @@ Dependencies: jQuery & Knockout
 ##About##
 __koGrid__ is a direct knockout port of [ng-grid](http://angular-ui.github.com/ng-grid/) which was originally inspired by koGrid, which was inspired by SlickGrid. I know, right?
 
-koGrid is in 2.0.6 release currently. 
+koGrid is in 2.1.1 release currently. 
 
 Questions, Comments, Complaints? feel free to email us at kogridteam@gmail.com
 
@@ -40,6 +40,7 @@ http://ericmbarnard.github.com/KoGrid/#/examples
 
 also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
+* __2012-12-18__ - Adding columnsChanged callback (#171) and added fixes for issues #170, #167, #164, and #134.
 * __2012-12-12__ - Merge ineedFat's awesome serach improvements. Removing gridservice and improving performance with templates. other bugfixes.
 * __2012-12-03__ - various improvements and fixes to searching, bindings, resizing, and reordering. Ability to specify partial html file urls for templates.
 * __2012-12-03__ - Version 2.0 BREAKING CHANGES. numerous enhancements, bugfixes and architectural changes. reduced code footprint by ~40%.

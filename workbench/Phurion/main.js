@@ -15,16 +15,11 @@ function MessageObject() {
 };
 function mainViewModel() {
     var self = this;
-    
     self.inboxData = ko.observableArray([]);
     this.createTestData = function () {
-        
         var today, arr = [];
-        
         today = new Date();
-        
         for (i = 1; i < 50; i = i + 1) {
-            
             obj = new MessageObject();
             obj.Date = new Date();
             obj.Date.setDate(today.getDate() + i);
@@ -33,10 +28,8 @@ function mainViewModel() {
             obj.MessageId = "00000000-0000-0000-0000-00000000000" + i.toString(); // fake my guid
             obj.HasBeenRead(false);  // this might be true when I read it from the DB
             obj.index = i;
-            
             arr.push(obj);
         }
-        
         // Our grid is bound to inboxData which is an observableArray
         self.inboxData(arr);
     };
@@ -48,11 +41,8 @@ function mainViewModel() {
         return true;
     };
     self.selectedItems = ko.observableArray([]);
-    self.currentMail = ko.computed(function(){
-        return self.selectedItems()[0];
-    })
-    self.createTestData()
-    this.gridOptions = { 
+    self.createTestData();
+    self.gridOptions = { 
         data: self.inboxData,
         multiSelect: false,
         displaySelectionCheckbox: false,
@@ -62,11 +52,13 @@ function mainViewModel() {
         beforeSelectionChange: self.markEmailRead,
         rowTemplate: 'rowTemplate.html',
         selectedItems: self.selectedItems,
+        jqueryUITheme: true,
+        showColumnMenu: false,
         columnDefs: [
-            { field: '', width: '*', cellTemplate: 'imageCellTemplate.html' },
-            { field: 'From', width: '***' },
-            { field: 'Subject', width: '***************' },
-            { field: 'Date', width: '***' }]
+            { field: '', width: 50, cellTemplate: 'imageCellTemplate.html', resizable: false, sortable: false },
+            { field: 'From', width: 690, resizable: false, cellTemplate: 'combinedCellTemplate.html', headerCellTemplate: 'combinedHeaderTemplate.html' },
+            { field: 'Subject', width: 0, visible: false }, // fake column for sorting.
+            { field: 'Date', width: 200, resizable: false }]
     };
 }
 ko.applyBindings(new mainViewModel());

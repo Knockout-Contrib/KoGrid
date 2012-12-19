@@ -1,13 +1,16 @@
-﻿kg.Column = function (config, grid) {
+﻿window.kg.Column = function (config, grid) {
     var self = this,
         colDef = config.colDef,
 		delay = 500,
         clicks = 0,
         timer = null;
+    self.eventTaget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(0);
 	self.isGroupedBy = ko.observable(false);
-	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon":"kgGroupIcon";});
+	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
+	self.sortable = ko.observable(false);
+	self.resizable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -18,7 +21,7 @@
     self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
     self.field = colDef.field;
     self.aggLabelFilter = colDef.cellFilter || colDef.cellFormatter || colDef.aggLabelFilter || colDef.aggLabelFormatter;
-    self._visible = ko.observable(kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
+    self._visible = ko.observable(window.kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
     self.visible = ko.computed({
         read: function() {
             return self._visible();
@@ -27,18 +30,22 @@
             self.toggleVisible(val);
         }
     });
-    self.sortable = ko.observable(kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
-    self.resizable = ko.observable(kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    if (config.enableSort) {
+        self.sortable(window.kg.utils.isNullOrUndefined(colDef.sortable) || colDef.sortable);
+    }
+    if (config.enableResize) {
+        self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
+    }
     self.sortDirection = ko.observable(undefined);
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
-    self.headerCellTemplate = colDef.headerCellTemplate || kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || kg.defaultCellTemplate();
+    self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();
+    self.cellTemplate = colDef.cellTemplate || window.kg.defaultCellTemplate();
     if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
-        self.cellTemplate = kg.utils.getTemplatePromise(colDef.cellTemplate);
+        self.cellTemplate = window.kg.utils.getTemplatePromise(colDef.cellTemplate);
     }
     if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
-        self.headerCellTemplate = kg.utils.getTemplatePromise(colDef.headerCellTemplate);
+        self.headerCellTemplate = window.kg.utils.getTemplatePromise(colDef.headerCellTemplate);
     }
     self.getProperty = function (row) {
         var ret;
@@ -51,13 +58,13 @@
     };
     self.toggleVisible = function (val) {
         var v;
-        if (kg.utils.isNullOrUndefined(val) || typeof val == "object") {
+        if (window.kg.utils.isNullOrUndefined(val) || typeof val == "object") {
             v = !self._visible();
         } else {
             v = val;
         }
         self._visible(v);
-        kg.domUtilityService.BuildStyles(grid);
+        window.kg.domUtilityService.BuildStyles(grid);
     };
 
     self.showSortButtonUp = ko.computed(function () {
@@ -96,10 +103,12 @@
         event.stopPropagation();
         if (event.ctrlKey) {
             self.toggleVisible();
-            kg.domUtilityService.BuildStyles(grid);
+            window.kg.domUtilityService.BuildStyles(grid);
+            grid.config.columnsChanged(grid.columns.peek());
             return true;
         }
-        event.target.parentElement.style.cursor = 'col-resize';
+        self.eventTaget = event.target.parentElement;
+        self.eventTaget.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
         $(document).mousemove(self.onMouseMove);
@@ -111,14 +120,16 @@
         var diff = event.clientX - self.startMousePosition;
         var newWidth = diff + self.origWidth;
         self.width = (newWidth < self.minWidth ? self.minWidth : (newWidth > self.maxWidth ? self.maxWidth : newWidth));
-        kg.domUtilityService.BuildStyles(grid);
+        window.kg.domUtilityService.BuildStyles(grid);
         return false;
     };
     self.gripOnMouseUp = function (event) {
         event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
-        event.target.parentElement.style.cursor = 'default';
+        self.eventTaget.style.cursor = self.sortable() ? 'pointer' : 'default';
+        self.eventTaget = undefined;
+        grid.config.columnsChanged(grid.columns.peek());
         return false;
     };
 };
