@@ -88,7 +88,6 @@
                         column: columnName,
                         columnDisplay: columnName.replace(/\s+/g, '').toLowerCase(),
                         regex: getRegExp(columnValue, 'i'),
-                        originalStr: columnValue
                     });
                 }
             } else {
@@ -97,7 +96,6 @@
                     searchConditions.push({
                         column: '',
                         regex: getRegExp(val, 'i'),
-                        originalStr: val
                     });
                 }
             }
