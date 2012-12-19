@@ -1,4 +1,4 @@
-﻿window.kg.SearchProvider = function (grid) {
+﻿kg.SearchProvider = function (grid) {
     var self = this,
         searchConditions = [],
         lastSearchStr;
@@ -8,12 +8,10 @@
     self.throttle = grid.config.filterOptions.filterThrottle;
     self.fieldMap = {};
     self.evalFilter = function () {
-        if (searchConditions.length === 0) {
-            grid.filteredData(grid.sortedData.peek().filter(function(item) {
-                return !item._destroy;
-            }));
-        } else {
-            grid.filteredData(grid.sortedData.peek().filter(function(item) {
+        if (searchConditions.length === 0)
+            grid.filteredData(grid.sortedData.peek());
+        else {
+            grid.filteredData(grid.sortedData.peek().filter(function (item) {
                 if (item._destroy) {
                     return false;
                 }
@@ -27,47 +25,55 @@
                                 var c = self.fieldMap[prop];
                                 if (!c) continue;
                                 var pVal = ko.utils.unwrapObservable(item[prop]);
-<<<<<<< HEAD
-                                if (pVal && (condition.regex.test(pVal.toString()) || (typeof c.cellFilter === 'function' && condition.regex.test(c.cellFilter(pVal.toString)))))
-=======
-                                if (pVal && condition.regex.test(pVal.toString())) {
->>>>>>> 5fcb4c54bc80bf9082001c69f406d5fd1c3132f6
+                                if (pVal && (typeof c.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(c.cellFilter(typeof pVal === 'number' ? pVal : pVal.toString()))) : condition.regex.test(typeof pVal === 'object' ? evalObject(pVal, c.field).toString() : pVal.toString())))
                                     return true;
-                                }
                             }
                         }
                         return false;
                     }
                     //Search by column.
-<<<<<<< HEAD
-                    var col = self.fieldMap[condition.columnDisplay];
+                    var col = self.fieldMap[condition.column] || self.fieldMap[condition.columnDisplay];
                     if (!col) return false;
-                    var value = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[col.value]);
-                    if (!value || !condition.regex.test(value.toString()) && !(typeof col.cellFilter === 'function' && condition.regex.test(col.cellFilter(value.toString()))))
-=======
-                    var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
-                    if (!field || !condition.regex.test(field.toString())) {
->>>>>>> 5fcb4c54bc80bf9082001c69f406d5fd1c3132f6
+                    var value = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[col.field]);
+                    if (!value || !(typeof col.cellFilter === 'function' ? condition.regex.test(ko.utils.unwrapObservable(col.cellFilter(typeof value === 'number' ? value : value.toString()))) : condition.regex.test(typeof value === 'object' ? evalObject(value, col.field).toString() : value.toString())))
                         return false;
-                    }
                 }
                 return true;
             }));
         }
         grid.rowFactory.filteredDataChanged();
     };
-    var getRegExp = function(str, modifiers) {
+
+    //Traversing through the object to find the value that we want. If fail, then return the original object.
+    var evalObject = function (obj, columnName) {
+        if (typeof obj != 'object' || typeof columnName != 'string')
+            return obj;
+        var args = columnName.split('.');
+        var cObj = obj;
+        if (args.length > 1) {
+            for (var i = 1, len = args.length; i < len; i++) {
+                cObj = cObj[args[i]];
+                if (!cObj)
+                    return obj;
+            }
+            return cObj;
+        }
+        return obj;
+
+    };
+    var getRegExp = function (str, modifiers) {
         try {
             return new RegExp(str, modifiers);
-        } catch(err) {
+        }
+        catch (err) {
             //Escape all RegExp metacharacters.
             return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
         }
-    };
+    }
     var buildSearchConditions = function (a) {
         //reset.
         searchConditions = [];
-        var qStr;
+        var qStr = '';
         if (!(qStr = $.trim(a))) {
             return;
         }
@@ -81,7 +87,8 @@
                     searchConditions.push({
                         column: columnName,
                         columnDisplay: columnName.replace(/\s+/g, '').toLowerCase(),
-                        regex: getRegExp(columnValue, 'i')
+                        regex: getRegExp(columnValue, 'i'),
+                        originalStr: columnValue
                     });
                 }
             } else {
@@ -89,7 +96,8 @@
                 if (val) {
                     searchConditions.push({
                         column: '',
-                        regex: getRegExp(val, 'i')
+                        regex: getRegExp(val, 'i'),
+                        originalStr: val
                     });
                 }
             }
@@ -111,7 +119,8 @@
     if (!self.extFilter) {
         grid.columns.subscribe(function (a) {
             $.each(a, function (i, col) {
-                self.fieldMap[col.field] = col;
+                //Just in the case that value being set is an object within an object e.g ParentObject.childObject.
+                self.fieldMap[col.field.split('.')[0]] = col;
                 self.fieldMap[col.displayName().toLowerCase().replace(/\s+/g, '')] = col;
             });
         });
