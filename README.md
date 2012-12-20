@@ -5,7 +5,7 @@ __Contributors:__
 KoGrid Team:
 * [Eric M. Barnard](https://github.com/ericmbarnard/koGrid) 
 * [Tim Sweet](http://ornerydevelopment.blogspot.com/)
-* [Jonathon Ricaurte](https://github.com/xcrico)
+* [Jonathon Ricaurte](https://github.com/jonricaurte)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
