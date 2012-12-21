@@ -10,15 +10,23 @@ cat $BuildOrder | sed 's/\\/\//g' |
 while read A
 do         
 # Wrap each file output in a new line
-    echo >>$OutPutFile.temp
     echo "Building... $A"
     echo >>$OutPutFile.temp
     echo "/***********************************************" >> $OutPutFile.temp
-    echo "* FILE: $A" >> $OutPutFile.temp
+    echo "* FILE: $A" | sed 's/\//\\/g' >> $OutPutFile.temp
     echo "***********************************************/" >> $OutPutFile.temp
-    # eliminate unicode Byte Order Mark
-    sed '1 s/^\xef\xbb\xbf//' "$CurrentDir/$A" >> $OutPutFile.temp
-    echo >>$OutPutFile.temp
+    if sed -n -e '/^<!--/q 0' -e 'q 1' "$CurrentDir/$A"
+    then # html files
+	sed -e '1  s/^\xef\xbb\xbf//' \
+            -e "1  s/<\!--\(.*\)-->/\1 = function(){ return '/" \
+	    -e "1! s/'/\\\\'/g" \
+	    -e "1! s/^\s*\(.*\)\s*$/\1/" \
+	    "$CurrentDir/$A" | tr -d '\n' >> $OutPutFile.temp
+	echo "';};" >> $OutPutFile.temp
+    else # js files.
+	sed -e '1 s/^\xef\xbb\xbf//' -e '/^\/\/\//d' "$CurrentDir/$A" >> $OutPutFile.temp
+	echo >>$OutPutFile.temp
+    fi
 done
 
 # Remove the OutputFile if it exists
@@ -31,7 +39,10 @@ echo "* Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md" >
 echo "* License: MIT (http://www.opensource.org/licenses/mit-license.php)" >> $OutPutFile
 echo "* Compiled At: $(date)" >> $OutPutFile
 echo "***********************************************/" >> $OutPutFile
-echo "(function(window, undefined){" >> $OutPutFile
+echo >> $OutPutFile
+echo "(function (window) {" >> $OutPutFile
+echo "'use strict';" >> $OutPutFile
+
 cat $OutPutFile.temp >> $OutPutFile
 echo "}(window));" >> $OutPutFile
 rm $OutPutFile.temp
