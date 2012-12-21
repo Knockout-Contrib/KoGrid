@@ -1,50 +1,75 @@
-<!doctype html>
-<html lang="en" ng-app="myApp">
-<head>
-	<meta charset="utf-8">
-	<title>koGrid</title>
-    <link rel="stylesheet" href="lib/FortAwesome-Font-Awesome-ee55c85/css/font-awesome.css" />	
-	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css"/>
-	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap-responsive.css"/>
-	<link rel="stylesheet" href="css/prettify.css"/>
-	<link rel="stylesheet" href="css/KoGrid.css"/>
-	<link rel="stylesheet" href="lib/jquery-ui/css/overcast/jquery-ui-1.9.1.custom.css" />
-	<link rel="stylesheet" href="css/app.css"/>
-</head>
-    <body ng-controller="PageNavigationCtrl">
-        <div id="header" class="navbar navbar-inverse navbar-fixed-top headerstyles rowstyles"> 
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="#"  ng-click="switchPage('applications')">koGrid</a>
-                    <ul class="nav">
-                        <li class="nav" ng-repeat="page in pageTabs" ng-class="{active: selectedPage == page}">
-                            <a ng-click="switchPage(page.index)" ng-href="#/{{page.id}}"><i ng-class="page.icon" class="icon-white"></i> {{page.title}}</a>
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="ng-grid : Angular Data Grid based on slickgrid/koGrid" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>ng-grid</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Knockout-Contrib/KoGrid">View on GitHub</a>
+
+          <h1 id="project_title">ng-grid</h1>
+          <h2 id="project_tagline">Angular Data Grid based on slickgrid/koGrid</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Knockout-Contrib/KoGrid/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Knockout-Contrib/KoGrid/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>&lt;!doctype html&gt;
+
+</p>
+    koGrid<br><div> 
+            <div>
+                <div>
+                    <a href="#">koGrid</a>
+                    <ul>
+<li>
+                            <a><i></i> {{page.title}}</a>
                         </li>
                     </ul>
-                    <div style="float: right;">
-                        <a href="https://github.com/ericmbarnard/KoGrid" class="btn primary"><i style="margin-right: 5px; margin-top: 3px" class="icon-white icon-github"></i> View on Github</a>
+<div>
+                        <a href="https://github.com/ericmbarnard/KoGrid"><i></i> View on Github</a>
                     </div>
                 </div>
             </div>
         </div>
-        <div ng-view></div>
-        <div class="footerstyles rowstyles portal-footer-content">
-            <div class="portal-footer-info">
-                <p>koGrid</p>    		
-            </div>
+        <div></div>
+        <div>
+            <div>
+                <p>koGrid</p>
+<br>
+</div>
         </div> 
-    </body>
-    <script type="text/javascript" src="lib/prettify.js"></script>
-	<script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
-	<script type="text/javascript" src="lib/jquery-ui/js/jquery-ui-1.9.1.custom.js"></script>
-	<script type="text/javascript" src="lib/angular.js"></script>
-	<script type="text/javascript" src="lib/knockout-2.2.0.js"></script>
-	<script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
-	<script type="text/javascript" src="lib/KoGrid.debug.js"></script>
-	<script type="text/javascript" src="js/app.js"></script>
-	<script type="text/javascript" src="js/services.js"></script>
-	<script type="text/javascript" src="js/directives.js"></script>
-	<script type="text/javascript" src="js/controllers.js"></script>
-	<script type="text/javascript" src="js/viewModels.js"></script>
-	<script type="text/javascript" src="js/exampleControllers.js"></script>
+    
+    
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">ng-grid maintained by <a href="https://github.com/Knockout-Contrib">Knockout-Contrib</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
 </html>
