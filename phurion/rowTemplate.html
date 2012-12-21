@@ -1,0 +1,5 @@
+<div data-bind="style:{ 'font-weight' : $data.entity['HasBeenRead']() ? 'normal' : 'bold' }" style="height:50px">
+    <div data-bind="foreach: $grid.visibleColumns">
+        <div data-bind="attr: { 'class': 'kgCell col' + $index() }, kgCell: $data"></div>
+    </div>
+</div>
