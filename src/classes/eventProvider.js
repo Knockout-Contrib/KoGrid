@@ -33,6 +33,11 @@ window.kg.EventProvider = function (grid) {
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
 			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true');
+			if (navigator.userAgent.indexOf("MSIE") != -1)
+			{
+				//call native IE dragDrop() to start dragging
+				grid.$root.find('.kgHeaderSortColumn').bind('selectstart', function () { this.dragDrop(); return false; });
+			}
 		} else {
 			grid.$root.find('.kgHeaderSortColumn').draggable({
 				helper: 'clone',

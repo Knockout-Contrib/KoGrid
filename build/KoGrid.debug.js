@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/19/2012 10:15:47
+* Compiled At: 01/11/2013 15:58:36
 ***********************************************/
 
 (function (window) {
@@ -659,6 +659,11 @@ window.kg.EventProvider = function (grid) {
 	self.setDraggables = function(){
 		if(!grid.config.jqueryUIDraggable){	
 			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true');
+			if (navigator.userAgent.indexOf("MSIE") != -1)
+			{
+				//call native IE dragDrop() to start dragging
+				grid.$root.find('.kgHeaderSortColumn').bind('selectstart', function () { this.dragDrop(); return false; });
+			}
 		} else {
 			grid.$root.find('.kgHeaderSortColumn').draggable({
 				helper: 'clone',
@@ -1891,7 +1896,7 @@ window.kg.StyleProvider = function (grid) {
 };
 
 /***********************************************
-* FILE: ..\src\classes\SortService.js
+* FILE: ..\src\classes\sortService.js
 ***********************************************/
 window.kg.sortService = {
     colSortFnCache: {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
@@ -2144,7 +2149,7 @@ window.kg.sortService = {
 };
 
 /***********************************************
-* FILE: ..\src\classes\DomUtilityService.js
+* FILE: ..\src\classes\domUtilityService.js
 ***********************************************/
 var getWidths = function () {
     var $testContainer = $('<div></div>');
