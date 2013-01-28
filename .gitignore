@@ -42,7 +42,6 @@ local.properties
 *.sln.docstates
 *.sln
 *.nupkg
-*.nuspec
 *.*roj
 workbench/jquery*
 workbench/bootstrap*
