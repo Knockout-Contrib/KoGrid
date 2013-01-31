@@ -63,6 +63,7 @@ window.kg.Grid = function (options) {
     //self vars
     self.config = $.extend(defaults, options);
     self.config.columnDefs = ko.utils.unwrapObservable(options.columnDefs);
+    if(self.config.columnDefs) self.config.columnDefs = self.config.columnDefs.slice(0,self.config.columnDefs.length);
     self.gridId = "ng" + window.kg.utils.newId();
     self.$root = null; //this is the root element that is passed in with the binding handler
 	self.$groupPanel = null;
