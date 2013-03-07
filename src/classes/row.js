@@ -63,6 +63,15 @@ window.kg.Row = function (entity, config, selectionService) {
     self.afterSelectionChange = config.afterSelectionChangeCallback;
     self.propertyCache = {};
     self.getProperty = function (path) {
-        return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+        if(typeof path === "string"){
+            return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+        }if(typeof path === "object" && path.alias && path.accessor){
+            var alias = path.alias,
+                accessor = path.accessor;
+            return self.propertyCache[alias] || (self.propertyCache[alias] = accessor(self.entity));
+        }
+        else{
+            console.log("Field definition invalid:", path);
+        }
     };
 }; 
