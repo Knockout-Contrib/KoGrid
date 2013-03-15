@@ -7,11 +7,13 @@
 ..\src\templates\cellTemplate.html
 ..\src\templates\aggregateTemplate.html
 ..\src\templates\headerRowTemplate.html
+..\src\templates\footerRowTemplate.html
 ..\src\templates\headerCellTemplate.html
 ..\src\bindingHandlers\ko-grid.js
 ..\src\bindingHandlers\kg-row.js
 ..\src\bindingHandlers\kg-cell.js
 ..\src\bindingHandlers\kg-header-row.js
+..\src\bindingHandlers\kg-footer-row.js
 ..\src\bindingHandlers\kg-header-cell.js
 ..\src\bindingHandlers\kg-mouse-events.js
 ..\src\classes\aggregate.js

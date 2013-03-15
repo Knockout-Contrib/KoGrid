@@ -34,6 +34,7 @@ window.kg.Grid = function (options) {
             columnsChanged: function() { },
             rowTemplate: undefined,
             headerRowTemplate: undefined,
+            footerRowTemplate: undefined,
             jqueryUITheme: false,
             jqueryUIDraggable: false,
             plugins: [],
@@ -379,11 +380,15 @@ window.kg.Grid = function (options) {
     //Templates
     self.rowTemplate = self.config.rowTemplate || window.kg.defaultRowTemplate();
     self.headerRowTemplate = self.config.headerRowTemplate || window.kg.defaultHeaderRowTemplate();
+    self.footerRowTemplate = self.config.footerRowTemplate || window.kg.defaultFooterRowTemplate();
     if (self.config.rowTemplate && !TEMPLATE_REGEXP.test(self.config.rowTemplate)) {
         self.rowTemplate = window.kg.utils.getTemplatePromise(self.config.rowTemplate);
     }
     if (self.config.headerRowTemplate && !TEMPLATE_REGEXP.test(self.config.headerRowTemplate)) {
         self.headerRowTemplate = window.kg.utils.getTemplatePromise(self.config.headerRowTemplate);
+    }
+    if (self.config.footerRowTemplate && !TEMPLATE_REGEXP.test(self.config.footerRowTemplate)) {
+        self.footerRowTemplate = window.kg.utils.getTemplatePromise(self.config.footerRowTemplate);
     }
     //scope funcs
     self.visibleColumns = ko.computed(function () {
@@ -511,6 +516,6 @@ window.kg.Grid = function (options) {
         var curPage = self.config.pagingOptions.currentPage();
         return !(curPage > 1);
     });
-    //call init
+	//call init
     self.init();
 };
