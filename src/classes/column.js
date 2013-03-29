@@ -4,6 +4,7 @@
 		delay = 500,
         clicks = 0,
         timer = null;
+	self.config = config;
     self.eventTaget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(0);

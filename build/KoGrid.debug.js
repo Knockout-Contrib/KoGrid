@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 03/29/2013 14:27:25
+* Compiled At: 03/29/2013 14:29:44
 ***********************************************/
 
 (function (window) {
@@ -513,6 +513,7 @@ window.kg.Column = function (config, grid) {
 		delay = 500,
         clicks = 0,
         timer = null;
+	self.config = config;
     self.eventTaget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(0);
