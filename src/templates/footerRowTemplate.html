@@ -2,7 +2,7 @@
 <div data-bind="css: {'ui-widget-content': jqueryUITheme, 'ui-corner-bottom': jqueryUITheme}">
 	<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">
 		<div class="kgFooterTotalItems" data-bind="css: {'kgNoMultiSelect': !multiSelect}" >
-			<span class="kgLabel">Total1 Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span>
+			<span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span>
 		</div>
 		<div class="kgFooterSelectedItems" data-bind="visible: multiSelect">
 			<span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span>
