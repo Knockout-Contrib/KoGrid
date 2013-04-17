@@ -130,7 +130,7 @@ dateB=y+m+d;if(dateA==dateB){return 0;}
 if(dateA<dateB){return-1;}
 return 1;},sortMMDDStr:function(a,b){var dateA,dateB,mtch,m,d,y;mtch=a.match(window.kg.sortService.dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
 if(d.length==1){d='0'+d;}
-dateA=y+m+d;mtch=b.match(dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
+dateA=y+m+d;mtch=b.match(window.kg.sortService.dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
 if(d.length==1){d='0'+d;}
 dateB=y+m+d;if(dateA==dateB){return 0;}
 if(dateA<dateB){return-1;}
