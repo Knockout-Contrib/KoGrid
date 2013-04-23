@@ -33,12 +33,12 @@ ko.applyBindings(vm);
 ```
 
 ##Want More?##
-Check out the [Getting Started](https://github.com/ericmbarnard/KoGrid/wiki/Getting-Started) and other [Docs](https://github.com/ericmbarnard/KoGrid/wiki)
+Check out the [Getting Started](https://github.com/Knockout-Contrib/KoGrid/wiki/Getting-Started) and other [Docs](https://github.com/Knockout-Contrib/KoGrid/wiki)
 
 ##Examples##
-http://ericmbarnard.github.com/KoGrid/#/examples
+http://knockout-contrib.github.io/KoGrid/#/examples
 
-also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
+also check out the new [Custom Cell Template Library](https://github.com/Knockout-Contrib/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
 * __2012-12-18__ - Adding columnsChanged callback (#171) and added fixes for issues #170, #167, #164, and #134.
 * __2012-12-12__ - Merge ineedFat's awesome serach improvements. Removing gridservice and improving performance with templates. other bugfixes.
