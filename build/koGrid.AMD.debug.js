@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/07/2013 17:25:26
+* Compiled At: 06/07/2013 17:34:57
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -417,10 +417,12 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.toggleExpand = function() {
         var c = self.collapsed();
         self.collapsed(!c);
+        self.entity._kg_collapsed = self.collapsed();
         self.notifyChildren();
     };
     self.setExpand = function (state) {
         self.collapsed(state);
+        self.entity._kg_collapsed = self.collapsed();
         self.notifyChildren();
     };
     self.notifyChildren = function() {
@@ -1001,12 +1003,15 @@ window.kg.RowFactory = function (grid) {
                         aggIndex: self.numberOfAggregates,
                         aggLabelFilter: g[KG_COLUMN].aggLabelFilter
                     }, 0);
+                        agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
-                        agg.parent.collapsed(false);
+                        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! I changed this
+                        //agg.parent.collapsed(true);
+                        agg._kg_hidden_ = agg.parent.collapsed();
                         agg.parent.aggChildren.push(agg);
                     }
                     // add the aggregate row to the parsed data.
@@ -1248,14 +1253,32 @@ window.kg.Grid = function (options) {
                     configGroups.splice(indx, 0, column);
                     column.isGroupedBy(true);
                 } else if (colDef.groupIndex) {
-                    self.config.groups.push(colDef.field);
+                    //self.config.groups.splice(colDef.groupIndex - 1, 0, colDef.field);
                     configGroups.splice(colDef.groupIndex - 1, 0, column);
                     column.isGroupedBy(true);
                 }
             });
             cols.sort(function (a, b) {return a.index - b.index;});
+            var gindex = [];
+            $.each(cols, function (index, item) {
+                var idx = item.groupIndex();
+                if (idx) {
+                    while(gindex[idx]) {
+                        idx++;
+                    }
+                    item.groupIndex(idx);
+                    gindex[idx] = item;
+                }
+            });
+            configGroups.sort(function (a, b) {return a.groupIndex() - b.groupIndex();});
+            var groups = [];
+            $.each(configGroups, function (index, item) {
+                groups.push(item.field);
+            });
+            self.config.groups = groups;
             self.columns(cols);
             self.configGroups(configGroups);
+            self.fixGroupIndexes();
         }
     };
     self.configureColumnWidths = function() {
@@ -1320,9 +1343,16 @@ window.kg.Grid = function (options) {
             // calculate the weight of each asterisk rounded down
             var asteriskVal = Math.floor(remainingWidth / asteriskNum);
             // set the width of each column based on the number of stars
-            $.each(asterisksArray, function (i, col) {				
-				var t = col.width.length;
-                columns[col.index].width = asteriskVal * t;
+            if (asteriskVal < 1) {
+                asteriskVal = 1;
+            }
+            $.each(asterisksArray, function (i, col) {              
+                var t = col.width.length;
+                var column = columns[col.index];
+                column.width = asteriskVal * t;
+                if (column.width < column.minWidth) {
+                    column.width = column.minWidth;
+                }
                 //check if we are on the last column
                 if (col.index + 1 == numOfCols) {
                     var offset = 2; //We're going to remove 2 px so we won't overlflow the viwport by default
@@ -1331,7 +1361,7 @@ window.kg.Grid = function (options) {
                         //compensate for scrollbar
                         offset += window.kg.domUtilityService.ScrollW;
                     }
-                    columns[col.index].width -= offset;
+                    column.width -= offset;
                 }
                 totalWidth += columns[col.index].width;
             });
@@ -1544,7 +1574,7 @@ window.kg.Grid = function (options) {
 		col.groupIndex(0);
         if (self.columns()[index].isAggCol) {
             self.columns.splice(index, 1);
-        }
+        } 
         self.configGroups.splice(index, 1);
 		self.fixGroupIndexes();
         if (self.configGroups().length === 0) {

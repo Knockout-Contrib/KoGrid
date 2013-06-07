@@ -24,10 +24,12 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.toggleExpand = function() {
         var c = self.collapsed();
         self.collapsed(!c);
+        self.entity._kg_collapsed = self.collapsed();
         self.notifyChildren();
     };
     self.setExpand = function (state) {
         self.collapsed(state);
+        self.entity._kg_collapsed = self.collapsed();
         self.notifyChildren();
     };
     self.notifyChildren = function() {
