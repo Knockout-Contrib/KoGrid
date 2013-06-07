@@ -23,7 +23,7 @@ window.kg.EventProvider = function (grid) {
 			}
 			self.setDraggables();
 		}
-        grid.columns.subscribe(self.setDraggables);
+        grid.visibleColumns.subscribe(self.setDraggables);
     };
     self.dragOver = function(evt) {
         evt.preventDefault();

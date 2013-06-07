@@ -6,7 +6,7 @@
         timer = null;
     self.eventTaget = undefined;
     self.width = colDef.width;
-	self.groupIndex = ko.observable(0);
+	self.groupIndex = ko.observable(config.colDef.groupIndex || 0);
 	self.isGroupedBy = ko.observable(false);
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
 	self.sortable = ko.observable(false);
@@ -24,6 +24,9 @@
     self._visible = ko.observable(window.kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
     self.visible = ko.computed({
         read: function() {
+            if (grid && grid.config.showGroupedColumns === false && self.isGroupedBy()) {
+                return false;
+            }
             return self._visible();
         },
         write: function(val) {
