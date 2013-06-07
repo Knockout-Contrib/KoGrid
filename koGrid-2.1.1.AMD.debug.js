@@ -2,9 +2,10 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/07/2013 17:25:30
+* Compiled At: 06/07/2013 17:25:26
 ***********************************************/
 
+define(['jquery', 'knockout'], function ($, ko) {
 (function (window) {
 'use strict';
 
@@ -2264,3 +2265,4 @@ window.kg.domUtilityService = {
 };
 getWidths();
 }(window));
+return kg;});

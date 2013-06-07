@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/07/2013 17:17:46
+* Compiled At: 06/07/2013 17:25:30
 ***********************************************/
 
 (function (window) {
