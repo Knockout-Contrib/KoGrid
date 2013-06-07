@@ -146,11 +146,12 @@ window.kg.Grid = function (options) {
                 cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
             });
         }
+        columnDefs.sort(function (a, b) {return a.index - b.index;});
         if (columnDefs.length > 0) {
             self.configGroups([]);
             var configGroups = [];
             $.each(columnDefs, function (i, colDef) {
-                var index = typeof colDef.index == "number" ? colDef.index : i;
+                var index = i;
                 var column = new window.kg.Column({
                     colDef: colDef,
                     // This is likely causing our bug, we need to clean the index vield to ensure that all the indexes are valid.
