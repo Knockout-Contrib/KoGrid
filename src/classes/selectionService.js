@@ -42,6 +42,7 @@ window.kg.SelectionService = function (grid) {
 	                rows[rows.length - 1].afterSelectionChange(rows, evt);
 	            }
 	            self.lastClickedRow = rows[rows.length - 1];
+	            grid.$$selectionPhase = false;
 	            return true;
 	        }
 	    } else if (!self.multi) {
