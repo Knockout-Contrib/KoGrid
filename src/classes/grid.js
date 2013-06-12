@@ -96,6 +96,10 @@ window.kg.Grid = function (options) {
     };
     //self funcs
     self.setRenderedRows = function (newRows) {
+    	ko.utils.arrayForEach(newRows, function (row) {
+            row.selected(false);
+        });
+        
         self.renderedRows(newRows);
         self.refreshDomSizes();
     };
