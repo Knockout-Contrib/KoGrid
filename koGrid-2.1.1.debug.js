@@ -1171,11 +1171,7 @@ window.kg.Grid = function (options) {
         rootMaxH: 0
     };
     //self funcs
-    self.setRenderedRows = function (newRows) {
-    	ko.utils.arrayForEach(newRows, function (row) {
-            row.selected(false);
-        });
-        
+    self.setRenderedRows = function (newRows) 
         self.renderedRows(newRows);
         self.refreshDomSizes();
     };
