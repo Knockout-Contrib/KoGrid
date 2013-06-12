@@ -1172,6 +1172,10 @@ window.kg.Grid = function (options) {
     };
     //self funcs
     self.setRenderedRows = function (newRows) {
+    	ko.utils.arrayForEach(newRows, function (row) {
+            row.selected(false);
+        });
+        
         self.renderedRows(newRows);
         self.refreshDomSizes();
     };
@@ -1938,7 +1942,7 @@ window.kg.sortService = {
         } 
         // now lets string check..
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+        if (item.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
             return window.kg.sortService.sortNumberStr;
         } 
         // check for a date: dd/mm/yyyy or dd/mm/yy
