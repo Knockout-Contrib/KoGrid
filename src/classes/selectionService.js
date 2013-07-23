@@ -18,6 +18,12 @@ window.kg.SelectionService = function (grid) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
 	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+	            
+	            if(grid.aggColumns().length == 1) {
+	            	thisIndx = grid.rowFactory.rowCache.indexOf(rowItem);
+	            	prevIndx = grid.rowFactory.rowCache.indexOf(self.lastClickedRow);
+	            }
+	            
 	            if (thisIndx == prevIndx) {
 	                return false;
 	            }
