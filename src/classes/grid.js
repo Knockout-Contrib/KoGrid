@@ -398,6 +398,11 @@ window.kg.Grid = function (options) {
             return !col.isAggCol;
         });
     });
+    self.aggColumns = ko.computed(function () {
+    	return self.columns().filter(function (col) {
+    		return col.isAggCol;
+    	});
+    });
     self.toggleShowMenu = function () {
         self.showMenu(!self.showMenu());
     };
