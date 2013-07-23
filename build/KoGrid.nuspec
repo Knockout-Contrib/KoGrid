@@ -14,8 +14,8 @@ KoGrid was inspired by SlickGrid, and has been kept in sync with its sibling, ng
     <copyright>Copyright 2013</copyright>
     <tags>knockoutjs javascript jquery datagrid ng-grid</tags>
     <dependencies>
-      <dependency id="knockoutjs" version="2.0" />
-      <dependency id="jquery" version="1.6.3" />
+      <dependency id="knockoutjs" version="2.2.0" />
+      <dependency id="jquery" version="1.8.2" />
     </dependencies>
   </metadata>
   <files>

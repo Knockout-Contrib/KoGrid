@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/11/2013 15:58:36
+* Compiled At: 07/23/2013 16:07:27
 ***********************************************/
 
 (function (window) {
@@ -1171,7 +1171,7 @@ window.kg.Grid = function (options) {
         rootMaxH: 0
     };
     //self funcs
-    self.setRenderedRows = function (newRows) 
+    self.setRenderedRows = function (newRows) {
         self.renderedRows(newRows);
         self.refreshDomSizes();
     };
@@ -1474,7 +1474,7 @@ window.kg.Grid = function (options) {
             return !col.isAggCol;
         });
     });
-    self.aggColumns = ko.computed(function () {
+	self.aggColumns = ko.computed(function () {
         return self.columns().filter(function (col) {
             return col.isAggCol;
         });
@@ -1802,12 +1802,12 @@ window.kg.SelectionService = function (grid) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
 	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
-	            
-	            if (grid.aggColumns().length > 0) {
+				
+				if (grid.aggColumns().length > 0) {
 	                thisIndx = grid.rowFactory.rowCache.indexOf(rowItem);
 	                prevIndx = grid.rowFactory.rowCache.indexOf(self.lastClickedRow);
-	            }
-	            
+	            }	
+				
 	            if (thisIndx == prevIndx) {
 	                return false;
 	            }
@@ -1832,7 +1832,7 @@ window.kg.SelectionService = function (grid) {
 	                rows[rows.length - 1].afterSelectionChange(rows, evt);
 	            }
 	            self.lastClickedRow = rows[rows.length - 1];
-	            grid.$$selectionPhase = false;
+				grid.$$selectionPhase = false;
 	            return true;
 	        }
 	    } else if (!self.multi) {
@@ -1950,7 +1950,7 @@ window.kg.sortService = {
         } 
         // now lets string check..
         //check if the item data is a valid number
-        if (item.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
+        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
             return window.kg.sortService.sortNumberStr;
         } 
         // check for a date: dd/mm/yyyy or dd/mm/yy
