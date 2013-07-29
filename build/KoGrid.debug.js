@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 07/29/2013 15:29:44
+* Compiled At: 07/29/2013 15:35:40
 ***********************************************/
 
 (function (window) {
@@ -497,7 +497,7 @@ window.kg.Column = function (config, grid) {
     self.displayName = ko.observable(colDef.displayName || colDef.field);
     self.index = config.index;
     self.isAggCol = config.isAggCol;
-	self.isGroupable = colDef.isGroupable === undefined ? true : colDef.isGroupable;
+	self.isGroupable = colDef.isGroupable;
     self.cellClass = ko.observable(colDef.cellClass || "");
     self.cellFilter = colDef.cellFilter || colDef.cellFormatter;
     self.field = colDef.field;
@@ -1039,7 +1039,7 @@ window.kg.RowFactory = function (grid) {
                             sortable: false,
                             resizable: false,
                             headerCellTemplate: '<div class="kgAggHeader"></div>',
-							isGroupable: true
+							isGroupable: false
                         },
                         isAggCol: true,
                         index: item.gDepth,
