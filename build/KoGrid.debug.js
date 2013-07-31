@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 07/29/2013 15:35:40
+* Compiled At: 07/31/2013 11:56:01
 ***********************************************/
 
 (function (window) {
@@ -1121,6 +1121,7 @@ window.kg.Grid = function (options) {
             enableRowReordering: false,
             showColumnMenu: true,
             showFilter: true,
+			searchColumn: undefined,
             disableTextSelection: true,
             filterOptions: {
                 filterText: ko.observable(""),
@@ -1703,6 +1704,11 @@ window.kg.SearchProvider = function (grid) {
 
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
+					
+					if(condition.column === '' || condition.column === undefined) {
+						condition.column = grid.config.searchColumn;
+					}
+					
                     //Search entire row
                     if (!condition.column) {
                         for (var prop in item) {

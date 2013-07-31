@@ -43,6 +43,7 @@ window.kg.Grid = function (options) {
             enableRowReordering: false,
             showColumnMenu: true,
             showFilter: true,
+			searchColumn: undefined,
             disableTextSelection: true,
             filterOptions: {
                 filterText: ko.observable(""),

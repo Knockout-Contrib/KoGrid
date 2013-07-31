@@ -20,6 +20,11 @@
 
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
+					
+					if(condition.column === '' || condition.column === undefined) {
+						condition.column = grid.config.searchColumn;
+					}
+					
                     //Search entire row
                     if (!condition.column) {
                         for (var prop in item) {
