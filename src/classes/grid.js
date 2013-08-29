@@ -213,22 +213,20 @@ window.kg.Grid = function (options) {
             self.config.maintainColumnRatios === false ? $.noop() : self.config.maintainColumnRatios = true;
             // get the remaining width
             var remainingWidth = self.rootDim.outerWidth() - totalWidth;
+            var offset = 2; //We're going to remove 2 px so we won't overflow the viewport by default
+            // are we overflowing?
+            if (self.maxCanvasHt() > self.viewportDimHeight()) {
+                //compensate for scrollbar
+                offset += window.kg.domUtilityService.ScrollW;
+            }
+            remainingWidth -= offset;
+            if (remainingWidth < 0) remainingWidth = 0;
             // calculate the weight of each asterisk rounded down
             var asteriskVal = Math.floor(remainingWidth / asteriskNum);
             // set the width of each column based on the number of stars
             $.each(asterisksArray, function (i, col) {				
 				var t = col.width.length;
                 columns[col.index].width = asteriskVal * t;
-                //check if we are on the last column
-                if (col.index + 1 == numOfCols) {
-                    var offset = 2; //We're going to remove 2 px so we won't overlflow the viwport by default
-                    // are we overflowing?
-                    if (self.maxCanvasHt() > self.viewportDimHeight()) {
-                        //compensate for scrollbar
-                        offset += window.kg.domUtilityService.ScrollW;
-                    }
-                    columns[col.index].width -= offset;
-                }
                 totalWidth += columns[col.index].width;
             });
         }
