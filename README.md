@@ -38,7 +38,7 @@ Check out the [Getting Started](https://github.com/Knockout-Contrib/KoGrid/wiki/
 ##Examples##
 http://Knockout-Contrib.github.com/KoGrid/#/examples
 
-also check out the new [Custom Cell Template Library](https://github.com/ericmbarnard/KoGrid/wiki/Cell-Template-Library)
+also check out the new [Custom Cell Template Library](https://github.com/Knockout-Contrib/KoGrid/wiki/Cell-Template-Library)
 ##Change Log##
 * __2012-12-18__ - Adding columnsChanged callback (#171) and added fixes for issues #170, #167, #164, and #134.
 * __2012-12-12__ - Merge ineedFat's awesome serach improvements. Removing gridservice and improving performance with templates. other bugfixes.
