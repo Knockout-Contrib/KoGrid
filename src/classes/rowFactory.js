@@ -50,6 +50,7 @@ window.kg.RowFactory = function (grid) {
         if (!agg) {
             // build the row
             agg = new window.kg.Aggregate(aggEntity, self);
+            agg.collapsed(false);
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
@@ -188,7 +189,7 @@ window.kg.RowFactory = function (grid) {
         var cols = grid.columns();
 
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = true;
+            item[KG_HIDDEN] = !!grid.config.hideChildren;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
                 if (!cols[depth].isAggCol && depth <= maxDepth) {
