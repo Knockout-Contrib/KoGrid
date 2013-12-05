@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/05/2013 17:20:05
+* Compiled At: 12/05/2013 17:23:54
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1494,6 +1494,7 @@ window.kg.Grid = function (options) {
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
         self.isSorting = true;
+        if (col.field == "Group") col = self.configGroups()[0];
         self.sortInfo({
             column: col,
             direction: direction
