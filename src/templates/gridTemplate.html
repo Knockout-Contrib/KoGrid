@@ -7,7 +7,7 @@
                 <li class="kgGroupItem">
                     <span class="kgGroupElement">
                         <div class="kgGroupName">
-                            <span data-bind="text: displayName"></span>
+                            <span data-bind="click: sort, text: displayName"></span>
                             <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span>
                         </div>
                         <span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span>
