@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/05/2013 17:29:35
+* Compiled At: 12/05/2013 17:40:01
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -908,6 +908,7 @@ window.kg.RowFactory = function (grid) {
             // build the row
             row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
+            row.entityIndex = grid.filteredData.peek().indexOf(entity) + 1;
             row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
             row.selected(entity[SELECTED_PROP]);
             // finally cache it for the next round
@@ -921,7 +922,6 @@ window.kg.RowFactory = function (grid) {
         if (!agg) {
             // build the row
             agg = new window.kg.Aggregate(aggEntity, self);
-            agg.collapsed(false);
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
@@ -989,18 +989,9 @@ window.kg.RowFactory = function (grid) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
                 self.parentCache[self.parentCache.length - 1].children.push(item);
-                self.parentCache[self.parentCache.length - 1].collapsed(grid.config.hideChildren === true);
-                //var parent = self.parentCache[self.parentCache.length - 1];
-                //parent.children.push(item);
-                //parent.collapsed(false);
-                //parent.notifyChildren();
-                // self.parentCache[self.parentCache.length - 1].collapsed(true);
-
                 //add the row to our return array
                 self.parsedData.push(item);
             });
-            // self.parentCache[self.parentCache.length - 1].toggleExpand();
-            self.parentCache[self.parentCache.length - 1].notifyChildren();
         } else {
             var props = [];
             for (var prop in g) {
@@ -1501,10 +1492,11 @@ window.kg.Grid = function (options) {
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
         self.isSorting = true;
-        if (col.field == "Group") col = self.configGroups()[0];
+        // if (col.field == "Group") col = self.configGroups()[0];
         self.sortInfo({
             column: col,
-            direction: direction
+            direction: direction,
+            grid: self
         });
         self.clearSortingData(col);
         if(!self.config.useExternalSorting){

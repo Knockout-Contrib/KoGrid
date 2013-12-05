@@ -386,10 +386,11 @@ window.kg.Grid = function (options) {
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
         self.isSorting = true;
-        if (col.field == "Group") col = self.configGroups()[0];
+        // if (col.field == "Group") col = self.configGroups()[0];
         self.sortInfo({
             column: col,
-            direction: direction
+            direction: direction,
+            grid: self
         });
         self.clearSortingData(col);
         if(!self.config.useExternalSorting){
