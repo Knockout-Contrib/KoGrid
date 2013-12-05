@@ -39,7 +39,12 @@
     if (config.enableResize) {
         self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
     }
-    self.sortDirection = ko.observable(undefined);
+    self.sortDirection = ko.observable(colDef.sortDirection);
+    if (self.sortDirection()) {
+        // This line would prevent multiple columns being sorted simultaneously
+        // if (grid.lastSortedColumn()) grid.lastSortedColumn().sortDirection("");
+        grid.lastSortedColumn = self;
+    }
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();

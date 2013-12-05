@@ -315,6 +315,12 @@ window.kg.Grid = function (options) {
             self.config.groups = tempArr;
             self.rowFactory.filteredDataChanged();
         });
+        self.sortedData.subscribe(function () {
+            if (!self.isSorting) {
+                self.sortByDefault();
+            }
+        });
+
         self.filteredData.subscribe(function () {
             if (self.$$selectionPhase) {
                 return;
@@ -370,6 +376,13 @@ window.kg.Grid = function (options) {
         col.width = longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
         window.kg.domUtilityService.BuildStyles(self);
     };
+    self.sortByDefault = function () {
+        // console.log(self.sortedData().length);
+        var column = self.columns().filter(function (a) {return a.sortDirection && a.sortDirection()})[0];
+        if (!column) return;
+        var direction = column.sortDirection();
+        self.sortData(column, direction);
+    }
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
         self.isSorting = true;

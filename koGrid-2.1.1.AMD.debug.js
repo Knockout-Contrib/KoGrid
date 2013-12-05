@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/05/2013 17:10:00
+* Compiled At: 12/05/2013 17:13:34
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -523,7 +523,12 @@ window.kg.Column = function (config, grid) {
     if (config.enableResize) {
         self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
     }
-    self.sortDirection = ko.observable(undefined);
+    self.sortDirection = ko.observable(colDef.sortDirection);
+    if (self.sortDirection()) {
+        // This line would prevent multiple columns being sorted simultaneously
+        // if (grid.lastSortedColumn()) grid.lastSortedColumn().sortDirection("");
+        grid.lastSortedColumn = self;
+    }
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();
@@ -1418,6 +1423,12 @@ window.kg.Grid = function (options) {
             self.config.groups = tempArr;
             self.rowFactory.filteredDataChanged();
         });
+        self.sortedData.subscribe(function () {
+            if (!self.isSorting) {
+                self.sortByDefault();
+            }
+        });
+
         self.filteredData.subscribe(function () {
             if (self.$$selectionPhase) {
                 return;
@@ -1473,6 +1484,13 @@ window.kg.Grid = function (options) {
         col.width = longest = Math.min(col.maxWidth, longest + 7); // + 7 px to make it look decent.
         window.kg.domUtilityService.BuildStyles(self);
     };
+    self.sortByDefault = function () {
+        // console.log(self.sortedData().length);
+        var column = self.columns().filter(function (a) {return a.sortDirection && a.sortDirection()})[0];
+        if (!column) return;
+        var direction = column.sortDirection();
+        self.sortData(column, direction);
+    }
     self.sortData = function (col, direction) {
         // if external sorting is being used, do nothing.
         self.isSorting = true;
