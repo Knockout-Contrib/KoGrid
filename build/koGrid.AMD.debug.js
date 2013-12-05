@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 06/07/2013 17:40:04
+* Compiled At: 12/05/2013 17:10:00
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -32,6 +32,7 @@ var SELECTED_PROP = '__kg_selected__',
     KG_DEPTH = '_kg_depth_',
     KG_HIDDEN = '_kg_hidden_',
     KG_COLUMN = '_kg_column_',
+    KG_SORTINDEX = '_kg_sortindex_',
     TEMPLATE_REGEXP = /<.+>/;
 
 /***********************************************
@@ -982,13 +983,24 @@ window.kg.RowFactory = function (grid) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
                 self.parentCache[self.parentCache.length - 1].children.push(item);
+				// we can't reliably set this variable else where.
+				// once we've added a child (non-agg) row we know that this row is collapsed
+                self.parentCache[self.parentCache.length - 1].collapsed(true);
                 //add the row to our return array
                 self.parsedData.push(item);
             });
         } else {
+            var props = [];
             for (var prop in g) {
+                if (g[prop] && typeof g[prop] == "object" && typeof g[prop][KG_SORTINDEX] != "undefined") {
+                    props[g[prop][KG_SORTINDEX]] = prop;
+                }
+            }
+            for (var i = 0; i < props.length; i++) {
+                var prop = props[i];
+                if (!prop) continue;
                 // exclude the meta properties.
-                if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN) {
+                if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
                     //build the aggregate row
@@ -1071,9 +1083,15 @@ window.kg.RowFactory = function (grid) {
                 }
                 if (!ptr[KG_COLUMN]) {
                     ptr[KG_COLUMN] = col;
-                } 
+                }
+                if (!ptr[KG_SORTINDEX]) {
+                    ptr[KG_SORTINDEX] = i;
+                }
                 ptr = ptr[val];
             });
+            if (!ptr[KG_SORTINDEX]) {
+                ptr[KG_SORTINDEX] = i;
+            }
             if (!ptr.values) {
                 ptr.values = [];
             }
