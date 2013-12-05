@@ -117,12 +117,18 @@ window.kg.RowFactory = function (grid) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
                 self.parentCache[self.parentCache.length - 1].children.push(item);
-				// we can't reliably set this variable else where.
-				// once we've added a child (non-agg) row we know that this row is collapsed
-                self.parentCache[self.parentCache.length - 1].collapsed(true);
+                self.parentCache[self.parentCache.length - 1].collapsed(grid.config.hideChildren === true);
+                //var parent = self.parentCache[self.parentCache.length - 1];
+                //parent.children.push(item);
+                //parent.collapsed(false);
+                //parent.notifyChildren();
+                // self.parentCache[self.parentCache.length - 1].collapsed(true);
+
                 //add the row to our return array
                 self.parsedData.push(item);
             });
+            // self.parentCache[self.parentCache.length - 1].toggleExpand();
+            self.parentCache[self.parentCache.length - 1].notifyChildren();
         } else {
             var props = [];
             for (var prop in g) {
