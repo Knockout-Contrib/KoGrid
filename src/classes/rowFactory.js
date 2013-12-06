@@ -111,6 +111,7 @@ window.kg.RowFactory = function (grid) {
             });
             // if (result.field == column.field) result.setExpand
         });
+        self.rowCache[rowIndex] = agg;
         return agg;
     };
     self.UpdateViewableRange = function(newRange) {

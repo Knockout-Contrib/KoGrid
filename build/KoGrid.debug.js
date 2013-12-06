@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 15:23:38
+* Compiled At: 12/06/2013 15:56:52
 ***********************************************/
 
 (function (window) {
@@ -1024,6 +1024,7 @@ window.kg.RowFactory = function (grid) {
             });
             // if (result.field == column.field) result.setExpand
         });
+        self.rowCache[rowIndex] = agg;
         return agg;
     };
     self.UpdateViewableRange = function(newRange) {
@@ -1992,8 +1993,12 @@ window.kg.SelectionService = function (grid) {
 	    grid.$$selectionPhase = true;
 	    if (evt && evt.shiftKey && self.multi) {
 	        if (self.lastClickedRow) {
-	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
-	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+	            var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
+	            var prevIndx = self.rowFactory.parsedData.indexOf(self.lastClickedRow.entity);
+	            if (thisIndx == -1) thisIndx = grid.filteredData.indexOf(rowItem.entity);
+	            if (prevIndx == -1) prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+
+	            
 	            if (thisIndx == prevIndx) {
 	                return false;
 	            }
@@ -2005,11 +2010,15 @@ window.kg.SelectionService = function (grid) {
 	            }
 	            var rows = [];
 	            for (; prevIndx <= thisIndx; prevIndx++) {
-	                rows.push(self.rowFactory.rowCache[prevIndx]);
+	            	var row = self.rowFactory.rowCache[prevIndx];
+	            	if (!row) row = {
+	            		entity: self.rowFactory.parsedData[prevIndx] || grid.filteredData.peek()[prevIndx]
+	            	};
+	                rows.push(row);
 	            }
 	            if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
 	                $.each(rows, function(i, ri) {
-	                    ri.selected(true);
+	                	if (ri.selected) ri.selected(true);
 	                    ri.entity[SELECTED_PROP] = true;
 	                    if (self.selectedItems.indexOf(ri.entity) === -1) {
 	                        self.selectedItems.push(ri.entity);
