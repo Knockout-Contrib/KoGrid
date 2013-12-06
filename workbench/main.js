@@ -63,7 +63,7 @@ function mainViewModel() {
         pagingOptions: self.pagingOptions,
         columnDefs: ko.observableArray( [{ field: 'Group', width: 'auto'},
                      { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
-                     { field: 'allowance', width: 'auto' },
+                     { field: 'allowance', width: 'auto', agg:'sum' },
                      { field: 'birthday', cellFilter: dateFilter, width: 'auto' },
                      { field: 'paid', cellFilter: checkmarkFilter, width: 'auto' }])
     };

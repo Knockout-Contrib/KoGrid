@@ -14,6 +14,7 @@ window.kg.RowFactory = function (grid) {
     self.parsedData = [];
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
+    self.aggregationProvider = new window.kg.AggregationProvider(grid);
     self.rowHeight = 30;
     self.numberOfAggregates = 0;
     self.groupedData = undefined;
@@ -47,6 +48,13 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
+    function getColumnDef(col, grid) {
+        var result = grid.config.columnDefs.filter(function (item){
+            return item.field == col.field;
+        })[0];
+        return result;
+    }
+
     self.calcAggContent = function (row, column) {
         if (column.field == 'Group') {
             return row.label();
@@ -64,24 +72,24 @@ window.kg.RowFactory = function (grid) {
 
         else
         {
-            // var def = getColumnDef(column, grid);
-            // //TODO: add a switch for whether or not to aggregate at all.
-            // if (def && (def.aggregator || def.agg)) {
-            //     var aggType = def.agg || def.aggregator || 'count';
-            //     var aggParts = aggType.match(/^([^(]+)\(([^)]+)?\)/);
-            //     if (aggParts) {
-            //         aggType = aggParts[1];
-            //     }
-            //     var aggregator = aggregators[aggType];
-            //     if (aggParts && typeof aggregator == "function") {
-            //         aggregator = aggregator(aggParts[2]);
-            //     }
-            //     if (!aggregator || typeof aggregator.grid != "function") return "#error";
-            //     var aggregateValue = aggregator.grid(row, def);
-            //     return aggregateValue ? aggregateValue : '';
-            // }
+            var def = getColumnDef(column, grid);
+            //TODO: add a switch for whether or not to aggregate at all.
+            if (def && (def.aggregator || def.agg)) {
+                var aggType = def.agg || def.aggregator || 'count';
+                var aggParts = aggType.match(/^([^(]+)\(([^)]+)?\)/);
+                if (aggParts) {
+                    aggType = aggParts[1];
+                }
+                var aggregator = self.aggregationProvider[aggType];
+                if (aggParts && typeof aggregator == "function") {
+                    aggregator = aggregator(aggParts[2]);
+                }
+                if (!aggregator || typeof aggregator.grid != "function") return "#error";
+                var aggregateValue = aggregator.grid(row, def);
+                return aggregateValue ? aggregateValue : '';
+            }
 
-            //console.log('No way to calc agg content');
+            console.log('No way to calc agg content');
             return '';
         }
     };

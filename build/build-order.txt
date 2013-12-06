@@ -25,6 +25,7 @@
 ..\src\classes\row.js
 ..\src\classes\searchProvider.js
 ..\src\classes\selectionService.js
+..\src\classes\aggregationProvider.js
 ..\src\classes\styleProvider.js
 ..\src\classes\sortService.js
 ..\src\classes\domUtilityService.js
