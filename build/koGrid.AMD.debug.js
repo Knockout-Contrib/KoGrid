@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 10:22:41
+* Compiled At: 12/06/2013 10:54:12
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -404,7 +404,7 @@ ko.bindingHandlers['mouseEvents'] = (function () {
 /***********************************************
 * FILE: ..\src\classes\aggregate.js
 ***********************************************/
-window.kg.Aggregate = function (aggEntity, rowFactory) {
+window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService) {
     var self = this;
     self.index = 0;
     self.offsetTop = ko.observable(0);
@@ -478,10 +478,44 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
             return self.children.length;
         }
     });
-    self.selected = ko.observable(false);
     self.isEven = ko.observable(false);
     self.isOdd = ko.observable(false);
-    self.toggleSelected = function () { return true; };
+    self.canSelectRows = config.canSelectRows;
+    self.selectedItems = config.selectedItems;
+    self.selectionService = selectionService;
+
+    self.selected = ko.observable(false);
+    self.continueSelection = function(event) {
+        self.selectionService.ChangeSelection(self, event);
+    };
+    self.toggleSelected = function (row, event) {
+        if (!self.canSelectRows) {
+            return true;
+        }
+        var element = event.target || event;
+        //check and make sure its not the bubbling up of our checked 'click' event 
+        if (element.type == "checkbox") {
+            self.selected(!self.selected());
+        } 
+        if (config.selectWithCheckboxOnly && element.type != "checkbox"){
+            return true;
+        } else {
+            if (self.beforeSelectionChange(self, event)) {
+                self.continueSelection(event);
+                return self.afterSelectionChange(self, event);
+            }
+        }
+        return false;
+    };
+    //selectify the entity
+    if (self.entity[SELECTED_PROP] === undefined) {
+        self.entity[SELECTED_PROP] = false;
+    } else {
+        // or else maintain the selection set by the entity.
+        self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+    }
+    self.beforeSelectionChange = config.beforeSelectionChangeCallback;
+    self.afterSelectionChange = config.afterSelectionChangeCallback;
     self.propertyCache = {};
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
@@ -967,7 +1001,7 @@ window.kg.RowFactory = function (grid) {
         var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
             // build the row
-            agg = new window.kg.Aggregate(aggEntity, self);
+            agg = new window.kg.Aggregate(aggEntity, self.rowConfig, self, self.selectionService);
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex

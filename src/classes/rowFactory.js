@@ -87,7 +87,7 @@ window.kg.RowFactory = function (grid) {
         var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
             // build the row
-            agg = new window.kg.Aggregate(aggEntity, self);
+            agg = new window.kg.Aggregate(aggEntity, self.rowConfig, self, self.selectionService);
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
