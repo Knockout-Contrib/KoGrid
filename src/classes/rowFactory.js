@@ -45,7 +45,44 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
+    self.calcAggContent = function (row, column) {
+        if (column.field == 'Group') {
+            return row.label();
+        } else if (column.field == row.entity.gField) {
+            return row.entity.gLabel;
+        }
 
+        else if (column.grp && row.parent) {
+            if (row.parent) {
+                return row.parent.entity[column.field]();
+            } else {
+                return '';
+            }
+        }
+
+        else
+        {
+            // var def = getColumnDef(column, grid);
+            // //TODO: add a switch for whether or not to aggregate at all.
+            // if (def && (def.aggregator || def.agg)) {
+            //     var aggType = def.agg || def.aggregator || 'count';
+            //     var aggParts = aggType.match(/^([^(]+)\(([^)]+)?\)/);
+            //     if (aggParts) {
+            //         aggType = aggParts[1];
+            //     }
+            //     var aggregator = aggregators[aggType];
+            //     if (aggParts && typeof aggregator == "function") {
+            //         aggregator = aggregator(aggParts[2]);
+            //     }
+            //     if (!aggregator || typeof aggregator.grid != "function") return "#error";
+            //     var aggregateValue = aggregator.grid(row, def);
+            //     return aggregateValue ? aggregateValue : '';
+            // }
+
+            //console.log('No way to calc agg content');
+            return '';
+        }
+    };
     self.buildAggregateRow = function(aggEntity, rowIndex) {
         var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
@@ -55,6 +92,18 @@ window.kg.RowFactory = function (grid) {
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
         agg.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
+        grid.config.columnDefs.forEach(function (column) {
+            if (column.field != '_kg_hidden_')
+            aggEntity[column.field] = ko.computed({
+                read: function () {
+                    if (!this.val) this.val = self.calcAggContent(agg, column);
+                    return this.val;
+                },
+                owner: {},
+                deferEvaluation: true
+            });
+            // if (result.field == column.field) result.setExpand
+        });
         return agg;
     };
     self.UpdateViewableRange = function(newRange) {
@@ -190,7 +239,8 @@ window.kg.RowFactory = function (grid) {
                             width: 25,
                             sortable: false,
                             resizable: false,
-                            headerCellTemplate: '<div class="kgAggHeader"></div>'
+                            headerCellTemplate: '<div class="kgAggHeader"></div>',
+                            cellTemplate: window.kg.aggCellTemplate()
                         },
                         isAggCol: true,
                         index: item.gDepth,

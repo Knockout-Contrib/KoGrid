@@ -8,6 +8,7 @@
 ..\src\templates\aggregateTemplate.html
 ..\src\templates\headerRowTemplate.html
 ..\src\templates\headerCellTemplate.html
+..\src\templates\aggCellTemplate.html
 ..\src\bindingHandlers\ko-grid.js
 ..\src\bindingHandlers\kg-row.js
 ..\src\bindingHandlers\kg-cell.js

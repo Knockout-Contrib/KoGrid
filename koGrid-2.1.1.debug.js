@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/05/2013 17:40:17
+* Compiled At: 12/06/2013 10:08:28
 ***********************************************/
 
 (function (window) {
@@ -214,7 +214,7 @@ window.kg.defaultCellTemplate = function(){ return '<div data-bind="attr: { \'cl
 /***********************************************
 * FILE: ..\src\templates\aggregateTemplate.html
 ***********************************************/
-window.kg.aggregateTemplate = function(){ return '<div data-bind="click: toggleExpand, style: {\'left\': offsetLeft()}" class="kgAggregate"><span class="kgAggregateText" data-bind="html: $data.label">(<span data-bind="html: totalChildren"></span> Items)</span><div data-bind="attr: {\'class\' : aggClass }"></div></div>';};
+window.kg.aggregateTemplate = function(){ return '<div data-bind="style: { cursor : $data.canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\headerRowTemplate.html
@@ -225,6 +225,11 @@ window.kg.defaultHeaderRowTemplate = function(){ return '<div data-bind="foreach
 * FILE: ..\src\templates\headerCellTemplate.html
 ***********************************************/
 window.kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="style: { cursor : sortable() ? \'pointer\' : \'default\' }, click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip" ></div></div>';};
+
+/***********************************************
+* FILE: ..\src\templates\aggCellTemplate.html
+***********************************************/
+window.kg.aggCellTemplate = function(){ return '<div data-bind="if: $root.depth == $index()"><div data-bind="{event: {mousedown: $parent.toggleExpand}, attr: {\'class\' : $root.aggClass}}"><i class=\'icon-\'></i></div></div>';};
 
 /***********************************************
 * FILE: ..\src\bindingHandlers\ko-grid.js
@@ -476,6 +481,10 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.isEven = ko.observable(false);
     self.isOdd = ko.observable(false);
     self.toggleSelected = function () { return true; };
+    self.propertyCache = {};
+    self.getProperty = function (path) {
+        return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+    };
 }; 
 
 /***********************************************
@@ -915,7 +924,44 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
+    self.calcAggContent = function (row, column) {
+        if (column.field == 'Group') {
+            return row.label();
+        } else if (column.field == row.entity.gField) {
+            return row.entity.gLabel;
+        }
 
+        else if (column.grp && row.parent) {
+            if (row.parent) {
+                return row.parent.entity[column.field]();
+            } else {
+                return '';
+            }
+        }
+
+        else
+        {
+            // var def = getColumnDef(column, grid);
+            // //TODO: add a switch for whether or not to aggregate at all.
+            // if (def && (def.aggregator || def.agg)) {
+            //     var aggType = def.agg || def.aggregator || 'count';
+            //     var aggParts = aggType.match(/^([^(]+)\(([^)]+)?\)/);
+            //     if (aggParts) {
+            //         aggType = aggParts[1];
+            //     }
+            //     var aggregator = aggregators[aggType];
+            //     if (aggParts && typeof aggregator == "function") {
+            //         aggregator = aggregator(aggParts[2]);
+            //     }
+            //     if (!aggregator || typeof aggregator.grid != "function") return "#error";
+            //     var aggregateValue = aggregator.grid(row, def);
+            //     return aggregateValue ? aggregateValue : '';
+            // }
+
+            //console.log('No way to calc agg content');
+            return '';
+        }
+    };
     self.buildAggregateRow = function(aggEntity, rowIndex) {
         var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
@@ -925,6 +971,18 @@ window.kg.RowFactory = function (grid) {
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
         agg.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
+        grid.config.columnDefs.forEach(function (column) {
+            if (column.field != '_kg_hidden_')
+            aggEntity[column.field] = ko.computed({
+                read: function () {
+                    if (!this.val) this.val = self.calcAggContent(agg, column);
+                    return this.val;
+                },
+                owner: {},
+                deferEvaluation: true
+            });
+            // if (result.field == column.field) result.setExpand
+        });
         return agg;
     };
     self.UpdateViewableRange = function(newRange) {
@@ -1060,7 +1118,8 @@ window.kg.RowFactory = function (grid) {
                             width: 25,
                             sortable: false,
                             resizable: false,
-                            headerCellTemplate: '<div class="kgAggHeader"></div>'
+                            headerCellTemplate: '<div class="kgAggHeader"></div>',
+                            cellTemplate: window.kg.aggCellTemplate()
                         },
                         isAggCol: true,
                         index: item.gDepth,
