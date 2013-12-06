@@ -38,6 +38,8 @@ window.kg.RowFactory = function (grid) {
             row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
             row.entityIndex = grid.filteredData.peek().indexOf(entity) + 1;
+            // Use the line below to fill the group column with line numbers
+            // entity.Group = row.entityIndex;
             row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
             row.selected(entity[SELECTED_PROP]);
             // finally cache it for the next round

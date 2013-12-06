@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 11:11:45
+* Compiled At: 12/06/2013 11:54:53
 ***********************************************/
 
 (function (window) {
@@ -951,6 +951,8 @@ window.kg.RowFactory = function (grid) {
             row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
             row.entityIndex = grid.filteredData.peek().indexOf(entity) + 1;
+            // Use the line below to fill the group column with line numbers
+            // entity.Group = row.entityIndex;
             row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
             row.selected(entity[SELECTED_PROP]);
             // finally cache it for the next round
