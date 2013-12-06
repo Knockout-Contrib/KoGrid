@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 16:03:46
+* Compiled At: 12/06/2013 17:12:20
 ***********************************************/
 
 (function (window) {
@@ -32,6 +32,7 @@ var SELECTED_PROP = '__kg_selected__',
     KG_HIDDEN = '_kg_hidden_',
     KG_COLUMN = '_kg_column_',
     KG_SORTINDEX = '_kg_sortindex_',
+    CELLSELECTED_PROP = '__kg_cellsselected__',
     TEMPLATE_REGEXP = /<.+>/;
 
 /***********************************************
@@ -204,7 +205,7 @@ window.kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-w
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
 ***********************************************/
-window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
+window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\cellTemplate.html
@@ -1861,7 +1862,14 @@ window.kg.Row = function (entity, config, selectionService) {
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-}; 
+    self.cellSelection = ko.observableArray(entity[CELLSELECTED_PROP] || []);
+    self.selectCell = function (column) {
+        var field = column.field;
+        var index = self.cellSelection().indexOf(field);
+        if (index == -1) self.selectionService.setCellSelection(self, column, true);
+        else self.selectionService.setCellSelection(self, column, false);
+    };
+};
 
 /***********************************************
 * FILE: ..\src\classes\searchProvider.js
@@ -2043,10 +2051,21 @@ window.kg.SelectionService = function (grid) {
         return true;
     };
 
+    self.setCellSelection = function (rowItem, column, isSelected) {
+	    var field = column.field;
+	    if (isSelected) rowItem.cellSelection.push(field);
+	    else {
+	        var index = rowItem.cellSelection().indexOf(field);
+	        rowItem.cellSelection.splice(index, 1);
+	    }
+	    rowItem.entity[CELLSELECTED_PROP] = rowItem.cellSelection();
+	    if (rowItem.cellSelection().length) self.setSelection(rowItem, true);
+	    else self.setSelection(rowItem, false);
+    };
+
     // just call this func and hand it the rowItem you want to select (or de-select)    
     self.setSelection = function(rowItem, isSelected) {
-        rowItem.selected(isSelected) ;
-        rowItem.entity[SELECTED_PROP] = isSelected;
+    	self.setSelectionQuite(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
             self.selectedItems.splice(indx, 1);
@@ -2055,6 +2074,11 @@ window.kg.SelectionService = function (grid) {
                 self.selectedItems.push(rowItem.entity);
             }
         }
+    };
+
+    self.setSelectionQuite = function (rowItem, isSelected) {
+        if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
+        rowItem.entity[SELECTED_PROP] = isSelected;
     };
     
     // @return - boolean indicating if all items are selected or not
