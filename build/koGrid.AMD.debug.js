@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 10:54:12
+* Compiled At: 12/06/2013 11:12:11
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -230,7 +230,7 @@ window.kg.defaultHeaderCellTemplate = function(){ return '<div data-bind="style:
 /***********************************************
 * FILE: ..\src\templates\aggCellTemplate.html
 ***********************************************/
-window.kg.aggCellTemplate = function(){ return '<div data-bind="if: $root.depth == $index()"><div data-bind="{event: {mousedown: $parent.toggleExpand}, attr: {\'class\' : $root.aggClass}}"><i class=\'icon-\'></i></div></div>';};
+window.kg.aggCellTemplate = function(){ return '<div data-bind="if: $root.depth == $index(), click: function () {}, clickBubble: false"><div data-bind="{event: {mousedown: $parent.toggleExpand}, attr: {\'class\' : $root.aggClass}}"><i class=\'icon-\'></i></div></div>';};
 
 /***********************************************
 * FILE: ..\src\bindingHandlers\ko-grid.js
