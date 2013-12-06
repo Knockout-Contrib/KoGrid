@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 15:56:52
+* Compiled At: 12/06/2013 16:03:46
 ***********************************************/
 
 (function (window) {
@@ -1995,10 +1995,10 @@ window.kg.SelectionService = function (grid) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
 	            var prevIndx = self.rowFactory.parsedData.indexOf(self.lastClickedRow.entity);
-	            if (thisIndx == -1) thisIndx = grid.filteredData.indexOf(rowItem.entity);
-	            if (prevIndx == -1) prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+	            if (thisIndx == -1) thisIndx = grid.filteredData().indexOf(rowItem.entity);
+	            if (prevIndx == -1) prevIndx = grid.filteredData().indexOf(self.lastClickedRow.entity);
 
-	            
+
 	            if (thisIndx == prevIndx) {
 	                return false;
 	            }
@@ -2020,10 +2020,11 @@ window.kg.SelectionService = function (grid) {
 	                $.each(rows, function(i, ri) {
 	                	if (ri.selected) ri.selected(true);
 	                    ri.entity[SELECTED_PROP] = true;
-	                    if (self.selectedItems.indexOf(ri.entity) === -1) {
-	                        self.selectedItems.push(ri.entity);
+	                    if (self.selectedItems().indexOf(ri.entity) === -1) {
+	                        self.selectedItems.peek().push(ri.entity);
 	                    }
 	                });
+	                self.selectedItems.notifySubscribers(self.selectedItems());
 	                rows[rows.length - 1].afterSelectionChange(rows, evt);
 	            }
 	            self.lastClickedRow = rows[rows.length - 1];

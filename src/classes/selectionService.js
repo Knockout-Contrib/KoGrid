@@ -18,10 +18,10 @@ window.kg.SelectionService = function (grid) {
 	        if (self.lastClickedRow) {
 	            var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
 	            var prevIndx = self.rowFactory.parsedData.indexOf(self.lastClickedRow.entity);
-	            if (thisIndx == -1) thisIndx = grid.filteredData.indexOf(rowItem.entity);
-	            if (prevIndx == -1) prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
+	            if (thisIndx == -1) thisIndx = grid.filteredData().indexOf(rowItem.entity);
+	            if (prevIndx == -1) prevIndx = grid.filteredData().indexOf(self.lastClickedRow.entity);
 
-	            
+
 	            if (thisIndx == prevIndx) {
 	                return false;
 	            }
@@ -43,10 +43,11 @@ window.kg.SelectionService = function (grid) {
 	                $.each(rows, function(i, ri) {
 	                	if (ri.selected) ri.selected(true);
 	                    ri.entity[SELECTED_PROP] = true;
-	                    if (self.selectedItems.indexOf(ri.entity) === -1) {
-	                        self.selectedItems.push(ri.entity);
+	                    if (self.selectedItems().indexOf(ri.entity) === -1) {
+	                        self.selectedItems.peek().push(ri.entity);
 	                    }
 	                });
+	                self.selectedItems.notifySubscribers(self.selectedItems());
 	                rows[rows.length - 1].afterSelectionChange(rows, evt);
 	            }
 	            self.lastClickedRow = rows[rows.length - 1];
