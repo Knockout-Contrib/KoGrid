@@ -11,4 +11,5 @@
     KG_COLUMN = '_kg_column_',
     KG_SORTINDEX = '_kg_sortindex_',
     CELLSELECTED_PROP = '__kg_cellsselected__',
+    KG_VALUE = '_kg_value_',
     TEMPLATE_REGEXP = /<.+>/;

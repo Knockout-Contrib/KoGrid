@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 13:18:58
+* Compiled At: 12/07/2013 15:09:14
 ***********************************************/
 
 (function (window) {
@@ -33,6 +33,7 @@ var SELECTED_PROP = '__kg_selected__',
     KG_COLUMN = '_kg_column_',
     KG_SORTINDEX = '_kg_sortindex_',
     CELLSELECTED_PROP = '__kg_cellsselected__',
+    KG_VALUE = '_kg_value_',
     TEMPLATE_REGEXP = /<.+>/;
 
 /***********************************************
@@ -1127,7 +1128,7 @@ window.kg.RowFactory = function (grid) {
                     //build the aggregate row
                     var agg = self.buildAggregateRow({
                         gField: g[KG_FIELD],
-                        gLabel: prop,
+                        gLabel: g[prop][KG_VALUE],
                         gDepth: g[KG_DEPTH],
                         isAggRow: true,
                         '_kg_hidden_': false,
@@ -1195,7 +1196,8 @@ window.kg.RowFactory = function (grid) {
                 var val = window.kg.utils.evalProperty(item, group);
                 if (col.cellFilter) {
                     val = col.cellFilter(val);
-                } 
+                }
+                var childVal = val;
                 val = val ? val.toString() : 'null';
                 if (!ptr[val]) {
                     ptr[val] = {};
@@ -1213,6 +1215,7 @@ window.kg.RowFactory = function (grid) {
                     ptr[KG_SORTINDEX] = i;
                 }
                 ptr = ptr[val];
+                if (!ptr[KG_VALUE]) ptr[KG_VALUE] = childVal;
             });
             if (!ptr[KG_SORTINDEX]) {
                 ptr[KG_SORTINDEX] = i;

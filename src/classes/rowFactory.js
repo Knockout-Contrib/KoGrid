@@ -205,7 +205,7 @@ window.kg.RowFactory = function (grid) {
                     //build the aggregate row
                     var agg = self.buildAggregateRow({
                         gField: g[KG_FIELD],
-                        gLabel: prop,
+                        gLabel: g[prop][KG_VALUE],
                         gDepth: g[KG_DEPTH],
                         isAggRow: true,
                         '_kg_hidden_': false,
@@ -273,7 +273,8 @@ window.kg.RowFactory = function (grid) {
                 var val = window.kg.utils.evalProperty(item, group);
                 if (col.cellFilter) {
                     val = col.cellFilter(val);
-                } 
+                }
+                var childVal = val;
                 val = val ? val.toString() : 'null';
                 if (!ptr[val]) {
                     ptr[val] = {};
@@ -291,6 +292,7 @@ window.kg.RowFactory = function (grid) {
                     ptr[KG_SORTINDEX] = i;
                 }
                 ptr = ptr[val];
+                if (!ptr[KG_VALUE]) ptr[KG_VALUE] = childVal;
             });
             if (!ptr[KG_SORTINDEX]) {
                 ptr[KG_SORTINDEX] = i;
