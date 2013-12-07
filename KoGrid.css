@@ -196,6 +196,10 @@
     background-color: rgb(189, 208, 203);
 }
 
+.kgCell.selected {
+    background-color: rgb(169, 178, 173);
+}
+
 /******** Cells ********/
 
 .kgCell {

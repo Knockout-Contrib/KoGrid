@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/06/2013 17:12:21
+* Compiled At: 12/07/2013 09:45:41
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -206,7 +206,7 @@ window.kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-w
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
 ***********************************************/
-window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false"></div></div>';};
+window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false, css: { \'selected\': $parent.cellSelection().indexOf($data.field) != -1}"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\cellTemplate.html
@@ -1229,6 +1229,7 @@ window.kg.Grid = function (options) {
             data: ko.observableArray([]),
             columnDefs: undefined,
             selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
+            selectedCells: ko.observableArray([]),
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
@@ -1640,6 +1641,7 @@ window.kg.Grid = function (options) {
 	self.jqueryUITheme = ko.observable(self.config.jqueryUITheme);
     self.footer = null;
     self.selectedItems = self.config.selectedItems;
+    self.selectedCells = self.config.selectedCells;
     self.multiSelect = self.config.multiSelect;
     self.footerVisible = window.kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
     self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
@@ -1988,85 +1990,95 @@ window.kg.SelectionService = function (grid) {
     var self = this;
     self.multi = grid.config.multiSelect;
     self.selectedItems = grid.config.selectedItems;
+    self.selectedCells = grid.config.selectedCells;
     self.selectedIndex = grid.config.selectedIndex;
     self.lastClickedRow = undefined;
     self.ignoreSelectedItemChanges = false; // flag to prevent circular event loops keeping single-select var in sync
 
     self.rowFactory = {};
-	self.Initialize = function (rowFactory) {
+    self.Initialize = function (rowFactory) {
         self.rowFactory = rowFactory;
     };
-		
-	// function to manage the selection action of a data item (entity)
-	self.ChangeSelection = function (rowItem, evt) {
-	    grid.$$selectionPhase = true;
-	    if (evt && evt.shiftKey && self.multi) {
-	        if (self.lastClickedRow) {
-	            var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
-	            var prevIndx = self.rowFactory.parsedData.indexOf(self.lastClickedRow.entity);
-	            if (thisIndx == -1) thisIndx = grid.filteredData().indexOf(rowItem.entity);
-	            if (prevIndx == -1) prevIndx = grid.filteredData().indexOf(self.lastClickedRow.entity);
+        
+    // function to manage the selection action of a data item (entity)
+    self.ChangeSelection = function (rowItem, evt) {
+        grid.$$selectionPhase = true;
+        if (evt && evt.shiftKey && self.multi) {
+            if (self.lastClickedRow) {
+                var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
+                var prevIndx = self.rowFactory.parsedData.indexOf(self.lastClickedRow.entity);
+                if (thisIndx == -1) thisIndx = grid.filteredData().indexOf(rowItem.entity);
+                if (prevIndx == -1) prevIndx = grid.filteredData().indexOf(self.lastClickedRow.entity);
 
 
-	            if (thisIndx == prevIndx) {
-	                return false;
-	            }
-	            prevIndx++;
-	            if (thisIndx < prevIndx) {
-	                thisIndx = thisIndx ^ prevIndx;
-	                prevIndx = thisIndx ^ prevIndx;
-	                thisIndx = thisIndx ^ prevIndx;
-	            }
-	            var rows = [];
-	            for (; prevIndx <= thisIndx; prevIndx++) {
-	            	var row = self.rowFactory.rowCache[prevIndx];
-	            	if (!row) row = {
-	            		entity: self.rowFactory.parsedData[prevIndx] || grid.filteredData.peek()[prevIndx]
-	            	};
-	                rows.push(row);
-	            }
-	            if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
-	                $.each(rows, function(i, ri) {
-	                	if (ri.selected) ri.selected(true);
-	                    ri.entity[SELECTED_PROP] = true;
-	                    if (self.selectedItems().indexOf(ri.entity) === -1) {
-	                        self.selectedItems.peek().push(ri.entity);
-	                    }
-	                });
-	                self.selectedItems.notifySubscribers(self.selectedItems());
-	                rows[rows.length - 1].afterSelectionChange(rows, evt);
-	            }
-	            self.lastClickedRow = rows[rows.length - 1];
-	            return true;
-	        }
-	    } else if (!self.multi) {
-	        if (self.lastClickedRow && self.lastClickedRow != rowItem) {
-	            self.setSelection(self.lastClickedRow, false);
-	        }
-	        self.setSelection(rowItem, grid.config.keepLastSelected ? true : !rowItem.selected());
-	    } else {
-	        self.setSelection(rowItem, !rowItem.selected());
-	    }
-	    self.lastClickedRow = rowItem;
-	    grid.$$selectionPhase = false;
+                if (thisIndx == prevIndx) {
+                    return false;
+                }
+                prevIndx++;
+                if (thisIndx < prevIndx) {
+                    thisIndx = thisIndx ^ prevIndx;
+                    prevIndx = thisIndx ^ prevIndx;
+                    thisIndx = thisIndx ^ prevIndx;
+                }
+                var rows = [];
+                for (; prevIndx <= thisIndx; prevIndx++) {
+                    var row = self.rowFactory.rowCache[prevIndx];
+                    if (!row) row = {
+                        entity: self.rowFactory.parsedData[prevIndx] || grid.filteredData.peek()[prevIndx]
+                    };
+                    rows.push(row);
+                }
+                if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
+                    $.each(rows, function(i, ri) {
+                        if (ri.selected) ri.selected(true);
+                        ri.entity[SELECTED_PROP] = true;
+                        if (self.selectedItems().indexOf(ri.entity) === -1) {
+                            self.selectedItems.peek().push(ri.entity);
+                        }
+                    });
+                    self.selectedItems.notifySubscribers(self.selectedItems());
+                    rows[rows.length - 1].afterSelectionChange(rows, evt);
+                }
+                self.lastClickedRow = rows[rows.length - 1];
+                return true;
+            }
+        } else if (!self.multi) {
+            if (self.lastClickedRow && self.lastClickedRow != rowItem) {
+                self.setSelection(self.lastClickedRow, false);
+            }
+            self.setSelection(rowItem, grid.config.keepLastSelected ? true : !rowItem.selected());
+        } else {
+            self.setSelection(rowItem, !rowItem.selected());
+        }
+        self.lastClickedRow = rowItem;
+        grid.$$selectionPhase = false;
         return true;
     };
 
     self.setCellSelection = function (rowItem, column, isSelected) {
-	    var field = column.field;
-	    if (isSelected) rowItem.cellSelection.push(field);
-	    else {
-	        var index = rowItem.cellSelection().indexOf(field);
-	        rowItem.cellSelection.splice(index, 1);
-	    }
-	    rowItem.entity[CELLSELECTED_PROP] = rowItem.cellSelection();
-	    if (rowItem.cellSelection().length) self.setSelection(rowItem, true);
-	    else self.setSelection(rowItem, false);
+        var field = column.field;
+        if (isSelected) {
+            rowItem.cellSelection.push(field);
+            self.selectedCells.push({
+                entity: rowItem.entity,
+                column: column,
+                field: field
+            });
+        } else {
+            var index = rowItem.cellSelection().indexOf(field);
+            rowItem.cellSelection.splice(index, 1);
+            self.selectedCells(self.selectedCells().filter(function (a) {
+                return !(a.entity == rowItem.entity && a.field == field);
+            }));
+        }
+        rowItem.entity[CELLSELECTED_PROP] = rowItem.cellSelection();
+        if (rowItem.cellSelection().length) self.setSelection(rowItem, true);
+        else self.setSelection(rowItem, false);
     };
 
     // just call this func and hand it the rowItem you want to select (or de-select)    
     self.setSelection = function(rowItem, isSelected) {
-    	self.setSelectionQuite(rowItem, isSelected);
+        self.setSelectionQuite(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
             self.selectedItems.splice(indx, 1);

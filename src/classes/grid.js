@@ -20,6 +20,7 @@ window.kg.Grid = function (options) {
             data: ko.observableArray([]),
             columnDefs: undefined,
             selectedItems: ko.observableArray([]), // array, if multi turned off will have only one item in array
+            selectedCells: ko.observableArray([]),
             displaySelectionCheckbox: true, //toggles whether row selection check boxes appear
             selectWithCheckboxOnly: false,
             useExternalSorting: false,
@@ -431,6 +432,7 @@ window.kg.Grid = function (options) {
 	self.jqueryUITheme = ko.observable(self.config.jqueryUITheme);
     self.footer = null;
     self.selectedItems = self.config.selectedItems;
+    self.selectedCells = self.config.selectedCells;
     self.multiSelect = self.config.multiSelect;
     self.footerVisible = window.kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
     self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
