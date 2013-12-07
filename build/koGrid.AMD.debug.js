@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 09:55:56
+* Compiled At: 12/07/2013 10:05:06
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1049,6 +1049,11 @@ window.kg.RowFactory = function (grid) {
         }
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
+        grid.selectedCells(grid.selectedCells().filter(function (a) {
+            // Cell selection might include aggregate rows, 
+            // we need to remove those.
+            return grid.filteredData().indexOf(a.entity) != -1;
+        }));
         if (grid.config.groups.length > 0) {
             self.getGrouping(grid.config.groups);
         }
@@ -1154,6 +1159,7 @@ window.kg.RowFactory = function (grid) {
         self.rowCache = [];
         self.numberOfAggregates = 0;
         self.groupedData = {};
+
         // Here we set the onmousedown event handler to the header container.
         var data = grid.filteredData();
         var maxDepth = groups.length;
