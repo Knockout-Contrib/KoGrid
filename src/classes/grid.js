@@ -492,6 +492,7 @@ window.kg.Grid = function (options) {
         var indx = self.configGroups().indexOf(col);
         if (indx == -1) {
 			col.isGroupedBy(true);
+            col.visible(false);
             self.configGroups.push(col);
 			col.groupIndex(self.configGroups().length);
         } else {

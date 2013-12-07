@@ -137,6 +137,25 @@ window.kg.RowFactory = function (grid) {
             return grid.filteredData().indexOf(a.entity) != -1;
         }));
         if (grid.config.groups.length > 0) {
+            if (!grid.columns().filter(function (a) {
+                return a.field == 'Group';
+            }).length) {
+                    grid.columns.splice(0, 0, new window.kg.Column({
+                        colDef: {
+                            field: 'Group',
+                            width: 250,
+                            sortable: true,
+                            resizable: true
+                        },
+                        sortCallback: grid.sortData, 
+                        resizeOnDataCallback: grid.resizeOnData,
+                        enableResize: grid.config.enableColumnResize,
+                        enableSort: grid.config.enableSorting,
+                        index: 0,
+                    }, grid));
+                    window.kg.domUtilityService.BuildStyles(grid);
+
+            }
             self.getGrouping(grid.config.groups);
         }
         self.UpdateViewableRange(self.renderedRange);
