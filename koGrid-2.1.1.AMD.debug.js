@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 09:45:41
+* Compiled At: 12/07/2013 09:55:56
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -216,7 +216,7 @@ window.kg.defaultCellTemplate = function(){ return '<div data-bind="attr: { \'cl
 /***********************************************
 * FILE: ..\src\templates\aggregateTemplate.html
 ***********************************************/
-window.kg.aggregateTemplate = function(){ return '<div data-bind="style: { cursor : $data.canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>';};
+window.kg.aggregateTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false, css: { \'selected\': $parent.cellSelection().indexOf($data.field) != -1}"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\headerRowTemplate.html
@@ -520,6 +520,13 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.propertyCache = {};
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+    };
+    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
+    self.selectCell = function (column) {
+        var field = column.field;
+        var index = self.cellSelection().indexOf(field);
+        if (index == -1) self.selectionService.setCellSelection(self, column, true);
+        else self.selectionService.setCellSelection(self, column, false);
     };
 }; 
 
