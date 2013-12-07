@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 10:05:06
+* Compiled At: 12/07/2013 11:21:37
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -967,13 +967,6 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
-    function getColumnDef(col, grid) {
-        var result = grid.config.columnDefs.filter(function (item){
-            return item.field == col.field;
-        })[0];
-        return result;
-    }
-
     self.calcAggContent = function (row, column) {
         if (column.field == 'Group') {
             return row.label();
@@ -981,7 +974,7 @@ window.kg.RowFactory = function (grid) {
             return row.entity.gLabel;
         }
 
-        else if (column.grp && row.parent) {
+        else if (column.groupIndex && row.parent) {
             if (row.parent) {
                 return row.parent.entity[column.field]();
             } else {
@@ -991,7 +984,7 @@ window.kg.RowFactory = function (grid) {
 
         else
         {
-            var def = getColumnDef(column, grid);
+            var def = column.config;
             //TODO: add a switch for whether or not to aggregate at all.
             if (def && (def.aggregator || def.agg)) {
                 var aggType = def.agg || def.aggregator || 'count';
@@ -1012,17 +1005,17 @@ window.kg.RowFactory = function (grid) {
             return '';
         }
     };
-    self.buildAggregateRow = function(aggEntity, rowIndex) {
-        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
-        if (!agg) {
-            // build the row
-            agg = new window.kg.Aggregate(aggEntity, self.rowConfig, self, self.selectionService);
-            self.aggCache[aggEntity.aggIndex] = agg;
+    self.getAggKey = function (aggRow) {
+        var key = {};
+        key[aggRow.entity.gField] = aggRow.entity.gLabel;
+        if (aggRow.parent) {
+            key = $.extend(key, self.getAggKey(aggRow.parent));
         }
-        agg.index = rowIndex + 1; //not a zero-based rowIndex
-        agg.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
-        grid.config.columnDefs.forEach(function (column) {
-            if (column.field != '_kg_hidden_')
+        return key;
+    };
+    self.buildAggregateEntity = function (agg) {
+        var aggEntity = agg.entity;
+        grid.nonAggColumns().forEach(function (column) {
             aggEntity[column.field] = ko.computed({
                 read: function () {
                     if (!this.val) this.val = self.calcAggContent(agg, column);
@@ -1033,6 +1026,17 @@ window.kg.RowFactory = function (grid) {
             });
             // if (result.field == column.field) result.setExpand
         });
+        agg.Key = aggEntity.Key = self.getAggKey(agg);
+    };
+    self.buildAggregateRow = function(aggEntity, rowIndex) {
+        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
+        if (!agg) {
+            // build the row
+            agg = new window.kg.Aggregate(aggEntity, self.rowConfig, self, self.selectionService);
+            self.aggCache[aggEntity.aggIndex] = agg;
+        }
+        agg.index = rowIndex + 1; //not a zero-based rowIndex
+        agg.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
         self.rowCache[rowIndex] = agg;
         return agg;
     };
@@ -1143,12 +1147,14 @@ window.kg.RowFactory = function (grid) {
                         agg._kg_hidden_ = agg.parent.collapsed();
                         agg.parent.aggChildren.push(agg);
                     }
+                    agg.entity.Key = self.getAggKey(agg);
                     // add the aggregate row to the parsed data.
                     self.parsedData.push(agg.entity);
                     // the current aggregate now the parent of the current depth
                     self.parentCache[agg.depth] = agg;
                     // dig deeper for more aggregates or children.
                     self.parseGroupData(g[prop]);
+                    self.buildAggregateEntity(agg);
                 }
             }
         }
