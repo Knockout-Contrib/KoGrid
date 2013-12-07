@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 13:14:31
+* Compiled At: 12/07/2013 13:18:58
 ***********************************************/
 
 (function (window) {
@@ -974,7 +974,7 @@ window.kg.RowFactory = function (grid) {
             return row.entity.gLabel;
         }
 
-        else if (column.groupIndex && row.parent) {
+        else if (column.groupIndex() && row.parent) {
             if (row.parent) {
                 return row.parent.entity[column.field]();
             } else {

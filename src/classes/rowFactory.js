@@ -52,7 +52,7 @@ window.kg.RowFactory = function (grid) {
             return row.entity.gLabel;
         }
 
-        else if (column.groupIndex && row.parent) {
+        else if (column.groupIndex() && row.parent) {
             if (row.parent) {
                 return row.parent.entity[column.field]();
             } else {
