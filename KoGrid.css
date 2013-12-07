@@ -1,4 +1,4 @@
-﻿
+
 /******** Grid Global ********/
 .kglabel {
     display: block;
@@ -186,11 +186,21 @@
     position: absolute;
     border-bottom: 1px solid rgb(229, 229, 229);
 }
+/* 
+    For Grids with group totals we can use a simple css even selector since 
+    we want grouped rows to also have a striped background color,
+    we'll want to move this css change to a binding when we add in an option for group totals vs group labels.
+*/
+/*
 .kgRow.even {
     background-color: rgb(243, 243, 243);
 }
 .kgRow.odd {
     background-color: rgb(253, 253, 253);
+}
+*/
+.kgRow:nth-child(even):not(.selected) {
+  background-color: #c4dcf2;
 }
 .kgRow.selected {
     background-color: rgb(189, 208, 203);
