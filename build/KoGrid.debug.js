@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 11:21:35
+* Compiled At: 12/07/2013 13:14:31
 ***********************************************/
 
 (function (window) {
@@ -538,6 +538,7 @@ window.kg.Column = function (config, grid) {
 		delay = 500,
         clicks = 0,
         timer = null;
+    self.config = config;
     self.eventTaget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(config.colDef.groupIndex || 0);
@@ -983,7 +984,7 @@ window.kg.RowFactory = function (grid) {
 
         else
         {
-            var def = column.config;
+            var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
             if (def && (def.aggregator || def.agg)) {
                 var aggType = def.agg || def.aggregator || 'count';

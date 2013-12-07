@@ -62,7 +62,7 @@ window.kg.RowFactory = function (grid) {
 
         else
         {
-            var def = column.config;
+            var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
             if (def && (def.aggregator || def.agg)) {
                 var aggType = def.agg || def.aggregator || 'count';
