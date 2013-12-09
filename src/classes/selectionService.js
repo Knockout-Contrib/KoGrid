@@ -99,7 +99,7 @@ window.kg.SelectionService = function (grid) {
         self.setSelectionQuite(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
-            self.selectedItems.splice(indx, 1);
+            if (indx != -1) self.selectedItems.splice(indx, 1);
         } else {
             if (self.selectedItems.indexOf(rowItem.entity) === -1) {
                 self.selectedItems.push(rowItem.entity);

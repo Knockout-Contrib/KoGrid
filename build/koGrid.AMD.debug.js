@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/09/2013 13:52:32
+* Compiled At: 12/09/2013 14:12:02
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -967,7 +967,7 @@ window.kg.RowFactory = function (grid) {
             row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
             row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
-            row.selected(entity[SELECTED_PROP]);
+            // row.selected(entity[SELECTED_PROP]);
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
         }
@@ -2134,7 +2134,7 @@ window.kg.SelectionService = function (grid) {
         self.setSelectionQuite(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
-            self.selectedItems.splice(indx, 1);
+            if (indx != -1) self.selectedItems.splice(indx, 1);
         } else {
             if (self.selectedItems.indexOf(rowItem.entity) === -1) {
                 self.selectedItems.push(rowItem.entity);
