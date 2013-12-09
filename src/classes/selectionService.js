@@ -15,6 +15,10 @@ window.kg.SelectionService = function (grid) {
     // function to manage the selection action of a data item (entity)
     self.ChangeSelection = function (rowItem, evt) {
         grid.$$selectionPhase = true;
+        if (evt && !(evt.ctrlKey || evt.shiftKey) && self.multi) {
+            // clear selection
+            self.toggleSelectAll(false);
+        }
         if (evt && evt.shiftKey && self.multi) {
             if (self.lastClickedRow) {
                 var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);

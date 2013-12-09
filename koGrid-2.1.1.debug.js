@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/09/2013 10:22:11
+* Compiled At: 12/09/2013 10:37:51
 ***********************************************/
 
 (function (window) {
@@ -2049,6 +2049,10 @@ window.kg.SelectionService = function (grid) {
     // function to manage the selection action of a data item (entity)
     self.ChangeSelection = function (rowItem, evt) {
         grid.$$selectionPhase = true;
+        if (evt && !(evt.ctrlKey || evt.shiftKey) && self.multi) {
+            // clear selection
+            self.toggleSelectAll(false);
+        }
         if (evt && evt.shiftKey && self.multi) {
             if (self.lastClickedRow) {
                 var thisIndx = self.rowFactory.parsedData.indexOf(rowItem.entity);
