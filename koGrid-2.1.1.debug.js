@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/09/2013 13:30:34
+* Compiled At: 12/09/2013 13:52:34
 ***********************************************/
 
 (function (window) {
@@ -2062,6 +2062,7 @@ window.kg.SelectionService = function (grid) {
 
 
                 if (thisIndx == prevIndx) {
+                    grid.$$selectionPhase = false;
                     return false;
                 }
                 prevIndx++;
@@ -2090,6 +2091,7 @@ window.kg.SelectionService = function (grid) {
                     rows[rows.length - 1].afterSelectionChange(rows, evt);
                 }
                 self.lastClickedRow = rows[rows.length - 1];
+                grid.$$selectionPhase = false;
                 return true;
             }
         } else if (!self.multi) {
