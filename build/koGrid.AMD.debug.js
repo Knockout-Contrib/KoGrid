@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/07/2013 16:05:04
+* Compiled At: 12/09/2013 09:37:29
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -207,7 +207,7 @@ window.kg.defaultGridTemplate = function(){ return '<div data-bind="css: {\'ui-w
 /***********************************************
 * FILE: ..\src\templates\rowTemplate.html
 ***********************************************/
-window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false, css: { \'selected\': $parent.cellSelection().indexOf($data.field) != -1}"></div></div>';};
+window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $data.selectable() ? $parent.selectCell : null, clickBubble: false, css: { \'selected\': $parent.cellSelection().indexOf($data.field) != -1}"></div></div>';};
 
 /***********************************************
 * FILE: ..\src\templates\cellTemplate.html
@@ -215,9 +215,11 @@ window.kg.defaultRowTemplate = function(){ return '<div data-bind="style: { curs
 window.kg.defaultCellTemplate = function(){ return '<div data-bind="attr: { \'class\': \'kgCellText colt\' + $index()}, html: $data.getProperty($parent)"></div>';};
 
 /***********************************************
-* FILE: ..\src\templates\aggregateTemplate.html
+* FILE: ..\src\templates\aggregateTemplate.js
 ***********************************************/
-window.kg.aggregateTemplate = function(){ return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: $parent.selectCell, clickBubble: false, css: { \'selected\': $parent.cellSelection().indexOf($data.field) != -1}"></div></div>';};
+window.kg.aggregateTemplate = function () {
+	return window.kg.defaultRowTemplate();
+};
 
 /***********************************************
 * FILE: ..\src\templates\headerRowTemplate.html
@@ -547,7 +549,8 @@ window.kg.Column = function (config, grid) {
 	self.isGroupedBy = ko.observable(false);
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
 	self.sortable = ko.observable(false);
-	self.resizable = ko.observable(false);
+    self.resizable = ko.observable(false);
+	self.selectable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -576,6 +579,7 @@ window.kg.Column = function (config, grid) {
     if (config.enableResize) {
         self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
     }
+    self.selectable(colDef.selectable);
     self.sortDirection = ko.observable(colDef.sortDirection);
     if (self.sortDirection()) {
         // This line would prevent multiple columns being sorted simultaneously

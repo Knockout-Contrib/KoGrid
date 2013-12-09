@@ -11,7 +11,8 @@
 	self.isGroupedBy = ko.observable(false);
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
 	self.sortable = ko.observable(false);
-	self.resizable = ko.observable(false);
+    self.resizable = ko.observable(false);
+	self.selectable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -40,6 +41,7 @@
     if (config.enableResize) {
         self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
     }
+    self.selectable(colDef.selectable);
     self.sortDirection = ko.observable(colDef.sortDirection);
     if (self.sortDirection()) {
         // This line would prevent multiple columns being sorted simultaneously
