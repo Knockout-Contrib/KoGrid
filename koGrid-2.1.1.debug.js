@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/09/2013 10:37:51
+* Compiled At: 12/09/2013 13:30:34
 ***********************************************/
 
 (function (window) {
@@ -1861,6 +1861,7 @@ window.kg.Row = function (entity, config, selectionService) {
     self.selectionService = selectionService;
 
     self.selected = ko.observable(false);
+    self.cellSelection = ko.observableArray(entity[CELLSELECTED_PROP] || []);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
     };
@@ -1911,7 +1912,6 @@ window.kg.Row = function (entity, config, selectionService) {
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-    self.cellSelection = ko.observableArray(entity[CELLSELECTED_PROP] || []);
     self.selectCell = function (column) {
         var field = column.field;
         var index = self.cellSelection().indexOf(field);
