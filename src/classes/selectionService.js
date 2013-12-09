@@ -104,6 +104,7 @@ window.kg.SelectionService = function (grid) {
     self.setSelectionQuite = function (rowItem, isSelected) {
         if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
         rowItem.entity[SELECTED_PROP] = isSelected;
+        if (!isSelected) rowItem.cellSelection([]);
     };
     
     // @return - boolean indicating if all items are selected or not

@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 12/09/2013 09:37:29
+* Compiled At: 12/09/2013 10:22:10
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -2139,6 +2139,7 @@ window.kg.SelectionService = function (grid) {
     self.setSelectionQuite = function (rowItem, isSelected) {
         if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
         rowItem.entity[SELECTED_PROP] = isSelected;
+        if (!isSelected) rowItem.cellSelection([]);
     };
     
     // @return - boolean indicating if all items are selected or not
