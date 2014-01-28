@@ -76,6 +76,7 @@ window.kg.Grid = function (options) {
     self.rootDim = self.config.gridDim;
     self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
     self.sortedData = self.config.data;
+    self.totalsRow = ko.observable();
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
     self.lastSortedColumn = undefined;

@@ -324,6 +324,20 @@ window.kg.RowFactory = function (grid) {
         grid.fixColumnIndexes();
         self.parsedData.length = 0;
         self.parseGroupData(self.groupedData);
+        var aggRow = new window.kg.Aggregate(
+                {
+                    isAggRow: true,
+                    '_kg_hidden_': false,
+                    children: [],
+                    aggChildren: []
+                }, // entity
+                self.rowConfig,
+                self,
+                self.selectionService
+            );
+        self.buildAggregateEntity(aggRow);
+        aggRow.children = data;
+        grid.totalsRow(aggRow);
     };
 
     if (grid.config.groups.length > 0 && grid.filteredData().length > 0) {

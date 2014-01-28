@@ -1,4 +1,4 @@
 <!--window.kg.defaultRowTemplate-->
-<div data-bind="style: { cursor : canSelectRows ? 'pointer' : 'default' }, foreach: $grid.visibleColumns, css: { 'ui-widget-content': $grid.jqueryUITheme }">
-    <div data-bind="attr: { 'class': cellClass() + ' kgCell col' + $index() }, kgCell: $data, click: $data.selectable() ? $parent.selectCell : null, clickBubble: false, css: { 'selected': $parent.cellSelection().indexOf($data.field) != -1}"></div>
+<div data-bind="style: { cursor : $data.canSelectRows ? 'pointer' : 'default' }, foreach: $grid.visibleColumns, css: { 'ui-widget-content': $grid.jqueryUITheme }">
+    <div data-bind="attr: { 'class': cellClass() + ' kgCell col' + $index() }, kgCell: $data, click: $data.selectable() ? $parent.selectCell : null, clickBubble: false, css: { 'selected': $parent.cellSelection().indexOf($data.field) != -1}"><div data-bind="attr: { 'class': 'kgCellText colt' + $index()}, html: $data.getProperty($parent)"></div></div>
 </div>
