@@ -64,6 +64,7 @@ function mainViewModel() {
         columnDefs: ko.observableArray( [
                      { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
                      { field: 'allowance', width: 'auto', agg:'sum' },
+                     { field: 'lineNum', width: 'auto', agg:'count' },
                      { field: 'birthday', cellFilter: dateFilter, width: 'auto' },
                      { field: 'paid', cellFilter: checkmarkFilter, width: 'auto' }])
     };

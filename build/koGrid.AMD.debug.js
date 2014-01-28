@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/28/2014 15:15:35
+* Compiled At: 01/28/2014 16:31:29
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1099,6 +1099,21 @@ window.kg.RowFactory = function (grid) {
             }
             self.getGrouping(grid.config.groups);
         }
+
+        var aggRow = new window.kg.Aggregate(
+                {
+                    isAggRow: true,
+                    '_kg_hidden_': false,
+                    children: [],
+                    aggChildren: []
+                }, // entity
+                self.rowConfig,
+                self,
+                self.selectionService
+            );
+        self.buildAggregateEntity(aggRow);
+        aggRow.children = grid.filteredData();
+        grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
     };
 
@@ -1113,11 +1128,15 @@ window.kg.RowFactory = function (grid) {
         var dataArray = self.parsedData.filter(function(e) {
             return e[KG_HIDDEN] === false;
         }).slice(self.renderedRange.topRow, self.renderedRange.bottomRow);
+        var indexArray = self.parsedData.filter(function (a) {
+            return /*a[KG_HIDDEN] === false && */!a.isAggRow;
+        });
         $.each(dataArray, function (indx, item) {
             var row;
             if (item.isAggRow) {
                 row = self.buildAggregateRow(item, self.renderedRange.topRow + indx);
             } else {
+                item.lineNum = indexArray.indexOf(item) + 1;
                 row = self.buildEntityRow(item, self.renderedRange.topRow + indx);
             }
             //add the row to our return array
@@ -1130,9 +1149,13 @@ window.kg.RowFactory = function (grid) {
     self.renderedChangeNoGroups = function() {
         var rowArr = [];
         var dataArr = grid.filteredData.slice(self.renderedRange.topRow, self.renderedRange.bottomRow);
+        var indexArray = ko.utils.unwrapObservable(grid.filteredData);
+        // .filter(function (a) {
+        //     return a[KG_HIDDEN] === false && !a.isAggRow;
+        // });
         $.each(dataArr, function (i, item) {
+            item.lineNum = indexArray.indexOf(item) + 1;
             var row = self.buildEntityRow(item, self.renderedRange.topRow + i);
-            row.entityIndex = grid.filteredData.peek().indexOf(item) + 1;
             //add the row to our return array
             rowArr.push(row);
         });
@@ -1265,20 +1288,6 @@ window.kg.RowFactory = function (grid) {
         grid.fixColumnIndexes();
         self.parsedData.length = 0;
         self.parseGroupData(self.groupedData);
-        var aggRow = new window.kg.Aggregate(
-                {
-                    isAggRow: true,
-                    '_kg_hidden_': false,
-                    children: [],
-                    aggChildren: []
-                }, // entity
-                self.rowConfig,
-                self,
-                self.selectionService
-            );
-        self.buildAggregateEntity(aggRow);
-        aggRow.children = data;
-        grid.totalsRow(aggRow);
     };
 
     if (grid.config.groups.length > 0 && grid.filteredData().length > 0) {
