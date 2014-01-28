@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/28/2014 15:05:09
+* Compiled At: 01/28/2014 15:15:32
 ***********************************************/
 
 (function (window) {
@@ -1075,6 +1075,14 @@ window.kg.RowFactory = function (grid) {
                     grid.columns.splice(0, 0, new window.kg.Column({
                         colDef: {
                             field: 'Group',
+                            displayName: grid.config.columnDefs
+                            .filter(function (a) {
+                                return a.groupIndex > 0;
+                            })
+                            .map(function (a) {
+                                return a.displayName;
+                            })
+                            .join("-"),
                             width: 250,
                             sortable: true,
                             resizable: true

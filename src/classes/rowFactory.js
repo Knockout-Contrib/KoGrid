@@ -143,6 +143,14 @@ window.kg.RowFactory = function (grid) {
                     grid.columns.splice(0, 0, new window.kg.Column({
                         colDef: {
                             field: 'Group',
+                            displayName: grid.config.columnDefs
+                            .filter(function (a) {
+                                return a.groupIndex > 0;
+                            })
+                            .map(function (a) {
+                                return a.displayName;
+                            })
+                            .join("-"),
                             width: 250,
                             sortable: true,
                             resizable: true
