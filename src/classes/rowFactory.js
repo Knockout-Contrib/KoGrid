@@ -12,6 +12,8 @@ window.kg.RowFactory = function (grid) {
     self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
     self.dataChanged = true;
     self.parsedData = [];
+    grid.config.parsedDataCache = grid.config.parsedDataCache || ko.observableArray();
+    self.parsedDataCache = grid.config.parsedDataCache;
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
     self.aggregationProvider = new window.kg.AggregationProvider(grid);
@@ -242,9 +244,12 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                self.parentCache[self.parentCache.length - 1].children.push(item);
+                var parent = self.parentCache[self.parentCache.length - 1];
+                parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
+                // set the visability of this row
+                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];
@@ -260,18 +265,29 @@ window.kg.RowFactory = function (grid) {
                 if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
-                    //build the aggregate row
-                    var agg = self.buildAggregateRow({
-                        gField: g[KG_FIELD],
-                        gLabel: g[prop][KG_VALUE],
-                        gDepth: g[KG_DEPTH],
-                        isAggRow: true,
-                        '_kg_hidden_': false,
-                        children: [],
-                        aggChildren: [],
-                        aggIndex: self.numberOfAggregates,
-                        aggLabelFilter: g[KG_COLUMN].aggLabelFilter
-                    }, 0);
+                    var field = g[KG_FIELD],
+                        label = g[prop][KG_VALUE],
+                        depth = g[KG_DEPTH];
+                    var entity = self.parsedDataCache().filter(function (a) {
+                        return  a.gField == field &&
+                                a.gLabel == label &&
+                                a.gDepth == depth;
+                    })[0];
+                    if (!entity) {
+                        entity = {
+                            gField: field,
+                            gLabel: label,
+                            gDepth: depth,
+                            isAggRow: true,
+                            '_kg_hidden_': false
+                        };
+                        self.parsedDataCache().push(entity);
+                    }
+                    entity.children = [];
+                    entity.aggChildren = [];
+                    entity.aggIndex = self.numberOfAggregates;
+                    entity.aggLabelFilter = g[KG_COLUMN].aggLabelFilter;
+                    var agg = self.buildAggregateRow(entity, 0);
                         agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.

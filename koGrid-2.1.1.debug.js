@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/28/2014 19:55:23
+* Compiled At: 01/29/2014 13:45:58
 ***********************************************/
 
 (function (window) {
@@ -948,6 +948,8 @@ window.kg.RowFactory = function (grid) {
     self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
     self.dataChanged = true;
     self.parsedData = [];
+    grid.config.parsedDataCache = grid.config.parsedDataCache || ko.observableArray();
+    self.parsedDataCache = grid.config.parsedDataCache;
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
     self.aggregationProvider = new window.kg.AggregationProvider(grid);
@@ -1297,6 +1299,7 @@ window.kg.RowFactory = function (grid) {
             ptr.values.push(item);
         });
         grid.fixColumnIndexes();
+        self.parsedDataCache(self.parsedData.concat());
         self.parsedData.length = 0;
         self.parseGroupData(self.groupedData);
     };
