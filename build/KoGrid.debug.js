@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/29/2014 13:45:58
+* Compiled At: 01/29/2014 15:07:52
 ***********************************************/
 
 (function (window) {
@@ -497,6 +497,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.selectionService = selectionService;
 
     self.selected = ko.observable(false);
+    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
     };
@@ -532,7 +533,6 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.selectCell = function (column) {
         var field = column.field;
         var index = self.cellSelection().indexOf(field);
@@ -1180,9 +1180,12 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                self.parentCache[self.parentCache.length - 1].children.push(item);
+                var parent = self.parentCache[self.parentCache.length - 1];
+                parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
+                //make visible state reflect parent row
+                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];
@@ -1198,18 +1201,30 @@ window.kg.RowFactory = function (grid) {
                 if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
-                    //build the aggregate row
-                    var agg = self.buildAggregateRow({
-                        gField: g[KG_FIELD],
-                        gLabel: g[prop][KG_VALUE],
-                        gDepth: g[KG_DEPTH],
-                        isAggRow: true,
-                        '_kg_hidden_': false,
-                        children: [],
-                        aggChildren: [],
-                        aggIndex: self.numberOfAggregates,
-                        aggLabelFilter: g[KG_COLUMN].aggLabelFilter
-                    }, 0);
+                    var field = g[KG_FIELD],
+                        label = g[prop][KG_VALUE],
+                        depth = g[KG_DEPTH];
+					//get the entity from cache, this preserves collapsed and selected state
+                    var entity = self.parsedDataCache().filter(function (a) {
+                        return  a.gField == field &&
+                                a.gLabel == label &&
+                                a.gDepth == depth;
+                    })[0];
+                    if (!entity) {
+                        entity = {
+                            gField: field,
+                            gLabel: label,
+                            gDepth: depth,
+                            isAggRow: true,
+                            '_kg_hidden_': false
+                        };
+                        self.parsedDataCache().push(entity);
+                    }
+                    entity.children = [];
+                    entity.aggChildren = [];
+                    entity.aggIndex = self.numberOfAggregates;
+                    entity.aggLabelFilter = g[KG_COLUMN].aggLabelFilter;
+                    var agg = self.buildAggregateRow(entity, 0);
                         agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
@@ -1299,7 +1314,6 @@ window.kg.RowFactory = function (grid) {
             ptr.values.push(item);
         });
         grid.fixColumnIndexes();
-        self.parsedDataCache(self.parsedData.concat());
         self.parsedData.length = 0;
         self.parseGroupData(self.groupedData);
     };

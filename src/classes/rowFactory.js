@@ -248,7 +248,7 @@ window.kg.RowFactory = function (grid) {
                 parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
-                // set the visability of this row
+                //make visible state reflect parent row
                 item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
@@ -268,6 +268,7 @@ window.kg.RowFactory = function (grid) {
                     var field = g[KG_FIELD],
                         label = g[prop][KG_VALUE],
                         depth = g[KG_DEPTH];
+					//get the entity from cache, this preserves collapsed and selected state
                     var entity = self.parsedDataCache().filter(function (a) {
                         return  a.gField == field &&
                                 a.gLabel == label &&

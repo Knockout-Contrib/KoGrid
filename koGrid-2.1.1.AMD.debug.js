@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/29/2014 15:00:17
+* Compiled At: 01/29/2014 15:07:48
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1185,7 +1185,7 @@ window.kg.RowFactory = function (grid) {
                 parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
-                // set the visability of this row
+                //make visible state reflect parent row
                 item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
@@ -1205,6 +1205,7 @@ window.kg.RowFactory = function (grid) {
                     var field = g[KG_FIELD],
                         label = g[prop][KG_VALUE],
                         depth = g[KG_DEPTH];
+					//get the entity from cache, this preserves collapsed and selected state
                     var entity = self.parsedDataCache().filter(function (a) {
                         return  a.gField == field &&
                                 a.gLabel == label &&
@@ -1634,7 +1635,7 @@ window.kg.Grid = function (options) {
 				}
             });
             self.config.groups = tempArr;
-            if (!ko.utils.unwrapObservable(self.config.suppressChanges)) self.rowFactory.filteredDataChanged();
+            self.rowFactory.filteredDataChanged();
         });
         self.sortedData.subscribe(function () {
             if (!self.isSorting) {

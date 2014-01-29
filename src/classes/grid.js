@@ -315,7 +315,7 @@ window.kg.Grid = function (options) {
 				}
             });
             self.config.groups = tempArr;
-            if (!ko.utils.unwrapObservable(self.config.suppressChanges)) self.rowFactory.filteredDataChanged();
+            self.rowFactory.filteredDataChanged();
         });
         self.sortedData.subscribe(function () {
             if (!self.isSorting) {
