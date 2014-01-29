@@ -13,6 +13,10 @@ window.kg.moveSelectionHandler = function(grid, evt) {
     var charCode = evt.which || evt.keyCode,
         // detect which direction for arrow keys to navigate the grid
         offset = (charCode === 38 ? -1 : (charCode === 40 ? 1 : null));
+    if (charCode == 46) {
+        grid.selectionService.RemoveSelectedRows();
+        return false;
+    }
     if (!offset) {
         return true;
     }

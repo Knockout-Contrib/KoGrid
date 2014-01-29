@@ -45,23 +45,31 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
+    self.getChildCount = function (row) {
+        if (row.children && row.children.length) return row.children.length;
+        else if (row.aggChildren && row.aggChildren.length) {
+            var total = 0;
+            row.aggChildren.forEach(function (a) {
+                total += self.getChildCount(a);
+            });
+            return total;
+        }
+        return 0;
+    };
     self.calcAggContent = function (row, column) {
         if (column.field == 'Group') {
             return row.label();
         } else if (column.field == row.entity.gField) {
             return row.entity.gLabel;
-        }
-
-        else if (column.groupIndex() && row.parent) {
+        } else if (column.groupIndex() && row.parent) {
             if (row.parent) {
                 return row.parent.entity[column.field]();
             } else {
                 return '';
             }
-        }
-
-        else
-        {
+        } else if (column.field == "lineNum") {
+            return self.getChildCount(row);
+        } else {
             var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
             if (def && (def.aggregator || def.agg)) {
@@ -298,12 +306,12 @@ window.kg.RowFactory = function (grid) {
         var data = grid.filteredData();
         var maxDepth = groups.length;
         var cols = grid.columns();
-
+        var hideChildren = !!ko.utils.unwrapObservable(grid.config.hideChildren)
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = !!grid.config.hideChildren;
+            item[KG_HIDDEN] = hideChildren;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
-                if (!cols[depth].isAggCol && depth <= maxDepth) {
+                if (!cols[depth].isAggCol && (depth + (hideChildren ? 2 : 0)) <= maxDepth) {
                     grid.columns.splice(item.gDepth, 0, new window.kg.Column({
                         colDef: {
                             field: '',

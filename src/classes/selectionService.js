@@ -132,4 +132,25 @@ window.kg.SelectionService = function (grid) {
             }
         });
     };
+
+    self.getEntitySelection = function (items) {
+        if (!items) items = self.selectedItems();
+        var result = [];
+        items.forEach(function (a) {
+            if (a.isAggRow) {
+                var children = a.children.length ? a.children : a.aggChildren;
+                result = result.concat(self.getEntitySelection(children));
+            } else {
+                result.push(a);
+            }
+        });
+        return result;
+    };
+
+    self.RemoveSelectedRows = function () {
+        var itemsToDelete = self.getEntitySelection();
+        grid.sortedData(grid.sortedData().filter(function (a) {
+            return itemsToDelete.indexOf(a) == -1;
+        }));
+    };
 };

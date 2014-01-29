@@ -40,3 +40,4 @@ Get-Content $TempFile | Set-Content $OutputFile;
 Remove-Item $TempFile -Force;
 Copy-Item $OutputFile $FinalFile;
 Write-Host "Build Succeeded!"
+	

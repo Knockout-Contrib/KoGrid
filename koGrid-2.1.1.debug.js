@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/28/2014 16:31:30
+* Compiled At: 01/28/2014 19:55:23
 ***********************************************/
 
 (function (window) {
@@ -48,6 +48,10 @@ window.kg.moveSelectionHandler = function(grid, evt) {
     var charCode = evt.which || evt.keyCode,
         // detect which direction for arrow keys to navigate the grid
         offset = (charCode === 38 ? -1 : (charCode === 40 ? 1 : null));
+    if (charCode == 46) {
+        grid.selectionService.RemoveSelectedRows();
+        return false;
+    }
     if (!offset) {
         return true;
     }
@@ -977,23 +981,31 @@ window.kg.RowFactory = function (grid) {
         }
         return row;
     };
+    self.getChildCount = function (row) {
+        if (row.children && row.children.length) return row.children.length;
+        else if (row.aggChildren && row.aggChildren.length) {
+            var total = 0;
+            row.aggChildren.forEach(function (a) {
+                total += self.getChildCount(a);
+            });
+            return total;
+        }
+        return 0;
+    };
     self.calcAggContent = function (row, column) {
         if (column.field == 'Group') {
             return row.label();
         } else if (column.field == row.entity.gField) {
             return row.entity.gLabel;
-        }
-
-        else if (column.groupIndex() && row.parent) {
+        } else if (column.groupIndex() && row.parent) {
             if (row.parent) {
                 return row.parent.entity[column.field]();
             } else {
                 return '';
             }
-        }
-
-        else
-        {
+        } else if (column.field == "lineNum") {
+            return self.getChildCount(row);
+        } else {
             var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
             if (def && (def.aggregator || def.agg)) {
@@ -1230,12 +1242,12 @@ window.kg.RowFactory = function (grid) {
         var data = grid.filteredData();
         var maxDepth = groups.length;
         var cols = grid.columns();
-
+        var hideChildren = !!ko.utils.unwrapObservable(grid.config.hideChildren)
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = !!grid.config.hideChildren;
+            item[KG_HIDDEN] = hideChildren;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
-                if (!cols[depth].isAggCol && depth <= maxDepth) {
+                if (!cols[depth].isAggCol && (depth + (hideChildren ? 2 : 0)) <= maxDepth) {
                     grid.columns.splice(item.gDepth, 0, new window.kg.Column({
                         colDef: {
                             field: '',
@@ -2202,6 +2214,27 @@ window.kg.SelectionService = function (grid) {
                 row.selected(checkAll);
             }
         });
+    };
+
+    self.getEntitySelection = function (items) {
+        if (!items) items = self.selectedItems();
+        var result = [];
+        items.forEach(function (a) {
+            if (a.isAggRow) {
+                var children = a.children.length ? a.children : a.aggChildren;
+                result = result.concat(self.getEntitySelection(children));
+            } else {
+                result.push(a);
+            }
+        });
+        return result;
+    };
+
+    self.RemoveSelectedRows = function () {
+        var itemsToDelete = self.getEntitySelection();
+        grid.sortedData(grid.sortedData().filter(function (a) {
+            return itemsToDelete.indexOf(a) == -1;
+        }));
     };
 };
 
