@@ -9,6 +9,7 @@
     self.width = colDef.width;
 	self.groupIndex = ko.observable(config.colDef.groupIndex || 0);
 	self.isGroupedBy = ko.observable(false);
+    self.isCollapsed = ko.observable();
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
 	self.sortable = ko.observable(false);
     self.resizable = ko.observable(false);

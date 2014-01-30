@@ -403,6 +403,14 @@ window.kg.Grid = function (options) {
         self.lastSortedColumn = col;
         self.isSorting = false;
     };
+    self.toggleCollapse = function (data) {
+        var collapsed = !data.isCollapsed();
+        data.isCollapsed(collapsed);
+        self.rowFactory.aggCache.forEach(function (a) {if (a.field == data.field) {a._setExpand(collapsed);}});
+
+        self.rowFactory.rowCache = [];
+        self.rowFactory.renderedChange();
+    };
     self.clearSortingData = function (col) {
         if (!col) {
             $.each(self.columns(), function (i, c) {
