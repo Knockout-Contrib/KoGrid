@@ -101,6 +101,9 @@ window.kg.RowFactory = function (grid) {
         }
         return key;
     };
+    self.matchAgg = function (aggToTest, aggToMatch) {
+        return aggToTest[aggToMatch.entity.gField] == aggToMatch.entity.gLabel && (aggToMatch.parent ? self.matchAgg(aggToTest, aggToMatch.parent) : true);
+    };
     self.buildAggregateEntity = function (agg) {
         var aggEntity = agg.entity;
         grid.nonAggColumns().forEach(function (column) {
@@ -265,20 +268,25 @@ window.kg.RowFactory = function (grid) {
                 if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
-                    var field = g[KG_FIELD],
-                        label = g[prop][KG_VALUE],
-                        depth = g[KG_DEPTH];
 					//get the entity from cache, this preserves collapsed and selected state
+                    var values = {
+                        gField: g[KG_FIELD],
+                        gLabel: g[prop][KG_VALUE],
+                        gDepth: g[KG_DEPTH]
+                    };
+                    var parent = self.parentCache[g[KG_DEPTH] - 1];
+                    var compare = {
+                        entity: values,
+                        parent: parent
+                    };
                     var entity = self.parsedDataCache().filter(function (a) {
-                        return  a.gField == field &&
-                                a.gLabel == label &&
-                                a.gDepth == depth;
+                        return self.matchAgg(a.Key, compare);
                     })[0];
                     if (!entity) {
                         entity = {
-                            gField: field,
-                            gLabel: label,
-                            gDepth: depth,
+                            gField: values.gField,
+                            gLabel: values.gLabel,
+                            gDepth: values.gDepth,
                             isAggRow: true,
                             '_kg_hidden_': false
                         };
@@ -292,12 +300,13 @@ window.kg.RowFactory = function (grid) {
                         agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
-                    agg.parent = self.parentCache[agg.depth - 1];
+                    agg.parent = parent;
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
                         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! I changed this
                         //agg.parent.collapsed(true);
-                        agg._kg_hidden_ = agg.parent.collapsed();
+                        agg.collapsed(agg.collapsed() || agg.parent.collapsed());
+                        agg.entity[KG_HIDDEN] = !!agg.parent.collapsed();
                         agg.parent.aggChildren.push(agg);
                     }
                     agg.entity.Key = self.getAggKey(agg);
