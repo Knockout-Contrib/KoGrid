@@ -242,9 +242,11 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                self.parentCache[self.parentCache.length - 1].children.push(item);
+                var parent = self.parentCache[self.parentCache.length - 1];
+                parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
+                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];

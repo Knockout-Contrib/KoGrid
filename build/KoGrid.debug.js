@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 11:09:00
+* Compiled At: 01/30/2014 11:53:56
 ***********************************************/
 
 (function (window) {
@@ -1079,11 +1079,8 @@ window.kg.RowFactory = function (grid) {
         }
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
-        grid.selectedCells(grid.selectedCells().filter(function (a) {
-            // Cell selection might include aggregate rows, 
-            // we need to remove those.
-            return grid.filteredData().indexOf(a.entity) != -1;
-        }));
+        grid.selectedCells([]);
+        grid.selectedItems([]);
         if (grid.config.groups.length > 0) {
             if (!grid.columns().filter(function (a) {
                 return a.field == 'Group';
@@ -1130,6 +1127,7 @@ window.kg.RowFactory = function (grid) {
         aggRow.children = grid.filteredData();
         grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
+        grid.selectedCells.notifySubscribers(grid.selectedCells());
     };
 
     self.renderedChange = function() {
@@ -1182,9 +1180,11 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                self.parentCache[self.parentCache.length - 1].children.push(item);
+                var parent = self.parentCache[self.parentCache.length - 1];
+                parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
+                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];
@@ -2214,8 +2214,8 @@ window.kg.SelectionService = function (grid) {
             var cellsToSelect = cellSelection.concat();
             cellSelection.length = 0;
             cellsToSelect.forEach(function (a) {
-                var column = grid.columns.filter(function (b) {
-                    return a.field == b.field;
+                var column = grid.columns.peek().filter(function (b) {
+                    return a == b.field;
                 })[0];
                 if (column) {
                     self.setCellSelection(rowItem, column, true);

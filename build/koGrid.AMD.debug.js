@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 11:27:18
+* Compiled At: 01/30/2014 11:54:33
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1181,9 +1181,11 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                self.parentCache[self.parentCache.length - 1].children.push(item);
+                var parent = self.parentCache[self.parentCache.length - 1];
+                parent.children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
+                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];
