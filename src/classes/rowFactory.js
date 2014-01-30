@@ -141,11 +141,8 @@ window.kg.RowFactory = function (grid) {
         }
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
-        grid.selectedCells(grid.selectedCells().filter(function (a) {
-            // Cell selection might include aggregate rows, 
-            // we need to remove those.
-            return grid.filteredData().indexOf(a.entity) != -1;
-        }));
+        grid.selectedCells([]);
+        grid.selectedItems([]);
         if (grid.config.groups.length > 0) {
             if (!grid.columns().filter(function (a) {
                 return a.field == 'Group';
@@ -192,6 +189,7 @@ window.kg.RowFactory = function (grid) {
         aggRow.children = grid.filteredData();
         grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
+        grid.selectedCells.notifySubscribers(grid.selectedCells());
     };
 
     self.renderedChange = function() {

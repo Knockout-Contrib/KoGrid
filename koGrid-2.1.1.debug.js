@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 10:50:11
+* Compiled At: 01/30/2014 11:09:00
 ***********************************************/
 
 (function (window) {
@@ -527,6 +527,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;
@@ -1969,6 +1970,7 @@ window.kg.Row = function (entity, config, selectionService) {
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.rowIndex = ko.observable(0);
     self.offsetTop = ko.observable("0px");
@@ -2207,9 +2209,23 @@ window.kg.SelectionService = function (grid) {
         else self.setSelection(rowItem, false);
     };
 
+    self.updateCellSelection = function (rowItem, cellSelection) {
+        if (cellSelection instanceof Array) {
+            var cellsToSelect = cellSelection.concat();
+            cellSelection.length = 0;
+            cellsToSelect.forEach(function (a) {
+                var column = grid.columns.filter(function (b) {
+                    return a.field == b.field;
+                })[0];
+                if (column) {
+                    self.setCellSelection(rowItem, column, true);
+                }
+            });
+        }
+    };
     // just call this func and hand it the rowItem you want to select (or de-select)    
     self.setSelection = function(rowItem, isSelected) {
-        self.setSelectionQuite(rowItem, isSelected);
+        self.setSelectionQuiet(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
             if (indx != -1) self.selectedItems.splice(indx, 1);
@@ -2220,7 +2236,7 @@ window.kg.SelectionService = function (grid) {
         }
     };
 
-    self.setSelectionQuite = function (rowItem, isSelected) {
+    self.setSelectionQuiet = function (rowItem, isSelected) {
         if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
         rowItem.entity[SELECTED_PROP] = isSelected;
         if (!isSelected) rowItem.cellSelection([]);

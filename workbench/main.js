@@ -63,7 +63,7 @@ function mainViewModel() {
         pagingOptions: self.pagingOptions,
         hideChildren: true,
         columnDefs: ko.observableArray( [
-                     { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
+                     { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto', selectable: true },
                      { field: 'allowance', width: 'auto', agg:'sum' },
                      { field: 'lineNum', width: 'auto', agg:'count' },
                      { field: 'birthday', cellFilter: dateFilter, width: 'auto' },

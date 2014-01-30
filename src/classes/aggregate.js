@@ -116,6 +116,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;

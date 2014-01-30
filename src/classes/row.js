@@ -44,6 +44,7 @@ window.kg.Row = function (entity, config, selectionService) {
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.rowIndex = ko.observable(0);
     self.offsetTop = ko.observable("0px");

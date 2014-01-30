@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 10:50:46
+* Compiled At: 01/30/2014 11:27:18
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -528,6 +528,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;
@@ -1079,11 +1080,8 @@ window.kg.RowFactory = function (grid) {
         }
         self.dataChanged = true;
         self.rowCache = []; //if data source changes, kill this!
-        grid.selectedCells(grid.selectedCells().filter(function (a) {
-            // Cell selection might include aggregate rows, 
-            // we need to remove those.
-            return grid.filteredData().indexOf(a.entity) != -1;
-        }));
+        grid.selectedCells([]);
+        grid.selectedItems([]);
         if (grid.config.groups.length > 0) {
             if (!grid.columns().filter(function (a) {
                 return a.field == 'Group';
@@ -1130,6 +1128,7 @@ window.kg.RowFactory = function (grid) {
         aggRow.children = grid.filteredData();
         grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
+        grid.selectedCells.notifySubscribers(grid.selectedCells());
     };
 
     self.renderedChange = function() {
@@ -1970,6 +1969,7 @@ window.kg.Row = function (entity, config, selectionService) {
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.rowIndex = ko.observable(0);
     self.offsetTop = ko.observable("0px");
@@ -2208,9 +2208,23 @@ window.kg.SelectionService = function (grid) {
         else self.setSelection(rowItem, false);
     };
 
+    self.updateCellSelection = function (rowItem, cellSelection) {
+        if (cellSelection instanceof Array) {
+            var cellsToSelect = cellSelection.concat();
+            cellSelection.length = 0;
+            cellsToSelect.forEach(function (a) {
+                var column = grid.columns.peek().filter(function (b) {
+                    return a == b.field;
+                })[0];
+                if (column) {
+                    self.setCellSelection(rowItem, column, true);
+                }
+            });
+        }
+    };
     // just call this func and hand it the rowItem you want to select (or de-select)    
     self.setSelection = function(rowItem, isSelected) {
-        self.setSelectionQuite(rowItem, isSelected);
+        self.setSelectionQuiet(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
             if (indx != -1) self.selectedItems.splice(indx, 1);
@@ -2221,7 +2235,7 @@ window.kg.SelectionService = function (grid) {
         }
     };
 
-    self.setSelectionQuite = function (rowItem, isSelected) {
+    self.setSelectionQuiet = function (rowItem, isSelected) {
         if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
         rowItem.entity[SELECTED_PROP] = isSelected;
         if (!isSelected) rowItem.cellSelection([]);

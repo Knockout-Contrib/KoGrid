@@ -94,9 +94,23 @@ window.kg.SelectionService = function (grid) {
         else self.setSelection(rowItem, false);
     };
 
+    self.updateCellSelection = function (rowItem, cellSelection) {
+        if (cellSelection instanceof Array) {
+            var cellsToSelect = cellSelection.concat();
+            cellSelection.length = 0;
+            cellsToSelect.forEach(function (a) {
+                var column = grid.columns.peek().filter(function (b) {
+                    return a == b.field;
+                })[0];
+                if (column) {
+                    self.setCellSelection(rowItem, column, true);
+                }
+            });
+        }
+    };
     // just call this func and hand it the rowItem you want to select (or de-select)    
     self.setSelection = function(rowItem, isSelected) {
-        self.setSelectionQuite(rowItem, isSelected);
+        self.setSelectionQuiet(rowItem, isSelected);
         if (!isSelected) {
             var indx = self.selectedItems.indexOf(rowItem.entity);
             if (indx != -1) self.selectedItems.splice(indx, 1);
@@ -107,7 +121,7 @@ window.kg.SelectionService = function (grid) {
         }
     };
 
-    self.setSelectionQuite = function (rowItem, isSelected) {
+    self.setSelectionQuiet = function (rowItem, isSelected) {
         if (ko.isObservable(rowItem.selected)) rowItem.selected(isSelected);
         rowItem.entity[SELECTED_PROP] = isSelected;
         if (!isSelected) rowItem.cellSelection([]);
