@@ -60,7 +60,7 @@ window.kg.EventProvider = function (grid) {
         // Get the scope from the header container
 		if(groupItem[0].className !='kgRemoveGroup'){
 		    var groupItemScope = ko.dataFor(groupItem[0]);
-			if (groupItemScope) {
+			if (groupItemScope instanceof window.kg.Column) {
 				// set draggable events
 				if(!grid.config.jqueryUIDraggable){
 					groupItem.attr('draggable', 'true');
@@ -71,6 +71,7 @@ window.kg.EventProvider = function (grid) {
 		} else {
 			self.groupToMove = undefined;
 		}
+        self.colToMove = undefined;
     };
 
     self.onGroupDrop = function(event) {
@@ -83,9 +84,9 @@ window.kg.EventProvider = function (grid) {
             if (groupContainer.context.className =='kgGroupPanel') {
                 grid.configGroups.splice(self.groupToMove.index, 1);
                 grid.configGroups.push(self.groupToMove.groupName);
-            } else {
+            } else if (groupContainer[0]) {
                 groupScope = ko.dataFor(groupContainer[0]);
-                if (groupScope) {
+                if (groupScope instanceof window.kg.Column) {
                     // If we have the same column, do nothing.
                     if (self.groupToMove.index != groupScope.groupIndex()) {
 						// Splice the columns
@@ -103,7 +104,7 @@ window.kg.EventProvider = function (grid) {
 				    grid.groupBy(self.colToMove.col);
 				} else {
 				    groupScope = ko.dataFor(groupContainer[0]);
-				    if (groupScope) {
+				    if (groupScope instanceof window.kg.Column) {
 						// Splice the columns
 				        grid.removeGroup(groupScope.groupIndex());
 					}
@@ -127,6 +128,7 @@ window.kg.EventProvider = function (grid) {
             // Save the column for later.
             self.colToMove = { header: headerContainer, col: headerScope };
         }
+        self.groupToMove = undefined;
         return true;
     };
 

@@ -513,17 +513,19 @@ window.kg.Grid = function (options) {
 		var col = self.columns().filter(function(item){ 
 			return item.groupIndex() == (index + 1);
 		})[0];
-		col.isGroupedBy(false);
-		col.groupIndex(0);
-        if (self.columns()[index].isAggCol) {
-            self.columns.splice(index, 1);
-        } 
-        self.configGroups.splice(index, 1);
-		self.fixGroupIndexes();
-        if (self.configGroups().length === 0) {
-            self.fixColumnIndexes();
+        if (col) {
+            col.isGroupedBy(false);
+            col.groupIndex(0);
+            if (self.columns()[index].isAggCol) {
+                self.columns.splice(index, 1);
+            } 
+            self.configGroups.splice(index, 1);
+            self.fixGroupIndexes();
+            if (self.configGroups().length === 0) {
+                self.fixColumnIndexes();
+            }
+            window.kg.domUtilityService.BuildStyles(self);
         }
-        window.kg.domUtilityService.BuildStyles(self);
     };
 	self.fixGroupIndexes = function(){		
 		$.each(self.configGroups(), function(i,item){
