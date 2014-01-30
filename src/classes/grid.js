@@ -504,6 +504,7 @@ window.kg.Grid = function (options) {
             col.visible(false);
             self.configGroups.push(col);
 			col.groupIndex(self.configGroups().length);
+            self.sortByDefault();
         } else {
 			self.removeGroup(indx);
         }

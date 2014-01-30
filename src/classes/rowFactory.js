@@ -160,6 +160,7 @@ window.kg.RowFactory = function (grid) {
                             .join("-"),
                             width: 250,
                             sortable: true,
+                            sortDirection: 'asc',
                             resizable: true
                         },
                         sortCallback: grid.sortData, 

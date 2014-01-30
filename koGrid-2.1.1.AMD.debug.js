@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 16:14:08
+* Compiled At: 01/30/2014 16:27:24
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1108,6 +1108,7 @@ window.kg.RowFactory = function (grid) {
                             .join("-"),
                             width: 250,
                             sortable: true,
+                            sortDirection: 'asc',
                             resizable: true
                         },
                         sortCallback: grid.sortData, 
@@ -1847,6 +1848,7 @@ window.kg.Grid = function (options) {
             col.visible(false);
             self.configGroups.push(col);
 			col.groupIndex(self.configGroups().length);
+            self.sortByDefault();
         } else {
 			self.removeGroup(indx);
         }
