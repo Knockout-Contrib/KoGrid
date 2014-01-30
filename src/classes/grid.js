@@ -515,12 +515,19 @@ window.kg.Grid = function (options) {
 			return item.groupIndex() == (index + 1);
 		})[0];
         if (col) {
+            col.visible(true);
             col.isGroupedBy(false);
             col.groupIndex(0);
             if (self.columns()[index].isAggCol) {
                 self.columns.splice(index, 1);
             } 
             self.configGroups.splice(index, 1);
+            if (self.configGroups.length == 0) {
+                var groupCol = self.columns().filter(function (item) {
+                    return item.field == "Group";
+                })[0];
+                if (groupCol) groupCol.visible(false);
+            }
             self.fixGroupIndexes();
             if (self.configGroups().length === 0) {
                 self.fixColumnIndexes();
