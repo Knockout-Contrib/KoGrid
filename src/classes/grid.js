@@ -404,8 +404,8 @@ window.kg.Grid = function (options) {
         self.isSorting = false;
     };
     self.toggleCollapse = function (data) {
-        var collapsed = !data.isCollapsed();
-        data.isCollapsed(collapsed);
+        var collapsed = !data.collapsed();
+        data.collapsed(collapsed);
         self.rowFactory.aggCache.forEach(function (a) {if (a.field == data.field) {a._setExpand(collapsed);}});
 
         self.rowFactory.rowCache = [];

@@ -10,7 +10,7 @@
                             <span data-bind="click: sort, text: displayName"></span>
                             <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span>
                         </div>
-                        <span data-bind="visible: !ko.utils.unwrapObservable($root.config.hideChildren) || $index() < ($root.configGroups().length - 1), click: $root.toggleCollapse" class="kgGroupArrow"></span>
+                        <span data-bind="visible: !ko.utils.unwrapObservable($root.config.hideChildren) || $index() < ($root.configGroups().length - 1), click: $root.toggleCollapse, css: $data.aggClass" class=""><i class='icon-'></i></span>
                     </span>
                 </li>
             </ul>
