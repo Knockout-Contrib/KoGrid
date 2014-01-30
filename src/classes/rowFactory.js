@@ -300,8 +300,8 @@ window.kg.RowFactory = function (grid) {
                     var agg = self.buildAggregateRow(entity, 0);
                     if (self.parsedDataCache().indexOf(agg.entity) == -1) self.parsedDataCache().push(agg.entity);
                     else throw new Error("Stop");
-                    // If agg entity has an undefined collapsed property and is the last aggregate column
-                    // if (!!agg.entity._kg_collapsed !== agg.entity._kg_collapsed && g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
+                    // If agg is the last grouping and hideChildren is enabled collapse the agg to hide it's children
+                    if (g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];

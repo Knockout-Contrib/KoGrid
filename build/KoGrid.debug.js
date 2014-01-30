@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 11:53:56
+* Compiled At: 01/30/2014 12:18:38
 ***********************************************/
 
 (function (window) {
@@ -1238,8 +1238,8 @@ window.kg.RowFactory = function (grid) {
                     var agg = self.buildAggregateRow(entity, 0);
                     if (self.parsedDataCache().indexOf(agg.entity) == -1) self.parsedDataCache().push(agg.entity);
                     else throw new Error("Stop");
-                    // If agg entity has an undefined collapsed property and is the last aggregate column
-                    // if (!!agg.entity._kg_collapsed !== agg.entity._kg_collapsed && g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
+                    // If agg is the last grouping and hideChildren is enabled collapse the agg to hide it's children
+                    if (g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
@@ -1965,7 +1965,7 @@ window.kg.Row = function (entity, config, selectionService) {
         return false;
     };
     //selectify the entity
-    if (!self.entity[SELECTED_PROP]) {
+    if (!self.entity[SELECTED_PROP] === undefined) {
         self.entity[SELECTED_PROP] = false;
     } else {
         // or else maintain the selection set by the entity.

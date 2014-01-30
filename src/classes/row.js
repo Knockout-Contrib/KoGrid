@@ -39,7 +39,7 @@ window.kg.Row = function (entity, config, selectionService) {
         return false;
     };
     //selectify the entity
-    if (!self.entity[SELECTED_PROP]) {
+    if (!self.entity[SELECTED_PROP] === undefined) {
         self.entity[SELECTED_PROP] = false;
     } else {
         // or else maintain the selection set by the entity.
