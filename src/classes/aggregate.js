@@ -30,16 +30,19 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
         self._setExpand(state);
         self.notifyChildren();
     };
-    self._setExpand = function (state) {
-        self.collapsed(state);
-        self.entity._kg_collapsed = self.collapsed();
+    self._setExpand = function (state, child) {
+        if (!child) {
+            self.collapsed(state);
+            self.entity._kg_collapsed = self.collapsed();
+        }
+        if (self.parent && self.entity[KG_HIDDEN]) state = true;
         $.each(self.aggChildren, function (i, child) {
-            var c = !!self.collapsed();
-            child.entity[KG_HIDDEN] = c;
-            if (c) child._setExpand(c);
+            var c =  !!state || child.collapsed();
+            child.entity[KG_HIDDEN] = state;
+            child._setExpand(c, true);
         });
         $.each(self.children, function (i, child) {
-            child[KG_HIDDEN] = self.collapsed();
+            child[KG_HIDDEN] = !!state;
         });
         // var foundMyself = false;
         // $.each(rowFactory.aggCache, function (i, agg) {
