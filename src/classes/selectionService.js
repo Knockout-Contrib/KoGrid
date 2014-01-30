@@ -45,7 +45,7 @@ window.kg.SelectionService = function (grid) {
                     };
                     rows.push(row);
                 }
-                if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
+                if (rowItem.beforeSelectionChange(rows, evt)) {
                     $.each(rows, function(i, ri) {
                         if (ri.selected) ri.selected(true);
                         ri.entity[SELECTED_PROP] = true;

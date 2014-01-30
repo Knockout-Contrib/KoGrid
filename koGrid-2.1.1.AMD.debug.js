@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 15:50:02
+* Compiled At: 01/30/2014 16:14:08
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -2180,7 +2180,7 @@ window.kg.SelectionService = function (grid) {
                     };
                     rows.push(row);
                 }
-                if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
+                if (rowItem.beforeSelectionChange(rows, evt)) {
                     $.each(rows, function(i, ri) {
                         if (ri.selected) ri.selected(true);
                         ri.entity[SELECTED_PROP] = true;
