@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 09:56:48
+* Compiled At: 01/30/2014 10:50:11
 ***********************************************/
 
 (function (window) {
@@ -498,6 +498,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.selectionService = selectionService;
 
     self.selected = ko.observable(false);
+    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
     };
@@ -533,7 +534,6 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.selectCell = function (column) {
         var field = column.field;
         var index = self.cellSelection().indexOf(field);
@@ -949,6 +949,8 @@ window.kg.RowFactory = function (grid) {
     self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
     self.dataChanged = true;
     self.parsedData = [];
+    grid.config.parsedDataCache = grid.config.parsedDataCache || ko.observableArray();
+    self.parsedDataCache = grid.config.parsedDataCache;
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
     self.aggregationProvider = new window.kg.AggregationProvider(grid);
@@ -1000,7 +1002,7 @@ window.kg.RowFactory = function (grid) {
             return row.entity.gLabel;
         } else if (column.groupIndex() && row.parent) {
             if (row.parent) {
-                return row.parent.entity[column.field]();
+                return ko.utils.unwrapObservable(row.parent.entity[column.field]);
             } else {
                 return '';
             }
@@ -1197,8 +1199,8 @@ window.kg.RowFactory = function (grid) {
                 if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
-                    //build the aggregate row
-                    var agg = self.buildAggregateRow({
+                    //build the aggregate entity
+                    var entity = {
                         gField: g[KG_FIELD],
                         gLabel: g[prop][KG_VALUE],
                         gDepth: g[KG_DEPTH],
@@ -1208,20 +1210,45 @@ window.kg.RowFactory = function (grid) {
                         aggChildren: [],
                         aggIndex: self.numberOfAggregates,
                         aggLabelFilter: g[KG_COLUMN].aggLabelFilter
-                    }, 0);
+                    };
+                    var parent = self.parentCache[g[KG_DEPTH] - 1];
+                    var key = self.getAggKey({
+                        entity: {
+                            gField: g[KG_FIELD],
+                            gLabel: g[prop][KG_VALUE],
+                        },
+                        parent: parent
+                    });
+                    var cachedIndex = -1;
+                    self.parsedDataCache().forEach(function (a, i) {
+                        var isMatch = a.gField == entity.gField;
+                        for (var prop in key) {
+                            if (ko.utils.unwrapObservable(a.Key[prop]) != ko.utils.unwrapObservable(key[prop])) isMatch = false;
+                        }
+                        if (isMatch) cachedIndex = i;
+                    });
+                    if (cachedIndex != -1) {
+                        var cachedEntity = self.parsedDataCache().splice(cachedIndex, 1)[0];
+                        entity[SELECTED_PROP] = cachedEntity[SELECTED_PROP];
+                        entity[CELLSELECTED_PROP] = cachedEntity[CELLSELECTED_PROP];
+                        entity._kg_collapsed = cachedEntity._kg_collapsed;
+                    }
+                    //build the aggregate row
+                    var agg = self.buildAggregateRow(entity, 0);
+                    if (self.parsedDataCache().indexOf(agg.entity) == -1) self.parsedDataCache().push(agg.entity);
+                    else throw new Error("Stop");
                     // If agg entity has an undefined collapsed property and is the last aggregate column
                     // if (!!agg.entity._kg_collapsed !== agg.entity._kg_collapsed && g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
-                    agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
-                        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! I changed this
-                        //agg.parent.collapsed(true);
-                        agg._kg_hidden_ = agg.parent.collapsed();
+                        agg.entity._kg_hidden_ = !!agg.parent.collapsed();
+                        agg.entity._kg_collapsed = agg.parent.collapsed() || agg.entity._kg_collapsed;
                         agg.parent.aggChildren.push(agg);
                     }
+                    agg.collapsed(agg.entity._kg_collapsed);
                     agg.entity.Key = self.getAggKey(agg);
                     // add the aggregate row to the parsed data.
                     self.parsedData.push(agg.entity);
