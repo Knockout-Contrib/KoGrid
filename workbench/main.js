@@ -61,6 +61,7 @@ function mainViewModel() {
         maintainColumnRatios: true,
         enablePaging: true,
         pagingOptions: self.pagingOptions,
+        hideChildren: true,
         columnDefs: ko.observableArray( [
                      { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
                      { field: 'allowance', width: 'auto', agg:'sum' },

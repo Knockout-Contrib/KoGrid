@@ -36,7 +36,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
         $.each(self.aggChildren, function (i, child) {
             var c = !!self.collapsed();
             child.entity[KG_HIDDEN] = c;
-            child._setExpand(c);
+            if (c) child._setExpand(c);
         });
         $.each(self.children, function (i, child) {
             child[KG_HIDDEN] = self.collapsed();
@@ -87,7 +87,6 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.selectionService = selectionService;
 
     self.selected = ko.observable(false);
-    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
     };
@@ -123,6 +122,7 @@ window.kg.Aggregate = function (aggEntity, config, rowFactory, selectionService)
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
+    self.cellSelection = ko.observableArray(aggEntity[CELLSELECTED_PROP] || []);
     self.selectCell = function (column) {
         var field = column.field;
         var index = self.cellSelection().indexOf(field);

@@ -12,8 +12,6 @@ window.kg.RowFactory = function (grid) {
     self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
     self.dataChanged = true;
     self.parsedData = [];
-    grid.config.parsedDataCache = grid.config.parsedDataCache || ko.observableArray();
-    self.parsedDataCache = grid.config.parsedDataCache;
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
     self.aggregationProvider = new window.kg.AggregationProvider(grid);
@@ -100,9 +98,6 @@ window.kg.RowFactory = function (grid) {
             key = $.extend(key, self.getAggKey(aggRow.parent));
         }
         return key;
-    };
-    self.matchAgg = function (aggToTest, aggToMatch) {
-        return aggToTest[aggToMatch.entity.gField] == aggToMatch.entity.gLabel && (aggToMatch.parent ? self.matchAgg(aggToTest, aggToMatch.parent) : true);
     };
     self.buildAggregateEntity = function (agg) {
         var aggEntity = agg.entity;
@@ -247,12 +242,9 @@ window.kg.RowFactory = function (grid) {
         if (g.values) {
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
-                var parent = self.parentCache[self.parentCache.length - 1];
-                parent.children.push(item);
+                self.parentCache[self.parentCache.length - 1].children.push(item);
                 //add the row to our return array
                 self.parsedData.push(item);
-                //make visible state reflect parent row
-                item[KG_HIDDEN] = !!parent.collapsed();
             });
         } else {
             var props = [];
@@ -268,45 +260,29 @@ window.kg.RowFactory = function (grid) {
                 if (prop == KG_FIELD || prop == KG_DEPTH || prop == KG_COLUMN || prop == KG_SORTINDEX) {
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
-					//get the entity from cache, this preserves collapsed and selected state
-                    var values = {
+                    //build the aggregate row
+                    var agg = self.buildAggregateRow({
                         gField: g[KG_FIELD],
                         gLabel: g[prop][KG_VALUE],
-                        gDepth: g[KG_DEPTH]
-                    };
-                    var parent = self.parentCache[g[KG_DEPTH] - 1];
-                    var compare = {
-                        entity: values,
-                        parent: parent
-                    };
-                    var entity = self.parsedDataCache().filter(function (a) {
-                        return self.matchAgg(a.Key, compare);
-                    })[0];
-                    if (!entity) {
-                        entity = {
-                            gField: values.gField,
-                            gLabel: values.gLabel,
-                            gDepth: values.gDepth,
-                            isAggRow: true,
-                            '_kg_hidden_': false
-                        };
-                        self.parsedDataCache().push(entity);
-                    }
-                    entity.children = [];
-                    entity.aggChildren = [];
-                    entity.aggIndex = self.numberOfAggregates;
-                    entity.aggLabelFilter = g[KG_COLUMN].aggLabelFilter;
-                    var agg = self.buildAggregateRow(entity, 0);
-                        agg.collapsed(agg.entity._kg_collapsed);
+                        gDepth: g[KG_DEPTH],
+                        isAggRow: true,
+                        '_kg_hidden_': false,
+                        children: [],
+                        aggChildren: [],
+                        aggIndex: self.numberOfAggregates,
+                        aggLabelFilter: g[KG_COLUMN].aggLabelFilter
+                    }, 0);
+                    // If agg entity has an undefined collapsed property and is the last aggregate column
+                    // if (!!agg.entity._kg_collapsed !== agg.entity._kg_collapsed && g[KG_DEPTH] == self.maxDepth - 1 && self.hideChildren) agg.entity._kg_collapsed = true;
+                    agg.collapsed(agg.entity._kg_collapsed);
                     self.numberOfAggregates++;
                     //set the aggregate parent to the parent in the array that is one less deep.
-                    agg.parent = parent;
+                    agg.parent = self.parentCache[agg.depth - 1];
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
                         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! I changed this
                         //agg.parent.collapsed(true);
-                        agg.collapsed(agg.collapsed() || agg.parent.collapsed());
-                        agg.entity[KG_HIDDEN] = !!agg.parent.collapsed();
+                        agg._kg_hidden_ = agg.parent.collapsed();
                         agg.parent.aggChildren.push(agg);
                     }
                     agg.entity.Key = self.getAggKey(agg);
@@ -327,17 +303,17 @@ window.kg.RowFactory = function (grid) {
         self.rowCache = [];
         self.numberOfAggregates = 0;
         self.groupedData = {};
-
+        self.maxDepth = groups.length;
         // Here we set the onmousedown event handler to the header container.
         var data = grid.filteredData();
         var maxDepth = groups.length;
         var cols = grid.columns();
-        var hideChildren = !!ko.utils.unwrapObservable(grid.config.hideChildren)
+        self.hideChildren = !!ko.utils.unwrapObservable(grid.config.hideChildren);
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = hideChildren;
+            item[KG_HIDDEN] = self.hideChildren;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
-                if (!cols[depth].isAggCol && (depth + (hideChildren ? 2 : 0)) <= maxDepth) {
+                if (!cols[depth].isAggCol && (depth + (self.hideChildren ? 2 : 0)) <= maxDepth) {
                     grid.columns.splice(item.gDepth, 0, new window.kg.Column({
                         colDef: {
                             field: '',
