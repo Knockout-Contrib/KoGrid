@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 16:25:06
+* Compiled At: 01/30/2014 16:45:25
 ***********************************************/
 
 (function (window) {
@@ -1016,8 +1016,8 @@ window.kg.RowFactory = function (grid) {
             } else {
                 return '';
             }
-        } else if (column.field == "lineNum") {
-            return self.getChildCount(row);
+        // } else if (column.field == "lineNum") {
+        //     return self.getChildCount(row);
         } else {
             var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
@@ -1135,6 +1135,7 @@ window.kg.RowFactory = function (grid) {
             );
         self.buildAggregateEntity(aggRow);
         aggRow.children = grid.filteredData();
+        aggRow.entity.lineNum = aggRow.children.length;
         grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
         grid.selectedCells.notifySubscribers(grid.selectedCells());

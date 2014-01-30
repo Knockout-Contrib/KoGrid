@@ -69,8 +69,8 @@ window.kg.RowFactory = function (grid) {
             } else {
                 return '';
             }
-        } else if (column.field == "lineNum") {
-            return self.getChildCount(row);
+        // } else if (column.field == "lineNum") {
+        //     return self.getChildCount(row);
         } else {
             var def = column.config.colDef;
             //TODO: add a switch for whether or not to aggregate at all.
@@ -188,6 +188,7 @@ window.kg.RowFactory = function (grid) {
             );
         self.buildAggregateEntity(aggRow);
         aggRow.children = grid.filteredData();
+        aggRow.entity.lineNum = aggRow.children.length;
         grid.totalsRow(aggRow);
         self.UpdateViewableRange(self.renderedRange);
         grid.selectedCells.notifySubscribers(grid.selectedCells());
