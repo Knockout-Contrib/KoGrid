@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/30/2014 16:53:26
+* Compiled At: 02/07/2014 11:09:14
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {
@@ -1107,6 +1107,7 @@ window.kg.RowFactory = function (grid) {
                             })
                             .join("-"),
                             width: 250,
+                            index: 0,
                             sortable: true,
                             sortDirection: 'asc',
                             resizable: true
@@ -2646,8 +2647,8 @@ window.kg.sortService = {
         return numA - numB;
     },
     sortAlpha: function(a, b) {
-        var strA = a.toLowerCase(),
-            strB = b.toLowerCase();
+        var strA = ((a || '') + '').toLowerCase(),
+            strB = ((b || '') + '').toLowerCase();
         return strA == strB ? 0 : (strA < strB ? -1 : 1);
     },
     sortBool: function(a, b) {

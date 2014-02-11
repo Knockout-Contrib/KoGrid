@@ -107,8 +107,8 @@ window.kg.sortService = {
         return numA - numB;
     },
     sortAlpha: function(a, b) {
-        var strA = a.toLowerCase(),
-            strB = b.toLowerCase();
+        var strA = ((a || '') + '').toLowerCase(),
+            strB = ((b || '') + '').toLowerCase();
         return strA == strB ? 0 : (strA < strB ? -1 : 1);
     },
     sortBool: function(a, b) {
