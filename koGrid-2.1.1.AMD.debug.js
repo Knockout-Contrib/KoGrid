@@ -2,7 +2,6 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 02/07/2014 11:09:14
 ***********************************************/
 
 define(['jquery', 'knockout'], function ($, ko) {

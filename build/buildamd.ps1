@@ -15,7 +15,7 @@ Set-Content $TempFile "/***********************************************";
 Add-Content $TempFile "* koGrid JavaScript Library";
 Add-Content $TempFile "* Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md";
 Add-Content $TempFile "* License: MIT (http://www.opensource.org/licenses/mit-license.php)";
-Add-Content $TempFile "* Compiled At: $compileTime";
+#Add-Content $TempFile "* Compiled At: $compileTime";
 Add-Content $TempFile "***********************************************/`n"
 Add-Content $TempFile "define(['jquery', 'knockout'], function (`$, ko) {";
 Add-Content $TempFile "(function (window) {";
