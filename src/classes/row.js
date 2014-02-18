@@ -63,6 +63,6 @@ window.kg.Row = function (entity, config, selectionService) {
     self.afterSelectionChange = config.afterSelectionChangeCallback;
     self.propertyCache = {};
     self.getProperty = function (path) {
-        return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+        return window.kg.utils.evalProperty(self.entity, path);
     };
 }; 
