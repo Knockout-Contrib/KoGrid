@@ -5,7 +5,7 @@
             var elem = $(element);
             options.gridDim = new window.kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
             var grid = new window.kg.Grid(options);
-            var gridElem = $(window.kg.defaultGridTemplate());
+            var gridElem = $(options.gridTemplate || window.kg.defaultGridTemplate());
             // if it is a string we can watch for data changes. otherwise you won't be able to update the grid data
             options.data.subscribe(function () {
                 if (grid.$$selectionPhase) {
