@@ -55,7 +55,7 @@
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || window.kg.defaultCellTemplate();
+    self.cellTemplate = colDef.cellTemplate || grid.config.cellTemplate || window.kg.defaultCellTemplate();
     if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
         self.cellTemplate = window.kg.utils.getTemplatePromise(colDef.cellTemplate);
     }
