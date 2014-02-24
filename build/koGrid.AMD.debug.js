@@ -2465,7 +2465,7 @@ window.kg.AggregationProvider = function (grid) {
 	self.gridCount = {
 		grid: function (row, field) {
 			var text = getGridCount(row, field, "");
-			return {toString: function () {return text;}};
+			return text;
 		}
 	};
 	self.sibling = function (siblingField) {
@@ -2530,7 +2530,7 @@ window.kg.StyleProvider = function (grid) {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": Math.max(0, grid.rootDim.outerWidth()) + "px", "height": grid.config.headerRowHeight + "px" };
+        return { "width": Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };

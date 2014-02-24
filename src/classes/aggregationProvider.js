@@ -142,7 +142,7 @@ window.kg.AggregationProvider = function (grid) {
 	self.gridCount = {
 		grid: function (row, field) {
 			var text = getGridCount(row, field, "");
-			return {toString: function () {return text;}};
+			return text;
 		}
 	};
 	self.sibling = function (siblingField) {
