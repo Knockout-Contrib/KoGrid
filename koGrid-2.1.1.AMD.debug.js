@@ -2762,7 +2762,9 @@ window.kg.sortService = {
                 if (!item) {
                     return;
                 }
-                sortFn = kg.sortService.guessSortFn(item[col.field]);
+                var val = item[col.field];
+                if (typeof sortInfo.grid.config.formatString == "function") val = sortInfo.grid.config.formatString(val, col);
+                sortFn = kg.sortService.guessSortFn(val);
                 //cache it
                 if (sortFn) {
                     window.kg.sortService.colSortFnCache[col.field] = sortFn;
@@ -2791,6 +2793,11 @@ window.kg.sortService = {
                 return 1;
             } else if (!propB) {
                 return -1;
+            }
+            //allow the user to preprocess the data
+            if (typeof sortInfo.grid.config.formatString == "function") {
+                propA = sortInfo.grid.config.formatString(propA, col);
+                propB = sortInfo.grid.config.formatString(propB, col);
             }
             //made it this far, we don't have to worry about null & undefined
             if (direction === ASC) {
