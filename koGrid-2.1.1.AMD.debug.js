@@ -1414,6 +1414,7 @@ window.kg.Grid = function (options) {
 	self.$groupPanel = null;
     self.$topPanel = null;
     self.$headerContainer = null;
+    self.$footerContainer = null;
     self.$headerScroller = null;
     self.$headers = null;
     self.$viewport = null;
@@ -1701,6 +1702,9 @@ window.kg.Grid = function (options) {
     self.adjustScrollLeft = function (scrollLeft) {
         if (self.$headerContainer) {
             self.$headerContainer.scrollLeft(scrollLeft);
+        }
+        if (self.$footerContainer) {
+            self.$footerContainer.scrollLeft(scrollLeft);
         }
     };
     self.resizeOnData = function (col) {
@@ -2526,7 +2530,7 @@ window.kg.StyleProvider = function (grid) {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
+        return { "width": Math.max(0, grid.rootDim.outerWidth()) + "px", "height": grid.config.headerRowHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };
@@ -2848,6 +2852,8 @@ window.kg.domUtilityService = {
         //Headers
         grid.$topPanel = grid.$root.find(".kgTopPanel");
         grid.$groupPanel = grid.$root.find(".kgGroupPanel");
+        grid.$footerContainer = grid.$root.find(".kgRowFooter");
+        grid.$footerScroller = grid.$root.find(".kgRowFooterScroller");
         grid.$headerContainer = grid.$topPanel.find(".kgHeaderContainer");
         grid.$headerScroller = grid.$topPanel.find(".kgHeaderScroller");
         grid.$headers = grid.$headerScroller.children();

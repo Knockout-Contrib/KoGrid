@@ -28,6 +28,8 @@ window.kg.domUtilityService = {
         //Headers
         grid.$topPanel = grid.$root.find(".kgTopPanel");
         grid.$groupPanel = grid.$root.find(".kgGroupPanel");
+        grid.$footerContainer = grid.$root.find(".kgRowFooter");
+        grid.$footerScroller = grid.$root.find(".kgRowFooterScroller");
         grid.$headerContainer = grid.$topPanel.find(".kgHeaderContainer");
         grid.$headerScroller = grid.$topPanel.find(".kgHeaderScroller");
         grid.$headers = grid.$headerScroller.children();

@@ -69,6 +69,7 @@ window.kg.Grid = function (options) {
 	self.$groupPanel = null;
     self.$topPanel = null;
     self.$headerContainer = null;
+    self.$footerContainer = null;
     self.$headerScroller = null;
     self.$headers = null;
     self.$viewport = null;
@@ -356,6 +357,9 @@ window.kg.Grid = function (options) {
     self.adjustScrollLeft = function (scrollLeft) {
         if (self.$headerContainer) {
             self.$headerContainer.scrollLeft(scrollLeft);
+        }
+        if (self.$footerContainer) {
+            self.$footerContainer.scrollLeft(scrollLeft);
         }
     };
     self.resizeOnData = function (col) {
