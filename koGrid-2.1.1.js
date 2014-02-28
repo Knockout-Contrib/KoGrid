@@ -112,7 +112,7 @@ itemType=typeof(item);switch(itemType){case"number":sortFn=window.kg.sortService
 if(sortFn){return sortFn;}
 if(Object.prototype.toString.call(item)==='[object Date]'){return window.kg.sortService.sortDate;}
 if(itemType!=="string"){return window.kg.sortService.basicSort;}
-if(item.match(/^-?[£$¤]?[\d,.]+%?$/)){return window.kg.sortService.sortNumberStr;}
+if(item.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)){return window.kg.sortService.sortNumberStr;}
 dateParts=item.match(window.kg.sortService.dateRE);if(dateParts){month=parseInt(dateParts[1],10);day=parseInt(dateParts[2],10);if(month>12){return window.kg.sortService.sortDDMMStr;}else if(day>12){return window.kg.sortService.sortMMDDStr;}else{return window.kg.sortService.sortMMDDStr;}}
 return window.kg.sortService.sortAlpha;},basicSort:function(a,b){if(a==b){return 0;}
 if(a<b){return-1;}
@@ -130,7 +130,7 @@ dateB=y+m+d;if(dateA==dateB){return 0;}
 if(dateA<dateB){return-1;}
 return 1;},sortMMDDStr:function(a,b){var dateA,dateB,mtch,m,d,y;mtch=a.match(window.kg.sortService.dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
 if(d.length==1){d='0'+d;}
-dateA=y+m+d;mtch=b.match(dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
+dateA=y+m+d;mtch=b.match(window.kg.sortService.dateRE);y=mtch[3];d=mtch[2];m=mtch[1];if(m.length==1){m='0'+m;}
 if(d.length==1){d='0'+d;}
 dateB=y+m+d;if(dateA==dateB){return 0;}
 if(dateA<dateB){return-1;}
