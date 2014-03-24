@@ -10,6 +10,8 @@ This is a koGrid fork with several features and bugfixes:
  - Add an amd module output to the build process
  - Add cell selection and improve row selection
 
+To see the grid in action please see the [example page] (http://cwohlman.github.io/KoGrid/)
+
 #koGrid : A Knockout DataGrid#
 
 __Contributors:__
