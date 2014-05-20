@@ -1,0 +1,9 @@
+{
+    "name": "KoGrid",
+    "description": "A Knockout DataGrid",
+    "repository": "https://github.com/Knockout-Contrib/KoGrid",
+    "devDependencies": {
+        "karma": "~0.10",
+        "karma-coverage": "~0.1"
+    }
+}

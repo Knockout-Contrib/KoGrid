@@ -618,8 +618,8 @@ window.kg.Column = function (config, grid) {
 * FILE: ..\src\classes\dimension.js
 ***********************************************/
 window.kg.Dimension = function (options) {
-    this.outerHeight = null;
-    this.outerWidth = null;
+    this.outerHeight = 0;
+    this.outerWidth = 0;
     $.extend(this, options);
 };
 
@@ -1938,7 +1938,7 @@ window.kg.sortService = {
         } 
         // now lets string check..
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+        if (item.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
             return window.kg.sortService.sortNumberStr;
         } 
         // check for a date: dd/mm/yyyy or dd/mm/yy
