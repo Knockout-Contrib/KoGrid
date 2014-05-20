@@ -25,7 +25,11 @@ function GridFixture() {
 
         var defaults = { data: data, columnDefs: this.columnDefs };
 
-        return new window.kg.Grid( $.extend(defaults, options));
+        var grid = new window.kg.Grid($.extend(defaults, options));
+
+        window.kg.domUtilityService.AssignGridContainers("<div><div class='kgViewport'></div></div>", grid);
+
+        return grid;
     }
 }
 

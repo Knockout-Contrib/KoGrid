@@ -642,6 +642,11 @@
      * FILE: ..\src\classes\eventProvider.js
      ***********************************************/
     window.kg.EventProvider = function (grid) {
+
+        if (!grid) {
+            throw "Grid is mandatory";
+        }
+
         var self = this;
         // The init method gets called during the ng-grid directive execution.
         self.colToMove = undefined;
@@ -850,6 +855,7 @@
                 grid.adjustScrollLeft(scrollLeft);
                 grid.adjustScrollTop(scrollTop);
             });
+
             grid.$viewport.off('keydown');
             grid.$viewport.on('keydown', function (e) {
                 return window.kg.moveSelectionHandler(grid, e);
@@ -1703,6 +1709,11 @@
      * FILE: ..\src\classes\searchProvider.js
      ***********************************************/
     window.kg.SearchProvider = function (grid) {
+
+        if (!grid) {
+            throw "Grid is mandatory";
+        }
+
         var self = this,
             searchConditions = [],
             lastSearchStr;
