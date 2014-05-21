@@ -1647,6 +1647,19 @@
      * FILE: ..\src\classes\row.js
      ***********************************************/
     window.kg.Row = function (entity, config, selectionService) {
+
+        if (!entity) {
+            throw "Entity is mandatory";
+        }
+
+        if (!config) {
+            throw "Config is mandatory";
+        }
+
+        if (!selectionService) {
+            throw "SelectionService is mandatory";
+        }
+
         var self = this; // constant for the selection property that we add to each data item
 
         self.canSelectRows = config.canSelectRows;
@@ -1660,25 +1673,7 @@
         self.continueSelection = function (event) {
             self.selectionService.ChangeSelection(self, event);
         };
-        self.toggleSelected = function (row, event) {
-            if (!self.canSelectRows) {
-                return true;
-            }
-            var element = event.target || event;
-            //check and make sure its not the bubbling up of our checked 'click' event
-            if (element.type == "checkbox") {
-                self.selected(!self.selected());
-            }
-            if (config.selectWithCheckboxOnly && element.type != "checkbox") {
-                return true;
-            } else {
-                if (self.beforeSelectionChange(self, event)) {
-                    self.continueSelection(event);
-                    return self.afterSelectionChange(self, event);
-                }
-            }
-            return false;
-        };
+
         //selectify the entity
         if (self.entity[SELECTED_PROP] === undefined) {
             self.entity[SELECTED_PROP] = false;
@@ -1859,6 +1854,7 @@
                     for (; prevIndx <= thisIndx; prevIndx++) {
                         rows.push(self.rowFactory.rowCache[prevIndx]);
                     }
+
                     if (rows[rows.length - 1].beforeSelectionChange(rows, evt)) {
                         $.each(rows, function (i, ri) {
                             ri.selected(true);
@@ -1892,9 +1888,11 @@
             if (!isSelected) {
                 var indx = self.selectedItems.indexOf(rowItem.entity);
                 self.selectedItems.splice(indx, 1);
+
             } else {
                 if (self.selectedItems.indexOf(rowItem.entity) === -1) {
                     self.selectedItems.push(rowItem.entity);
+
                 }
             }
         };
@@ -1902,16 +1900,20 @@
         // @return - boolean indicating if all items are selected or not
         // @val - boolean indicating whether to select all/de-select all
         self.toggleSelectAll = function (checkAll) {
-            var selectedlength = self.selectedItems().length;
+
+            var selectedlength = self.selectedItems ? self.selectedItems().length : 0;
             if (selectedlength > 0) {
                 self.selectedItems.splice(0, selectedlength);
             }
+
+
             $.each(grid.filteredData(), function (i, item) {
                 item[SELECTED_PROP] = checkAll;
                 if (checkAll) {
                     self.selectedItems.push(item);
                 }
             });
+
             $.each(self.rowFactory.rowCache, function (i, row) {
                 if (row && row.selected) {
                     row.selected(checkAll);

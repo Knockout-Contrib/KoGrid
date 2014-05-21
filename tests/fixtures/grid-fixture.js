@@ -30,7 +30,28 @@ function GridFixture() {
         window.kg.domUtilityService.AssignGridContainers("<div><div class='kgViewport'></div></div>", grid);
 
         return grid;
-    }
+    };
+
+    this.selectionService = null;
+
+    this.getSelectionService = function (grid) {
+        if (!this.selectionService) {
+            this.selectionService = new window.kg.SelectionService(grid);
+
+            var rowFactory = new window.kg.RowFactory(grid);
+
+            this.selectionService.Initialize(rowFactory);
+        }
+        return this.selectionService;
+    };
+
+    this.row = function (rowIndex, grid) {
+
+        var entity = grid.filteredData()[rowIndex];
+        var selectionService = this.getSelectionService(grid);
+
+        return selectionService.rowFactory.buildEntityRow(entity, rowIndex);
+    };
 }
 
 var mock = (function () {
