@@ -6,6 +6,7 @@ KoGrid Team:
 * [Eric M. Barnard](https://github.com/ericmbarnard/koGrid) 
 * [Tim Sweet](http://ornerydevelopment.blogspot.com/)
 * [Jonathon Ricaurte](https://github.com/jonricaurte)
+* [Alan Souza](https://github.com/alansouzati)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
