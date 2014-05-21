@@ -80,10 +80,10 @@ window.kg.SelectionService = function (grid) {
         }
         $.each(grid.filteredData(), function (i, item) {
             item[SELECTED_PROP] = checkAll;
-            if (checkAll) {
-                self.selectedItems.push(item);
-            }
         });
+        if (checkAll) {
+            self.selectedItems.push.apply(self.selectedItems, grid.filteredData());
+        }
         $.each(self.rowFactory.rowCache, function (i, row) {
             if (row && row.selected) {
                 row.selected(checkAll);
