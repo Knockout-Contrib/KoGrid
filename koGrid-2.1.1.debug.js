@@ -2123,9 +2123,9 @@ window.kg.sortService = {
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
             if (!propB && !propA) {
                 return 0;
-            } else if (!propA) {
+            } else if (!propA && (propA === undefined || propA === null)) {
                 return 1;
-            } else if (!propB) {
+            } else if (!propB && (propB === undefined || propA === null)) {
                 return -1;
             }
             //made it this far, we don't have to worry about null & undefined
