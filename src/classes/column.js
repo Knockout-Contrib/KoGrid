@@ -111,8 +111,8 @@
         self.eventTaget.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
-        $(document).mousemove(self.onMouseMove);
-        $(document).mouseup(self.gripOnMouseUp);
+        $(document).on('mousemove.kg-col-resize', self.onMouseMove);
+        $(document).on('mouseup.kg-col-resize', self.gripOnMouseUp);
         return false;
     };
     self.onMouseMove = function (event) {
@@ -125,8 +125,8 @@
     };
     self.gripOnMouseUp = function (event) {
         event.stopPropagation();
-        $(document).off('mousemove');
-        $(document).off('mouseup');
+        $(document).off('mousemove.kg-col-resize');
+        $(document).off('mouseup.kg-col-resize');
         self.eventTaget.style.cursor = self.sortable() ? 'pointer' : 'default';
         self.eventTaget = undefined;
         grid.config.columnsChanged(grid.columns.peek());
