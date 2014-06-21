@@ -61,8 +61,11 @@ function mainViewModel() {
         maintainColumnRatios: true,
         enablePaging: true,
         pagingOptions: self.pagingOptions,
-        columnDefs: ko.observableArray( [{ field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto' },
-                     { field: 'allowance', cellTemplate: 'partials/cellTemplate.html', width: 'auto' },
+        hideChildren: false,
+        columnDefs: ko.observableArray( [
+                     { field: 'name', displayName: 'Very Long Name Title', headerClass: 'foo', width: 'auto', selectable: true },
+                     { field: 'allowance', width: 'auto', agg:'sum' },
+                     { field: 'lineNum', width: 'auto'},
                      { field: 'birthday', cellFilter: dateFilter, width: 'auto' },
                      { field: 'paid', cellFilter: checkmarkFilter, width: 'auto' }])
     };

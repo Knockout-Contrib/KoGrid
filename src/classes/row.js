@@ -15,6 +15,7 @@ window.kg.Row = function (entity, config, selectionService) {
     self.selectionService = selectionService;
 
     self.selected = ko.observable(false);
+    self.cellSelection = ko.observableArray(entity[CELLSELECTED_PROP] || []);
     self.continueSelection = function(event) {
         self.selectionService.ChangeSelection(self, event);
     };
@@ -38,11 +39,12 @@ window.kg.Row = function (entity, config, selectionService) {
         return false;
     };
     //selectify the entity
-    if (self.entity[SELECTED_PROP] === undefined) {
+    if (!self.entity[SELECTED_PROP] === undefined) {
         self.entity[SELECTED_PROP] = false;
     } else {
         // or else maintain the selection set by the entity.
         self.selectionService.setSelection(self, self.entity[SELECTED_PROP]);
+        self.selectionService.updateCellSelection(self, self.entity[CELLSELECTED_PROP]);
     }
     self.rowIndex = ko.observable(0);
     self.offsetTop = ko.observable("0px");
@@ -65,4 +67,10 @@ window.kg.Row = function (entity, config, selectionService) {
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-}; 
+    self.selectCell = function (column) {
+        var field = column.field;
+        var index = self.cellSelection().indexOf(field);
+        if (index == -1) self.selectionService.setCellSelection(self, column, true);
+        else self.selectionService.setCellSelection(self, column, false);
+    };
+};

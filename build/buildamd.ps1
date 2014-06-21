@@ -1,8 +1,8 @@
 
 $CurrentDir = (Get-Location).Path;
-$OutPutFile = $CurrentDir + "\koGrid.debug.js";
+$OutPutFile = $CurrentDir + "\koGrid.AMD.debug.js";
 $TempFile = $OutPutFile + ".temp";
-$FinalFile = "..\koGrid-2.1.1.debug.js";
+$FinalFile = "..\koGrid-2.1.1.AMD.debug.js";
 $BuildOrder = $CurrentDir + "\build-order.txt";
 $commentStart = "<!--";
 $commentEnd = "-->";
@@ -17,6 +17,7 @@ Add-Content $TempFile "* Authors: https://github.com/ericmbarnard/koGrid/blob/ma
 Add-Content $TempFile "* License: MIT (http://www.opensource.org/licenses/mit-license.php)";
 #Add-Content $TempFile "* Compiled At: $compileTime";
 Add-Content $TempFile "***********************************************/`n"
+Add-Content $TempFile "define(['jquery', 'knockout'], function (`$, ko) {";
 Add-Content $TempFile "(function (window) {";
 Add-Content $TempFile "'use strict';";
 Foreach ($file in $files){
@@ -36,6 +37,7 @@ Foreach ($file in $files){
 	}
 }
 Add-Content $TempFile "}(window));";
+Add-Content $TempFile "return kg;});";
 Get-Content $TempFile | Set-Content $OutputFile;
 Remove-Item $TempFile -Force;
 Copy-Item $OutputFile $FinalFile;

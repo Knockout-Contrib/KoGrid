@@ -1,3 +1,17 @@
+#A koGrid Fork
+This is a koGrid fork with several features and bugfixes:
+
+ - Added grouped rows and aggregation
+ - Add a footer row which will show totals for each column
+ - Improve the naming of the group column
+ - Support for sorting grouped grids
+ - Create Expand/Collapse-all buttons
+ - Improve speed of grouped grid, esp when expanding and collapsing rows
+ - Add an amd module output to the build process
+ - Add cell selection and improve row selection
+
+To see the grid in action please see the [example page] (http://cwohlman.github.io/KoGrid/)
+
 #koGrid : A Knockout DataGrid#
 
 __Contributors:__

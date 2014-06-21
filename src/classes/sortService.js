@@ -107,8 +107,8 @@ window.kg.sortService = {
         return numA - numB;
     },
     sortAlpha: function(a, b) {
-        var strA = a.toLowerCase(),
-            strB = b.toLowerCase();
+        var strA = ((a || '') + '').toLowerCase(),
+            strB = ((b || '') + '').toLowerCase();
         return strA == strB ? 0 : (strA < strB ? -1 : 1);
     },
     sortBool: function(a, b) {
@@ -171,7 +171,7 @@ window.kg.sortService = {
             d = '0' + d;
         }
         dateA = y + m + d;
-        mtch = b.match(dateRE);
+        mtch = b.match(window.kg.sortService.dateRE);
         y = mtch[3];
         d = mtch[2];
         m = mtch[1];
@@ -199,32 +199,48 @@ window.kg.sortService = {
         // grab the metadata for the rest of the logic
         var col = sortInfo.column,
             direction = sortInfo.direction,
-            sortFn,
-            item;
-        //see if we already figured out what to use to sort the column
-        if (window.kg.sortService.colSortFnCache[col.field]) {
-            sortFn = window.kg.sortService.colSortFnCache[col.field];
-        } else if (col.sortingAlgorithm != undefined) {
-            sortFn = col.sortingAlgorithm;
-            window.kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
-        } else { // try and guess what sort function to use
-            item = unwrappedData[0];
-            if (!item) {
-                return;
+            item,
+            cols;
+
+
+        if (col.field == "Group") cols = sortInfo.grid.configGroups();
+        else cols = [col];
+
+        var sortInfos = cols.map(function (col) {
+            var sortFn;
+            //see if we already figured out what to use to sort the column
+            if (window.kg.sortService.colSortFnCache[col.field]) {
+                sortFn = window.kg.sortService.colSortFnCache[col.field];
+            } else if (col.sortingAlgorithm != undefined) {
+                sortFn = col.sortingAlgorithm;
+                window.kg.sortService.colSortFnCache[col.field] = col.sortingAlgorithm;
+            } else { // try and guess what sort function to use
+                item = unwrappedData[0];
+                if (!item) {
+                    return;
+                }
+                var val = item[col.field];
+                if (typeof sortInfo.grid.config.formatString == "function") val = sortInfo.grid.config.formatString(val, col);
+                sortFn = kg.sortService.guessSortFn(val);
+                //cache it
+                if (sortFn) {
+                    window.kg.sortService.colSortFnCache[col.field] = sortFn;
+                } else {
+                    // we assign the alpha sort because anything that is null/undefined will never get passed to
+                    // the actual sorting function. It will get caught in our null check and returned to be sorted
+                    // down to the bottom
+                    sortFn = window.kg.sortService.sortAlpha;
+                }
             }
-            sortFn = kg.sortService.guessSortFn(item[col.field]);
-            //cache it
-            if (sortFn) {
-                window.kg.sortService.colSortFnCache[col.field] = sortFn;
-            } else {
-                // we assign the alpha sort because anything that is null/undefined will never get passed to
-                // the actual sorting function. It will get caught in our null check and returned to be sorted
-                // down to the bottom
-                sortFn = window.kg.sortService.sortAlpha;
-            }
-        }
-        //now actually sort the data
-        unwrappedData.sort(function (itemA, itemB) {
+            return {
+                col: col,
+                direction: direction,
+                sortFn: sortFn
+            };
+        });
+
+        var sortFn;
+        var outerSortFn = function (itemA, itemB) {
             var propA = window.kg.utils.evalProperty(itemA, col.field);
             var propB = window.kg.utils.evalProperty(itemB, col.field);
             // we want to force nulls and such to the bottom when we sort... which effectively is "greater than"
@@ -235,12 +251,31 @@ window.kg.sortService = {
             } else if (!propB) {
                 return -1;
             }
+            //allow the user to preprocess the data
+            if (typeof sortInfo.grid.config.formatString == "function") {
+                propA = sortInfo.grid.config.formatString(propA, col);
+                propB = sortInfo.grid.config.formatString(propB, col);
+            }
             //made it this far, we don't have to worry about null & undefined
             if (direction === ASC) {
                 return sortFn(propA, propB);
             } else {
                 return 0 - sortFn(propA, propB);
             }
+        };
+        //now actually sort the data
+        unwrappedData.sort(function (itemA, itemB) {
+            var result = 0;
+            var i = 0;
+            while(!result && i < sortInfos.length) {
+                if (sortInfos[i]) {
+                    col = sortInfos[i].col;
+                    sortFn = sortInfos[i].sortFn;
+                    result = outerSortFn(itemA, itemB);
+                }
+                i++;
+            }
+            return result;
         });
         data(unwrappedData);
         return;

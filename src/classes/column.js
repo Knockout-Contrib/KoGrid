@@ -4,13 +4,19 @@
 		delay = 500,
         clicks = 0,
         timer = null;
+    self.config = config;
     self.eventTaget = undefined;
     self.width = colDef.width;
-	self.groupIndex = ko.observable(0);
+	self.groupIndex = ko.observable(config.colDef.groupIndex || 0);
 	self.isGroupedBy = ko.observable(false);
+    self.collapsed = ko.observable();
+    self.aggClass = ko.computed(function() {
+        return self.collapsed() ? "kgAggArrowCollapsed" : "kgAggArrowExpanded";
+    });
 	self.groupedByClass = ko.computed(function(){ return self.isGroupedBy() ? "kgGroupedByIcon": "kgGroupIcon";});
 	self.sortable = ko.observable(false);
-	self.resizable = ko.observable(false);
+    self.resizable = ko.observable(false);
+	self.selectable = ko.observable(false);
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
     self.headerRowHeight = config.headerRowHeight;
@@ -24,6 +30,9 @@
     self._visible = ko.observable(window.kg.utils.isNullOrUndefined(colDef.visible) || colDef.visible);
     self.visible = ko.computed({
         read: function() {
+            if (grid && grid.config.showGroupedColumns === false && self.isGroupedBy()) {
+                return false;
+            }
             return self._visible();
         },
         write: function(val) {
@@ -36,11 +45,17 @@
     if (config.enableResize) {
         self.resizable(window.kg.utils.isNullOrUndefined(colDef.resizable) || colDef.resizable);
     }
-    self.sortDirection = ko.observable(undefined);
+    self.selectable(colDef.selectable);
+    self.sortDirection = ko.observable(colDef.sortDirection);
+    if (self.sortDirection()) {
+        // This line would prevent multiple columns being sorted simultaneously
+        // if (grid.lastSortedColumn()) grid.lastSortedColumn().sortDirection("");
+        grid.lastSortedColumn = self;
+    }
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = ko.observable(colDef.headerClass);
     self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();
-    self.cellTemplate = colDef.cellTemplate || window.kg.defaultCellTemplate();
+    self.cellTemplate = colDef.cellTemplate || grid.config.cellTemplate || window.kg.defaultCellTemplate();
     if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
         self.cellTemplate = window.kg.utils.getTemplatePromise(colDef.cellTemplate);
     }

@@ -14,6 +14,11 @@
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };
     });
+    grid.rowFooterStyle = ko.computed(function () {
+        var result = $.extend({}, grid.headerStyle());
+        result.bottom = kg.domUtilityService.ScrollW + 'px';
+        return result;
+    });
 	grid.footerStyle = ko.computed(function () {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.config.footerRowHeight + "px" };
     });
