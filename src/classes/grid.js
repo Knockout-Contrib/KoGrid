@@ -137,14 +137,16 @@ window.kg.Grid = function (options) {
             columnDefs = self.config.columnDefs;
         }
         if (self.config.displaySelectionCheckbox && self.config.canSelectRows) {
-            columnDefs.splice(0, 0, {
-                field: '\u2714',
-                width: self.elementDims.rowSelectedCellW,
-                sortable: false,
-                resizable: false,
-                headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
-                cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
-            });
+            if (columnDefs.length > 0 && columnDefs[0].field != '\u2714') {
+                columnDefs.splice(0, 0, {
+                    field: '\u2714',
+                    width: self.elementDims.rowSelectedCellW,
+                    sortable: false,
+                    resizable: false,
+                    headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
+                    cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
+                });
+            }
         }
         if (columnDefs.length > 0) {
             $.each(columnDefs, function (i, colDef) {
