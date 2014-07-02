@@ -1,0 +1,24 @@
+<!--window.kg.defaultFooterRowTemplate-->
+<div data-bind="css: {'ui-widget-content': jqueryUITheme, 'ui-corner-bottom': jqueryUITheme}">
+	<div class="kgTotalSelectContainer" data-bind="visible: footerVisible">
+		<div class="kgFooterTotalItems" data-bind="css: {'kgNoMultiSelect': !multiSelect}" >
+			<span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span>
+		</div>
+		<div class="kgFooterSelectedItems" data-bind="visible: multiSelect">
+			<span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span>
+		</div>
+	</div>
+	<div class="kgPagerContainer" style="float: right; margin-top: 10px;" data-bind="visible: (footerVisible && enablePaging), css: {'kgNoMultiSelect': !multiSelect}">
+		<div style="float:left; margin-right: 10px;" class="kgRowCountPicker">
+			<span style="float: left; margin-top: 3px;" class="kgLabel">Page Size:</span>
+			<select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select>
+		</div>
+		<div style="float:left; margin-right: 10px; line-height:25px;" class="kgPagerControl" style="float: left; min-width: 135px;">
+			<button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button>
+			<button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button>
+			<input class="kgPagerCurrent" type="number" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px;" data-bind="value: pagingOptions.currentPage, valueUpdate: 'afterkeydown'"/>
+			<button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button>
+			<button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button>
+		</div>
+	</div>
+</div>
