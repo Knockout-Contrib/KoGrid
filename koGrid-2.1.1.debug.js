@@ -1938,7 +1938,7 @@ window.kg.sortService = {
         } 
         // now lets string check..
         //check if the item data is a valid number
-        if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+        if (item.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
             return window.kg.sortService.sortNumberStr;
         } 
         // check for a date: dd/mm/yyyy or dd/mm/yy
@@ -2064,7 +2064,7 @@ window.kg.sortService = {
             d = '0' + d;
         }
         dateA = y + m + d;
-        mtch = b.match(dateRE);
+        mtch = b.match(window.kg.sortService.dateRE);
         y = mtch[3];
         d = mtch[2];
         m = mtch[1];
