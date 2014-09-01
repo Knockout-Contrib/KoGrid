@@ -2,7 +2,7 @@
 * koGrid JavaScript Library
 * Authors: https://github.com/ericmbarnard/koGrid/blob/master/README.md
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
-* Compiled At: 01/11/2013 15:58:36
+* Compiled At: 02/18/2014 12:09:35
 ***********************************************/
 
 (function (window) {
@@ -1661,7 +1661,7 @@ window.kg.Row = function (entity, config, selectionService) {
     self.afterSelectionChange = config.afterSelectionChangeCallback;
     self.propertyCache = {};
     self.getProperty = function (path) {
-        return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
+        return window.kg.utils.evalProperty(self.entity, path);
     };
 }; 
 
