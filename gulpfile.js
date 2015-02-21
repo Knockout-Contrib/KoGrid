@@ -12,6 +12,7 @@ var gulpUglify = require('gulp-uglify');
 var gulpJSHint = require('gulp-jshint');
 var gulpSourceMaps = require('gulp-sourcemaps');
 var gulpMinifyCSS = require('gulp-minify-css');
+var gulpQUnit = require('gulp-qunit');
 var minifyHtml = require('html-minifier').minify;
 var mapStream = require('map-stream');
 var path = require('path');
@@ -91,4 +92,14 @@ gulp.task('compile', ['styles'], function() {
         .pipe(gulp.dest(buildConfig.outputPath));
 });
 
-gulp.task('default', ['compile', 'styles']);
+gulp.task('test', ['compile'], function() {
+    return gulp.src('test/test-runner.htm')
+        .pipe(gulpQUnit());
+});
+
+gulp.task('test-ci', ['compile'], function() {
+    return gulp.src(['test/test-runner-ko*.htm'])
+        .pipe(gulpQUnit());
+});
+
+gulp.task('default', ['compile', 'styles', 'test']);

@@ -1,5 +1,8 @@
 # KoGrid
+
 A Knockout DataGrid
+
+[![Build Status](https://travis-ci.org/Knockout-Contrib/KoGrid.svg?branch=2.1.5)](https://travis-ci.org/Knockout-Contrib/KoGrid)
 
 
 __Contributors:__
