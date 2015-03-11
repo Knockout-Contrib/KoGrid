@@ -1,10 +1,4 @@
-﻿/// <reference path="domUtilityService.js" />
-/// <reference path="../../lib/knockout-2.2.0.js" />
-/// <reference path="../utils.js" />
-/// <reference path="../namespace.js" />
-/// <reference path="../../lib/angular.js" />
-/// <reference path="../constants.js" />
-window.kg.RowFactory = function (grid) {
+﻿window.kg.RowFactory = function (grid) {
     var self = this;
     // we cache rows when they are built, and then blow the cache away when sorting
     self.rowCache = [];
@@ -46,7 +40,7 @@ window.kg.RowFactory = function (grid) {
     };
 
     self.buildAggregateRow = function(aggEntity, rowIndex) {
-        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
+        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it
         if (!agg) {
             // build the row
             agg = new window.kg.Aggregate(aggEntity, self);
@@ -190,7 +184,7 @@ window.kg.RowFactory = function (grid) {
                 var val = window.kg.utils.evalProperty(item, group);
                 if (col.cellFilter) {
                     val = col.cellFilter(val);
-                } 
+                }
                 val = val ? val.toString() : 'null';
                 if (!ptr[val]) {
                     ptr[val] = {};
@@ -203,7 +197,7 @@ window.kg.RowFactory = function (grid) {
                 }
                 if (!ptr[KG_COLUMN]) {
                     ptr[KG_COLUMN] = col;
-                } 
+                }
                 ptr = ptr[val];
             });
             if (!ptr.values) {

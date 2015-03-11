@@ -1,10 +1,3 @@
-/// <reference path="../../lib/knockout-2.2.0.js" />
-/// <reference path="../../lib/jquery-1.8.2.min" />
-/// <reference path="../../lib/angular.js" />
-/// <reference path="../constants.js"/>
-/// <reference path="../namespace.js" />
-/// <reference path="../navigation.js"/>
-/// <reference path="../utils.js"/>
 window.kg.Aggregate = function (aggEntity, rowFactory) {
     var self = this;
     self.index = 0;
@@ -81,4 +74,4 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.isEven = ko.observable(false);
     self.isOdd = ko.observable(false);
     self.toggleSelected = function () { return true; };
-}; 
+};

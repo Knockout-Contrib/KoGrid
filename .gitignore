@@ -1,3 +1,6 @@
+node_modules
+npm-debug.log
+
 #################
 ## IntelliJ IDEA
 #################
@@ -147,7 +150,6 @@ Desktop.ini
 # Packages
 *.egg
 *.egg-info
-dist
 eggs
 parts
 bin

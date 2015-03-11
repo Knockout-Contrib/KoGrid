@@ -1,19 +1,10 @@
-﻿/// <reference path="../../lib/knockout-latest.debug.js" />
-/// <reference path="../../lib/knockout-2.2.0.js" />
-/// <reference path="footer.js" />
-/// <reference path="../../lib/jquery-1.8.2.min" />
-/// <reference path="../../lib/angular.js" />
-/// <reference path="../constants.js"/>
-/// <reference path="../namespace.js" />
-/// <reference path="../navigation.js"/>
-/// <reference path="../utils.js"/>
-window.kg.Grid = function (options) {
+﻿window.kg.Grid = function (options) {
     var defaults = {
             rowHeight: 30,
             columnWidth: 100,
             headerRowHeight: 30,
             footerRowHeight: 55,
-            footerVisible: true,			
+            footerVisible: true,
             displayFooter: undefined,
             canSelectRows: true,
             selectAllState: ko.observable(false),
@@ -48,7 +39,7 @@ window.kg.Grid = function (options) {
                 filterText: ko.observable(""),
                 useExternalFilter: false
             },
-            //Paging 
+            //Paging
             enablePaging: false,
             pagingOptions: {
                 pageSizes: ko.observableArray([250, 500, 1000]), //page Sizes
@@ -58,7 +49,7 @@ window.kg.Grid = function (options) {
             }
         },
         self = this;
-    
+
     self.maxCanvasHt = ko.observable(0);
     //self vars
     self.config = $.extend(defaults, options);
@@ -149,10 +140,10 @@ window.kg.Grid = function (options) {
         if (columnDefs.length > 0) {
             $.each(columnDefs, function (i, colDef) {
                 var column = new window.kg.Column({
-                    colDef: colDef, 
-                    index: i, 
+                    colDef: colDef,
+                    index: i,
                     headerRowHeight: self.config.headerRowHeight,
-                    sortCallback: self.sortData, 
+                    sortCallback: self.sortData,
                     resizeOnDataCallback: self.resizeOnData,
                     enableResize: self.config.enableColumnResize,
                     enableSort: self.config.enableSorting
@@ -216,7 +207,7 @@ window.kg.Grid = function (options) {
             // calculate the weight of each asterisk rounded down
             var asteriskVal = Math.floor(remainingWidth / asteriskNum);
             // set the width of each column based on the number of stars
-            $.each(asterisksArray, function (i, col) {				
+            $.each(asterisksArray, function (i, col) {
 				var t = col.width.length;
                 columns[col.index].width = asteriskVal * t;
                 //check if we are on the last column
@@ -268,11 +259,11 @@ window.kg.Grid = function (options) {
         self.filteredData.subscribe(function () {
             if (self.$$selectionPhase) {
                 return;
-            } 
+            }
 			self.maxCanvasHt(self.calcMaxCanvasHeight());
 			if (!self.isSorting) {
 			    self.configureColumnWidths();
-			} 
+			}
 		});
         self.maxCanvasHt(self.calcMaxCanvasHeight());
         self.searchProvider.evalFilter();
@@ -290,7 +281,7 @@ window.kg.Grid = function (options) {
         //Have we hit the threshold going up?
         if (self.prevScrollTop > scrollTop && rowIndex > self.prevScrollIndex - SCROLL_THRESHOLD) {
             return;
-        } 
+        }
         self.prevScrollTop = scrollTop;
         self.rowFactory.UpdateViewableRange(new window.kg.Range(Math.max(0, rowIndex - EXCESS_ROWS), rowIndex + self.minRowsToRender() + EXCESS_ROWS));
         self.prevScrollIndex = rowIndex;
@@ -433,7 +424,7 @@ window.kg.Grid = function (options) {
         window.kg.domUtilityService.BuildStyles(self);
     };
     self.removeGroup = function(index) {
-		var col = self.columns().filter(function(item){ 
+		var col = self.columns().filter(function(item){
 			return item.groupIndex() == (index + 1);
 		})[0];
 		col.isGroupedBy(false);
@@ -446,7 +437,7 @@ window.kg.Grid = function (options) {
         }
         window.kg.domUtilityService.BuildStyles(self);
     };
-	self.fixGroupIndexes = function(){		
+	self.fixGroupIndexes = function(){
 		$.each(self.configGroups(), function(i,item){
 			item.groupIndex(i + 1);
 		});

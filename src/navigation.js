@@ -1,12 +1,6 @@
-/// <reference path="../lib/jquery-1.8.2.min" />
-/// <reference path="../lib/angular.js" />
-/// <reference path="../src/constants.js"/>
-/// <reference path="../src/namespace.js" />
-/// <reference path="../src/utils.jsjs"/>
-/// <reference path="classes/grid.js" />
 //set event binding on the grid so we can select using the up/down keys
 window.kg.moveSelectionHandler = function(grid, evt) {
-    // null checks 
+    // null checks
     if (window.kg.utils.isNullOrUndefined(grid) || window.kg.utils.isNullOrUndefined(grid.config.selectedItems)) {
         return true;
     }
@@ -28,4 +22,4 @@ grid.selectionService.ChangeSelection(items[index], evt);
         grid.$viewport.scrollTop(grid.$viewport.scrollTop() - (grid.config.rowHeight * EXCESS_ROWS));
     }
     return false;
-}; 
+};

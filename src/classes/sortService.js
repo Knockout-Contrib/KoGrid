@@ -1,11 +1,4 @@
-﻿/// <reference path="../../lib/jquery-1.8.2.min" />
-/// <reference path="../../lib/angular.js" />
-/// <reference path="../constants.js"/>
-/// <reference path="../namespace.js" />
-/// <reference path="../navigation.js"/>
-/// <reference path="../utils.js"/>
-/// <reference path="../classes/range.js"/>
-window.kg.sortService = {
+﻿window.kg.sortService = {
     colSortFnCache: {}, // cache of sorting functions. Once we create them, we don't want to keep re-doing it
     dateRE: /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/, // nasty regex for date parsing
     guessSortFn: function(item) {
@@ -17,7 +10,7 @@ window.kg.sortService = {
 
         if (item === undefined || item === null || item === '') {
             return null;
-        } 
+        }
         itemType = typeof(item);
         //check for numbers and booleans
         switch (itemType) {
@@ -34,20 +27,20 @@ window.kg.sortService = {
         //if we found one, return it
         if (sortFn) {
             return sortFn;
-        } 
+        }
         //check if the item is a valid Date
         if (Object.prototype.toString.call(item) === '[object Date]') {
             return window.kg.sortService.sortDate;
-        } 
+        }
         // if we aren't left with a string, return a basic sorting function...
         if (itemType !== "string") {
             return window.kg.sortService.basicSort;
-        } 
+        }
         // now lets string check..
         //check if the item data is a valid number
         if (item.match(/^-?[£$¤]?[\d,.]+%?$/)) {
             return window.kg.sortService.sortNumberStr;
-        } 
+        }
         // check for a date: dd/mm/yyyy or dd/mm/yy
         // can have / or . or - as separator
         // can be mm/dd as well
@@ -103,7 +96,7 @@ window.kg.sortService = {
         }
         if (badB) {
             return -1;
-        } 
+        }
         return numA - numB;
     },
     sortAlpha: function(a, b) {
@@ -134,10 +127,10 @@ window.kg.sortService = {
         d = mtch[1];
         if (m.length == 1) {
             m = '0' + m;
-        } 
+        }
         if (d.length == 1) {
             d = '0' + d;
-        } 
+        }
         dateA = y + m + d;
         mtch = b.match(window.kg.sortService.dateRE);
         y = mtch[3];
@@ -180,11 +173,11 @@ window.kg.sortService = {
         }
         if (d.length == 1) {
             d = '0' + d;
-        } 
+        }
         dateB = y + m + d;
         if (dateA == dateB) {
             return 0;
-        } 
+        }
         if (dateA < dateB) {
             return -1;
         }

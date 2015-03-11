@@ -1,6 +1,4 @@
-﻿/// <reference path="../namespace.js" />
-/// <reference path="../../lib/knockout-2.2.0.js" />
-window.kg.EventProvider = function (grid) {
+﻿window.kg.EventProvider = function (grid) {
     var self = this;
     // The init method gets called during the ng-grid directive execution.
     self.colToMove = undefined;
@@ -14,7 +12,7 @@ window.kg.EventProvider = function (grid) {
 					self.onGroupDrop(event);
 				}
 			});
-			$(document).ready(self.setDraggables);	
+			$(document).ready(self.setDraggables);
 		} else {
 			grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
 			grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver).on('drop', self.onHeaderDrop);
@@ -27,11 +25,11 @@ window.kg.EventProvider = function (grid) {
     };
     self.dragOver = function(evt) {
         evt.preventDefault();
-    };	
-	
+    };
+
 	//For JQueryUI
 	self.setDraggables = function(){
-		if(!grid.config.jqueryUIDraggable){	
+		if(!grid.config.jqueryUIDraggable){
 			grid.$root.find('.kgHeaderSortColumn').attr('draggable', 'true');
 			if (navigator.userAgent.indexOf("MSIE") != -1)
 			{
@@ -93,7 +91,7 @@ window.kg.EventProvider = function (grid) {
                         grid.configGroups.splice(groupScope.groupIndex(), 0, self.groupToMove.groupName);
 					}
                 }
-            }			
+            }
 			self.groupToMove = undefined;
 			grid.fixGroupIndexes();
         } else {
@@ -107,21 +105,21 @@ window.kg.EventProvider = function (grid) {
 						// Splice the columns
 				        grid.removeGroup(groupScope.groupIndex());
 					}
-				}	
-            }			
+				}
+            }
 			self.colToMove = undefined;
         }
     };
-	
+
     //Header functions
     self.onHeaderMouseDown = function (event) {
         // Get the closest header container from where we clicked.
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer[0]) {
             return true;
-        } 
+        }
         // Get the scope from the header container
-        
+
         var headerScope = ko.dataFor(headerContainer[0]);
         if (headerScope) {
             // Save the column for later.
@@ -133,7 +131,7 @@ window.kg.EventProvider = function (grid) {
     self.onHeaderDrop = function (event) {
         if (!self.colToMove) {
             return true;
-        } 
+        }
         // Get the closest header to where we dropped
         var headerContainer = $(event.target).closest('.kgHeaderSortColumn');
         if (!headerContainer[0]) {
@@ -145,7 +143,7 @@ window.kg.EventProvider = function (grid) {
             // If we have the same column, do nothing.
             if (self.colToMove.col == headerScope) {
                 return true;
-            } 
+            }
             // Splice the columns
             var cols = grid.columns.peek();
             cols.splice(self.colToMove.col.index, 1);
@@ -159,7 +157,7 @@ window.kg.EventProvider = function (grid) {
         }
         return true;
     };
-    
+
     // Row functions
     self.onRowMouseDown = function (event) {
         // Get the closest row element from where we clicked.
@@ -187,7 +185,7 @@ window.kg.EventProvider = function (grid) {
             var prevRow = window.kg.eventStorage.rowToMove;
             if (prevRow.scope == rowScope) {
                 return;
-            } 
+            }
             // Splice the Rows via the actual datasource
             var sd = grid.sortedData();
             var i = sd.indexOf(prevRow.scope.entity);
@@ -213,7 +211,7 @@ window.kg.EventProvider = function (grid) {
         });
         //Chrome and firefox both need a tab index so the grid can recieve focus.
         //need to give the grid a tabindex if it doesn't already have one so
-        //we'll just give it a tab index of the corresponding gridcache index 
+        //we'll just give it a tab index of the corresponding gridcache index
         //that way we'll get the same result every time it is run.
         //configurable within the options.
         if (grid.config.tabIndex === -1) {

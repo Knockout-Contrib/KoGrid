@@ -1,11 +1,4 @@
-﻿/// <reference path="../../lib/knockout-2.2.0.js" />
-/// <reference path="../../lib/jquery-1.8.2.min" />
-/// <reference path="../constants.js"/>
-/// <reference path="../namespace.js" />
-/// <reference path="../navigation.js"/>
-/// <reference path="../utils.js"/>
-/// <reference path="../classes/range.js"/>
-var getWidths = function () {
+﻿var getWidths = function () {
     var $testContainer = $('<div></div>');
     $testContainer.appendTo('body');
     // 1. Run all the following measurements on startup!
@@ -55,7 +48,7 @@ window.kg.domUtilityService = {
             css,
             cols = grid.visibleColumns(),
             sumWidth = 0;
-        
+
         if (!$style) {
             $style = $('#' + gridId);
             if (!$style[0]) {
@@ -69,7 +62,7 @@ window.kg.domUtilityService = {
               "." + gridId + " .kgRow { width: " + trw + "px; }" +
               "." + gridId + " .kgCell { height: " + rowHeight + "px; }"+
               "." + gridId + " .kgCanvas { width: " + trw + "px; }" +
-              "." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" + 
+              "." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" +
               "." + gridId + " .kgHeaderScroller { width: " + (trw + window.kg.domUtilityService.scrollH + 2) + "px}";
         $.each(cols, function (i, col) {
             css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px }" +

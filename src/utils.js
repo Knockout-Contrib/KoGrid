@@ -1,7 +1,4 @@
-﻿/// <reference path="namespace.js" />
-/// <reference path="constants.js" />
-/// <reference path="../lib/knockout-2.2.0.js" />
-if (!String.prototype.trim) {
+﻿if (!String.prototype.trim) {
     String.prototype.trim = function() {
         return this.replace(/^\s+|\s+$/g, '');
     };
@@ -107,9 +104,9 @@ window.kg.utils = {
             return seedId += 1;
         };
     })(),
-    
+
     // we copy KO's ie detection here bc it isn't exported in the min versions of KO
-    // Detect IE versions for workarounds (uses IE conditionals, not UA string, for robustness) 
+    // Detect IE versions for workarounds (uses IE conditionals, not UA string, for robustness)
     ieVersion: (function() {
         var version = 3, div = document.createElement('div'), iElems = div.getElementsByTagName('i');
         // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment

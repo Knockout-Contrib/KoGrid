@@ -1,5 +1,4 @@
-﻿/// <reference path="../../lib/knockout-2.2.0.js" />
-ko.bindingHandlers['kgCell'] = (function () {
+﻿ko.bindingHandlers['kgCell'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             bindingContext.$userViewModel = bindingContext.$parent.$userViewModel;

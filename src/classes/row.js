@@ -1,9 +1,3 @@
-/// <reference path="../../lib/jquery-1.8.2.min" />
-/// <reference path="../../lib/angular.js" />
-/// <reference path="../constants.js"/>
-/// <reference path="../namespace.js" />
-/// <reference path="../navigation.js"/>
-/// <reference path="../utils.js"/>
 window.kg.Row = function (entity, config, selectionService) {
     var self = this; // constant for the selection property that we add to each data item
 
@@ -23,10 +17,10 @@ window.kg.Row = function (entity, config, selectionService) {
             return true;
         }
         var element = event.target || event;
-        //check and make sure its not the bubbling up of our checked 'click' event 
+        //check and make sure its not the bubbling up of our checked 'click' event
         if (element.type == "checkbox") {
             self.selected(!self.selected());
-        } 
+        }
         if (config.selectWithCheckboxOnly && element.type != "checkbox"){
             return true;
         } else {
@@ -56,7 +50,7 @@ window.kg.Row = function (entity, config, selectionService) {
     self.isOdd = ko.computed(function () {
         if (self.rowIndex() % 2 !== 0) {
             return true;
-        } 
+        }
         return false;
     });
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
@@ -65,4 +59,4 @@ window.kg.Row = function (entity, config, selectionService) {
     self.getProperty = function (path) {
         return self.propertyCache[path] || (self.propertyCache[path] = window.kg.utils.evalProperty(self.entity, path));
     };
-}; 
+};
