@@ -2029,7 +2029,7 @@ window.kg.sortService = {
             d = '0' + d;
         }
         dateA = y + m + d;
-        mtch = b.match(dateRE);
+        mtch = b.match(window.kg.sortService.dateRE);
         y = mtch[3];
         d = mtch[2];
         m = mtch[1];
@@ -2101,7 +2101,6 @@ window.kg.sortService = {
             }
         });
         data(unwrappedData);
-        return;
     },
     Sort: function (sortInfo, data) {
         if (window.kg.sortService.isSorting) {
