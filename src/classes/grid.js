@@ -21,7 +21,7 @@
             enableSorting: true,
             maintainColumnRatios: undefined,
             beforeSelectionChange: function () { return true;},
-            afterSelectionChange: function () { },
+            afterSelectionChange: function () { return true;},
             columnsChanged: function() { },
             rowTemplate: undefined,
             headerRowTemplate: undefined,
