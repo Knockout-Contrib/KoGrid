@@ -2,84 +2,87 @@
     'use strict';
     /*global QUnit,kg,ko*/
 
-    QUnit.module("Paging Tests");
-
-    QUnit.test("Basic Paging Test", function(assert) {
-
-        var currentPage = ko.observable(1),
-            pageSize = ko.observable(500),
-            totalServerItems = ko.observable(999);
-
-        var ftr = new kg.Footer({
-            maxRows: ko.observable(1000),
-            selectedItemCount: ko.observable(0),
-            config: {
-                pageSizes: [250, 500, 100],
-                currentPage: currentPage,
-                pageSize: pageSize,
-                totalServerItems: totalServerItems
-            }
-        });
-
-        assert.ok(ftr, "Footer Instantiated");
-        assert.equals(ftr.maxPages(), 2, "Calculated Correct Max Pages");
+    QUnit.module('Paging Tests', {
+        afterEach: function() {
+            ko.cleanNode(document.querySelector('#qunit-fixture'));
+        }
     });
 
-    QUnit.test("Paging Forward Test", function(assert) {
+    QUnit.test('Pagination defaults are set', function(assert) {
 
-        var currentPage = ko.observable(1),
-            pageSize = ko.observable(500),
-            totalServerItems = ko.observable(999);
-
-        var ftr = new kg.Footer({
-            maxRows: ko.observable(1000),
-            selectedItemCount: ko.observable(0),
-            config: {
-                pageSizes: [250, 500, 100],
-                currentPage: currentPage,
-                pageSize: pageSize,
-                totalServerItems: totalServerItems
-            }
+        var fixture = createTestGrid({
+            data: ko.observableArray([{prop1: '1', prop2: '2'}])
         });
 
-        var pageForwardWasCalled = false;
+        var gridInstance = fixture.gridInstance;
+        assert.strictEqual(gridInstance.enablePaging, false);
+        assert.deepEqual(gridInstance.pagingOptions.pageSizes(), [250, 500, 1000]);
+        assert.equal(gridInstance.pagingOptions.pageSize(), 250);
+        assert.strictEqual(gridInstance.pagingOptions.totalServerItems(), 0);
+        assert.strictEqual(gridInstance.pagingOptions.currentPage(), 1);
 
-        currentPage.subscribe(function () {
-            pageForwardWasCalled = true;
-        });
-
-        ftr.pageForward();
-
-        assert.ok(pageForwardWasCalled, "Page Forward was called");
-        assert.equals(currentPage(), 2, "Current Page was increased");
+        var $gridElement = fixture.$gridElement;
+        assert.strictEqual($gridElement.find('.kgFooterPanel > .kgPagerContainer').length, 1);
+        assert.strictEqual($gridElement.find('.kgFooterPanel > .kgPagerContainer').is(':visible'), false);
     });
 
-    QUnit.test("Paging Backward Test", function(assert) {
+    QUnit.test('Pagination is set from options', function(assert) {
 
-        var currentPage = ko.observable(2),
-            pageSize = ko.observable(500),
-            totalServerItems = ko.observable(999);
+        var pagingOptions = {
+            pageSizes: ko.observableArray([250, 500, 1000]), //page Sizes
+            pageSize: ko.observable(250), //Size of Paging data
+            totalServerItems: ko.observable(0), //how many items are on the server (for paging)
+            currentPage: ko.observable(1) //what page they are currently on
+        };
 
-        var ftr = new kg.Footer({
-            maxRows: ko.observable(1000),
-            selectedItemCount: ko.observable(0),
-            config: {
-                pageSizes: [250, 500, 100],
-                currentPage: currentPage,
-                pageSize: pageSize,
-                totalServerItems: totalServerItems
-            }
+        var fixture = createTestGrid({
+            data: ko.observableArray([{prop1: '1', prop2: '2'}]),
+            enablePaging: true,
+            pagingOptions: pagingOptions
         });
 
-        var pageBackwardWasCalled = false;
+        var gridInstance = fixture.gridInstance;
+        pagingOptions.totalServerItems(510);
 
-        currentPage.subscribe(function () {
-            pageBackwardWasCalled = true;
-        });
+        assert.strictEqual(gridInstance.enablePaging, true);
+        assert.equal(gridInstance.pagingOptions.totalServerItems(), 510);
+        assert.equal(gridInstance.maxPages(), 3);
+        assert.equal(gridInstance.cantPageForward(), false);
+        assert.equal(gridInstance.cantPageBackward(), true);
 
-        ftr.pageBackward();
+        var $gridElement = fixture.$gridElement;
+        var $currentPageElement = $gridElement.find('.kgFooterPanel .kgPagerContainer .kgPagerCurrent');
 
-        assert.ok(pageBackwardWasCalled, "Page Forward was called");
-        assert.equals(currentPage(), 1, "Current Page was decreased");
+        assert.strictEqual($currentPageElement.val(), '1');
+
+        gridInstance.pageForward();
+        assert.strictEqual($currentPageElement.val(), '2');
+        assert.strictEqual(pagingOptions.currentPage(), 2);
+
+        gridInstance.pageToLast();
+        assert.strictEqual($currentPageElement.val(), '3');
+        assert.strictEqual(pagingOptions.currentPage(), 3);
+
+        gridInstance.pageBackward();
+        assert.strictEqual($currentPageElement.val(), '2');
+        assert.strictEqual(pagingOptions.currentPage(), 2);
+
+        gridInstance.pageToFirst();
+        assert.strictEqual($currentPageElement.val(), '1');
+        assert.strictEqual(pagingOptions.currentPage(), 1);
     });
+
+    function createTestGrid(config) {
+        var $testElement = $('<div data-bind="koGrid: gridOptions"></div>');
+        $('#qunit-fixture').append($testElement);
+        ko.applyBindings({ gridOptions: config }, $testElement[0]);
+
+        var $gridElement = $testElement.children().first();
+        var gridInstance = ko.dataFor($gridElement[0]);
+
+        return {
+            gridInstance: gridInstance,
+            $gridElement: $gridElement
+        };
+    }
 })();
