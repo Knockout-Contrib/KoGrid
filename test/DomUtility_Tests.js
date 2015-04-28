@@ -2,135 +2,65 @@
     'use strict';
     /*global QUnit,kg*/
 
-    QUnit.module("DomUtility Tests");
-
-    QUnit.test("Measure Container Max Dimensions", function(assert) {
-
-        var $container = $('<div style="max-height: 100px; max-width: 100px;"></div>').appendTo($('body'));
-
-        var dims = kg.domUtility.measureElementMaxDims($container);
-
-        assert.equals(dims.maxWidth, 100, 'Max Width is correct');
-        assert.equals(dims.maxHeight, 100, 'Max Height is correct');
-
-        $container.remove();
+    QUnit.module('DomUtility Tests', {
+        afterEach: function() {
+            ko.cleanNode(document.querySelector('#qunit-fixture'));
+        }
     });
 
-    QUnit.test("Measure ScrollBars Occurred", function(assert) {
+    QUnit.test('Container variables are assigned to grid instance', function(assert) {
 
-        var scrollH = kg.domUtility.scrollH;
-        var scrollW = kg.domUtility.scrollW;
+        var fixture = createTestGrid({
+            data: ko.observableArray([
+                {col1: '1'}
+            ])
+        });
 
-        assert.ok(scrollH, 'Scroll Height is ' + scrollH);
-        assert.ok(scrollW, 'Scroll Width is ' + scrollW);
-        assert.ok(scrollH < 100, 'ScrollH is less than 100');
-        assert.ok(scrollW < 100, 'ScrollW is less than 100');
+        var gridInstance = fixture.gridInstance;
+        var gridElement = fixture.$gridElement[0];
+
+        assert.equal(gridInstance.$root[0], gridElement.parentNode);
+        assert.equal(gridInstance.$topPanel[0], gridElement.querySelector('.kgTopPanel'));
+        assert.equal(gridInstance.$groupPanel[0], gridElement.querySelector('.kgGroupPanel'));
+        assert.equal(gridInstance.$headerContainer[0], gridElement.querySelector('.kgHeaderContainer'));
+        assert.equal(gridInstance.$headerScroller[0], gridElement.querySelector('.kgHeaderScroller'));
+        assert.ok(gridInstance.$headers);
+        assert.equal(gridInstance.$viewport[0], gridElement.querySelector('.kgViewport'));
+        assert.equal(gridInstance.$canvas[0], gridElement.querySelector('.kgCanvas'));
+        assert.equal(gridInstance.$footerPanel[0], gridElement.querySelector('.ngFooterPanel'));
     });
 
-    QUnit.test("Measure Container Min Dimensions", function(assert) {
-        var $wrapper = $('<div style="height: 0px; width: 0px;"></div>').appendTo($('body'));
-        var $container = $('<div style="min-height: 100px; min-width: 100px;"></div>').appendTo($wrapper);
+    QUnit.test('Stylesheet is generated and assigned to grid', function(assert) {
 
-        var dims = kg.domUtility.measureElementMinDims($container);
+        var fixture = createTestGrid({
+            data: ko.observableArray([
+                {col1: '1'}
+            ])
+        });
 
-        assert.equals(dims.minWidth, 100, 'Min Width is correct');
-        assert.equals(dims.minHeight, 100, 'Min Height is correct');
+        var gridInstance = fixture.gridInstance;
 
-        $container.remove();
-        $wrapper.remove();
+        assert.equal(jQuery('body > style[id="' + gridInstance.gridId + '"]').length, 1);
+        assert.ok(gridInstance.$styleSheet);
     });
 
-    QUnit.test("No Visibility - Measure Container Max Dimensions", function(assert) {
-        var $wrapper = $('<div style="height: 200px; width: 200px; display: none;"></div>').appendTo($('body'));
-        var $container = $('<div style="max-height: 100px; max-width: 100px;"></div>').appendTo($wrapper);
-
-        var dims = kg.domUtility.measureElementMaxDims($container);
-
-        assert.equals(dims.maxWidth, 100, 'Max Width is correct');
-        assert.equals(dims.maxHeight, 100, 'Max Height is correct');
-
-        $container.remove();
-        $wrapper.remove();
+    QUnit.test('Measure ScrollBars Occurred', function(assert) {
+        assert.ok(window.kg.domUtilityService.ScrollH <= 100);
+        assert.ok(window.kg.domUtilityService.ScrollW <= 100);
     });
 
-    QUnit.test("No Visibility - Measure Container Min Dimensions", function(assert) {
-        var $wrapper = $('<div style="height: 0px; width: 0px; display: none;"></div>').appendTo($('body'));
-        var $container = $('<div style="min-height: 100px; min-width: 100px;"></div>').appendTo($wrapper);
 
-        var dims = kg.domUtility.measureElementMinDims($container);
+    function createTestGrid(config) {
+        var $testElement = $('<div" data-bind="koGrid: gridOptions"></div>');
+        $('#qunit-fixture').append($testElement);
+        ko.applyBindings({ gridOptions: config }, $testElement[0]);
 
-        assert.equals(dims.minWidth, 100, 'Min Width is correct');
-        assert.equals(dims.minHeight, 100, 'Min Height is correct');
+        var $gridElement = $testElement.children().first();
+        var gridInstance = ko.dataFor($gridElement[0]);
 
-        $container.remove();
-        $wrapper.remove();
-    });
-
-    QUnit.test("Measure percentage-based dimensions - Maximum", function(assert) {
-        var $wrapper = $('<div style="height: 200px; width: 200px;"></div>').appendTo($('body'));
-        var $container = $('<div style="height: 70%; width: 70%;"></div>').appendTo($wrapper);
-
-        var dims = kg.domUtility.measureElementMaxDims($container);
-
-        assert.equals(dims.maxWidth, 140, 'Width is correct');
-        assert.equals(dims.maxHeight, 140, 'Height is correct');
-
-        $container.remove();
-        $wrapper.remove();
-    });
-
-    QUnit.test("Measure percentage-based dimensions - Minimum", function(assert) {
-        var $wrapper = $('<div style="height: 200px; width: 200px;"></div>').appendTo($('body'));
-        var $container = $('<div style="height: 70%; width: 70%;"></div>').appendTo($wrapper);
-
-        var dims = kg.domUtility.measureElementMinDims($container);
-
-        assert.equals(dims.minWidth, 140, 'Width is correct');
-        assert.equals(dims.minHeight, 140, 'Height is correct');
-
-        $container.remove();
-        $wrapper.remove();
-    });
-
-    QUnit.test('Measure Full Grid Test', function(assert) {
-
-        var $wrapper = $('<div style="height: 0px; width: 0px;"></div>').appendTo($('body'));
-        var $container = $('<div style="min-height: 99px; min-width: 98px; max-height: 201px; max-width: 202px;"></div>').appendTo($wrapper);
-
-        var fakeGrid = {
-            config: {
-                headerRowHeight: 2,
-                rowHeight: 2,
-                footerRowHeight: 4
-            },
-            elementDims: {
-                rootMaxH: 0,
-                rootMinH: 0,
-                rootMaxW: 0,
-                rootMinW: 0
-            }
+        return {
+            gridInstance: gridInstance,
+            $gridElement: $gridElement
         };
-
-        kg.domUtility.measureGrid($container, fakeGrid, true);
-
-        assert.equals(fakeGrid.elementDims.rootMaxH, 201, 'MaxHeight before change is correct');
-        //equals(fakeGrid.elementDims.rootMaxW, 202, 'MaxWidth before change is correct');
-
-        assert.equals(fakeGrid.elementDims.rootMinH, 99, 'MinHeight before change is correct');
-        assert.equals(fakeGrid.elementDims.rootMinW, 98, 'MinWidth before change is correct');
-
-        //now append a few things to the container, so we can check that the assertions still work after the container has children
-        $container.append("<div style='height: 2000px; width: 2000px;'></div>");
-        $wrapper.width(300);
-        $wrapper.height(300);
-
-        assert.equals(fakeGrid.elementDims.rootMaxH, 201, 'Max Height after change is correct');
-        //equals(fakeGrid.elementDims.rootMaxW, 202, 'Max Width after change is correct');
-
-        assert.equals(fakeGrid.elementDims.rootMinH, 99, 'Min Height after change is correct');
-        assert.equals(fakeGrid.elementDims.rootMinW, 98, 'Min Width after change is correct');
-
-        $container.remove();
-        $wrapper.remove();
-    });
+    }
 })();
