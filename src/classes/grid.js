@@ -277,6 +277,15 @@ window.kg.Grid = function (options) {
         self.maxCanvasHt(self.calcMaxCanvasHeight());
         self.searchProvider.evalFilter();
         self.refreshDomSizes();
+        
+        if (self.sortInfo() && self.sortInfo().field) {
+            var col = ko.utils.arrayFirst(self.columns(), function (c) { return c.field === self.sortInfo().field });
+            if (col && col.sort) {
+                setTimeout(function () {
+                    col.sort();
+                }, 0);
+            }
+        }
     };
     self.prevScrollTop = 0;
     self.prevScrollIndex = 0;
