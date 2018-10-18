@@ -81,14 +81,14 @@ gulp.task('compile', ['styles'], function() {
         }))
         .pipe(gulpSourceMaps.init())
         .pipe(gulpConcat('KoGrid.js'))
-        .pipe(gulpHeader(buildConfig.banner + '\n(function(window) {\n\'use strict\';\n\n', {pkg: buildConfig.packageInfo}))
-        .pipe(gulpFooter('})(window);'))
+        .pipe(gulpHeader("define(['jquery', 'knockout'], function ($, ko) {\n" + buildConfig.banner + '\n(function(window) {\n\'use strict\';\n\n', {pkg: buildConfig.packageInfo}))
+        .pipe(gulpFooter('})(window);\n});'))
         .pipe(gulpJSHint())
         .pipe(gulpJSHint.reporter('jshint-stylish'))
         .pipe(gulp.dest(buildConfig.outputPath))
         .pipe(gulpUglify({preserveComments: 'some'}))
         .pipe(gulpRename('KoGrid.min.js'))
-        .pipe(gulpSourceMaps.write('./', {addComment: true}))
+        //.pipe(gulpSourceMaps.write('./', {addComment: true}))
         .pipe(gulp.dest(buildConfig.outputPath));
 });
 
