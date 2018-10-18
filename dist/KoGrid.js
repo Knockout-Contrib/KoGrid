@@ -1,3 +1,4 @@
+define(['jquery', 'knockout'], function ($, ko) {
 /*! KoGrid v2.1.5 | MIT License */
 (function(window) {
 'use strict';
@@ -2132,3 +2133,4 @@ window.kg.StyleProvider = function (grid) {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.config.footerRowHeight + "px" };
     });
 };})(window);
+});
