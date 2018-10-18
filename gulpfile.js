@@ -13,6 +13,7 @@ var gulpJSHint = require('gulp-jshint');
 var gulpSourceMaps = require('gulp-sourcemaps');
 var gulpMinifyCSS = require('gulp-clean-css');
 var gulpQUnit = require('gulp-qunit');
+var defineModule = require('gulp-define-module');
 var minifyHtml = require('html-minifier').minify;
 var mapStream = require('map-stream');
 var path = require('path');
@@ -79,10 +80,11 @@ gulp.task('compile', ['styles'], function() {
             }
             cb(null, file);
         }))
-        .pipe(gulpSourceMaps.init())
+        //.pipe(gulpSourceMaps.init())
         .pipe(gulpConcat('KoGrid.js'))
-        .pipe(gulpHeader("define(['jquery', 'knockout'], function ($, ko) {\n" + buildConfig.banner + '\n(function(window) {\n\'use strict\';\n\n', {pkg: buildConfig.packageInfo}))
-        .pipe(gulpFooter('})(window);\n});'))
+        .pipe(gulpHeader('(function(window) {\n' + buildConfig.banner + '\n\'use strict\';\n\n', {pkg: buildConfig.packageInfo}))
+        .pipe(gulpFooter('})(window)'))
+        .pipe(defineModule('amd', { require: { '$':'jquery', ko: 'knockout' } }))
         .pipe(gulpJSHint())
         .pipe(gulpJSHint.reporter('jshint-stylish'))
         .pipe(gulp.dest(buildConfig.outputPath))

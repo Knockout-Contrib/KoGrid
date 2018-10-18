@@ -26,15 +26,20 @@
     "url": "https://github.com/Knockout-Contrib/KoGrid/issues"
   },
   "homepage": "https://knockout-contrib.github.io/KoGrid/",
+  "dependencies": {
+    "knockout": "^3.4.2",
+    "qunitjs": "^2.4.1"
+  },
   "devDependencies": {
     "del": "^1.1.1",
     "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.*",
     "gulp-concat": "^2.5.2",
+    "gulp-define-module": "^0.1.5",
     "gulp-footer": "^1.0.5",
     "gulp-header": "^1.2.2",
     "gulp-jshint": "^1.9.2",
-    "gulp-clean-css": "^3.*",
-    "gulp-qunit": "^1.2.1",
+    "gulp-qunit": "^1.5.2",
     "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.5.0",
     "gulp-uglify": "^1.1.0",

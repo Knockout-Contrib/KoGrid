@@ -205,7 +205,7 @@
             if (!item) {
                 return;
             }
-            sortFn = kg.sortService.guessSortFn(item[col.field]);
+            sortFn = window.kg.sortService.guessSortFn(item[col.field]);
             //cache it
             if (sortFn) {
                 window.kg.sortService.colSortFnCache[col.field] = sortFn;

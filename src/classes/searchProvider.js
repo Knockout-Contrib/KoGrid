@@ -48,7 +48,7 @@
             return new RegExp(str, modifiers);
         } catch(err) {
             //Escape all RegExp metacharacters.
-            return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
+            return new RegExp(str.replace(/(\^|\$|\(|\)|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
         }
     };
     var buildSearchConditions = function (a) {

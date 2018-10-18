@@ -1,6 +1,5 @@
-define(['jquery', 'knockout'], function ($, ko) {
+define(["jquery","knockout"], function($,ko) { return (function(window) {
 /*! KoGrid v2.1.5 | MIT License */
-(function(window) {
 'use strict';
 
 if (!window.kg) {
@@ -71,7 +70,6 @@ if (!Array.prototype.indexOf) {
 }
 if (!Array.prototype.filter) {
     Array.prototype.filter = function(fun /*, thisp */) {
-        "use strict";
         var t = Object(this),
             len = t.length >>> 0;
         if (typeof fun !== "function") {
@@ -122,7 +120,7 @@ window.kg.utils = {
         return tempProp;
     },
     endsWith: function(str, suffix) {
-        if (!str || !suffix || typeof str != "string") {
+        if (!str || !suffix || typeof str !== "string") {
             return false;
         }
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
@@ -943,7 +941,7 @@ window.kg.Grid = function (options) {
     self.sortedData = self.config.data;
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
-    self.lastSortedColumn = undefined;
+    self.lastSortedColumn;
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
     self.disableTextSelection = ko.observable(self.config.disableTextSelection);
@@ -1041,7 +1039,7 @@ window.kg.Grid = function (options) {
             totalWidth = 0;
         var columns = self.columns();
         $.each(cols, function (i, col) {
-            var isPercent = false, t = undefined;
+            var isPercent = false, t;
             //if width is not defined, set it to a single star
             if (window.kg.utils.isNullOrUndefined(col.width)) {
                 col.width = "*";
@@ -1381,7 +1379,7 @@ window.kg.Grid = function (options) {
     self.init();
 };
 
-kg.Range = function (top, bottom) {
+window.kg.Range = function (top, bottom) {
     this.topRow = top;
     this.bottomRow = bottom;
 };
@@ -1715,7 +1713,7 @@ window.kg.SearchProvider = function (grid) {
             return new RegExp(str, modifiers);
         } catch(err) {
             //Escape all RegExp metacharacters.
-            return new RegExp(str.replace(/(\^|\$|\(|\)|\<|\>|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
+            return new RegExp(str.replace(/(\^|\$|\(|\)|\[|\]|\{|\}|\\|\||\.|\*|\+|\?)/g, '\\$1'));
         }
     };
     var buildSearchConditions = function (a) {
@@ -2071,7 +2069,7 @@ window.kg.sortService = {
             if (!item) {
                 return;
             }
-            sortFn = kg.sortService.guessSortFn(item[col.field]);
+            sortFn = window.kg.sortService.guessSortFn(item[col.field]);
             //cache it
             if (sortFn) {
                 window.kg.sortService.colSortFnCache[col.field] = sortFn;
@@ -2132,5 +2130,4 @@ window.kg.StyleProvider = function (grid) {
 	grid.footerStyle = ko.computed(function () {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.config.footerRowHeight + "px" };
     });
-};})(window);
-});
+};})(window); });

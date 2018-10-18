@@ -68,7 +68,7 @@
     self.sortedData = self.config.data;
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
-    self.lastSortedColumn = undefined;
+    self.lastSortedColumn;
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
     self.disableTextSelection = ko.observable(self.config.disableTextSelection);
@@ -166,7 +166,7 @@
             totalWidth = 0;
         var columns = self.columns();
         $.each(cols, function (i, col) {
-            var isPercent = false, t = undefined;
+            var isPercent = false, t;
             //if width is not defined, set it to a single star
             if (window.kg.utils.isNullOrUndefined(col.width)) {
                 col.width = "*";
