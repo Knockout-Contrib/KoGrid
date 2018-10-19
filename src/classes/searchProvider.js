@@ -29,16 +29,17 @@
                                     return true;
                                 }
                             }
-                        }
-                        return false;
-                    }
-                    //Search by column.
-                    var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
-                    if (!field || !condition.regex.test(field.toString())) {
-                        return false;
+                        }                        
+                    } else {                    
+						 //Search by column.
+						var field = ko.utils.unwrapObservable(item[condition.column]) || ko.utils.unwrapObservable(item[self.fieldMap[condition.columnDisplay]]);
+						if (field && condition.regex.test(field.toString())) {
+							return true;
+						}
                     }
                 }
-                return true;
+                
+                return false;
             }));
         }
         grid.rowFactory.filteredDataChanged();

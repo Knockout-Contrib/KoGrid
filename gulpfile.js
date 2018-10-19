@@ -20,6 +20,7 @@ var path = require('path');
 
 var buildConfig = {
     outputPath: './dist',
+    productionPath: '/Applications/MAMP/htdocs/pinnacle/web-site-2.0/slim2/content/assets/lib/knockout',
     packageInfo: require('./package.json'),
     banner: '/*! KoGrid v<%= pkg.version %> | MIT License */'
 };
@@ -88,10 +89,12 @@ gulp.task('compile', ['styles'], function() {
         .pipe(gulpJSHint())
         .pipe(gulpJSHint.reporter('jshint-stylish'))
         .pipe(gulp.dest(buildConfig.outputPath))
+        .pipe(gulp.dest(buildConfig.productionPath))
         .pipe(gulpUglify({preserveComments: 'some'}))
         .pipe(gulpRename('KoGrid.min.js'))
         //.pipe(gulpSourceMaps.write('./', {addComment: true}))
-        .pipe(gulp.dest(buildConfig.outputPath));
+        .pipe(gulp.dest(buildConfig.outputPath))
+        .pipe(gulp.dest(buildConfig.productionPath));
 });
 
 gulp.task('test', ['compile'], function() {
