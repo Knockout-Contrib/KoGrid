@@ -19,6 +19,8 @@ window.kg.SelectionService = function (grid) {
 	            var thisIndx = grid.filteredData.indexOf(rowItem.entity);
 	            var prevIndx = grid.filteredData.indexOf(self.lastClickedRow.entity);
 	            if (thisIndx == prevIndx) {
+		            // Added this line to fix selection bug that won't reload paginated grid after multi select -bja
+		            grid.$$selectionPhase = false;
 	                return false;
 	            }
 	            prevIndx++;
@@ -41,8 +43,6 @@ window.kg.SelectionService = function (grid) {
 	                });
 	                rows[rows.length - 1].afterSelectionChange(rows, evt);
 	            }
-	            self.lastClickedRow = rows[rows.length - 1];
-	            return true;
 	        }
 	    } else if (!self.multi) {
 	        if (self.lastClickedRow && self.lastClickedRow != rowItem) {
@@ -62,8 +62,7 @@ window.kg.SelectionService = function (grid) {
         rowItem.selected(isSelected) ;
         rowItem.entity[SELECTED_PROP] = isSelected;
         if (!isSelected) {
-            var indx = self.selectedItems.indexOf(rowItem.entity);
-            self.selectedItems.splice(indx, 1);
+            self.selectedItems.remove(rowItem.entity);
         } else {
             if (self.selectedItems.indexOf(rowItem.entity) === -1) {
                 self.selectedItems.push(rowItem.entity);
