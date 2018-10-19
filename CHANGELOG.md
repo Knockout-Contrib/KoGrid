@@ -8,6 +8,7 @@
 * Drag and Drop columns doesn't work in IE9 [#187](https://github.com/Knockout-Contrib/KoGrid/issues/187)
 * Fixed filter issue where false negatives could result if one condition failed before another condition passed
 * Fix selections so that un-selecting an item that wasn't already selected does not result in last selected item being removed
+* Fix selection persistence across server side pagination
 
 # 2.1.1 (2012-12-18)
 
