@@ -1,5 +1,8 @@
 
-# 2.1.5 (2015-xx-xx)
+# 2.1.5 (2018-10-20)
+* KoGrid now wrapped as an AMD module.
+* Fixed filter issue where false negatives could result if one condition failed before another condition passed
+* Fix selections so that un-selecting an item that wasn't already selected does not result in last selected item being removed
 
 ### Bug Fixes
 
