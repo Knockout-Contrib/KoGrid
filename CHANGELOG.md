@@ -1,14 +1,13 @@
 
 # 2.1.5 (2018-10-20)
 * KoGrid now wrapped as an AMD module.
-* Fixed filter issue where false negatives could result if one condition failed before another condition passed
-* Fix selections so that un-selecting an item that wasn't already selected does not result in last selected item being removed
 
 ### Bug Fixes
 
 * variable 'sortInfo is not defined' [#174](https://github.com/Knockout-Contrib/KoGrid/issues/174)
 * Drag and Drop columns doesn't work in IE9 [#187](https://github.com/Knockout-Contrib/KoGrid/issues/187)
-
+* Fixed filter issue where false negatives could result if one condition failed before another condition passed
+* Fix selections so that un-selecting an item that wasn't already selected does not result in last selected item being removed
 
 # 2.1.1 (2012-12-18)
 
