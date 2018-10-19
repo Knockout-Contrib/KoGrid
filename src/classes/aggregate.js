@@ -7,7 +7,7 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.field = aggEntity.gField;
     self.depth = aggEntity.gDepth;
     self.parent = aggEntity.parent;
-    self.children = aggEntity.children;
+    self.children = ko.observableArray(aggEntity.children); // this was originally not observable, which made the totalChildren computed useless
     self.aggChildren = aggEntity.aggChildren;
     self.aggIndex = aggEntity.aggIndex;
     self.collapsed = ko.observable(true);
@@ -31,14 +31,14 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
                 child.setExpand(c);
             }
         });
-        $.each(self.children, function (i, child) {
+        $.each(self.children(), function (i, child) {
             child[KG_HIDDEN] = self.collapsed();
         });
         rowFactory.rowCache = [];
         var foundMyself = false;
         $.each(rowFactory.aggCache, function (i, agg) {
             if (foundMyself) {
-                var offset = (30 * self.children.length);
+                var offset = (30 * self.children().length);
                 var c = self.collapsed();
                 agg.offsetTop(c ? agg.offsetTop() - offset : agg.offsetTop() + offset);
             } else {
@@ -61,15 +61,15 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
                         recurse(a);
                     });
                 } else {
-                    i += cur.children.length;
+                    i += cur.children().length;
                 }
             };
             recurse(self);
             return i;
         } else {
-            return self.children.length;
+            return self.children().length;
         }
-    });
+    }).extend({ rateLimit: 500 });
     self.selected = ko.observable(false);
     self.isEven = ko.observable(false);
     self.isOdd = ko.observable(false);

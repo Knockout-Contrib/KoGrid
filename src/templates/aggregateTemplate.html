@@ -1,4 +1,5 @@
 <div data-bind="click: toggleExpand, style: {'left': offsetLeft()}" class="kgAggregate">
-    <span class="kgAggregateText" data-bind="html: $data.label">(<span data-bind="html: totalChildren"></span> Items)</span>
+    <span class="kgAggregateText"><span class="kgAggregateLabel" data-bind="html: $data.label"></span>
+    <span class="kgAggregateTotal"><span data-bind="html: totalChildren"></span> <span data-bind="text: totalChildren() > 1 ? 'Items' : 'Item'"></span></span></span>
     <div data-bind="attr: {'class' : aggClass }"></div>
 </div>

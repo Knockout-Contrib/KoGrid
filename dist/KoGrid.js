@@ -176,7 +176,7 @@ $.extend(window.kg.utils, {
     })()
 });
 
-window.kg.aggregateTemplate = function() { return '<div data-bind="click: toggleExpand, style: {\'left\': offsetLeft()}" class="kgAggregate"><span class="kgAggregateText" data-bind="html: $data.label">(<span data-bind="html: totalChildren"></span> Items)</span><div data-bind="attr: {\'class\' : aggClass }"></div></div>'; };
+window.kg.aggregateTemplate = function() { return '<div data-bind="click: toggleExpand, style: {\'left\': offsetLeft()}" class="kgAggregate"><span class="kgAggregateText"><span class="kgAggregateLabel" data-bind="html: $data.label"></span> <span class="kgAggregateTotal"><span data-bind="html: totalChildren"></span> <span data-bind="text: totalChildren() > 1 ? \'Items\' : \'Item\'"></span></span></span><div data-bind="attr: {\'class\' : aggClass }"></div></div>'; };
 
 window.kg.defaultCellTemplate = function() { return '<div data-bind="attr: { \'class\': \'kgCellText colt\' + $index()}, html: $data.getProperty($parent)"></div>'; };
 
@@ -344,7 +344,7 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.field = aggEntity.gField;
     self.depth = aggEntity.gDepth;
     self.parent = aggEntity.parent;
-    self.children = aggEntity.children;
+    self.children = ko.observableArray(aggEntity.children); // this was originally not observable, which made the totalChildren computed useless
     self.aggChildren = aggEntity.aggChildren;
     self.aggIndex = aggEntity.aggIndex;
     self.collapsed = ko.observable(true);
@@ -368,14 +368,14 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
                 child.setExpand(c);
             }
         });
-        $.each(self.children, function (i, child) {
+        $.each(self.children(), function (i, child) {
             child[KG_HIDDEN] = self.collapsed();
         });
         rowFactory.rowCache = [];
         var foundMyself = false;
         $.each(rowFactory.aggCache, function (i, agg) {
             if (foundMyself) {
-                var offset = (30 * self.children.length);
+                var offset = (30 * self.children().length);
                 var c = self.collapsed();
                 agg.offsetTop(c ? agg.offsetTop() - offset : agg.offsetTop() + offset);
             } else {
@@ -398,15 +398,15 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
                         recurse(a);
                     });
                 } else {
-                    i += cur.children.length;
+                    i += cur.children().length;
                 }
             };
             recurse(self);
             return i;
         } else {
-            return self.children.length;
+            return self.children().length;
         }
-    });
+    }).extend({ rateLimit: 500 });
     self.selected = ko.observable(false);
     self.isEven = ko.observable(false);
     self.isOdd = ko.observable(false);

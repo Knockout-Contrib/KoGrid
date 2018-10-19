@@ -285,6 +285,14 @@ input {
     line-height: 20px;
     white-space:nowrap;
 }
+.kgAggregateLabel {
+
+}
+.kgAggregateTotal {
+  font-size: 12px;
+  padding-left: 8px;
+  font-style: italic;
+}
 .kgAggArrowExpanded {
     position: absolute;
     left: 8px;
