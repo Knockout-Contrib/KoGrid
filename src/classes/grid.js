@@ -3,6 +3,7 @@
             rowHeight: 30,
             columnWidth: 100,
             headerRowHeight: 30,
+	        aggregateHeaderHeight: 43,
             footerRowHeight: 55,
             footerVisible: true,
             displayFooter: undefined,
@@ -68,14 +69,13 @@
     self.sortedData = self.config.data;
     self.lateBindColumns = false;
     self.filteredData = ko.observableArray([]);
-    self.lastSortedColumn;
+    self.lastSortedColumn = undefined;
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
     self.disableTextSelection = ko.observable(self.config.disableTextSelection);
     self.calcMaxCanvasHeight = function() {
-        return (self.configGroups().length > 0) ? (self.rowFactory.parsedData.filter(function (e) {
-            return e[KG_HIDDEN] === false;
-        }).length * self.config.rowHeight) : (self.filteredData().length * self.config.rowHeight);
+        return (self.configGroups().length > 0) ?
+	        self.rowFactory.calculateHeightOfAllRows() : (self.filteredData().length * self.config.rowHeight);
     };
     self.elementDims = {
         scrollW: 0,

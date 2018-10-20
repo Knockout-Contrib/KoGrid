@@ -9,4 +9,5 @@
     KG_DEPTH = '_kg_depth_',
     KG_HIDDEN = '_kg_hidden_',
     KG_COLUMN = '_kg_column_',
+	KG_AGG_INDEX = '_kg_agg_index_',
     TEMPLATE_REGEXP = /<.+>/;

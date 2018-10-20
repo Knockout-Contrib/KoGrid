@@ -2,16 +2,16 @@
     var self = this;
     // we cache rows when they are built, and then blow the cache away when sorting
     self.rowCache = [];
-    self.aggCache = {};
+    self.aggCache = [];
     self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
     self.dataChanged = true;
     self.parsedData = [];
     self.rowConfig = {};
     self.selectionService = grid.selectionService;
-    self.rowHeight = 30;
     self.numberOfAggregates = 0;
     self.groupedData = undefined;
     self.rowHeight = grid.config.rowHeight;
+    self.aggregateHeaderHeight = grid.config.aggregateHeaderHeight;
     self.rowConfig = {
         canSelectRows: grid.config.canSelectRows,
         rowClasses: grid.config.rowClasses,
@@ -22,6 +22,12 @@
     };
 
     self.renderedRange = new window.kg.Range(0, grid.minRowsToRender() + EXCESS_ROWS);
+
+    self.calculateAggRowOffsetTop = function(rowIndex, aggIndex) {
+	    var rowDiff = rowIndex - aggIndex;
+	    return (rowDiff * self.rowHeight) + (aggIndex * self.aggregateHeaderHeight);
+    };
+
     // Builds rows for each data item in the 'filteredData'
     // @entity - the data item
     // @rowIndex - the index of the row
@@ -31,7 +37,12 @@
             // build the row
             row = new window.kg.Row(entity, self.rowConfig, self.selectionService);
             row.rowIndex(rowIndex + 1); //not a zero-based rowIndex
-            row.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
+
+	        // set the offset based on whether the row is the child of an aggregate row
+	        var offsetTop = (entity[KG_AGG_INDEX] === undefined) ?
+		        (self.rowHeight * rowIndex) : self.calculateAggRowOffsetTop(rowIndex, entity[KG_AGG_INDEX]+1);
+
+            row.offsetTop(offsetTop.toString() + 'px');
             row.selected(entity[SELECTED_PROP]);
             // finally cache it for the next round
             self.rowCache[rowIndex] = row;
@@ -47,7 +58,7 @@
             self.aggCache[aggEntity.aggIndex] = agg;
         }
         agg.index = rowIndex + 1; //not a zero-based rowIndex
-        agg.offsetTop((self.rowHeight * rowIndex).toString() + 'px');
+        agg.offsetTop(self.calculateAggRowOffsetTop(rowIndex, aggEntity.aggIndex).toString() + 'px');
         return agg;
     };
     self.UpdateViewableRange = function(newRange) {
@@ -111,6 +122,7 @@
             $.each(g.values, function (i, item) {
                 // get the last parent in the array because that's where our children want to be
                 self.parentCache[self.parentCache.length - 1].children.push(item);
+                item[KG_AGG_INDEX] = self.numberOfAggregates-1;
                 //add the row to our return array
                 self.parsedData.push(item);
             });
@@ -121,20 +133,25 @@
                     continue;
                 } else if (g.hasOwnProperty(prop)) {
                     //build the aggregate row
-                    var agg = self.buildAggregateRow({
-                        gField: g[KG_FIELD],
-                        gLabel: prop,
-                        gDepth: g[KG_DEPTH],
-                        isAggRow: true,
-                        '_kg_hidden_': false,
-                        children: [],
-                        aggChildren: [],
-                        aggIndex: self.numberOfAggregates,
-                        aggLabelFilter: g[KG_COLUMN].aggLabelFilter
-                    }, 0);
+	                var aggData = {
+		                gField: g[KG_FIELD],
+		                gLabel: prop,
+		                gDepth: g[KG_DEPTH],
+		                isAggRow: true,
+		                children: [],
+		                aggChildren: [],
+		                aggIndex: self.numberOfAggregates,
+		                aggLabelFilter: g[KG_COLUMN].aggLabelFilter
+	                };
+	                aggData[KG_HIDDEN] = false;
+
+                    var agg = self.buildAggregateRow(aggData, 0);
+
                     self.numberOfAggregates++;
+
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
+                    agg.aggregateHeaderHeight = self.aggregateHeaderHeight;
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
                         agg.parent.collapsed(false);
@@ -150,6 +167,7 @@
             }
         }
     };
+
     //Shuffle the data into their respective groupings.
     self.getGrouping = function(groups) {
         self.aggCache = [];
@@ -208,6 +226,18 @@
         grid.fixColumnIndexes();
         self.parsedData.length = 0;
         self.parseGroupData(self.groupedData);
+    };
+
+    self.calculateHeightOfAllRows = function() {
+	    var regularRows = self.parsedData.filter(function (e) {
+	    	if (e.isAggRow === true) {
+	    		return false;
+		    }
+
+		    return e[KG_HIDDEN] === false;
+	    }).length;
+
+	    return (regularRows * self.rowHeight) + (self.numberOfAggregates * self.aggregateHeaderHeight);
     };
 
     if (grid.config.groups.length > 0 && grid.filteredData().length > 0) {
