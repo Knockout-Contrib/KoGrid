@@ -181,7 +181,7 @@ window.kg.aggregateTemplate = function() { return '<div data-bind="click: toggle
 
 window.kg.defaultCellTemplate = function() { return '<div data-bind="attr: { \'class\': \'kgCellText colt\' + $index()}, html: $data.getProperty($parent)"></div>'; };
 
-window.kg.defaultGridTemplate = function() { return '<div data-bind="css: {\'ui-widget\': jqueryUITheme, \'kgNoSelect\' : disableTextSelection}"><div class="kgTopPanel" data-bind="css: {\'ui-widget-header\':jqueryUITheme, \'ui-corner-top\': jqueryUITheme}, style: $data.topPanelStyle"><div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle"><div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div><ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList"><li class="kgGroupItem"><span class="kgGroupElement"><div class="kgGroupName"><span data-bind="text: displayName"></span> <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span></div><span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span></span></li></ul></div><div class="kgHeaderContainer" data-bind="style: headerStyle"><div class="kgHeaderScroller" data-bind="style: headerScrollerStyle, kgHeaderRow: $data"></div></div><div class="kgHeaderButton" data-bind="visible: ($data.showColumnMenu || $data.showFilter), click: toggleShowMenu"><div class="kgHeaderButtonArrow"></div></div><div data-bind="visible: showMenu" class="kgColMenu"><div data-bind="visible: showFilter"><input placeholder="Search Field:Value" type="text" data-bind="value: filterText, valueUpdate: \'afterkeydown\'"></div><div data-bind="visible: showColumnMenu"><span class="kgMenuText">Choose Columns:</span><ul class="kgColList" data-bind="foreach: nonAggColumns"><li class="kgColListItem"><label style="position: relative"><input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"> <span data-bind="text: displayName, click: toggleVisible"></span> <a title="Group By" data-bind="attr: {\'class\': groupedByClass }, visible: (field != \'\\u2714\'), click: $parent.groupBy"></a> <span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span></label></li></ul></div></div></div><div class="kgViewport" data-bind="css: {\'ui-widget-content\': jqueryUITheme}, style: viewportStyle"><div class="kgCanvas" data-bind="style: canvasStyle"><div data-bind="foreach: renderedRows" style="position: absolute"><div data-bind="style: { \'top\': offsetTop, \'height\': ($data.aggregateHeaderHeight || $parent.rowHeight) + \'px\' }, click: toggleSelected, css: {\'selected\': selected, \'even\': isEven , \'odd\': isOdd, \'ui-state-default\': $parent.jqueryUITheme && isOdd, \'ui-state-active\':$parent.jqueryUITheme && isEven}, kgRow: $data" class="kgRow"></div></div></div></div><div class="kgFooterPanel" data-bind="css: {\'ui-widget-content\': jqueryUITheme, \'ui-corner-bottom\': jqueryUITheme}, style: footerStyle"><div class="kgTotalSelectContainer" data-bind="visible: footerVisible"><div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !multiSelect}"><span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span></div><div class="kgFooterSelectedItems" data-bind="visible: multiSelect"><span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span></div></div><div class="kgPagerContainer" style="float: right; margin-top: 10px" data-bind="visible: (footerVisible && enablePaging), css: {\'kgNoMultiSelect\': !multiSelect}"><div style="float:left; margin-right: 10px" class="kgRowCountPicker"><span style="float: left; margin-top: 3px" class="kgLabel">Page Size:</span><select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select></div><div style="float:left; margin-right: 10px; line-height:25px" class="kgPagerControl" style="float: left; min-width: 135px"><button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button> <button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button> <input class="kgPagerCurrent" type="number" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px" data-bind="value: pagingOptions.currentPage, valueUpdate: \'afterkeydown\'"> <button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button> <button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button></div></div></div></div>'; };
+window.kg.defaultGridTemplate = function() { return '<div data-bind="css: {\'ui-widget\': jqueryUITheme, \'kgNoSelect\' : disableTextSelection}"><div class="kgTopPanel" data-bind="css: {\'ui-widget-header\':jqueryUITheme, \'ui-corner-top\': jqueryUITheme}, style: $data.topPanelStyle"><div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle"><div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div><ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList"><li class="kgGroupItem"><span class="kgGroupElement"><div class="kgGroupName"><span data-bind="text: displayName"></span> <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span></div><span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span></span></li></ul></div><div class="kgHeaderContainer" data-bind="style: headerStyle"><div class="kgHeaderScroller" data-bind="style: headerScrollerStyle, kgHeaderRow: $data"></div></div><div class="kgHeaderButton" data-bind="visible: ($data.showColumnMenu || $data.showFilter), click: toggleShowMenu"><div class="kgHeaderButtonArrow"></div></div><div data-bind="visible: showMenu" class="kgColMenu"><div data-bind="visible: showFilter"><input placeholder="Search Field:Value" type="text" data-bind="value: filterText, valueUpdate: \'afterkeydown\'"></div><div data-bind="visible: showColumnMenu"><span class="kgMenuText">Choose Columns:</span><ul class="kgColList" data-bind="foreach: nonAggColumns"><li class="kgColListItem"><label style="position: relative"><input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"> <span data-bind="text: displayName, click: toggleVisible"></span> <a title="Group By" data-bind="attr: {\'class\': groupedByClass }, visible: (field != \'\\u2714\'), click: $parent.groupBy"></a> <span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span></label></li></ul></div></div></div><div class="kgViewport" data-bind="css: {\'ui-widget-content\': jqueryUITheme}, style: viewportStyle"><div class="kgCanvas" data-bind="style: canvasStyle"><div data-bind="foreach: renderedRows" style="position: absolute"><div data-bind="style: { \'top\': offsetTop, \'height\': ($data.groupHeaderHeight || $parent.rowHeight) + \'px\' }, click: toggleSelected, css: {\'selected\': selected, \'even\': isEven , \'odd\': isOdd, \'ui-state-default\': $parent.jqueryUITheme && isOdd, \'ui-state-active\':$parent.jqueryUITheme && isEven}, kgRow: $data" class="kgRow"></div></div></div></div><div class="kgFooterPanel" data-bind="css: {\'ui-widget-content\': jqueryUITheme, \'ui-corner-bottom\': jqueryUITheme}, style: footerStyle"><div class="kgTotalSelectContainer" data-bind="visible: footerVisible"><div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !multiSelect}"><span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span></div><div class="kgFooterSelectedItems" data-bind="visible: multiSelect"><span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span></div></div><div class="kgPagerContainer" style="float: right; margin-top: 10px" data-bind="visible: (footerVisible && enablePaging), css: {\'kgNoMultiSelect\': !multiSelect}"><div style="float:left; margin-right: 10px" class="kgRowCountPicker"><span style="float: left; margin-top: 3px" class="kgLabel">Page Size:</span><select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select></div><div style="float:left; margin-right: 10px; line-height:25px" class="kgPagerControl" style="float: left; min-width: 135px"><button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button> <button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button> <input class="kgPagerCurrent" type="number" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px" data-bind="value: pagingOptions.currentPage, valueUpdate: \'afterkeydown\'"> <button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button> <button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button></div></div></div></div>'; };
 
 window.kg.defaultHeaderCellTemplate = function() { return '<div data-bind="style: { cursor : sortable() ? \'pointer\' : \'default\' }, click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip"></div></div>'; };
 
@@ -348,7 +348,7 @@ window.kg.Aggregate = function (aggEntity, rowFactory) {
     self.children = ko.observableArray(aggEntity.children); // this was originally not observable, which made the totalChildren computed useless
     self.aggChildren = aggEntity.aggChildren;
     self.aggIndex = aggEntity.aggIndex;
-    self.collapsed = ko.observable(true);
+    self.collapsed = ko.observable(rowFactory.collapseGroups);
     self.isAggRow = true;
     self.offsetLeft = ko.observable((aggEntity.gDepth * 25).toString() + 'px');
     self.aggLabelFilter = aggEntity.aggLabelFilter;
@@ -866,10 +866,12 @@ window.kg.EventProvider = function (grid) {
 
 window.kg.Grid = function (options) {
     var defaults = {
-            rowHeight: 30,
+            rowHeight: 43,
             columnWidth: 100,
             headerRowHeight: 30,
-	        aggregateHeaderHeight: 43,
+	        groupHeaderHeight: 43,
+	        groupIndent: true,
+		    collapseGroups: true,
             footerRowHeight: 55,
             footerVisible: true,
             displayFooter: undefined,
@@ -1452,7 +1454,10 @@ window.kg.RowFactory = function (grid) {
     self.numberOfAggregates = 0;
     self.groupedData = undefined;
     self.rowHeight = grid.config.rowHeight;
-    self.aggregateHeaderHeight = grid.config.aggregateHeaderHeight;
+    self.groupHeaderHeight = grid.config.groupHeaderHeight;
+    self.groupIndent = grid.config.groupIndent;
+    self.collapseGroups = grid.config.collapseGroups;
+
     self.rowConfig = {
         canSelectRows: grid.config.canSelectRows,
         rowClasses: grid.config.rowClasses,
@@ -1466,7 +1471,7 @@ window.kg.RowFactory = function (grid) {
 
     self.calculateAggRowOffsetTop = function(rowIndex, aggIndex) {
 	    var rowDiff = rowIndex - aggIndex;
-	    return (rowDiff * self.rowHeight) + (aggIndex * self.aggregateHeaderHeight);
+	    return (rowDiff * self.rowHeight) + (aggIndex * self.groupHeaderHeight);
     };
 
     // Builds rows for each data item in the 'filteredData'
@@ -1592,7 +1597,7 @@ window.kg.RowFactory = function (grid) {
 
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
-                    agg.aggregateHeaderHeight = self.aggregateHeaderHeight;
+                    agg.groupHeaderHeight = self.groupHeaderHeight;
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
                         agg.parent.collapsed(false);
@@ -1621,24 +1626,27 @@ window.kg.RowFactory = function (grid) {
         var cols = grid.columns();
 
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = true;
+            item[KG_HIDDEN] = self.collapseGroups;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
-                if (!cols[depth].isAggCol && depth <= maxDepth) {
-                    grid.columns.splice(item.gDepth, 0, new window.kg.Column({
-                        colDef: {
-                            field: '',
-                            width: 25,
-                            sortable: false,
-                            resizable: false,
-                            headerCellTemplate: '<div class="kgAggHeader"></div>'
-                        },
-                        isAggCol: true,
-                        index: item.gDepth,
-                        headerRowHeight: grid.config.headerRowHeight
-                    }));
-                    window.kg.domUtilityService.BuildStyles(grid);
-                }
+            	if (self.groupIndent) {
+            		// give aggregated rows a left indentation relative to their depth
+		            if(!cols[depth].isAggCol && depth <= maxDepth){
+			            grid.columns.splice(item.gDepth, 0, new window.kg.Column({
+				            colDef: {
+					            field: '',
+					            width: 25,
+					            sortable: false,
+					            resizable: false,
+					            headerCellTemplate: '<div class="kgAggHeader"></div>'
+				            },
+				            isAggCol: true,
+				            index: item.gDepth,
+				            headerRowHeight: grid.config.headerRowHeight
+			            }));
+			            window.kg.domUtilityService.BuildStyles(grid);
+		            }
+	            }
                 var col = cols.filter(function (c) { return c.field == group; })[0];
                 var val = window.kg.utils.evalProperty(item, group);
                 if (col.cellFilter) {
@@ -1678,7 +1686,7 @@ window.kg.RowFactory = function (grid) {
 		    return e[KG_HIDDEN] === false;
 	    }).length;
 
-	    return (regularRows * self.rowHeight) + (self.numberOfAggregates * self.aggregateHeaderHeight);
+	    return (regularRows * self.rowHeight) + (self.numberOfAggregates * self.groupHeaderHeight);
     };
 
     if (grid.config.groups.length > 0 && grid.filteredData().length > 0) {

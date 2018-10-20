@@ -1,9 +1,11 @@
 ﻿window.kg.Grid = function (options) {
     var defaults = {
-            rowHeight: 30,
+            rowHeight: 43,
             columnWidth: 100,
             headerRowHeight: 30,
-	        aggregateHeaderHeight: 43,
+	        groupHeaderHeight: 43,
+	        groupIndent: true,
+		    collapseGroups: true,
             footerRowHeight: 55,
             footerVisible: true,
             displayFooter: undefined,

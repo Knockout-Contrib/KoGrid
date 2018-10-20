@@ -11,4 +11,4 @@ koGridLayoutPlugin = function () {
         self.grid.configureColumnWidths();
         window.kg.domUtilityService.BuildStyles(self.grid);
     };
-}
+};

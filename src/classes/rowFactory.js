@@ -11,7 +11,10 @@
     self.numberOfAggregates = 0;
     self.groupedData = undefined;
     self.rowHeight = grid.config.rowHeight;
-    self.aggregateHeaderHeight = grid.config.aggregateHeaderHeight;
+    self.groupHeaderHeight = grid.config.groupHeaderHeight;
+    self.groupIndent = grid.config.groupIndent;
+    self.collapseGroups = grid.config.collapseGroups;
+
     self.rowConfig = {
         canSelectRows: grid.config.canSelectRows,
         rowClasses: grid.config.rowClasses,
@@ -25,7 +28,7 @@
 
     self.calculateAggRowOffsetTop = function(rowIndex, aggIndex) {
 	    var rowDiff = rowIndex - aggIndex;
-	    return (rowDiff * self.rowHeight) + (aggIndex * self.aggregateHeaderHeight);
+	    return (rowDiff * self.rowHeight) + (aggIndex * self.groupHeaderHeight);
     };
 
     // Builds rows for each data item in the 'filteredData'
@@ -151,7 +154,7 @@
 
                     //set the aggregate parent to the parent in the array that is one less deep.
                     agg.parent = self.parentCache[agg.depth - 1];
-                    agg.aggregateHeaderHeight = self.aggregateHeaderHeight;
+                    agg.groupHeaderHeight = self.groupHeaderHeight;
                     // if we have a parent, set the parent to not be collapsed and append the current agg to its children
                     if (agg.parent) {
                         agg.parent.collapsed(false);
@@ -180,24 +183,27 @@
         var cols = grid.columns();
 
         $.each(data, function (i, item) {
-            item[KG_HIDDEN] = true;
+            item[KG_HIDDEN] = self.collapseGroups;
             var ptr = self.groupedData;
             $.each(groups, function(depth, group) {
-                if (!cols[depth].isAggCol && depth <= maxDepth) {
-                    grid.columns.splice(item.gDepth, 0, new window.kg.Column({
-                        colDef: {
-                            field: '',
-                            width: 25,
-                            sortable: false,
-                            resizable: false,
-                            headerCellTemplate: '<div class="kgAggHeader"></div>'
-                        },
-                        isAggCol: true,
-                        index: item.gDepth,
-                        headerRowHeight: grid.config.headerRowHeight
-                    }));
-                    window.kg.domUtilityService.BuildStyles(grid);
-                }
+            	if (self.groupIndent) {
+            		// give aggregated rows a left indentation relative to their depth
+		            if(!cols[depth].isAggCol && depth <= maxDepth){
+			            grid.columns.splice(item.gDepth, 0, new window.kg.Column({
+				            colDef: {
+					            field: '',
+					            width: 25,
+					            sortable: false,
+					            resizable: false,
+					            headerCellTemplate: '<div class="kgAggHeader"></div>'
+				            },
+				            isAggCol: true,
+				            index: item.gDepth,
+				            headerRowHeight: grid.config.headerRowHeight
+			            }));
+			            window.kg.domUtilityService.BuildStyles(grid);
+		            }
+	            }
                 var col = cols.filter(function (c) { return c.field == group; })[0];
                 var val = window.kg.utils.evalProperty(item, group);
                 if (col.cellFilter) {
@@ -237,7 +243,7 @@
 		    return e[KG_HIDDEN] === false;
 	    }).length;
 
-	    return (regularRows * self.rowHeight) + (self.numberOfAggregates * self.aggregateHeaderHeight);
+	    return (regularRows * self.rowHeight) + (self.numberOfAggregates * self.groupHeaderHeight);
     };
 
     if (grid.config.groups.length > 0 && grid.filteredData().length > 0) {
