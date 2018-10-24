@@ -4,7 +4,7 @@
 		delay = 500,
         clicks = 0,
         timer = null;
-    self.eventTaget = undefined;
+    self.eventTarget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(0);
 	self.isGroupedBy = ko.observable(false);
@@ -47,6 +47,18 @@
     if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
         self.headerCellTemplate = window.kg.utils.getTemplatePromise(colDef.headerCellTemplate);
     }
+
+    self.onClick = function() { return null; };
+
+    if (colDef.onClick) {
+	    self.cellClass(self.cellClass() + ' kgClickable');
+	    self.onClick = function(row) {
+	    	return function(column, event){
+			    colDef.onClick(row, column, event);
+		    };
+	    };
+    }
+
     self.getProperty = function (row) {
         var ret;
         if (self.cellFilter) {
@@ -76,6 +88,7 @@
     self.noSortVisible = ko.computed(function () {
         return !self.sortDirection();
     });
+
     self.sort = function () {
         if (!self.sortable()) {
             return true; // column sorting is disabled, do nothing
@@ -107,8 +120,8 @@
             grid.config.columnsChanged(grid.columns.peek());
             return true;
         }
-        self.eventTaget = event.target.parentElement;
-        self.eventTaget.style.cursor = 'col-resize';
+        self.eventTarget = event.target.parentElement;
+        self.eventTarget.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
         $(document).mousemove(self.onMouseMove);
@@ -127,8 +140,8 @@
         event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
-        self.eventTaget.style.cursor = self.sortable() ? 'pointer' : 'default';
-        self.eventTaget = undefined;
+        self.eventTarget.style.cursor = self.sortable() ? 'pointer' : 'default';
+        self.eventTarget = undefined;
         grid.config.columnsChanged(grid.columns.peek());
         return false;
     };

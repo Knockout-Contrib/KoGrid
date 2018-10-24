@@ -187,7 +187,7 @@ window.kg.defaultHeaderCellTemplate = function() { return '<div data-bind="style
 
 window.kg.defaultHeaderRowTemplate = function() { return '<div data-bind="foreach: visibleColumns"><div data-bind="kgHeaderCell: $data, attr: { \'class\': \'kgHeaderCell col\' + $index() }"></div></div>'; };
 
-window.kg.defaultRowTemplate = function() { return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data"></div></div>'; };
+window.kg.defaultRowTemplate = function() { return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: onClick($parent)"></div></div>'; };
 
 ko.bindingHandlers['kgCell'] = (function () {
     return {
@@ -412,7 +412,7 @@ window.kg.Column = function (config, grid) {
 		delay = 500,
         clicks = 0,
         timer = null;
-    self.eventTaget = undefined;
+    self.eventTarget = undefined;
     self.width = colDef.width;
 	self.groupIndex = ko.observable(0);
 	self.isGroupedBy = ko.observable(false);
@@ -455,6 +455,18 @@ window.kg.Column = function (config, grid) {
     if (colDef.headerCellTemplate && !TEMPLATE_REGEXP.test(colDef.headerCellTemplate)) {
         self.headerCellTemplate = window.kg.utils.getTemplatePromise(colDef.headerCellTemplate);
     }
+
+    self.onClick = function() { return null; };
+
+    if (colDef.onClick) {
+	    self.cellClass(self.cellClass() + ' kgClickable');
+	    self.onClick = function(row) {
+	    	return function(column, event){
+			    colDef.onClick(row, column, event);
+		    };
+	    };
+    }
+
     self.getProperty = function (row) {
         var ret;
         if (self.cellFilter) {
@@ -484,6 +496,7 @@ window.kg.Column = function (config, grid) {
     self.noSortVisible = ko.computed(function () {
         return !self.sortDirection();
     });
+
     self.sort = function () {
         if (!self.sortable()) {
             return true; // column sorting is disabled, do nothing
@@ -515,8 +528,8 @@ window.kg.Column = function (config, grid) {
             grid.config.columnsChanged(grid.columns.peek());
             return true;
         }
-        self.eventTaget = event.target.parentElement;
-        self.eventTaget.style.cursor = 'col-resize';
+        self.eventTarget = event.target.parentElement;
+        self.eventTarget.style.cursor = 'col-resize';
         self.startMousePosition = event.clientX;
         self.origWidth = self.width;
         $(document).mousemove(self.onMouseMove);
@@ -535,8 +548,8 @@ window.kg.Column = function (config, grid) {
         event.stopPropagation();
         $(document).off('mousemove');
         $(document).off('mouseup');
-        self.eventTaget.style.cursor = self.sortable() ? 'pointer' : 'default';
-        self.eventTaget = undefined;
+        self.eventTarget.style.cursor = self.sortable() ? 'pointer' : 'default';
+        self.eventTarget = undefined;
         grid.config.columnsChanged(grid.columns.peek());
         return false;
     };
@@ -1523,6 +1536,9 @@ window.kg.RowFactory = function (grid) {
         if (grid.config.groups.length > 0) {
             self.getGrouping(grid.config.groups);
         }
+
+        // TODO BUG! Updating the viewable range to what it already is?? This should probably be set to top 0, since we usually get here on filter -
+	    // or use our best guess at the row the user is scrolled at
         self.UpdateViewableRange(self.renderedRange);
     };
 

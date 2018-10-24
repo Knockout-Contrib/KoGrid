@@ -443,3 +443,7 @@ input {
     right: -10px;
     top: -2px;
 }
+
+.kgClickable {
+  cursor: pointer !important;
+}
