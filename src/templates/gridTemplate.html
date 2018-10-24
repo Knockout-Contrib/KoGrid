@@ -40,7 +40,7 @@
         </div>
     </div>
     <div class="kgViewport" data-bind="css: {'ui-widget-content': jqueryUITheme}, style: viewportStyle">
-        <div class="kgCanvas" data-bind="style: canvasStyle">
+        <div class="kgCanvas" data-bind="style: canvasStyle, delegatedHandler: delegatedHandler">
             <div data-bind="foreach: renderedRows" style="position: absolute;">
                 <div data-bind="style: { 'top': offsetTop, 'height': ($data.groupHeaderHeight || $parent.rowHeight) + 'px' }, click: toggleSelected, css: {'selected': selected, 'even': isEven , 'odd': isOdd, 'ui-state-default': $parent.jqueryUITheme && isOdd, 'ui-state-active':$parent.jqueryUITheme && isEven}, kgRow: $data" class="kgRow"></div>
             </div>

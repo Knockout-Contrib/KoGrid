@@ -75,6 +75,7 @@
     self.showFilter = self.config.showFilter;
     self.filterText = self.config.filterOptions.filterText;
     self.disableTextSelection = ko.observable(self.config.disableTextSelection);
+    self.delegatedHandler = self.config.delegatedHandler || [];
     self.calcMaxCanvasHeight = function() {
         return (self.configGroups().length > 0) ?
 	        self.rowFactory.calculateHeightOfAllRows() : (self.filteredData().length * self.config.rowHeight);

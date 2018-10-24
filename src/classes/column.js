@@ -59,6 +59,28 @@
 	    };
     }
 
+	self.delegatedClick = function() { return null; };
+
+	if (colDef.delegatedClick) {
+		self.cellClass(self.cellClass() + ' kgClickable');
+		self.delegatedClick = function(row) {
+			return function(column, event){
+				colDef.delegatedClick(row, column, event);
+			};
+		};
+	}
+
+	self.delegatedDblclick = function() { return null; };
+
+	if (colDef.delegatedDblclick) {
+		self.cellClass(self.cellClass() + ' kgClickable');
+		self.delegatedDblclick = function(row) {
+			return function(column, event){
+				colDef.delegatedDblclick(row, column, event);
+			};
+		};
+	}
+
     self.getProperty = function (row) {
         var ret;
         if (self.cellFilter) {
