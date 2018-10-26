@@ -35,11 +35,16 @@ window.kg.domUtilityService = {
     UpdateGridLayout: function(grid) {
         //catch this so we can return the viewer to their original scroll after the resize!
         var scrollTop = grid.$viewport.scrollTop();
+        var scrollLeft = grid.$viewport.scrollLeft();
+
         grid.elementDims.rootMaxW = grid.$root.width();
         grid.elementDims.rootMaxH = grid.$root.height();
         //check to see if anything has changed
         grid.refreshDomSizes();
-        grid.adjustScrollTop(scrollTop, true); //ensure that the user stays scrolled where they were
+
+	    //ensure that the user stays scrolled where they were
+        grid.adjustScrollTop(scrollTop, true);
+        grid.adjustScrollLeft(scrollLeft);
     },
     BuildStyles: function(grid) {
         var rowHeight = grid.config.rowHeight,
