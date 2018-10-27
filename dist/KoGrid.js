@@ -127,10 +127,7 @@ window.kg.utils = {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     },
     isNullOrUndefined: function(obj) {
-        if (obj === undefined || obj === null) {
-            return true;
-        }
-        return false;
+        return obj === undefined || obj === null;
     },
     getElementsByClassName: function(cl) {
         var retnode = [];
@@ -1109,16 +1106,13 @@ window.kg.Grid = function (options) {
                     columns[i].width = columns[i].minWidth;
                     var temp = columns[i];
                     $(document).ready(function() { self.resizeOnData(temp, true); });
-                    return;
                 } else if (t.indexOf("*") != -1) {
                         asteriskNum += t.length;
                         col.index = i;
                         asterisksArray.push(col);
-                        return;
                 } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     col.index = i;
                     percentArray.push(col);
-                    return;
                 } else { // we can't parse the width so lets throw an error.
                     throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" to use remaining width of grid";
                 }
@@ -1481,16 +1475,10 @@ window.kg.Row = function (entity, config, selectionService) {
     self.offsetTop = ko.observable("0px");
     self.rowDisplayIndex = 0;
     self.isEven = ko.computed(function () {
-        if (self.rowIndex() % 2 === 0) {
-            return true;
-        }
-        return false;
+        return self.rowIndex() % 2 === 0;
     });
     self.isOdd = ko.computed(function () {
-        if (self.rowIndex() % 2 !== 0) {
-            return true;
-        }
-        return false;
+        return self.rowIndex() % 2 !== 0;
     });
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;

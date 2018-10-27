@@ -42,16 +42,10 @@ window.kg.Row = function (entity, config, selectionService) {
     self.offsetTop = ko.observable("0px");
     self.rowDisplayIndex = 0;
     self.isEven = ko.computed(function () {
-        if (self.rowIndex() % 2 === 0) {
-            return true;
-        }
-        return false;
+        return self.rowIndex() % 2 === 0;
     });
     self.isOdd = ko.computed(function () {
-        if (self.rowIndex() % 2 !== 0) {
-            return true;
-        }
-        return false;
+        return self.rowIndex() % 2 !== 0;
     });
     self.beforeSelectionChange = config.beforeSelectionChangeCallback;
     self.afterSelectionChange = config.afterSelectionChangeCallback;

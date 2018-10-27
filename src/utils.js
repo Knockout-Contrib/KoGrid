@@ -77,10 +77,7 @@ window.kg.utils = {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     },
     isNullOrUndefined: function(obj) {
-        if (obj === undefined || obj === null) {
-            return true;
-        }
-        return false;
+        return obj === undefined || obj === null;
     },
     getElementsByClassName: function(cl) {
         var retnode = [];

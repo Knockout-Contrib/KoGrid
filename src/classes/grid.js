@@ -185,16 +185,13 @@
                     columns[i].width = columns[i].minWidth;
                     var temp = columns[i];
                     $(document).ready(function() { self.resizeOnData(temp, true); });
-                    return;
                 } else if (t.indexOf("*") != -1) {
                         asteriskNum += t.length;
                         col.index = i;
                         asterisksArray.push(col);
-                        return;
                 } else if (isPercent) { // If the width is a percentage, save it until the very last.
                     col.index = i;
                     percentArray.push(col);
-                    return;
                 } else { // we can't parse the width so lets throw an error.
                     throw "unable to parse column width, use percentage (\"10%\",\"20%\", etc...) or \"*\" to use remaining width of grid";
                 }
