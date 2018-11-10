@@ -239,9 +239,10 @@
         self.selectionService = new window.kg.SelectionService(self);
         self.rowFactory = new window.kg.RowFactory(self);
         self.selectionService.Initialize(self.rowFactory);
+	    // Build columns BEFORE searchProvider sets up filtered data subscriber -bja
+	    self.buildColumns();
         self.searchProvider = new window.kg.SearchProvider(self);
         self.styleProvider = new window.kg.StyleProvider(self);
-        self.buildColumns();
         window.kg.sortService.columns = self.columns;
         self.configGroups.subscribe(function (a) {
             if (!a) {
