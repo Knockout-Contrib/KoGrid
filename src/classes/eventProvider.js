@@ -206,9 +206,13 @@
             grid.adjustScrollTop(scrollTop);
         });
         grid.$viewport.off('keydown');
-        grid.$viewport.on('keydown', function(e) {
-            return window.kg.moveSelectionHandler(grid, e);
-        });
+
+        if (grid.config.arrowsSelectRows){
+	        grid.$viewport.on('keydown', function(e){
+		        return window.kg.moveSelectionHandler(grid, e);
+	        });
+        }
+
         //Chrome and firefox both need a tab index so the grid can recieve focus.
         //need to give the grid a tabindex if it doesn't already have one so
         //we'll just give it a tab index of the corresponding gridcache index

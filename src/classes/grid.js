@@ -38,6 +38,7 @@
             showColumnMenu: true,
             showFilter: true,
             disableTextSelection: true,
+	        arrowsSelectRows: true,
             filterOptions: {
                 filterText: ko.observable(""),
                 useExternalFilter: false
@@ -95,7 +96,12 @@
     };
     self.minRowsToRender = function () {
         var viewportH = self.viewportDimHeight() || 1;
-        return Math.floor(viewportH / self.config.rowHeight);
+
+        // choose the minimum row height between regular and aggregate rows
+        var rowHeight = self.config.groupHeaderHeight ?
+	        Math.min(self.config.rowHeight, self.config.groupHeaderHeight) : self.config.rowHeight;
+
+        return Math.floor(viewportH / rowHeight);
     };
     self.refreshDomSizes = function () {
         self.rootDim.outerWidth(self.elementDims.rootMaxW);

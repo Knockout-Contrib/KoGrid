@@ -893,9 +893,13 @@ window.kg.EventProvider = function (grid) {
             grid.adjustScrollTop(scrollTop);
         });
         grid.$viewport.off('keydown');
-        grid.$viewport.on('keydown', function(e) {
-            return window.kg.moveSelectionHandler(grid, e);
-        });
+
+        if (grid.config.arrowsSelectRows){
+	        grid.$viewport.on('keydown', function(e){
+		        return window.kg.moveSelectionHandler(grid, e);
+	        });
+        }
+
         //Chrome and firefox both need a tab index so the grid can recieve focus.
         //need to give the grid a tabindex if it doesn't already have one so
         //we'll just give it a tab index of the corresponding gridcache index
@@ -959,6 +963,7 @@ window.kg.Grid = function (options) {
             showColumnMenu: true,
             showFilter: true,
             disableTextSelection: true,
+	        arrowsSelectRows: true,
             filterOptions: {
                 filterText: ko.observable(""),
                 useExternalFilter: false
@@ -1016,7 +1021,12 @@ window.kg.Grid = function (options) {
     };
     self.minRowsToRender = function () {
         var viewportH = self.viewportDimHeight() || 1;
-        return Math.floor(viewportH / self.config.rowHeight);
+
+        // choose the minimum row height between regular and aggregate rows
+        var rowHeight = self.config.groupHeaderHeight ?
+	        Math.min(self.config.rowHeight, self.config.groupHeaderHeight) : self.config.rowHeight;
+
+        return Math.floor(viewportH / rowHeight);
     };
     self.refreshDomSizes = function () {
         self.rootDim.outerWidth(self.elementDims.rootMaxW);
