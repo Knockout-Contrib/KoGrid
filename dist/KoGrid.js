@@ -184,7 +184,7 @@ window.kg.defaultHeaderCellTemplate = function() { return '<div data-bind="style
 
 window.kg.defaultHeaderRowTemplate = function() { return '<div data-bind="foreach: visibleColumns"><div data-bind="kgHeaderCell: $data, attr: { \'class\': \'kgHeaderCell col\' + $index() }"></div></div>'; };
 
-window.kg.defaultRowTemplate = function() { return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell col\' + $index() }, kgCell: $data, click: onClick($parent), delegatedClick: delegatedClick($parent), delegatedDblclick: delegatedDblclick($parent)"></div></div>'; };
+window.kg.defaultRowTemplate = function() { return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell row\' + $parent.rowIndex() + \' col\' + $index() }, kgCell: $data, click: onClick($parent), delegatedClick: delegatedClick($parent), delegatedDblclick: delegatedDblclick($parent)"></div></div>'; };
 
 ko.bindingHandlers['kgCell'] = (function () {
     return {

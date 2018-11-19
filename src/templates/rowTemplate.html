@@ -1,4 +1,4 @@
 <!-- note that there should be only be ONE of the following: Cell has a click handler or delegatedClick handler or rows are selectable -->
 <div data-bind="style: { cursor : canSelectRows ? 'pointer' : 'default' }, foreach: $grid.visibleColumns, css: { 'ui-widget-content': $grid.jqueryUITheme }">
-    <div data-bind="attr: { 'class': cellClass() + ' kgCell col' + $index() }, kgCell: $data, click: onClick($parent), delegatedClick: delegatedClick($parent), delegatedDblclick: delegatedDblclick($parent)"></div>
+    <div data-bind="attr: { 'class': cellClass() + ' kgCell row' + $parent.rowIndex() + ' col' + $index() }, kgCell: $data, click: onClick($parent), delegatedClick: delegatedClick($parent), delegatedDblclick: delegatedDblclick($parent)"></div>
 </div>
