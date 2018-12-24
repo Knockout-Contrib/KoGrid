@@ -20,7 +20,8 @@ var path = require('path');
 
 var buildConfig = {
     outputPath: './dist',
-    productionPath: '/Applications/MAMP/htdocs/pinnacle/web-site-2.0/slim2/content/assets/lib/knockout',
+    //productionPath: '/Applications/MAMP/htdocs/pinnacle/web-site-2.0/slim2/content/assets/lib/knockout',
+    productionPath: '/Applications/MAMP/htdocs/pinnacle/web-site-2.5/pinnacle-scheduling/content/assets/lib/knockout',
     packageInfo: require('./package.json'),
     banner: '/*! KoGrid v<%= pkg.version %> | MIT License */'
 };
