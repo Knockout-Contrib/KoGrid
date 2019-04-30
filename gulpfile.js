@@ -78,7 +78,7 @@ gulp.task('compile', ['styles'], function() {
         'src/classes/*.js'])
         .pipe(mapStream(function(file, cb) {
             if (path.extname(file.path) === '.html') {
-                file.contents = new Buffer(jsEscape(file));
+                file.contents = new Buffer.from(jsEscape(file));
             }
             cb(null, file);
         }))
