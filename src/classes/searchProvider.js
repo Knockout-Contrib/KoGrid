@@ -68,14 +68,14 @@
 			if (args.length > 1) {
 				var columnName = $.trim(args[0]);
 				var columnValue = $.trim(args[1]);
-				var required = false;
+				var required = true;
 
-				// if column value should be required, append * to its name, like:
-				// first_name*:John;last_name*:Smith
+				// if column value should be optional, append ? to its name, like:
+				// first_name?:John;last_name?:Smith
 
-				if (columnName[columnName.length-1] === '*') {
-					required = true;
-					columnName = columnName.replace('*', '');
+				if (columnName[columnName.length-1] === '?') {
+					required = false;
+					columnName = columnName.replace('?', '');
 				}
 
 				if (columnName && columnValue) {
