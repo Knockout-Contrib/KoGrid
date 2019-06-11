@@ -10,7 +10,6 @@ window.kg.Row = function (entity, config, selectionService) {
 
 	self.selected = ko.observable(false);
 	self.continueSelection = function(event) {
-		console.debug(self, event);
 		self.selectionService.ChangeSelection(self, event);
 	};
 	// allow selection if checkbox has
