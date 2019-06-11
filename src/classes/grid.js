@@ -84,8 +84,8 @@
 	self.elementDims = {
 		scrollW: 0,
 		scrollH: 0,
-		rowIndexCellW: 25,
-		rowSelectedCellW: 25,
+		rowIndexCellW: 40,
+		rowSelectedCellW: 40,
 		rootMaxW: 0,
 		rootMaxH: 0
 	};
@@ -136,12 +136,14 @@
 			self.buildColumnDefsFromData();
 			columnDefs = self.config.columnDefs;
 		}
-		if (self.config.displaySelectionCheckbox && self.config.canSelectRows) {
+		if (self.config.displaySelectionCheckbox) { //} && self.config.canSelectRows) {
 			columnDefs.splice(0, 0, {
 				field: '\u2714',
 				width: self.elementDims.rowSelectedCellW,
 				sortable: false,
 				resizable: false,
+				cellClass: 'checkbox-select',
+				headerClass: 'checkbox-select-header',
 				headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
 				cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
 			});
@@ -364,7 +366,6 @@
 	self.jqueryUITheme = ko.observable(self.config.jqueryUITheme);
 	self.footer = null;
 	self.selectedItems = self.config.selectedItems;
-	self.multiSelect = self.config.multiSelect;
 	self.footerVisible = window.kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
 	self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
 	self.showColumnMenu = self.config.showColumnMenu;
@@ -477,7 +478,7 @@
 	self.maxRowsDisplay = ko.computed(function () {
 		return self.maxRows();
 	});
-	self.multiSelect = ko.observable((self.config.canSelectRows && self.config.multiSelect));
+	self.multiSelect = ko.observable((self.config.displaySelectionCheckbox && self.config.multiSelect));
 	self.selectedItemCount = ko.computed(function () {
 		return self.selectedItems().length;
 	});

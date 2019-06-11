@@ -10,10 +10,19 @@ window.kg.Row = function (entity, config, selectionService) {
 
 	self.selected = ko.observable(false);
 	self.continueSelection = function(event) {
+		console.debug(self, event);
 		self.selectionService.ChangeSelection(self, event);
 	};
+	// allow selection if checkbox has
+	self.canSelect = function(event) {
+		var element = event.target || event;
+		return (
+			self.canSelectRows || $(element).hasClass('checkbox-select') ||
+			$(element).hasClass('kgSelectionCell') || $(element).hasClass('kgSelectionCheckbox')
+		);
+	};
 	self.toggleSelected = function (row, event) {
-		if (!self.canSelectRows) {
+		if (!self.canSelect(event)) {
 			return true;
 		}
 		var element = event.target || event;

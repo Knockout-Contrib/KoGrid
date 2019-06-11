@@ -198,6 +198,14 @@
 
 /******** Cells ********/
 
+.checkbox-select, .checkbox-select-header {
+	text-align: center;
+}
+
+.checkbox-select {
+	cursor: pointer;
+}
+
 .kgCell {
     overflow: hidden; 
     position: absolute;
@@ -222,9 +230,7 @@
     overflow: hidden;
 }
 .kgSelectionHeader {
-	position: absolute;
-    top: 11px; 
-    left: 6px;
+	margin-top: 13px !important;
 }
 input[type="checkbox"] {
 	margin: 0;
@@ -234,8 +240,8 @@ input {
 	vertical-align:top;
 }
 .kgSelectionCell{
-	margin-top: 9px;
-	margin-left: 6px;
+	margin-top: 13px;
+	margin-left: 0px;
 }
 .kgNoSort {
     cursor:default;

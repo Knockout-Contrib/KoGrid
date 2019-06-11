@@ -180,9 +180,9 @@ window.kg.defaultCellTemplate = function() { return '<div data-bind="attr: { \'c
 
 window.kg.defaultGridTemplate = function() { return '<div data-bind="css: {\'ui-widget\': jqueryUITheme, \'kgNoSelect\' : disableTextSelection}"><div class="kgTopPanel" data-bind="css: {\'ui-widget-header\':jqueryUITheme, \'ui-corner-top\': jqueryUITheme}, style: $data.topPanelStyle"><div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle"><div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div><ul data-bind="visible: configGroups().length > 0, foreach: configGroups" class="kgGroupList"><li class="kgGroupItem"><span class="kgGroupElement"><div class="kgGroupName"><span data-bind="text: displayName"></span> <span data-bind="click: function(data) { $root.removeGroup($index()) }" class="kgRemoveGroup">x</span></div><span data-bind="visible: $index() < ($root.configGroups().length - 1)" class="kgGroupArrow"></span></span></li></ul></div><div class="kgHeaderContainer" data-bind="style: headerStyle"><div class="kgHeaderScroller" data-bind="style: headerScrollerStyle, kgHeaderRow: $data"></div></div><div class="kgHeaderButton" data-bind="visible: ($data.showColumnMenu || $data.showFilter), click: toggleShowMenu"><div class="kgHeaderButtonArrow"></div></div><div data-bind="visible: showMenu" class="kgColMenu"><div data-bind="visible: showFilter"><input placeholder="Search Field:Value" type="text" data-bind="value: filterText, valueUpdate: \'afterkeydown\'"></div><div data-bind="visible: showColumnMenu"><span class="kgMenuText">Choose Columns:</span><ul class="kgColList" data-bind="foreach: nonAggColumns"><li class="kgColListItem"><label style="position: relative"><input type="checkbox" class="kgColListCheckbox" data-bind="checked: visible"> <span data-bind="text: displayName, click: toggleVisible"></span> <a title="Group By" data-bind="attr: {\'class\': groupedByClass }, visible: (field != \'\\u2714\'), click: $parent.groupBy"></a> <span class="kgGroupingNumber" data-bind="visible: groupIndex() > 0, text: groupIndex"></span></label></li></ul></div></div></div><div class="kgViewport" data-bind="css: {\'ui-widget-content\': jqueryUITheme}, style: viewportStyle"><div class="kgCanvas" data-bind="style: canvasStyle, delegatedHandler: delegatedHandler"><div data-bind="foreach: renderedRows" style="position: absolute"><div data-bind="style: { \'top\': offsetTop, \'height\': ($data.groupHeaderHeight || $parent.rowHeight) + \'px\' }, click: toggleSelected, css: {\'selected\': selected, \'even\': isEven , \'odd\': isOdd, \'ui-state-default\': $parent.jqueryUITheme && isOdd, \'ui-state-active\':$parent.jqueryUITheme && isEven}, kgRow: $data" class="kgRow"></div></div></div></div><div class="kgFooterPanel" data-bind="css: {\'ui-widget-content\': jqueryUITheme, \'ui-corner-bottom\': jqueryUITheme}, style: footerStyle"><div class="kgTotalSelectContainer" data-bind="visible: footerVisible"><div class="kgFooterTotalItems" data-bind="css: {\'kgNoMultiSelect\': !multiSelect}"><span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span></div><div class="kgFooterSelectedItems" data-bind="visible: multiSelect"><span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span></div></div><div class="kgPagerContainer" style="float: right; margin-top: 10px" data-bind="visible: (footerVisible && enablePaging), css: {\'kgNoMultiSelect\': !multiSelect}"><div style="float:left; margin-right: 10px" class="kgRowCountPicker"><span style="float: left; margin-top: 3px" class="kgLabel">Page Size:</span><select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select></div><div style="float:left; margin-right: 10px; line-height:25px" class="kgPagerControl" style="float: left; min-width: 135px"><button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button> <button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button> <input class="kgPagerCurrent" type="number" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px" data-bind="value: pagingOptions.currentPage, valueUpdate: \'afterkeydown\'"> <button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button> <button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button></div></div></div></div>'; };
 
-window.kg.defaultHeaderCellTemplate = function() { return '<div data-bind="style: { cursor : sortable() ? \'pointer\' : \'default\' }, click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn \' + headerClass()}"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip"></div></div>'; };
+window.kg.defaultHeaderCellTemplate = function() { return '<div data-bind="style: { cursor : sortable() ? \'pointer\' : \'default\' }, click: sort, css: {\'kgSorted\': !noSortVisible }, attr: {\'class\': \'kgHeaderSortColumn\' }"><div data-bind="attr: { \'class\': \'colt\' + $index() + \' kgHeaderText\' }, html: displayName"></div><div class="kgSortButtonDown" data-bind="visible: showSortButtonDown"></div><div class="kgSortButtonUp" data-bind="visible: showSortButtonUp"></div><div data-bind="visible: resizable, click: gripClick, mouseEvents: { mouseDown: gripOnMouseDown }" class="kgHeaderGrip"></div></div>'; };
 
-window.kg.defaultHeaderRowTemplate = function() { return '<div data-bind="foreach: visibleColumns"><div data-bind="kgHeaderCell: $data, attr: { \'class\': \'kgHeaderCell col\' + $index() }"></div></div>'; };
+window.kg.defaultHeaderRowTemplate = function() { return '<div data-bind="foreach: visibleColumns"><div data-bind="kgHeaderCell: $data, attr: { \'class\': \'kgHeaderCell col\' + $index() + \' \' + headerClass() }"></div></div>'; };
 
 window.kg.defaultRowTemplate = function() { return '<div data-bind="style: { cursor : canSelectRows ? \'pointer\' : \'default\' }, foreach: $grid.visibleColumns, css: { \'ui-widget-content\': $grid.jqueryUITheme }"><div data-bind="attr: { \'class\': cellClass() + \' kgCell row\' + $parent.rowIndex() + \' col\' + $index() }, kgCell: $data, click: onClick($parent), delegatedClick: delegatedClick($parent), delegatedDblclick: delegatedDblclick($parent)"></div></div>'; };
 
@@ -461,7 +461,7 @@ window.kg.Column = function (config, grid) {
 	}
 	self.sortDirection = ko.observable(undefined);
 	self.sortingAlgorithm = colDef.sortFn;
-	self.headerClass = ko.observable(colDef.headerClass);
+	self.headerClass = ko.observable(colDef.headerClass || '');
 	self.headerCellTemplate = colDef.headerCellTemplate || window.kg.defaultHeaderCellTemplate();
 	self.cellTemplate = colDef.cellTemplate || window.kg.defaultCellTemplate();
 	if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
@@ -1009,8 +1009,8 @@ window.kg.Grid = function (options) {
 	self.elementDims = {
 		scrollW: 0,
 		scrollH: 0,
-		rowIndexCellW: 25,
-		rowSelectedCellW: 25,
+		rowIndexCellW: 40,
+		rowSelectedCellW: 40,
 		rootMaxW: 0,
 		rootMaxH: 0
 	};
@@ -1061,12 +1061,14 @@ window.kg.Grid = function (options) {
 			self.buildColumnDefsFromData();
 			columnDefs = self.config.columnDefs;
 		}
-		if (self.config.displaySelectionCheckbox && self.config.canSelectRows) {
+		if (self.config.displaySelectionCheckbox) { //} && self.config.canSelectRows) {
 			columnDefs.splice(0, 0, {
 				field: '\u2714',
 				width: self.elementDims.rowSelectedCellW,
 				sortable: false,
 				resizable: false,
+				cellClass: 'checkbox-select',
+				headerClass: 'checkbox-select-header',
 				headerCellTemplate: '<input class="kgSelectionHeader" type="checkbox" data-bind="visible: $grid.multiSelect, checked: $grid.allSelected"/>',
 				cellTemplate: '<div class="kgSelectionCell"><input class="kgSelectionCheckbox" type="checkbox" data-bind="checked: $parent.selected" /></div>'
 			});
@@ -1289,7 +1291,6 @@ window.kg.Grid = function (options) {
 	self.jqueryUITheme = ko.observable(self.config.jqueryUITheme);
 	self.footer = null;
 	self.selectedItems = self.config.selectedItems;
-	self.multiSelect = self.config.multiSelect;
 	self.footerVisible = window.kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
 	self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
 	self.showColumnMenu = self.config.showColumnMenu;
@@ -1402,7 +1403,7 @@ window.kg.Grid = function (options) {
 	self.maxRowsDisplay = ko.computed(function () {
 		return self.maxRows();
 	});
-	self.multiSelect = ko.observable((self.config.canSelectRows && self.config.multiSelect));
+	self.multiSelect = ko.observable((self.config.displaySelectionCheckbox && self.config.multiSelect));
 	self.selectedItemCount = ko.computed(function () {
 		return self.selectedItems().length;
 	});
@@ -1454,10 +1455,19 @@ window.kg.Row = function (entity, config, selectionService) {
 
 	self.selected = ko.observable(false);
 	self.continueSelection = function(event) {
+		console.debug(self, event);
 		self.selectionService.ChangeSelection(self, event);
 	};
+	// allow selection if checkbox has
+	self.canSelect = function(event) {
+		var element = event.target || event;
+		return (
+			self.canSelectRows || $(element).hasClass('checkbox-select') ||
+			$(element).hasClass('kgSelectionCell') || $(element).hasClass('kgSelectionCheckbox')
+		);
+	};
 	self.toggleSelected = function (row, event) {
-		if (!self.canSelectRows) {
+		if (!self.canSelect(event)) {
 			return true;
 		}
 		var element = event.target || event;
