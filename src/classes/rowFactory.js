@@ -207,11 +207,14 @@
 						window.kg.domUtilityService.BuildStyles(grid);
 					}
 				}
-				var col = cols.filter(function (c) { return c.field == group; })[0];
+
 				var val = window.kg.utils.evalProperty(item, group);
-				if (col.cellFilter) {
+
+				var col = cols.filter(function (c) { return c.field == group; })[0];
+				if (col && col.cellFilter) {
 					val = col.cellFilter(val);
 				}
+
 				val = val ? val.toString() : 'null';
 				if (!ptr[val]) {
 					ptr[val] = {};
@@ -223,7 +226,7 @@
 					ptr[KG_DEPTH] = depth;
 				}
 				if (!ptr[KG_COLUMN]) {
-					ptr[KG_COLUMN] = col;
+					ptr[KG_COLUMN] = col || {};
 				}
 				ptr = ptr[val];
 			});
