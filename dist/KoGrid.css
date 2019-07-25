@@ -127,12 +127,10 @@
 }
 
 .kgSortButtonUp {
-    position: absolute;
-    top: 3px;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
+	position: absolute;
+	top: 40%;
+	left: auto;
+	right: 8px;
 	border-color: gray transparent;
 	border-style: solid;
 	border-width: 0 5px 5px 5px;
@@ -140,18 +138,26 @@
 	width: 0;
 }
 .kgSortButtonDown {
-    position: absolute;
-    top: 3px;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
+	position: absolute;
+	top: 40%;
+	left: auto;
+	right: 8px;
 	border-color: gray transparent;
 	border-style: solid;
 	border-width: 5px 5px 0 5px;
-    height: 0;
+	height: 0;
 	width: 0;
 }
+
+.kgHeaderCell:last-child {
+   border-right: 1px solid rgb(212, 212, 212);
+}
+
+.kgHeaderCell:last-child .kgSortButtonUp,
+.kgHeaderCell:last-child .kgSortButtonDown {
+	right: 16px;
+}
+
 .kgHeaderGrip { 
     cursor: col-resize; 
     width: 10px; 
@@ -232,13 +238,16 @@
 .kgSelectionHeader {
 	margin-top: 13px !important;
 }
-input[type="checkbox"] {
+
+.koGrid input[type="checkbox"] {
 	margin: 0;
 	padding: 0;
 }
-input {
+
+.koGrid input {
 	vertical-align:top;
 }
+
 .kgSelectionCell{
 	margin-top: 13px;
 	margin-left: 0px;

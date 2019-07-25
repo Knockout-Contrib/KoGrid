@@ -289,22 +289,6 @@ ko.bindingHandlers['kgRow'] = (function () {
 ko.bindingHandlers['koGrid'] = (function () {
     return {
         'init': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-	        // in case the delegatedEvents ko plugin was not loaded
-	        if (!ko.bindingHandlers['delegatedHandler']) {
-		        ko.bindingHandlers['delegatedHandler'] = {
-			        init: function () {}
-		        };
-
-		        ko.bindingHandlers['delegatedClick'] = {
-			        init: function () {}
-		        };
-
-		        ko.bindingHandlers['delegatedDblclick'] = {
-			        init: function () {}
-		        };
-	        }
-
 	        var options = valueAccessor();
             var elem = $(element);
             options.gridDim = new window.kg.Dimension({ outerHeight: ko.observable(elem.height()), outerWidth: ko.observable(elem.width()) });
