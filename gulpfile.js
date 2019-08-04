@@ -30,16 +30,20 @@ gulp.task('clean', function(done) {
     del('*', {cwd: buildConfig.outputPath}, done);
 });
 
-gulp.task('styles', ['clean'], function() {
+var styles = function() {
     return gulp.src('src/KoGrid.css')
         .pipe(gulpHeader(buildConfig.banner, {pkg: buildConfig.packageInfo}))
         .pipe(gulp.dest(buildConfig.outputPath))
         .pipe(gulpMinifyCSS())
         .pipe(gulpRename('KoGrid.min.css'))
         .pipe(gulp.dest(buildConfig.outputPath));
+};
+
+gulp.task('styles', function() {
+    return styles();
 });
 
-gulp.task('compile', ['styles'], function() {
+var compile = function() {
     var jsEscape = function(file) {
         var name = gutil.replaceExtension(path.basename(file.path), '');
 
@@ -62,7 +66,7 @@ gulp.task('compile', ['styles'], function() {
 
         contents = 'window.kg.' + name +
             ' = function() { return \'' +
-                    contents +
+            contents +
             '\'; };\n';
         return contents;
     };
@@ -90,21 +94,28 @@ gulp.task('compile', ['styles'], function() {
         .pipe(gulpJSHint.reporter('jshint-stylish'))
         .pipe(gulp.dest(buildConfig.outputPath))
         .pipe(gulp.dest(buildConfig.productionPath))
-        .pipe(gulpUglify({preserveComments: 'some'}))
+        .pipe(gulpUglify({ output: { comments: 'some' } }))
         .pipe(gulpRename('KoGrid.min.js'))
         //.pipe(gulpSourceMaps.write('./', {addComment: true}))
         .pipe(gulp.dest(buildConfig.outputPath))
         .pipe(gulp.dest(buildConfig.productionPath));
+};
+
+gulp.task('compile', function() {
+    return compile();
 });
 
-gulp.task('test', ['compile'], function() {
+gulp.task('test', function() {
     return gulp.src('test/test-runner.htm')
         .pipe(gulpQUnit());
 });
 
-gulp.task('test-ci', ['compile'], function() {
+gulp.task('test-ci', function() {
     return gulp.src(['test/test-runner-ko*.htm'])
         .pipe(gulpQUnit());
 });
 
-gulp.task('default', ['compile', 'styles']); // TODO fix 'test' tasks so that tests don't all fail
+gulp.task('default', function() {
+    compile();
+    return styles();
+}); // TODO fix 'test' tasks so that tests don't all fail
