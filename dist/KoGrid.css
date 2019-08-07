@@ -268,13 +268,15 @@
     margin: 5px;
     margin-top: 7px;
 }
-.kgFooterSelectedItems {
+
+/****** Pager *****/
+.kgPagerSelectedItems {
 	padding: 2px;
 }
-.kgFooterTotalItems {
+.kgPagerTotalItems {
 	padding: 2px;
 }
-.kgFooterTotalItems.kgnoMultiSelect {
+.kgPagerTotalItems.kgnoMultiSelect {
     padding: 0 !important;
 }
 

@@ -7,8 +7,9 @@
 			groupIndent: true,
 			collapseGroups: true,
 			footerRowHeight: 55,
-			footerVisible: true,
-			displayFooter: undefined,
+			pagerVisible: true,
+			displayFooter: false,
+			displayHeaderPager: false,
 			canSelectRows: true,
 			selectAllState: ko.observable(false),
 			data: ko.observableArray([]),
@@ -366,8 +367,10 @@
 	self.jqueryUITheme = ko.observable(self.config.jqueryUITheme);
 	self.footer = null;
 	self.selectedItems = self.config.selectedItems;
-	self.footerVisible = window.kg.utils.isNullOrUndefined(self.config.displayFooter) ? self.config.footerVisible : self.config.displayFooter;
-	self.config.footerRowHeight = self.footerVisible ? self.config.footerRowHeight : 0;
+	self.pagerVisible = self.config.pagerVisible;
+	self.displayFooter = self.config.displayFooter;
+	self.displayHeaderPager = self.config.displayHeaderPager;
+	self.config.footerRowHeight = self.pagerVisible ? self.config.footerRowHeight : 0;
 	self.showColumnMenu = self.config.showColumnMenu;
 	self.showMenu = ko.observable(false);
 	self.configGroups = ko.observableArray([]);

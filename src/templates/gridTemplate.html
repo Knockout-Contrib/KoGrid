@@ -1,4 +1,7 @@
 <div data-bind="css: {'ui-widget': jqueryUITheme, 'kgNoSelect' : disableTextSelection}">
+    <div class="kgHeaderPagerPanel" data-bind="if: displayHeaderPager">
+        <div data-bind="template: 'pagerPanelTemplate', css: {'ui-widget-content': jqueryUITheme, 'ui-corner-bottom': jqueryUITheme}, style: headerStyle"></div>
+    </div>
     <div class="kgTopPanel" data-bind="css: {'ui-widget-header':jqueryUITheme, 'ui-corner-top': jqueryUITheme}, style: $data.topPanelStyle">
         <div class="kgGroupPanel" data-bind="visible: $data.showGroupPanel, style: headerStyle">
             <div class="kgGroupPanelDescription" data-bind="visible: configGroups().length == 0">Drag a column header here and drop it to group by that column</div>
@@ -46,19 +49,21 @@
             </div>
         </div>
     </div>
-    <div class="kgFooterPanel" data-bind="template: 'pagerPanelTemplate', css: {'ui-widget-content': jqueryUITheme, 'ui-corner-bottom': jqueryUITheme}, style: footerStyle"></div>
+    <div class="kgFooterPanel" data-bind="if: displayFooter">
+        <div data-bind="template: 'pagerPanelTemplate', css: {'ui-widget-content': jqueryUITheme, 'ui-corner-bottom': jqueryUITheme}, style: footerStyle"></div>
+    </div>
 </div>
 
 <script type="text/html" id="pagerPanelTemplate">
-    <div class="kgTotalSelectContainer" data-bind="visible: footerVisible">
-        <div class="kgFooterTotalItems" data-bind="css: {'kgNoMultiSelect': !multiSelect}" >
+    <div class="kgTotalSelectContainer" data-bind="visible: pagerVisible">
+        <div class="kgPagerTotalItems" data-bind="css: {'kgNoMultiSelect': !multiSelect}" >
             <span class="kgLabel">Total Items: <span data-bind="text: maxRowsDisplay"></span></span><span data-bind="visible: filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span>
         </div>
-        <div class="kgFooterSelectedItems" data-bind="visible: multiSelect">
+        <div class="kgPagerSelectedItems" data-bind="visible: multiSelect">
             <span class="kgLabel">Selected Items: <span data-bind="text: selectedItemCount"></span></span>
         </div>
     </div>
-    <div class="kgPagerContainer" style="float: right; margin-top: 10px;" data-bind="visible: (footerVisible && enablePaging), css: {'kgNoMultiSelect': !multiSelect}">
+    <div class="kgPagerContainer" style="float: right; margin-top: 10px;" data-bind="visible: (pagerVisible && enablePaging), css: {'kgNoMultiSelect': !multiSelect}">
         <div style="float:left; margin-right: 10px;" class="kgRowCountPicker">
             <span style="float: left; margin-top: 3px;" class="kgLabel">Page Size:</span>
             <select style="float: left;height: 27px; width: 100px" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select>
