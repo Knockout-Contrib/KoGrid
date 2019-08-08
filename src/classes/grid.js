@@ -7,7 +7,7 @@
 			groupIndent: true,
 			collapseGroups: true,
 			footerRowHeight: 55,
-			pagerVisible: true,
+			pagerVisible: false,
 			displayFooter: false,
 			displayHeaderPager: false,
 			canSelectRows: true,
@@ -47,6 +47,8 @@
 			//Paging
 			enablePaging: false,
 			pagingOptions: {
+				displayPageSize: true,
+				pageSelect: false, // true for a select menu, false for a text box
 				pageSizes: ko.observableArray([250, 500, 1000]), //page Sizes
 				pageSize: ko.observable(250), //Size of Paging data
 				totalServerItems: ko.observable(0), //how many items are on the server (for paging)
@@ -513,6 +515,19 @@
 		var curPage = self.config.pagingOptions.currentPage();
 		return !(curPage > 1);
 	});
+
+	if (self.enablePaging && self.pagingOptions.pageSelect) {
+		self.pageList = ko.computed(function() {
+			var maxPages = self.maxPages() || 1;
+			var pageList = [];
+			for (var i = 1; i <= maxPages; i++) {
+				pageList.push(i);
+			}
+
+			return pageList;
+		});
+	}
+
 	//call init
 	self.init();
 };

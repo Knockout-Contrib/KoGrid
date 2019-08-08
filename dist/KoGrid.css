@@ -256,6 +256,19 @@
     cursor:default;
 }
 
+/******** Pager Header ********/
+.kgHeaderPagerPanel{
+	background-color: #f1f1f1;
+	padding: 4px 0;
+	border-top: 1px solid rgb(212,212,212);
+	position: relative;
+}
+
+.kgHeaderPagerPanel .kgPagerTotalItems, .kgHeaderPagerPanel .kgPagerSelectedItems {
+	display: inline;
+	padding-right: 10px;
+}
+
 /******** Footer ********/
 .kgFooterPanel{
     background-color: rgb(234, 234, 234);
@@ -275,6 +288,7 @@
 }
 .kgPagerTotalItems {
 	padding: 2px;
+	font-weight: bold;
 }
 .kgPagerTotalItems.kgnoMultiSelect {
     padding: 0 !important;
@@ -463,4 +477,14 @@
 
 .kgClickable {
   cursor: pointer !important;
+}
+
+.kgPagerContainer select {
+	height: 27px;
+	width: 100px;
+	vertical-align: top;
+}
+
+.kgPagerContainer button[disabled] {
+	opacity: 0.4;
 }
