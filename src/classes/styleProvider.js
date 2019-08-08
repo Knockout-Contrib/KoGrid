@@ -9,7 +9,12 @@
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.topPanelHeight() + "px" };
     });
     grid.headerStyle = ko.computed(function() {
-        return { "width": Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW) + "px", "height": grid.config.headerRowHeight + "px" };
+        var width = grid.fullHeight ? grid.rootDim.outerWidth() : Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW);
+        return { "width": width + "px", "height": grid.config.headerRowHeight + "px" };
+    });
+    grid.headerPagerStyle = ko.computed(function() {
+        var width = grid.fullHeight ? grid.rootDim.outerWidth() : Math.max(0, grid.rootDim.outerWidth() - window.kg.domUtilityService.ScrollW);
+        return { "width": width + "px", "height": grid.config.headerPagerHeight + "px" };
     });
     grid.viewportStyle = ko.computed(function() {
         return { "width": grid.rootDim.outerWidth() + "px", "height": grid.viewportDimHeight() + "px" };

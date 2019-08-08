@@ -294,6 +294,10 @@
     padding: 0 !important;
 }
 
+.kgDeselectAll {
+	padding-left: 8px;
+}
+
 /* Aggregates */
 .kgAggHeader {
     position: absolute;

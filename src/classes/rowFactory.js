@@ -81,8 +81,6 @@
 			self.getGrouping(grid.config.groups);
 		}
 
-		// TODO BUG? Updating the viewable range to what it already is? This should probably be set to top 0, since we usually get here on filter -
-		// or use our best guess at the row the user is scrolled at
 		self.UpdateViewableRange(self.renderedRange);
 	};
 
@@ -108,7 +106,6 @@
 			rowArr.push(row);
 		});
 		grid.setRenderedRows(rowArr);
-		grid.refreshDomSizes();
 	};
 
 	self.renderedChangeNoGroups = function() {

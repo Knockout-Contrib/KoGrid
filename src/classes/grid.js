@@ -7,9 +7,11 @@
 			groupIndent: true,
 			collapseGroups: true,
 			footerRowHeight: 55,
+			headerPagerHeight: 50,
 			pagerVisible: false,
 			displayFooter: false,
 			displayHeaderPager: false,
+			showFilteredCount: true,
 			canSelectRows: true,
 			selectAllState: ko.observable(false),
 			data: ko.observableArray([]),
@@ -44,8 +46,10 @@
 				filterText: ko.observable(""),
 				useExternalFilter: false
 			},
+			deselectAllFunction: null, // pass a function here to handle the de-selection of all items
 			//Paging
 			enablePaging: false,
+			fullHeight: false,
 			pagingOptions: {
 				displayPageSize: true,
 				pageSelect: false, // true for a select menu, false for a text box
@@ -73,6 +77,10 @@
 	self.rootDim = self.config.gridDim;
 	self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
 	self.sortedData = self.config.data;
+	if (ko.isObservable(self.sortedData)) {
+		// rate limit subscribers to control rendering speed
+		self.sortedData.extend({ rateLimit: 200 });
+	}
 	self.lateBindColumns = false;
 	self.filteredData = ko.observableArray([]);
 	self.lastSortedColumn = undefined;
@@ -169,6 +177,27 @@
 				}
 			});
 			self.columns(cols);
+
+			// gather any config groups whose col names are not in the main column list
+			$.each(self.config.groups, function(i, col) {
+				var found = ko.utils.arrayFirst(self.configGroups(), function(groupCol) {
+					return groupCol.field == col;
+				});
+
+				if (!found) {
+					var column = new window.kg.Column({
+						colDef: { field: col },
+						index: self.columns().length + i,
+						headerRowHeight: self.config.headerRowHeight,
+						sortCallback: self.sortData,
+						resizeOnDataCallback: self.resizeOnData,
+						enableResize: self.config.enableColumnResize,
+						enableSort: self.config.enableSorting
+					}, self);
+
+					self.configGroups.push(column);
+				}
+			});
 		}
 	};
 	self.configureColumnWidths = function() {
@@ -249,8 +278,20 @@
 		//factories and services
 		self.selectionService = new window.kg.SelectionService(self);
 		self.rowFactory = new window.kg.RowFactory(self);
+
+		if (self.fullHeight) {
+			// readjust the rendered rows whenever the row data changes
+			self.sortedData.subscribe(function(data) {
+				// very sadly we have to use setTimeout() because the timing of the rowFactory's populating of parsedData is not trustworthy here.
+				setTimeout(function() {
+					var maxRows = self.config.groups.length > 0 ? self.rowFactory.parsedData.length : data.length;
+					self.rowFactory.UpdateViewableRange(new window.kg.Range(0, maxRows));
+				}, 100);
+			});
+		}
+
 		self.selectionService.Initialize(self.rowFactory);
-		// Build columns BEFORE searchProvider sets up filtered data subscriber -bja
+		// bugfix: Build columns BEFORE searchProvider sets up filtered data subscriber -bja
 		self.buildColumns();
 		self.searchProvider = new window.kg.SearchProvider(self);
 		self.styleProvider = new window.kg.StyleProvider(self);
@@ -372,14 +413,19 @@
 	self.pagerVisible = self.config.pagerVisible;
 	self.displayFooter = self.config.displayFooter;
 	self.displayHeaderPager = self.config.displayHeaderPager;
+	self.showFilteredCount = self.config.showFilteredCount;
 	self.config.footerRowHeight = self.pagerVisible ? self.config.footerRowHeight : 0;
+	self.config.headerPagerHeight = self.pagerVisible ? self.config.headerPagerHeight : 0;
 	self.showColumnMenu = self.config.showColumnMenu;
 	self.showMenu = ko.observable(false);
 	self.configGroups = ko.observableArray([]);
+	self.deselectAllFunction = self.config.deselectAllFunction;
 
 	//Paging
 	self.enablePaging = self.config.enablePaging;
 	self.pagingOptions = self.config.pagingOptions;
+	self.fullHeight = self.config.enablePaging && self.config.fullHeight;
+
 	//Templates
 	self.rowTemplate = self.config.rowTemplate || window.kg.defaultRowTemplate();
 	self.headerRowTemplate = self.config.headerRowTemplate || window.kg.defaultHeaderRowTemplate();
@@ -418,9 +464,14 @@
 	self.showGroupPanel = ko.computed(function(){
 		return self.config.showGroupPanel;
 	});
-	self.topPanelHeight = ko.observable(self.config.showGroupPanel === true ? (self.config.headerRowHeight * 2) : self.config.headerRowHeight);
+	self.topPanelHeight = ko.observable(self.config.showGroupPanel === true ?
+		((self.config.headerRowHeight + self.config.headerPagerHeight) * 2) : self.config.headerRowHeight + self.config.headerPagerHeight);
 	self.viewportDimHeight = ko.computed(function () {
-		return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
+		if (self.fullHeight) {
+			return self.maxCanvasHt();
+		} else {
+			return Math.max(0, self.rootDim.outerHeight() - self.topPanelHeight() - self.config.footerRowHeight - 2);
+		}
 	});
 	self.groupBy = function (col) {
 		if (self.sortedData().length < 1) {
@@ -479,7 +530,8 @@
 	};
 	//footer
 	self.jqueryUITheme = self.config.jqueryUITheme;
-	self.maxRows = ko.observable(Math.max(self.config.pagingOptions.totalServerItems() || self.sortedData().length, 1));
+	// bugfix: maxRows now refers to the *actual* number of rows, including zero.
+	self.maxRows = ko.observable(self.config.pagingOptions.totalServerItems() || self.sortedData().length);
 	self.maxRowsDisplay = ko.computed(function () {
 		return self.maxRows();
 	});
@@ -488,8 +540,8 @@
 		return self.selectedItems().length;
 	});
 	self.maxPages = ko.computed(function () {
-		self.maxRows(Math.max(self.config.pagingOptions.totalServerItems() || self.sortedData().length, 1));
-		return Math.ceil(self.maxRows() / self.pagingOptions.pageSize());
+		self.maxRows(self.config.pagingOptions.totalServerItems() || self.sortedData().length);
+		return Math.ceil((self.maxRows() || 1) / self.pagingOptions.pageSize());
 	});
 	self.pageForward = function () {
 		var page = self.config.pagingOptions.currentPage();
