@@ -77,12 +77,10 @@
 	self.rootDim = self.config.gridDim;
 	self.sortInfo = ko.isObservable(self.config.sortInfo) ? self.config.sortInfo : ko.observable(self.config.sortInfo);
 	self.sortedData = self.config.data;
-	if (ko.isObservable(self.sortedData)) {
-		// rate limit subscribers to control rendering speed
-		self.sortedData.extend({ rateLimit: 200 });
-	}
 	self.lateBindColumns = false;
 	self.filteredData = ko.observableArray([]);
+	// rate limit subscribers to control rendering speed
+	self.filteredData.extend({ rateLimit: 200 });
 	self.lastSortedColumn = undefined;
 	self.showFilter = self.config.showFilter;
 	self.filterText = self.config.filterOptions.filterText;
@@ -281,11 +279,10 @@
 
 		if (self.fullHeight) {
 			// readjust the rendered rows whenever the row data changes
-			self.sortedData.subscribe(function(data) {
-				// very sadly we have to use setTimeout() because the timing of the rowFactory's populating of parsedData is not trustworthy here.
+			self.filteredData.subscribe(function(data) {
+				// very sadly we have to use setTimeout() because the timing of the rowFactory's populating of parsedData is not trustworthy.
 				setTimeout(function() {
-					var maxRows = self.config.groups.length > 0 ? self.rowFactory.parsedData.length : data.length;
-					self.rowFactory.UpdateViewableRange(new window.kg.Range(0, maxRows));
+					$(window).resize();
 				}, 100);
 			});
 		}
@@ -542,6 +539,12 @@
 	self.maxPages = ko.computed(function () {
 		self.maxRows(self.config.pagingOptions.totalServerItems() || self.sortedData().length);
 		return Math.ceil((self.maxRows() || 1) / self.pagingOptions.pageSize());
+	});
+	self.recordRangeLeft = ko.computed(function() {
+		return ((self.pagingOptions.currentPage()-1) * self.pagingOptions.pageSize()) || 1;
+	});
+	self.recordRangeRight = ko.computed(function() {
+		return Math.min(self.pagingOptions.currentPage() * self.pagingOptions.pageSize(), self.pagingOptions.totalServerItems());
 	});
 	self.pageForward = function () {
 		var page = self.config.pagingOptions.currentPage();

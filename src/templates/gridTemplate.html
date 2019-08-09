@@ -57,7 +57,12 @@
 <script type="text/html" id="pagerPanelTemplate">
     <div class="kgTotalSelectContainer" data-bind="visible: pagerVisible">
         <div class="kgPagerTotalItems" data-bind="css: {'kgNoMultiSelect': !multiSelect}" >
-            <span class="kgLabel"><span data-bind="text: maxRowsDisplay"></span> Records</span>
+            <span class="kgLabel">
+                <span data-bind="if: maxRowsDisplay() > 0">
+                    <span data-bind="text: recordRangeLeft"></span> - <span data-bind="text: recordRangeRight"></span> of
+                </span>
+                <span data-bind="text: maxRowsDisplay"></span> <span data-bind="text: maxRowsDisplay() == 1 ? 'record' : 'records'"></span>
+            </span>
             <span data-bind="visible: showFilteredCount && filterText().length > 0" class="kgLabel">(Showing: <span data-bind="text: totalFilteredItemsLength"></span>)</span>
         </div>
         <div class="kgPagerSelectedItems" data-bind="visible: multiSelect() && selectedItemCount() > 0">
