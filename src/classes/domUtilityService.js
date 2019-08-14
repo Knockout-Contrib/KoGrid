@@ -57,21 +57,21 @@ window.kg.domUtilityService = {
 		if (!$style) {
 			$style = $('#' + gridId);
 			if (!$style[0]) {
-				$style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' />");
+				$style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' data-kogrid-style='true' />");
 				$style.appendTo('body');
 			}
 		}
 		$style.empty();
 		var trw = grid.totalRowWidth();
-		css = "." + gridId + " .kgCanvas { width: " + trw + "px; }"+
-			"." + gridId + " .kgRow { width: " + trw + "px; }" +
-			"." + gridId + " .kgCell { height: " + rowHeight + "px; }"+
-			"." + gridId + " .kgCanvas { width: " + trw + "px; }" +
-			"." + gridId + " .kgHeaderCell { top: 0; bottom: 0; }" +
-			"." + gridId + " .kgHeaderScroller { width: " + (trw + window.kg.domUtilityService.scrollH + 2) + "px}";
+		css = " ." + gridId + " .kgCanvas { width: " + trw + "px; } "+
+			"." + gridId + " .kgRow { width: " + trw + "px; } " +
+			"." + gridId + " .kgCell { height: " + rowHeight + "px; } "+
+			"." + gridId + " .kgCanvas { width: " + trw + "px; } " +
+			"." + gridId + " .kgHeaderCell { top: 0; bottom: 0; } " +
+			"." + gridId + " .kgHeaderScroller { width: " + (trw + window.kg.domUtilityService.ScrollH + 2) + "px} ";
 		$.each(cols, function (i, col) {
-			css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px }" +
-				"." + gridId + " .colt" + i + " { width: " + col.width + "px; }";
+			css += "." + gridId + " .col" + i + " { width: " + col.width + "px; left: " + sumWidth + "px; right: " + (trw - sumWidth - col.width) + "px; height: " + rowHeight + "px } " +
+				"." + gridId + " .colt" + i + " { width: " + col.width + "px; } ";
 			sumWidth += col.width;
 		});
 		if (window.kg.utils.isIe) { // IE
@@ -80,6 +80,13 @@ window.kg.domUtilityService = {
 			$style.append(document.createTextNode(css));
 		}
 		grid.$styleSheet = $style;
+	},
+	RemoveStyles: function(grid) {
+		//$('style[data-kogrid-style=true]').remove();
+		var $style = grid.$styleSheet || $('#' + grid.gridId);
+		if ($style) {
+			$style.remove();
+		}
 	},
 	ScrollH: 17, // default in IE, Chrome, & most browsers
 	ScrollW: 17, // default in IE, Chrome, & most browsers
