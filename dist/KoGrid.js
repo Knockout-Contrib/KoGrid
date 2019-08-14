@@ -645,7 +645,7 @@ window.kg.domUtilityService = {
 		if (!$style) {
 			$style = $('#' + gridId);
 			if (!$style[0]) {
-				$style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' data-kogrid-style='true' />");
+				$style = $("<style id='" + gridId + "' type='text/css' rel='stylesheet' />");
 				$style.appendTo('body');
 			}
 		}
@@ -670,7 +670,6 @@ window.kg.domUtilityService = {
 		grid.$styleSheet = $style;
 	},
 	RemoveStyles: function(grid) {
-		//$('style[data-kogrid-style=true]').remove();
 		var $style = grid.$styleSheet || $('#' + grid.gridId);
 		if ($style) {
 			$style.remove();
