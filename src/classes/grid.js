@@ -6,7 +6,7 @@
 			groupHeaderHeight: 43,
 			groupIndent: true,
 			collapseGroups: true,
-			footerRowHeight: 55,
+			footerRowHeight: 50,
 			headerPagerHeight: 50,
 			pagerVisible: false,
 			displayFooter: false,
@@ -412,7 +412,7 @@
 	self.displayHeaderPager = self.config.displayHeaderPager;
 	self.showFilteredCount = self.config.showFilteredCount;
 	self.config.footerRowHeight = self.pagerVisible ? self.config.footerRowHeight : 0;
-	self.config.headerPagerHeight = self.pagerVisible ? self.config.headerPagerHeight : 0;
+	self.config.headerPagerHeight = self.displayHeaderPager ? self.config.headerPagerHeight : 0;
 	self.showColumnMenu = self.config.showColumnMenu;
 	self.showMenu = ko.observable(false);
 	self.configGroups = ko.observableArray([]);

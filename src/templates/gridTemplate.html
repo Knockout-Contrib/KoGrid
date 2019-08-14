@@ -72,12 +72,8 @@
             </span>
         </div>
     </div>
-    <div class="kgPagerContainer" style="float: right; margin-top: 8px;" data-bind="visible: (pagerVisible && enablePaging), css: {'kgNoMultiSelect': !multiSelect}">
-        <div style="float:left; margin-right: 10px;" class="kgRowCountPicker" data-bind="if: pagingOptions.displayPageSize">
-            <span style="float: left; margin-top: 3px;" class="kgLabel">Page Size:</span>
-            <select style="float: left;" data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select>
-        </div>
-        <div style="float:left; margin-right: 10px; line-height:25px;" class="kgPagerControl" style="float: left; min-width: 135px;">
+    <div class="kgPagerContainer" data-bind="visible: (pagerVisible && enablePaging), css: {'kgNoMultiSelect': !multiSelect}">
+        <div class="kgPagerControl">
             <button class="kgPagerButton" data-bind="click: pageToFirst, disable: cantPageBackward()" title="First Page"><div class="kgPagerFirstTriangle"><div class="kgPagerFirstBar"></div></div></button>
             <button class="kgPagerButton" data-bind="click: pageBackward, disable: cantPageBackward()" title="Previous Page"><div class="kgPagerFirstTriangle kgPagerPrevTriangle"></div></button>
 
@@ -89,11 +85,15 @@
             </span>
 
             <span data-bind="ifnot: pagingOptions.pageSelect">
-                <input class="kgPagerCurrent" type="number" style="width:50px; height: 24px; margin-top: 1px; padding: 0px 4px;" data-bind="value: pagingOptions.currentPage, valueUpdate: 'afterkeydown'"/>
+                <input class="kgPagerCurrent" type="number" data-bind="value: pagingOptions.currentPage, valueUpdate: 'afterkeydown'"/>
             </span>
 
             <button class="kgPagerButton" data-bind="click: pageForward, disable: cantPageForward()" title="Next Page"><div class="kgPagerLastTriangle kgPagerNextTriangle"></div></button>
             <button class="kgPagerButton" data-bind="click: pageToLast, disable: cantPageForward()" title="Last Page"><div class="kgPagerLastTriangle"><div class="kgPagerLastBar"></div></div></button>
+        </div>
+        <div class="kgRowCountPicker" data-bind="if: pagingOptions.displayPageSize">
+            <span class="kgLabel">Page Size:</span>
+            <select data-bind="value: pagingOptions.pageSize, options: pagingOptions.pageSizes"></select>
         </div>
     </div>
 </script>

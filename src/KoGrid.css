@@ -483,6 +483,30 @@
   cursor: pointer !important;
 }
 
+.kgPagerContainer {
+	padding-top: 9px;
+}
+
+.kgPagerContainer .kgRowCountPicker {
+	float:left;
+	margin-right: 10px;
+}
+
+.kgPagerContainer .kgPagerControl {
+	float:left;
+	margin-right: 10px;
+	margin-left: 20px;
+	line-height:25px;
+	min-width: 135px;
+}
+
+.kgPagerContainer .kgPagerCurrent {
+	width:50px;
+	height: 24px;
+	margin-top: 1px;
+	padding: 0 4px;
+}
+
 .kgPagerContainer select {
 	height: 27px;
 	width: 100px;
