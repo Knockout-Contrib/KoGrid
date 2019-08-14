@@ -41,6 +41,12 @@
                 }
             });
             window.kg.domUtilityService.BuildStyles(grid);
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+                // remove any generated grid styles
+                window.kg.domUtilityService.RemoveStyles(grid);
+            });
+
             return { controlsDescendantBindings: true };
         }
     };
