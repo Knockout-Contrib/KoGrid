@@ -3,7 +3,7 @@
 	// we cache rows when they are built, and then blow the cache away when sorting
 	self.rowCache = [];
 	self.aggCache = [];
-	self.parentCache = []; // Used for grouping and is cleared each time groups are calulated.
+	self.parentCache = []; // Used for grouping and is cleared each time groups are calculated.
 	self.dataChanged = true;
 	self.parsedData = [];
 	self.rowConfig = {};
