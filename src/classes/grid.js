@@ -31,6 +31,7 @@
 			columnsChanged: function() { },
 			rowTemplate: undefined,
 			headerRowTemplate: undefined,
+			gridTemplate: undefined,
 			jqueryUITheme: false,
 			jqueryUIDraggable: false,
 			plugins: [],
@@ -426,12 +427,17 @@
 	//Templates
 	self.rowTemplate = self.config.rowTemplate || window.kg.defaultRowTemplate();
 	self.headerRowTemplate = self.config.headerRowTemplate || window.kg.defaultHeaderRowTemplate();
+	self.gridTemplate = self.config.gridTemplate || window.kg.defaultGridTemplate();
 	if (self.config.rowTemplate && !TEMPLATE_REGEXP.test(self.config.rowTemplate)) {
 		self.rowTemplate = window.kg.utils.getTemplatePromise(self.config.rowTemplate);
 	}
 	if (self.config.headerRowTemplate && !TEMPLATE_REGEXP.test(self.config.headerRowTemplate)) {
 		self.headerRowTemplate = window.kg.utils.getTemplatePromise(self.config.headerRowTemplate);
 	}
+	if (self.config.gridTemplate && !TEMPLATE_REGEXP.test(self.config.gridTemplate)) {
+		self.gridTemplate = window.kg.utils.getTemplatePromise(self.config.gridTemplate);
+	}
+
 	//scope funcs
 	self.visibleColumns = ko.computed(function () {
 		var cols = self.columns();
